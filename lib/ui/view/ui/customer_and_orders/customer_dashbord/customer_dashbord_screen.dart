@@ -130,15 +130,15 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              title: const Text("Reached Customer Location"),
-              content: const Text("Would you like to Check-In now?"),
+              title:  Text("Reached Customer Location".tr),
+              content:  Text("Would you like to Check-In now?".tr),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text(
-                    "Cancel",
+                  child:  Text(
+                    "Cancel".tr,
                     style: TextStyle(color: Colors.grey),
                   ),
                 ),
@@ -152,8 +152,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     // Call the check-in function
                     _performCheckInFromMap();
                   },
-                  child: const Text(
-                    "Check In",
+                  child:  Text(
+                    "Check In".tr,
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -435,7 +435,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('Check-out and leave'),
+                    child:  Text('Check-out and leave'.tr),
                     onPressed: () async {
                       setState(() => isCheckingOut = true);
 
@@ -473,7 +473,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           if (context.mounted) {
                             showCustomToastDisplay(
                               context,
-                              'You are offline. Your check-out will sync when online.',
+                              'You are offline. Your check-out will sync when online.'.tr,
                               Colors.orange,
                               Icons.info,
                             );
@@ -676,17 +676,17 @@ InkWell(
                     ),
                   ],
                 ),
-                content: const Padding(
+                content:  Padding(
                   padding: EdgeInsets.only(top: 15.0),
-                  child: Text("Would you like to continue navigation to this customer?"),
+                  child: Text("Would you like to continue navigation to this customer?".tr),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: const Text(
-                      "Cancel",
+                    child:  Text(
+                      "Cancel".tr,
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
@@ -699,8 +699,8 @@ InkWell(
                       wantsToContinueNav = true;
                       Navigator.of(context).pop();
                     },
-                    child: const Text(
-                      "Continue Navigation",
+                    child:  Text(
+                      "Continue Navigation".tr,
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -792,7 +792,7 @@ InkWell(
                 width: 10,
               ),
               Text(
-                "Customer dashboard",
+                "Customer dashboard".tr,
                 style: TextStyle(
                     fontSize: NkFontSize.largeFont(largeFont: 20),
                     fontWeight: FontWeight.bold),
@@ -823,7 +823,7 @@ InkWell(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('Credit:'),
+                      Text('Credit:'.tr),
                       SizedBox(width: 7,),
                       Icon(
                         Icons.account_balance_wallet_outlined,
@@ -1044,7 +1044,7 @@ InkWell(
         if (context.mounted) {
           showCustomToastDisplay(
             context,
-            'No internet connection. Please connect to the internet to filter data.',
+            'No internet connection. Please connect to the internet to filter data.'.tr,
             Colors.orange,
             Icons.wifi_off,
           );
@@ -1270,7 +1270,7 @@ InkWell(
               children: [
                 Row(
                   children: [
-                    dashboardContainerHeader('Category Sales'),
+                    dashboardContainerHeader('Category Sales'.tr),
                 
                     const Spacer(),
                     Padding(
@@ -1281,7 +1281,7 @@ InkWell(
                         onTap: () {
                           showCustomerCategoryChartDialog(
                             context,
-                            "Category Sales",
+                            "Category Sales".tr,
                             widget.cusId,
                             selectedYear,
                           );
@@ -1424,7 +1424,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Revenue',
+                                          'Revenue'.tr,
                                           style: _tabIndex == 0
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,
@@ -1456,7 +1456,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Customer Offer',
+                                          'Customer Offer'.tr,
                                           style: _tabIndex == 1
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,
@@ -1521,7 +1521,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Revenue',
+                                          'Revenue'.tr,
                                           style: _tabIndex == 0
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,
@@ -1553,7 +1553,7 @@ InkWell(
                                               )
                                             : null,
                                         child: Text(
-                                          'Customer Offer',
+                                          'Customer Offer'.tr,
                                           style: _tabIndex == 1
                                               ? cardHeadingTextStyle
                                               : tabTextStyle,

@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/localization_service.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
@@ -104,6 +105,11 @@ class LoginController extends GetxController {
   final int currentYear = DateTime.now().year;
   int selectedTabIndex = 0;
   SearchModel searchData = SearchModel();
+   RxBool isSyncing = false.obs;
+
+  void setSyncing(bool value) {
+    isSyncing.value = value;
+  }
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;
@@ -284,6 +290,7 @@ class LoginController extends GetxController {
 
         await SessionHelper().setLoginData(loginResponce!.data!);
         await SessionHelper().getLoginData();
+        await syncAppLanguage();
         await Future.delayed(const Duration(seconds: 2));
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final settings = await _apiWorker
@@ -755,6 +762,7 @@ class LoginController extends GetxController {
           currentMonth,
           DateTime.now().year.toString(),
         ),
+        syncAppLanguage(),
         ApiWorker().getTimeSheetData(
   filterValue: currentMonth,  // Passes "March"
   filterType: "Month",        // Explicitly asks for Month data
@@ -778,6 +786,35 @@ class LoginController extends GetxController {
     } catch (e) {
       // Optionally: Show a user-friendly error message here
       // Do NOT rethrow, so the future always completes
+    }
+  }
+  Future<void> syncAppLanguage() async {
+    try {
+      // 1. Get just the language string from your ApiWorker
+      String apiLanguage = await _apiWorker.getCompanyActiveLanguage();
+
+      final localizationService = Get.find<LocalizationService>();
+      
+      // 2. Reconstruct the current locale string (e.g., 'en' or 'zh-CN') to compare
+      String currentLangCode = localizationService.activeLocale.languageCode;
+      if (localizationService.activeLocale.countryCode != null) {
+        currentLangCode += '-${localizationService.activeLocale.countryCode}';
+      }
+
+      // 3. Only trigger the UI change and download if the admin changed the language
+      if (apiLanguage != currentLangCode) {
+        print("Admin set language to $apiLanguage. Syncing Sales App...");
+
+        // Instantly change locale to update the UI with any cached data
+        localizationService.changeLocale(apiLanguage);
+
+        // Silently fetch missing translations from Google Translate in the background
+        await localizationService.fetchAndSaveTranslations(apiLanguage);
+      } else {
+        print("Language is already in sync ($apiLanguage).");
+      }
+    } catch (e) {
+      print("Error syncing language: $e");
     }
   }
 }

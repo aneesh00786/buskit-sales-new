@@ -127,7 +127,7 @@ class _ProductVariantDialoguePromoState
                               right: screenWidth * 0.1,
                             ),
                             child: CustomText(
-                              content: 'Product Variant',
+                              content: 'Product Variant'.tr,
                               fontSize: screenWidth * 0.03,
                               fontWeight: FontWeight.bold,
                               fontFamily: fontFamilyName,
@@ -895,7 +895,7 @@ class _ProductVariantDialoguePromoState
                               if (totalCount == 0) {
                                 showCustomToastDisplay(
                                     context,
-                                    "Choose at least one variant to add to cart",
+                                    "Choose at least one variant to add to cart".tr,
                                     Colors.orange,
                                     Icons.warning);
                                 return;
@@ -942,14 +942,14 @@ class _ProductVariantDialoguePromoState
                                       Center(
                                           child: CustomText(
                                               content:
-                                                  "Please Select a Customer",
+                                                  "Please Select a Customer".tr,
                                               fontSize: 18)),
                                       TextButton(
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
                                         child: CustomText(
-                                            content: "Ok", color: primaryColor),
+                                            content: "Ok".tr, color: primaryColor),
                                       ),
                                     ],
                                   );
@@ -970,7 +970,7 @@ class _ProductVariantDialoguePromoState
                           child: Row(
                             children: [
                               CustomText(
-                                content: "Select",
+                                content: "Select".tr,
                                 fontSize: screenWidth * 0.02,
                                 color: Colors.white,
                               ),
@@ -1005,7 +1005,7 @@ class _ProductVariantDialoguePromoState
                               if (totalCount == 0) {
                                 showCustomToastDisplay(
                                     context,
-                                    "Choose at least one tier for a variant to add to cart",
+                                    "Choose at least one tier for a variant to add to cart".tr,
                                     Colors.orange,
                                     Icons.warning);
                                 return;
@@ -1054,14 +1054,14 @@ class _ProductVariantDialoguePromoState
                                       Center(
                                           child: CustomText(
                                               content:
-                                                  "Please Select a Customer",
+                                                  "Please Select a Customer".tr,
                                               fontSize: 18)),
                                       TextButton(
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
                                         child: CustomText(
-                                            content: "Ok", color: primaryColor),
+                                            content: "Ok".tr, color: primaryColor),
                                       ),
                                     ],
                                   );
@@ -1082,7 +1082,7 @@ class _ProductVariantDialoguePromoState
                           child: Row(
                             children: [
                               CustomText(
-                                content: "Select",
+                                content: "Select".tr,
                                 fontSize: screenWidth * 0.02,
                                 color: Colors.white,
                               ),

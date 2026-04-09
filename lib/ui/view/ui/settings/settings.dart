@@ -131,8 +131,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   surfaceTintColor: Colors.transparent,
-                  title: const Text(
-                    'Settings',
+                  title:  Text(
+                    'Settings'.tr,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -181,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               file: photoId,
                                               imageUrl:
                                                   '${ApiConstants.imageBaseUrlss}${_adminData?.imagePath ?? ''}',
-                                              text: 'Profile Image',
+                                              text: 'Profile Image'.tr,
                                             ),
                                           ),
                                           const SizedBox(width: 24),
@@ -190,7 +190,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               file: photoId,
                                               imageUrl:
                                                   '${ApiConstants.imageBaseUrlss}${_adminData?.idImagePath ?? ''}',
-                                              text: 'ID Card Image',
+                                              text: 'ID Card Image'.tr,
                                             ),
                                           ),
                                         ],
@@ -213,7 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildSectionHeader('Personal Information',
+                                      _buildSectionHeader('Personal Information'.tr,
                                           EneftyIcons.profile_circle_outline),
                                       Row(
                                         children: [
@@ -224,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               borderColor: Colors.grey.shade300,
                                               prefixIcon: Icon(EneftyIcons.user_outline,
                                                   color: Colors.grey.shade600),
-                                              labelText: "First Name",
+                                              labelText: "First Name".tr,
                                             ),
                                           ),
                                           const SizedBox(width: 16),
@@ -235,7 +235,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               borderColor: Colors.grey.shade300,
                                               prefixIcon: Icon(EneftyIcons.user_outline,
                                                   color: Colors.grey.shade600),
-                                              labelText: "Last Name",
+                                              labelText: "Last Name".tr,
                                             ),
                                           ),
                                         ],
@@ -249,7 +249,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
                                               textInputType: TextInputType.emailAddress,
-                                              labelText: "Email Address",
+                                              labelText: "Email Address".tr,
                                               prefixIcon: Icon(EneftyIcons.sms_outline,
                                                   color: Colors.grey.shade600),
                                             ),
@@ -261,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
                                               textInputType: TextInputType.phone,
-                                              labelText: "Mobile No",
+                                              labelText: "Mobile No".tr,
                                               prefixIcon: Icon(EneftyIcons.call_outline,
                                                   color: Colors.grey.shade600),
                                             ),
@@ -286,7 +286,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildSectionHeader('Address Details',
+                                      _buildSectionHeader('Address Details'.tr,
                                           EneftyIcons.location_outline),
                                       Row(
                                         children: [
@@ -296,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               label: (_adminData?.zipcode ?? '').toString(),
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
-                                              labelText: 'Zip / Postal Code',
+                                              labelText: 'Zip / Postal Code'.tr,
                                               prefixIcon: Icon(EneftyIcons.routing_2_outline,
                                                   color: Colors.grey.shade600),
                                             ),
@@ -306,7 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             flex: 3,
                                             child: formFiled(
                                               label: _adminData?.town ?? '',
-                                              labelText: 'City / Suburb',
+                                              labelText: 'City / Suburb'.tr,
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
                                               maxLines: 1,
@@ -320,7 +320,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             child: formFiled(
                                               label: _adminData?.state ?? '',
                                               isReadOnly: true,
-                                              labelText: "State",
+                                              labelText: "State".tr,
                                               borderColor: Colors.grey.shade300,
                                               prefixIcon: Icon(EneftyIcons.map_outline,
                                                   color: Colors.grey.shade600),
@@ -333,7 +333,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         label: _adminData?.address ?? '',
                                         isReadOnly: true,
                                         borderColor: Colors.grey.shade300,
-                                        labelText: "Full Address",
+                                        labelText: "Full Address".tr,
                                         prefixIcon: Icon(EneftyIcons.house_2_outline,
                                             color: Colors.grey.shade600),
                                       ),
@@ -494,8 +494,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 16),
-                                      const Text(
-                                        'Change Password',
+                                       Text(
+                                        'Change Password'.tr,
                                         style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.bold,
@@ -503,7 +503,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Secure your account with a new password.',
+                                        'Secure your account with a new password.'.tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,
@@ -513,7 +513,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       const SizedBox(height: 24),
                                       PasswordField(
                                         controller: _oldPasswordController,
-                                        label: 'Old Password',
+                                        label: 'Old Password'.tr,
                                         obscureText: _obscureOld,
                                         toggleVisibility: () => setState(
                                             () => _obscureOld = !_obscureOld),
@@ -530,7 +530,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       const SizedBox(height: 12),
                                       PasswordField(
                                         controller: _newPasswordController,
-                                        label: 'New Password',
+                                        label: 'New Password'.tr,
                                         obscureText: _obscureNew,
                                         toggleVisibility: () => setState(
                                             () => _obscureNew = !_obscureNew),
@@ -544,7 +544,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       const SizedBox(height: 12),
                                       PasswordField(
                                         controller: _confirmPasswordController,
-                                        label: 'Confirm Password',
+                                        label: 'Confirm Password'.tr,
                                         obscureText: _obscureConfirm,
                                         toggleVisibility: () => setState(() =>
                                             _obscureConfirm = !_obscureConfirm),
@@ -578,7 +578,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 Navigator.pop(context);
                                               },
                                               child: Text(
-                                                'Cancel',
+                                                'Cancel'.tr,
                                                 style: TextStyle(
                                                   color: Colors.grey.shade800,
                                                   fontSize: 16,
@@ -606,7 +606,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 if (!isOnline) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      "You are Offline!",
+                                                      "You are Offline!".tr,
                                                       red,
                                                       Icons.close);
                                                   return;
@@ -627,8 +627,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   Navigator.pop(context);
                                                 }
                                               },
-                                              child: const Text(
-                                                'Submit',
+                                              child:  Text(
+                                                'Submit'.tr,
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -653,8 +653,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
         },
         icon: const Icon(EneftyIcons.lock_outline, size: 18),
-        label: const Text(
-          'Change Password',
+        label:  Text(
+          'Change Password'.tr,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
@@ -701,8 +701,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Delete Account',
+                           Text(
+                            'Delete Account'.tr,
                             style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -710,7 +710,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?',
+                            'Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?'.tr,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 15,
@@ -732,7 +732,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   onPressed: () => Navigator.of(context).pop(false),
                                   child: Text(
-                                    'Cancel',
+                                    'Cancel'.tr,
                                     style: TextStyle(
                                       color: Colors.grey.shade800,
                                       fontSize: 16,
@@ -757,8 +757,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Navigator.of(context).pop(true);
                                     showCancelPlanDialog(context);
                                   },
-                                  child: const Text(
-                                    'Delete',
+                                  child:  Text(
+                                    'Delete'.tr,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -777,8 +777,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
         },
         icon: const Icon(EneftyIcons.trash_outline, size: 18),
-        label: const Text(
-          'Delete Account',
+        label:  Text(
+          'Delete Account'.tr,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(

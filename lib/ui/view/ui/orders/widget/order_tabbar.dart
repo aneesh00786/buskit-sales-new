@@ -92,23 +92,23 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
   List<String> _computedTabs() {
     return widget.orderController.hasOfflineOrders.value
         ? [
-            'Offline Orders',
-            'Latest',
-            'Waiting for Approval',
-            'Quick Sale',
-            'Processing',
-            'Packed & Ready for Delivery',
-            'Delivered',
-            'Rejected',
+            'Offline Orders'.tr,
+            'Latest'.tr,
+            'Waiting for Approval'.tr,
+            'Quick Sale'.tr,
+            'Processing'.tr,
+            'Packed & Ready for Delivery'.tr,
+            'Delivered'.tr,
+            'Rejected'.tr,
           ]
         : [
-            'Latest',
-            'Waiting for Approval',
-            'Quick Sale',
-            'Processing',
-            'Packed & Ready for Delivery',
-            'Delivered',
-            'Rejected',
+            'Latest'.tr,
+            'Waiting for Approval'.tr,
+            'Quick Sale'.tr,
+            'Processing'.tr,
+            'Packed & Ready for Delivery'.tr,
+            'Delivered'.tr,
+            'Rejected'.tr,
           ];
   }
 
@@ -523,7 +523,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
               controller: _searchController,
               decoration: InputDecoration(
                 // hintText: "Search in ${tabs[_selectedTabIndex]}...",
-                hintText: 'Search Order Id / Invoice No.',
+                hintText: 'Search Order Id / Invoice No.'.tr,
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
 
                 filled: true,

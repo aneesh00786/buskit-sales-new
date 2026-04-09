@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 Widget topSellingProductsCustomer(
@@ -48,7 +49,7 @@ Widget topSellingProductsCustomer(
                         width: colWidth0,
                         child: const Center(
                           child: MyRegularText(
-                            label: "Sl.No.",
+                            label: "Sl.No..tr",
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -59,9 +60,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth1,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Product",
+                            label: "Product".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -72,9 +73,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth2_2,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "I/N",
+                            label: "I/N".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -85,9 +86,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth2,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Last Purchase",
+                            label: "Last Purchase".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -98,9 +99,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth3,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Times",
+                            label: "Times".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -111,9 +112,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth4,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Amount",
+                            label: "Amount".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -124,9 +125,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth5,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Qty",
+                            label: "Qty".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,

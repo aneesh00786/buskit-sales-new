@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_ret
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_month_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_pagination.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_rangepicker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_week_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_year_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -131,7 +132,7 @@ class _SalesReturnState extends State<SalesReturn> {
           Row(
             children: [
               Text(
-                "Sales Return",
+                "Sales Return".tr,
                 style: TextStyle(
                     fontSize: NkFontSize.largeFont(largeFont: 20),
                     fontWeight: FontWeight.bold),
@@ -267,14 +268,14 @@ class _SalesReturnState extends State<SalesReturn> {
                     });
                   }
                 },
-                items: const [
+                items:  [
                   DropdownMenuItem(
                     value: FilterDateEnum.thisMonth,
                     child: Row(
                       children: [
                         Icon(Icons.calendar_month, size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Month'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -294,7 +295,7 @@ class _SalesReturnState extends State<SalesReturn> {
                       children: [
                         Icon(Icons.today, size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Day'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -304,7 +305,7 @@ class _SalesReturnState extends State<SalesReturn> {
                       children: [
                         Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Year'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -314,7 +315,7 @@ class _SalesReturnState extends State<SalesReturn> {
                       children: [
                         Icon(Icons.date_range, size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Range'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -339,51 +340,88 @@ class _SalesReturnState extends State<SalesReturn> {
 
     // This widget Row holds the dropdown AND the dynamic pickers
     // Inside _buildFilters in sales_return.dart
-
     Widget buildTimeFilterRow() {
       return Obx(() => Row(
-            // Wrap in Obx to listen to selectedFilter changes
             mainAxisSize: MainAxisSize.min,
             children: [
-              timePeriodDropdown(), // The main dropdown
-
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.thisMonth) ...[
+              
+              // NEW: Conditional Standalone Year Dropdown
+              if (salesReturnController.selectedFilter.value != FilterDateEnum.range) ...[
+                const SalesReturnYearDropdown(),
                 const SizedBox(width: 10),
-                const SalesReturnMonthDropdown() // <-- NEW WIDGET
               ],
 
-              // if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
-              //   const SizedBox(width: 10),
-              //   const SalesReturnWeekDropdown() // <-- NEW WIDGET
-              // ],
+              // Main dropdown
+              timePeriodDropdown(),
 
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.thisYear) ...[
+              if (salesReturnController.selectedFilter.value == FilterDateEnum.thisMonth) ...[
                 const SizedBox(width: 10),
-                // You can create SalesReturnYearDropdown similarly or use logic here
-                const SalesReturnYearDropdown()
+                const SalesReturnMonthDropdown() 
+              ],
+               if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
+                const SizedBox(width: 10),
+                const SalesReturnWeekDropdown() // <-- NEW WIDGET
               ],
 
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.today) ...[
+            
+
+              if (salesReturnController.selectedFilter.value == FilterDateEnum.today) ...[
                 const SizedBox(width: 10),
-                const SalesReturnDayPicker() // <-- NEW WIDGET
+                const SalesReturnDayPicker() 
               ],
 
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.range) ...[
+              if (salesReturnController.selectedFilter.value == FilterDateEnum.range) ...[
                 const SizedBox(width: 10),
-                const SalesReturnRangePicker() // <-- NEW WIDGET
+                const SalesReturnRangePicker() 
               ],
             ],
           ));
     }
 
+    // Widget buildTimeFilterRow() {
+    //   return Obx(() => Row(
+    //         // Wrap in Obx to listen to selectedFilter changes
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //           timePeriodDropdown(), // The main dropdown
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.thisMonth) ...[
+    //             const SizedBox(width: 10),
+    //             const SalesReturnMonthDropdown() // <-- NEW WIDGET
+    //           ],
+
+    //           // if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
+    //           //   const SizedBox(width: 10),
+    //           //   const SalesReturnWeekDropdown() // <-- NEW WIDGET
+    //           // ],
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.thisYear) ...[
+    //             const SizedBox(width: 10),
+    //             // You can create SalesReturnYearDropdown similarly or use logic here
+    //             const SalesReturnYearDropdown()
+    //           ],
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.today) ...[
+    //             const SizedBox(width: 10),
+    //             const SalesReturnDayPicker() // <-- NEW WIDGET
+    //           ],
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.range) ...[
+    //             const SizedBox(width: 10),
+    //             const SalesReturnRangePicker() // <-- NEW WIDGET
+    //           ],
+    //         ],
+    //       ));
+    // }
+
     return [
       // 1. Time Period (Dropdown + Conditional Widgets)
       _buildFilterColumn(
-        title: CustomText(content: 'Time Period', fontWeight: FontWeight.bold),
+        title: CustomText(content: 'Time Period'.tr, fontWeight: FontWeight.bold),
         spacing: 10,
         child: buildTimeFilterRow(), // <--- New logic here
       ),
@@ -393,7 +431,7 @@ class _SalesReturnState extends State<SalesReturn> {
 
       _buildFilterColumn(
         title:
-            CustomText(content: 'Search Customer', fontWeight: FontWeight.bold),
+            CustomText(content: 'Search Customer'.tr, fontWeight: FontWeight.bold),
         child: SizedBox(
           width: fieldWidth,
           height: fieldHeight,
@@ -403,7 +441,7 @@ class _SalesReturnState extends State<SalesReturn> {
             },
             controller: _customerSearchCtrl,
             decoration: InputDecoration(
-              hintText: 'Search by name...',
+              hintText: 'Search by name...'.tr,
               hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
               fillColor: Colors.grey.shade200,
@@ -424,7 +462,7 @@ class _SalesReturnState extends State<SalesReturn> {
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
       _buildFilterColumn(
         title: CustomText(
-            content: 'Search Order/Invoice', fontWeight: FontWeight.bold),
+            content: 'Search Order/Invoice'.tr, fontWeight: FontWeight.bold),
         child: SizedBox(
           width: fieldWidth,
           height: fieldHeight,
@@ -434,7 +472,7 @@ class _SalesReturnState extends State<SalesReturn> {
               salesReturnController.setOrderORIdSearch(value);
             },
             decoration: InputDecoration(
-              hintText: 'Search by Order ID or Invoice ID...',
+              hintText: 'Search by Order ID or Invoice ID...'.tr,
               hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
               fillColor: Colors.grey.shade200,
@@ -493,7 +531,7 @@ class _SalesReturnState extends State<SalesReturn> {
                   bool isOnline = await ConnectivityService().isOnline();
                   if (!isOnline) {
                     showCustomToastDisplay(
-                        context, "You are Offline!", Colors.red, Icons.close);
+                        context, "You are Offline!".tr, Colors.red, Icons.close);
                     return;
                   }
                   salesReturnController.currentPage.value = 1;
@@ -521,8 +559,8 @@ class _SalesReturnState extends State<SalesReturn> {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
-                child: const Text(
-                  'Go',
+                child:  Text(
+                  'Go'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -605,7 +643,7 @@ class _SalesReturnState extends State<SalesReturn> {
                         buildSalesReturnTableHeader1(
                           Center(
                             child: CustomText(
-                              content: "Sl.No.",
+                              content: "Sl.No.".tr,
                               textAlign: TextAlign.center,
                               fontSize: 14,
                               color: Colors.white,
@@ -620,7 +658,7 @@ class _SalesReturnState extends State<SalesReturn> {
                             children: [
                               const SizedBox(width: 40),
                               CustomText(
-                                content: "Customer Details",
+                                content: "Customer Details".tr,
                                 fontSize: 14,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -644,7 +682,7 @@ class _SalesReturnState extends State<SalesReturn> {
                               height: MediaQuery.of(context).size.height * 0.1,
                               child: Center(
                                 child: CustomText(
-                                  content: "No delivered orders found",
+                                  content: "No delivered orders found".tr,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),

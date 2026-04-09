@@ -206,7 +206,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           CustomersProvider provider, OrderDataas orderCountList) =>
       [
         OptionData(
-          title: 'Orders',
+          title: 'Orders'.tr,
           count: orderCountList.totalOrder.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
@@ -215,7 +215,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.totalOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -227,13 +227,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.delivered);
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
         ),
         OptionData(
-          title: 'Estimates',
+          title: 'Estimates'.tr,
           unfilteredCount: orderCountList.estimateOrder.toString(),
           count: orderCountList.estimateFilteredOrder.toString(),
           svg: Assets.iconsIcDashboardEstimates,
@@ -242,7 +242,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.estimateFilteredOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -255,14 +255,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.estimates, 'Estimate');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
           onUnFilterTap: () async {
             if (orderCountList.estimateOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -275,13 +275,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.estimates, 'Estimate');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
         ),
         OptionData(
-          title: 'Bookings',
+          title: 'Bookings'.tr,
           unfilteredCount: orderCountList.preorderOrder.toString(),
           count: orderCountList.preorderFilteredOrder.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
@@ -290,7 +290,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.preorderFilteredOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -303,14 +303,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.preOrder, 'Booking');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
           onUnFilterTap: () async {
             if (orderCountList.preorderOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -323,13 +323,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.preOrder, 'Booking');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
         ),
         OptionData(
-          title: 'Drafts',
+          title: 'Drafts'.tr,
           count: _totalDraftCount.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardDraft,
@@ -366,7 +366,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Cancelled',
+          title: 'Cancelled'.tr,
           unfilteredCount: 0.toString(),
           count: orderCountList.cancelOrder.toString(),
           svg: Assets.iconsIcDashboardCancel,
@@ -375,7 +375,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.cancelOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -387,7 +387,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.cancelled, 'Cancelled');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
@@ -749,9 +749,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   ],
                                                   rows: filteredOrders.isEmpty
                                                       ? [
-                                                          const DataRow(cells: [
+                                                           DataRow(cells: [
                                                             DataCell(Text(
-                                                                'Record Not Found')),
+                                                                'Record Not Found'.tr)),
                                                             DataCell(Text('')),
                                                             DataCell(Text('')),
                                                             DataCell(Text('')),
@@ -871,7 +871,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                       } else {
                                                                         showCustomToastDisplay(
                                                                             context,
-                                                                            "You are Offline!",
+                                                                            "You are Offline!".tr,
                                                                             red,
                                                                             Icons.warning);
                                                                       }
@@ -1045,7 +1045,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         } else {
                                                                           showCustomToastDisplay(
                                                                               context,
-                                                                              "You are Offline!",
+                                                                              "You are Offline!".tr,
                                                                               red,
                                                                               Icons.warning);
                                                                         }
@@ -1239,11 +1239,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                       DataColumn(
                                                           label: SizedBox(
                                                         width: flexWidth * 4.5,
-                                                        child: const Align(
+                                                        child:  Align(
                                                           alignment: Alignment
                                                               .centerRight,
                                                           child: Text(
-                                                            'Total',
+                                                            'Total'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -1335,9 +1335,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Customer List',
+                                                          'Customer List'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1353,9 +1353,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Order No.',
+                                                          'Order No.'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1371,9 +1371,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Created',
+                                                          'Created'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1389,9 +1389,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Created By',
+                                                          'Created By'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1407,9 +1407,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Amount',
+                                                          'Amount'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1425,9 +1425,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Invoice',
+                                                          'Invoice'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1443,9 +1443,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Payment Status',
+                                                          'Payment Status'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1461,9 +1461,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Status',
+                                                          'Status'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1695,11 +1695,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                       FontWeight
                                                                           .w700),
                                                           columns: [
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Customer List',
+                                                                  'Customer List'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1708,25 +1708,26 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType No.',
+                                                                  '$orderType ${'No.'.tr}',
+                                                                  // '$orderType No.',
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
                                                             )),
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Created',
+                                                                  'Created'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
                                                             )),
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Created By',
+                                                                  'Created By'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1735,16 +1736,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType Amount',
+                                                                  '$orderType ${'Amount'.tr}',
+                                                                  // '$orderType Amount',
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
                                                             )),
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Status',
+                                                                  'Status'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1766,10 +1768,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         offlineDraftDetails
                                                                             .isEmpty)
                                                                 ? [
-                                                                    const DataRow(
+                                                                     DataRow(
                                                                       cells: [
                                                                         DataCell(
-                                                                            Text('Record Not Found')),
+                                                                            Text('Record Not Found'.tr)),
                                                                         DataCell(
                                                                             Text('')),
                                                                         DataCell(
@@ -2256,13 +2258,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                         fontWeight:
                                                             FontWeight.w700),
                                                     columns: [
-                                                      const DataColumn(
+                                                       DataColumn(
                                                           label: Expanded(
                                                         child: Align(
                                                           alignment: Alignment
                                                               .centerRight,
                                                           child: Text(
-                                                            'Total',
+                                                            'Total'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2370,9 +2372,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Customer List',
+                                                            'Customer List'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2389,7 +2391,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                     : 0),
                                                         child: Center(
                                                           child: Text(
-                                                            '$orderType No.',
+                                                            '${orderType.tr} ${'No.'.tr}',
+                                                            // '$orderType No.',
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2404,9 +2407,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Created',
+                                                            'Created'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2421,9 +2424,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Created By',
+                                                            'Created By'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2440,7 +2443,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                     : 0),
                                                         child: Center(
                                                           child: Text(
-                                                            '$orderType Amount',
+                                                            '$orderType ${'Amount'.tr}',
+                                                            // '$orderType Amount',
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2455,9 +2459,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Status',
+                                                            'Status'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),

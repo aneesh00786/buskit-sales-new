@@ -110,6 +110,7 @@ flutter:
     - assets/new_icons/
     - assets/sidebar_icons/
     - assets/images/
+    - assets/locales/
 
   fonts:
     - family: SIde_Bar_icon

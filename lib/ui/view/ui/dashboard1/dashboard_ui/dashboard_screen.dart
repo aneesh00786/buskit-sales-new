@@ -546,7 +546,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
         content: Padding(
           padding: const EdgeInsets.only(top: 10),
           child: Text(
-            "You haven't checked in yet. Please check in before starting your work.",
+            "You haven't checked in yet. Please check in before starting your work.".tr,
             style: TextStyle(
               fontSize: 19.0,
               color: Colors.black87,
@@ -566,7 +566,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
             ),
             onPressed: () => Navigator.pop(context),
             child: Text(
-              "Not Now",
+              "Not Now".tr,
              style: TextStyle(
                   fontSize: 14.0,
                   color: primaryColor,
@@ -590,7 +590,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
               CheckInService().performCheckIn(context);
             },
             child: Text(
-              "Check-In",
+              "Check-In".tr,
               style: TextStyle(
                 fontSize: 14.0,
                 fontWeight: FontWeight.w600,

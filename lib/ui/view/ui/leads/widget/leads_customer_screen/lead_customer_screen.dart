@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_pagination/leads_c
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/leads_customer_screen/widgets/helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class LeadCustomerScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                   buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Sl.No.",
+                        content: "Sl.No.".tr,
                         textAlign: TextAlign.center,
                         fontSize: 12.5,
                         color: Colors.white,
@@ -85,7 +86,7 @@ class _LeadCustomerScreenState extends State<LeadCustomerScreen> {
                   buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Customers",
+                        content: "Customers".tr,
                         textAlign: TextAlign.center,
                         fontSize: 12,
                         color: Colors.white,

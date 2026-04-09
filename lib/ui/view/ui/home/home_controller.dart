@@ -441,7 +441,7 @@ class HomeController extends GetxController {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: CustomText(
-                      content: barTitle,
+                      content: barTitle.tr,
                       color: Colors.black.withOpacity(0.7),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

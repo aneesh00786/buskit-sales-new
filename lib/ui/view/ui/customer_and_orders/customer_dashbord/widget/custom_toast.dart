@@ -1,5 +1,6 @@
   import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/custom_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showCustomToast(BuildContext context) {
     final overlay = Overlay.of(context);
@@ -10,12 +11,12 @@ void showCustomToast(BuildContext context) {
             top: MediaQuery.of(context).viewInsets.top + 0.0,
             left: 0,
             right: 0,
-            child: const Align(
+            child:  Align(
               alignment: Alignment.topCenter,
               child: Material(
                 color: Colors.transparent,
                 child: CustomToast(
-                  message: "Please Select An Order To Change Payment Details",
+                  message: "Please Select An Order To Change Payment Details".tr,
                 ),
               ),
             ),

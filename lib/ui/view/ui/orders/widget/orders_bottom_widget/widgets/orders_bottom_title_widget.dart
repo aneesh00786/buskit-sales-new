@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_re
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/order_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/widgets/orders_bottom_list.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrdersBottomTitleRow extends StatelessWidget {
   final OrderBottomWidget widget;
@@ -54,30 +55,30 @@ class OrdersBottomTitleRow extends StatelessWidget {
               children: [
                 if (tabIndex == 0) ...[
                   const SizedBox(width: 5),
-                  _headerCell('Order NO', 4),
+                  _headerCell('Order NO'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Created', 4),
+                  _headerCell('Created'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Created By', 4),
+                  _headerCell('Created By'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Order Amount', 5),
+                  _headerCell('Order Amount'.tr, 5),
                   const SizedBox(width: 5),
-                  _headerCell('Payment Status', 4),
+                  _headerCell('Payment Status'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Status', 4),
+                  _headerCell('Status'.tr, 4),
                   const Expanded(flex: 2, child: SizedBox()),
                   const SizedBox(width: 5),
                 ] else ...[
                   const SizedBox(width: 5),
-                  _headerCell('Order Details', 4),
+                  _headerCell('Order Details'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Process Date', 4),
+                  _headerCell('Process Date'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Order Amount', 4),
+                  _headerCell('Order Amount'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Payment Status', 4),
+                  _headerCell('Payment Status'.tr, 4),
                   const SizedBox(width: 5),
-                  _headerCell('Status', 4),
+                  _headerCell('Status'.tr, 4),
                   const Expanded(flex: 2, child: SizedBox()),
                   const SizedBox(width: 5),
                 ],

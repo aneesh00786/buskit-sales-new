@@ -232,7 +232,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                dashboardContainerHeader('Collection'),
+                dashboardContainerHeader('Collection'.tr),
                 Padding(
                   padding: EdgeInsets.only(
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
@@ -240,7 +240,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                     onTap: () {
                       showCollectionChartDialog(
                         context,
-                        'Collection',
+                        'Collection'.tr,
                       );
                     },
                     child: Container(
@@ -356,7 +356,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color.fromARGB(255, 90, 119, 37),
-                                        'Completed : ${formatAmount(completed)}',
+                                        'Completed'.tr + ' : ${formatAmount(completed)}',
                                       ),
                                     ),
                                     
@@ -373,7 +373,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color(0xffa30c13),
-                                        'Pending : ${formatAmount(pending)}',
+                                        'Pending'.tr + ' : ${formatAmount(pending)}',
                                       ),
                                     ),
                                     
@@ -390,7 +390,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color.fromARGB(255, 255, 173, 181),
-                                        'Due : ${formatAmount(due)}',
+                                        'Due'.tr + ' : ${formatAmount(due)}',
                                       ),
                                     ),
                                     
@@ -407,7 +407,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color.fromARGB(255, 255, 101, 132),
-                                        'Overdue : ${formatAmount(overdue)}',
+                                        'Overdue'.tr + ' : ${formatAmount(overdue)}',
                                       ),
                                     ),
                                   ],
@@ -789,7 +789,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                dashboardContainerHeader('Order Status'),
+                dashboardContainerHeader('Order Status'.tr),
                 Padding(
                   padding: EdgeInsets.only(
                       right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
@@ -799,7 +799,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                           'true') {
                         showOrderStatusChartDialog(
                           context,
-                          'Order Status',
+                          'Order Status'.tr,
                         );
                       } else {
                         showDialog(
@@ -918,7 +918,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue.shade300,
-                                        "Processing : ${formatAmount(processing)}",
+                                        'Processing'.tr + '  : ${formatAmount(processing)}',
                                       ),
                                     ),
                                     
@@ -926,16 +926,16 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (packed == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (categoryPerformance != null) {
-                                            showValueOrderDialog(context, categoryPerformance, "Packed & Ready for Delivery", 1);
+                                            showValueOrderDialog(context, categoryPerformance, "Packed & Ready for Delivery".tr, 1);
                                           }
                                         }
                                       },
                                       child: _buildLegendItem(
                                         const Color(0xffc38a42),
-                                        "Packed & Ready for Delivery : ${formatAmount(packed)}",
+                                        'Packed & Ready for Delivery'.tr + '  : ${formatAmount(packed)}',
                                       ),
                                     ),
                                 
@@ -943,16 +943,16 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (delivered == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (categoryPerformance != null) {
-                                            showValueOrderDialog(context, categoryPerformance, "Delivered Orders", 2);
+                                            showValueOrderDialog(context, categoryPerformance, "Delivered Orders".tr, 2);
                                           }
                                         }
                                       },
                                       child: _buildLegendItem(
                                         const Color(0xff33b4a8),
-                                        "Delivered : ${formatAmount(delivered)}",
+                                        'Delivered'.tr + '  : ${formatAmount(delivered)}',
                                       ),
                                     ),
                                   ],
@@ -1949,7 +1949,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           decoration: InputDecoration(
                             fillColor: white,
                             filled: true,
-                            hintText: 'Type your message here...',
+                            hintText: 'Type your message here...'.tr,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
                               borderSide: const BorderSide(

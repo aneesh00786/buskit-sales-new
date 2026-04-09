@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditLeadsDialog extends StatefulWidget {
@@ -161,8 +162,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Update Lead',
+                 Text(
+                  'Update Lead'.tr,
                   style: TextStyle(
                     color: white,
                     fontSize: 16,
@@ -199,7 +200,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Business Name',
+                            labelText: 'Business Name'.tr,
                             prefixIcon: filledIcon(Assets.icBusiness),
                             border: InputBorder.none,
                           ),
@@ -220,7 +221,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Address',
+                            labelText: 'Address'.tr,
                             prefixIcon: filledIcon(Assets.icLocation),
                             border: InputBorder.none,
                           ),
@@ -245,7 +246,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       horizontal: 12.0,
                                       vertical: 16.0,
                                     ),
-                                    labelText: 'City or Suburb',
+                                    labelText: 'City or Suburb'.tr,
                                     prefixIcon: filledIcon(Assets.icCity),
                                     border: InputBorder.none,
                                   ),
@@ -269,7 +270,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'State',
+                                  labelText: 'State'.tr,
                                   prefixIcon: filledIcon(Assets.icState),
                                   border: InputBorder.none,
                                 ),
@@ -292,7 +293,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Zip/Post/Pin Code',
+                                  labelText: 'Zip/Post/Pin Code'.tr,
                                   prefixIcon: filledIcon(Assets.icZipcode),
                                   border: InputBorder.none,
                                 ),
@@ -322,7 +323,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Mobile Number',
+                                  labelText: 'Mobile Number'.tr,
                                   prefixIcon: filledIcon(Assets.icMobile),
                                   border: InputBorder.none,
                                 ),
@@ -345,7 +346,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Email',
+                                  labelText: 'Email'.tr,
                                   prefixIcon: filledIcon(Assets.icEmail),
                                   border: InputBorder.none,
                                 ),
@@ -368,7 +369,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Business Reg.No',
+                                  labelText: 'Business Reg.No'.tr,
                                   prefixIcon: filledIcon(Assets.icBusinessReg),
                                   border: InputBorder.none,
                                 ),
@@ -396,7 +397,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Contact Person Name',
+                                  labelText: 'Contact Person Name'.tr,
                                   prefixIcon: filledIcon(Assets.icUser),
                                   border: InputBorder.none,
                                 ),
@@ -420,7 +421,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Contact Number',
+                                  labelText: 'Contact Number'.tr,
                                   prefixIcon: filledIcon(Assets.icPhone),
                                   border: InputBorder.none,
                                 ),
@@ -434,7 +435,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: Row(
                         children: [
-                          const Text('Delivery Address    ',
+                           Text('Delivery Address    '.tr,
                               style: TextStyle(fontSize: 18)),
                           Checkbox(
                             value: sameAsAbove,
@@ -463,7 +464,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             },
                           ),
                           const SizedBox(width: 5),
-                          const Text('Same as Above'),
+                           Text('Same as Above'.tr),
                         ],
                       ),
                     ),
@@ -481,7 +482,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Address',
+                            labelText: 'Address'.tr,
                             prefixIcon: filledIcon(Assets.icLocation),
                             border: InputBorder.none,
                           ),
@@ -506,7 +507,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       horizontal: 12.0,
                                       vertical: 16.0,
                                     ),
-                                    labelText: 'City or Suburb',
+                                    labelText: 'City or Suburb'.tr,
                                     prefixIcon: filledIcon(Assets.icCity),
                                     border: InputBorder.none,
                                   ),
@@ -530,7 +531,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'State',
+                                  labelText: 'State'.tr,
                                   prefixIcon: filledIcon(Assets.icState),
                                   border: InputBorder.none,
                                 ),
@@ -553,7 +554,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Zip/Post/Pin Code',
+                                  labelText: 'Zip/Post/Pin Code'.tr,
                                   prefixIcon: filledIcon(Assets.icZipcode),
                                   border: InputBorder.none,
                                 ),
@@ -578,7 +579,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Delivery Contact Number',
+                            labelText: 'Delivery Contact Number'.tr,
                             prefixIcon: filledIcon(Assets.icPhone),
                             border: InputBorder.none,
                             counterText: "",
@@ -605,7 +606,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       horizontal: 12.0,
                                       vertical: 16.0,
                                     ),
-                                    labelText: 'Remark',
+                                    labelText: 'Remark'.tr,
                                     prefixIcon: filledIcon(Assets.icRemark),
                                     border: InputBorder.none,
                                   ),
@@ -624,7 +625,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text('Select Method'),
+                                      title:  Text('Select Method'.tr),
                                       actions: [
                                         IconButton(
                                           onPressed: () async {
@@ -679,8 +680,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         child: Text(
                                           leadsImage == null &&
                                                   imageFile.isEmpty
-                                              ? 'Pick an image from gallery'
-                                              : 'Image selected',
+                                              ? 'Pick an image from gallery'.tr
+                                              : 'Image selected'.tr,
                                           style: TextStyle(
                                             color: Colors.grey.shade700,
                                             fontSize: 16.0,
@@ -767,7 +768,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         });
                                         showCustomToastDisplay(
                                             context,
-                                            'All fields must be filled.',
+                                            'All fields must be filled.'.tr,
                                             red,
                                             Icons.close);
                                         return;
@@ -783,7 +784,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         });
                                         showCustomToastDisplay(
                                             context,
-                                            'Phone numbers must be exactly 10 digits.',
+                                            'Phone numbers must be exactly 10 digits.'.tr,
                                             red,
                                             Icons.close);
                                         return;
@@ -799,7 +800,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         });
                                         showCustomToastDisplay(
                                           context,
-                                          'Invalid Email format',
+                                          'Invalid Email format'.tr,
                                           red,
                                           Icons.close,
                                         );
@@ -816,7 +817,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                           });
                                           showCustomToastDisplay(
                                               context,
-                                              'File exceeds 1MB.',
+                                              'File exceeds 1MB.'.tr,
                                               red,
                                               Icons.close);
                                           return;
@@ -983,8 +984,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                                 Colors.white),
                                       ),
                                     )
-                                  : const Text(
-                                      'Update',
+                                  :  Text(
+                                      'Update'.tr,
                                       style: TextStyle(color: white),
                                     ),
                             ),

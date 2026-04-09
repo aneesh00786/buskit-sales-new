@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/orders_payments.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrdersPaymentHeading extends StatelessWidget {
   const OrdersPaymentHeading({
@@ -8,13 +9,13 @@ class OrdersPaymentHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return  Row(
       children: [
         SizedBox(
         width: colDateWidth,
           child: Center(
             child: Text(
-              "Date",
+              "Date".tr,
               style: TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontWeight: FontWeight.w600,
@@ -27,7 +28,7 @@ class OrdersPaymentHeading extends StatelessWidget {
        width: colInvoiceWidth,
           child: Center(
             child: Text(
-              "Invoice",
+              "Invoice".tr,
               style: TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontWeight: FontWeight.w600,
@@ -40,7 +41,7 @@ class OrdersPaymentHeading extends StatelessWidget {
          width: colStatusWidth,
           child: Center(
             child: Text(
-              "Status",
+              "Status".tr,
               style: TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontWeight: FontWeight.w600,
@@ -53,7 +54,7 @@ class OrdersPaymentHeading extends StatelessWidget {
          width: colAmountWidth,
           child: Center(
             child: Text(
-              "Amount",
+              "Amount".tr,
               style: TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontWeight: FontWeight.w600,
@@ -66,7 +67,7 @@ class OrdersPaymentHeading extends StatelessWidget {
         width: colDueWidth,
           child: Center(
             child: Text(
-              "Due By",
+              "Due By".tr,
               style: TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontWeight: FontWeight.w600,
@@ -80,7 +81,7 @@ class OrdersPaymentHeading extends StatelessWidget {
         width: colSelectWidth,
           child: Center(
             child: Text(
-              "Select",
+              "Select".tr,
               style: TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontWeight: FontWeight.w600,

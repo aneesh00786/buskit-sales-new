@@ -1,7 +1,9 @@
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/sync_manager.dart';
+import 'package:busskit_salesexecutive/common/app_translation_service.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
+import 'package:busskit_salesexecutive/common/localization_service.dart';
 import 'package:busskit_salesexecutive/connectivity/connectivity_cheker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
@@ -139,6 +141,8 @@ void main() async {
   Get.put(ProductReturnController());
   Get.put(PendingReturnsController());
   Get.put(CustomerCreditController());
+  await Get.putAsync(() => LocalizationService().init());
+  final localizationService = Get.find<LocalizationService>();
   // Get.put(SalesReturnListController());
   final subscriptionController = Get.put(SubscriptionController());
 // Add this in your main.dart (or wherever you define your routes/constants)
@@ -147,11 +151,15 @@ void main() async {
       .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
 
   await _handleCartPersistenceOnRestart();
-
+AppTranslations appTranslations = await AppTranslations.init();
   runApp(MyApp(
       initialRout: SessionHelper.loginSavedData != null
           ? AppRoutes.home
-          : AppRoutes.login));
+          : AppRoutes.login,
+          translations: appTranslations,
+          initialLocale: localizationService.activeLocale,
+
+          ));
 }
 
 Future<void> _handleCartPersistenceOnRestart() async {
@@ -180,7 +188,9 @@ Future<void> _handleCartPersistenceOnRestart() async {
 
 class MyApp extends StatefulWidget {
   final String? initialRout;
-  const MyApp({super.key, this.initialRout});
+   final AppTranslations translations;
+  final Locale initialLocale;
+  const MyApp({super.key, this.initialRout,required this.translations,required this.initialLocale,});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -245,6 +255,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           child: SyncManager(
             child: GetMaterialApp(
               navigatorKey: Get.key,
+                translations: widget.translations,
+              locale: widget.initialLocale,
               theme: NkGetXTheme.lightTheme,
               darkTheme: NkGetXTheme.lightTheme,
               highContrastTheme: NkGetXTheme.lightTheme,

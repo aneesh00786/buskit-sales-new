@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 
@@ -705,7 +706,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
               // --- TARGET BUTTON ---
               _buildLegend(
                 color: const Color(0xff3b6491),
-                label: 'Target',
+                label: 'Target'.tr,
                 opacity: hideTarget ? 0.3 : 1.0,
                 onTap: () {
                   setState(() {
@@ -722,7 +723,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
               if (widget.staffProjection == "1")
                 _buildLegend(
                   color: const Color(0xff15396a),
-                  label: 'Projection',
+                  label: 'Projection'.tr,
                   opacity: hideProjection ? 0.3 : 1.0,
                   onTap: () {
                     setState(() {
@@ -743,7 +744,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
             // --- ACTUALS BUTTON ---
             _buildLegend(
               color: const Color(0xff7a8f3d),
-              label: 'Actuals',
+              label: 'Actuals'.tr,
               opacity: hideActuals ? 0.3 : 1.0,
               onTap: () {
                 setState(() {
@@ -1048,28 +1049,28 @@ class _CustomBarChartCustomerDashState
                                     headingRowColor: WidgetStatePropertyAll(
                                         Colors.grey.shade300),
                                     border: TableBorder.all(color: Colors.grey),
-                                    columns: const [
+                                    columns:  [
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Product',
+                                          text: 'Product'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Invoice',
+                                          text: 'Invoice'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Quantity',
+                                          text: 'Quantity'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Price',
+                                          text: 'Price'.tr,
                                           fontSize: 13,
                                         ),
                                       ),

@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 
@@ -23,11 +24,24 @@ class _MonthDropdownState extends State<MonthDropdown> {
   bool isInitOnline = false;
 
   final GlobalKey _dropdownKey = GlobalKey(); 
-
-  final List<String> months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+List<String> get months => [
+  "January".tr, 
+  "February".tr, 
+  "March".tr, 
+  "April".tr, 
+  "May".tr, 
+  "June".tr,
+  "July".tr, 
+  "August".tr, 
+  "September".tr, 
+  "October".tr, 
+  "November".tr, 
+  "December".tr
+];
+  // final List<String> months = [
+  //   "January", "February", "March", "April", "May", "June",
+  //   "July", "August", "September", "October", "November", "December"
+  // ];
 
   final Map<String, StateSetter> _monthStateSetters = {};
   StateSetter? _selectAllStateSetter;
@@ -100,7 +114,8 @@ class _MonthDropdownState extends State<MonthDropdown> {
     } else if (selectedMonths.length == 1) {
       return selectedMonths.first;
     } else if (selectedMonths.isNotEmpty) {
-      return "${selectedMonths.length} months selected";
+      return "${selectedMonths.length} " + "months selected".tr;
+      // return "${selectedMonths.length} months selected";
     } else {
       return "Select Months";
     }
@@ -174,7 +189,7 @@ class _MonthDropdownState extends State<MonthDropdown> {
                               onChanged: (value) {
                                 _toggleSelectAll(context, value);
                               },
-                              title: const Text("Select All", style: TextStyle(fontWeight: FontWeight.bold)),
+                              title:  Text("Select All".tr, style: TextStyle(fontWeight: FontWeight.bold)),
                               controlAffinity: ListTileControlAffinity.leading,
                             );
                           },
@@ -231,45 +246,45 @@ class _MonthDropdownState extends State<MonthDropdown> {
           const SizedBox(width: 5),
           
           // --- UPDATED BUTTON LOGIC STARTS HERE ---
-          Container(
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () async {
-                bool isOnline = await ConnectivityService().isOnline();
-                if (!isOnline) {
-                  showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
-                  return;
-                }
+          // Container(
+          //   height: 50,
+          //   child: ElevatedButton(
+          //     onPressed: () async {
+          //       bool isOnline = await ConnectivityService().isOnline();
+          //       if (!isOnline) {
+          //         showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
+          //         return;
+          //       }
 
-                // CHECK: Is a custom action (like Customer Fetch) provided?
-                if (widget.onApplyTap != null) {
-                  // If yes, execute that action!
-                  widget.onApplyTap!();
-                } else {
-                  // If no, fallback to original Dashboard behavior
-                  final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-                  await dashboardProvider.setTempToFilter();
-                  await dashboardProvider.fetchAllOrdersAtOnce();
-                  dashboardProvider.fetchData();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
-                textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              child: const Text('Go'),
-            ),
-          ),
+          //       // CHECK: Is a custom action (like Customer Fetch) provided?
+          //       if (widget.onApplyTap != null) {
+          //         // If yes, execute that action!
+          //         widget.onApplyTap!();
+          //       } else {
+          //         // If no, fallback to original Dashboard behavior
+          //         final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+          //         await dashboardProvider.setTempToFilter();
+          //         await dashboardProvider.fetchAllOrdersAtOnce();
+          //         dashboardProvider.fetchData();
+          //       }
+          //     },
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: primaryColor,
+          //       foregroundColor: Colors.white,
+          //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //       elevation: 4,
+          //       shadowColor: primaryColor.withOpacity(0.4),
+          //       textStyle: const TextStyle(
+          //         fontSize: 13,
+          //         fontWeight: FontWeight.w700,
+          //       ),
+          //     ),
+          //     child:  Text('Go'.tr),
+          //   ),
+          // ),
           // --- UPDATED BUTTON LOGIC ENDS HERE ---
         ],
       );

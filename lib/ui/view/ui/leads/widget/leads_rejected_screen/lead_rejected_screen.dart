@@ -77,7 +77,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                   buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Sl.No.",
+                        content: "Sl.No.".tr,
                         textAlign: TextAlign.center,
                         fontSize: 12.5,
                         color: Colors.white,
@@ -89,7 +89,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                   buildTableHeader1(
                     Center(
                       child: CustomText(
-                        content: "Customers",
+                        content: "Customers".tr,
                         textAlign: TextAlign.center,
                         fontSize: 12,
                         color: Colors.white,

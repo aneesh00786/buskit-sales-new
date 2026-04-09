@@ -163,11 +163,11 @@ void pendingPaymentCollectionDialog(
             titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
             contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             title: Row(
-              children: const [
+              children:  [
                 Icon(Icons.cloud_off_rounded, color: Colors.deepOrange, size: 28),
                 SizedBox(width: 12),
                 Text(
-                  "Offline Payment Queue",
+                  "Offline Payment Queue".tr,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -630,64 +630,64 @@ void pendingPaymentCollectionDialog(
       dataRowHeight: 30,
       headingRowHeight: 40,
       border: TableBorder.all(color: Colors.grey.shade300),
-      columns: const [
+      columns:  [
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Customer',
+            text: 'Customer'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Date',
+            text: 'Date'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Order No.',
+            text: 'Order No.'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Amount',
+            text: 'Amount'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Status',
+            text: 'Status'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Invoice',
+            text: 'Invoice'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Due Date',
+            text: 'Due Date'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Payment',
+            text: 'Payment'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Receivable',
+            text: 'Receivable'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Select',
+            text: 'Select'.tr,
             fontSize: 13,
           ),
         ),
@@ -1029,31 +1029,31 @@ void pendingPaymentCollectionDialog(
                       child: DataTable(
                         dataRowHeight: 35,
                         headingRowHeight: 30,
-                        columns: const [
+                        columns:  [
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Payment Method',
+                              text: 'Payment Method'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
                           ),
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Balance Amount',
+                              text: 'Balance Amount'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
                           ),
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Received Amount',
+                              text: 'Received Amount'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
                           ),
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Remarks',
+                              text: 'Remarks'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
@@ -1078,17 +1078,17 @@ void pendingPaymentCollectionDialog(
                                         horizontal: 8.0),
                                   ),
                                   dropdownColor: Colors.white,
-                                  items: const [
+                                  items:  [
                                     DropdownMenuItem(
-                                        value: 'Cash', child: Text('Cash')),
+                                        value: 'Cash', child: Text('Cash'.tr)),
                                     DropdownMenuItem(
-                                        value: 'Cheque', child: Text('Cheque')),
+                                        value: 'Cheque', child: Text('Cheque'.tr)),
                                     DropdownMenuItem(
                                         value: 'Bank Transfer',
-                                        child: Text('Bank Transfer')),
+                                        child: Text('Bank Transfer'.tr)),
                                     DropdownMenuItem(
                                         value: 'QR Payment',
-                                        child: Text('QR Payment')),
+                                        child: Text('QR Payment'.tr)),
                                   ],
                                   onChanged: (value) {
                                     if (value != null) {
@@ -1172,7 +1172,7 @@ void pendingPaymentCollectionDialog(
                                 TextField(
                                   controller: remarksController,
                                   decoration: InputDecoration(
-                                    hintText: 'Remarks',
+                                    hintText: 'Remarks'.tr,
                                     filled: true,
                                     fillColor: Colors.white,
                                     border: OutlineInputBorder(
@@ -1192,7 +1192,7 @@ void pendingPaymentCollectionDialog(
                                       // 1. Validation
                                       final double enteredAmount = double.tryParse(receivedAmountController.text) ?? 0;
                                       if (enteredAmount <= 0) {
-                                        showCustomToastDisplay(context, "Please enter a valid amount", Colors.red, Icons.error);
+                                        showCustomToastDisplay(context, "Please enter a valid amount".tr, Colors.red, Icons.error);
                                         return;
                                       }
 
@@ -1211,7 +1211,7 @@ void pendingPaymentCollectionDialog(
                                       }
 
                                       if (selectedItemsList.isEmpty) {
-                                        showCustomToastDisplay(context, "Please select at least one item", Colors.red, Icons.error);
+                                        showCustomToastDisplay(context, "Please select at least one item".tr, Colors.red, Icons.error);
                                         return;
                                       }
 
@@ -1223,10 +1223,10 @@ void pendingPaymentCollectionDialog(
                                         showDialog(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: const Text("Online Required"),
-                                            content: const Text("QR Payments can only be processed while online. Please select Cash, Cheque, or Bank Transfer for offline collection."),
+                                            title:  Text("Online Required".tr),
+                                            content:  Text("QR Payments can only be processed while online. Please select Cash, Cheque, or Bank Transfer for offline collection.".tr),
                                             actions: [
-                                              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("OK"))
+                                              TextButton(onPressed: () => Navigator.pop(ctx), child:  Text("OK".tr))
                                             ],
                                           ),
                                         );
@@ -1256,11 +1256,11 @@ void pendingPaymentCollectionDialog(
                                             barrierDismissible: false,
                                             builder: (ctx) => AlertDialog(
                                               title: const Row(children: [Icon(Icons.wifi_off, color: Colors.orange), SizedBox(width:10), Text("Payment Queued")]),
-                                              content: const Text("You are offline. The payment has been saved locally and will complete automatically when you go online."),
+                                              content:  Text("You are offline. The payment has been saved locally and will complete automatically when you go online.".tr),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () {
-                                                    Navigator.pop(ctx); // Close Dialog
+                                                    Navigator.pop(ctx); // Close Dialoglll
                                                     Get.back(); // Close Collection Dialog
                                                     
                                                     // Trigger Dashboard refresh (to update UI with Info icons)
@@ -1424,17 +1424,17 @@ void pendingPaymentCollectionDialog(
                           DataTable(
                             dataRowHeight: 35,
                             headingRowHeight: 30,
-                            columns: const [
+                            columns:  [
                               DataColumn(
                                 label: DialogTableHeaderText(
-                                  text: 'Payment Method',
+                                  text: 'Payment Method'.tr,
                                   fontSize: 11,
                                   align: TextAlign.start,
                                 ),
                               ),
                               DataColumn(
                                 label: DialogTableHeaderText(
-                                  text: 'Balance Amount',
+                                  text: 'Balance Amount'.tr,
                                   fontSize: 11,
                                   align: TextAlign.start,
                                 ),
@@ -1461,18 +1461,18 @@ void pendingPaymentCollectionDialog(
                                                 horizontal: 8.0),
                                       ),
                                       dropdownColor: Colors.white,
-                                      items: const [
+                                      items:  [
                                         DropdownMenuItem(
-                                            value: 'Cash', child: Text('Cash')),
+                                            value: 'Cash', child: Text('Cash'.tr)),
                                         DropdownMenuItem(
                                             value: 'Cheque',
-                                            child: Text('Cheque')),
+                                            child: Text('Cheque'.tr)),
                                         DropdownMenuItem(
                                             value: 'Bank Transfer',
-                                            child: Text('Bank Transfer')),
+                                            child: Text('Bank Transfer'.tr)),
                                         DropdownMenuItem(
                                             value: 'QR Payment',
-                                            child: Text('QR Payment')),
+                                            child: Text('QR Payment'.tr)),
                                       ],
                                       onChanged: (value) {
                                         if (value != null) {
@@ -1489,7 +1489,7 @@ void pendingPaymentCollectionDialog(
                                           };
                                         }
                                       },
-                                      hint: const Text('Select'),
+                                      hint:  Text('Select'.tr),
                                       style: const TextStyle(
                                           fontSize: 12, color: Colors.black),
                                       icon: const Icon(Icons.arrow_drop_down,
@@ -1562,7 +1562,7 @@ void pendingPaymentCollectionDialog(
                                             controller:
                                                 receivedAmountController,
                                             decoration: InputDecoration(
-                                              hintText: 'Enter Amount',
+                                              hintText: 'Enter Amount'.tr,
                                               filled: true,
                                               fillColor: Colors.white,
                                               border: OutlineInputBorder(
@@ -1585,7 +1585,7 @@ void pendingPaymentCollectionDialog(
                                     TextField(
                                       controller: remarksController,
                                       decoration: InputDecoration(
-                                        hintText: 'Remarks',
+                                        hintText: 'Remarks'.tr,
                                         filled: true,
                                         fillColor: Colors.white,
                                         border: OutlineInputBorder(
@@ -1644,7 +1644,7 @@ void pendingPaymentCollectionDialog(
                                           if (selectedItemsList.isEmpty) {
                                             showCustomToastDisplay(
                                                 context,
-                                                "Please select at least one item",
+                                                "Please select at least one item".tr,
                                                 Colors.red,
                                                 Icons.error);
                                             return;
@@ -1725,7 +1725,7 @@ Future<void> _startOnlinePayment(
   required String remarks,
 }) async {
   if (amount <= 0 || selectedItemsList.isEmpty) {
-    showCustomToastDisplay(context, "Invalid amount or no items selected",
+    showCustomToastDisplay(context, "Invalid amount or no items selected".tr,
         Colors.red, Icons.error);
     return;
   }

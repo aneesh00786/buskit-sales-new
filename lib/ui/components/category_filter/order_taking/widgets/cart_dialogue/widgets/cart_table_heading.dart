@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DataTableColumns {
   static List<DataColumn> getColumns(double fontSize,
@@ -10,49 +11,49 @@ class DataTableColumns {
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: isBundle ? 'Bundle Name': 'Variant',
+          text: isBundle ? 'Bundle Name'.tr: 'Variant'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Unit Price',
+          text: 'Unit Price'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Pack',
+          text: 'Pack'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Price',
+          text: 'Price'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
          DataColumn(
         label: DialogTableHeaderText(
-          text: 'Quantity',
+          text: 'Quantity'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Disc',
+          text: 'Disc'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Tax',
+          text: 'Tax'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
@@ -66,7 +67,7 @@ class DataTableColumns {
       // ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Total',
+          text: 'Total'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),

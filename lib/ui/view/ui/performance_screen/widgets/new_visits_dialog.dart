@@ -265,8 +265,8 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Staff Visits',
+                             Text(
+                              'Staff Visits'.tr,
                               style: TextStyle(
                                 color: white,
                                 fontSize: 16,
@@ -392,7 +392,7 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                               flex: 5,
                               child: Row(
                                 children: [
-                                  const Text("Customer",
+                                   Text("Customer".tr,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontFamily: myFont,
@@ -409,7 +409,7 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                               flex: 3,
                               child: Row(
                                 children: [
-                                  const Text("Check-In",
+                                   Text("Check-In".tr,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontFamily: myFont,
@@ -421,9 +421,9 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
                               ),
                             ),
                             // Header: Check-Out
-                            const Expanded(
+                             Expanded(
                               flex: 2,
-                              child: Text("Check-Out",
+                              child: Text("Check-Out".tr,
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontFamily: myFont,

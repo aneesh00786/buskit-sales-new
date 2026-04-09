@@ -94,26 +94,26 @@ showBarchartDialog(
                         height: headerHeight,
                         child: Row(
                           children: [
-                            const DialogTableHeaderText(
-                              text: 'Name',
+                             DialogTableHeaderText(
+                              text: 'Name'.tr,
                               fontSize: 13,
                             ),
                             if (!isDayOrRange) ...[
                               // if (targetType == '1') ...[
-                              const DialogTableHeaderText(
-                                text: 'Target',
+                               DialogTableHeaderText(
+                                text: 'Target'.tr,
                                 fontSize: 13,
                               ),
                               // ],
                               if (staffProjection == '1') ...[
-                                const DialogTableHeaderText(
-                                  text: 'Projection',
+                                 DialogTableHeaderText(
+                                  text: 'Projection'.tr,
                                   fontSize: 13,
                                 ),
                               ]
                             ],
-                            const DialogTableHeaderText(
-                              text: 'Actual',
+                             DialogTableHeaderText(
+                              text: 'Actual'.tr,
                               fontSize: 13,
                             ),
                           ],
@@ -344,7 +344,7 @@ showBarchartDialog(
                                 child: CustomText(
                                     fontWeight: FontWeight.w600,
                                     textAlign: TextAlign.center,
-                                    content: 'Total',
+                                    content: 'Total'.tr,
                                     fontSize: 11,
                                     maxLine: 1)),
                             if (!isDayOrRange

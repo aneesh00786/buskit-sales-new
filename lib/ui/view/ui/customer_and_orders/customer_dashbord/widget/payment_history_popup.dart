@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
 
 class PaymentHistoryButton extends StatefulWidget {
   final String orderId;
@@ -158,7 +159,7 @@ class _PaymentHistoryContent extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               color: Colors.grey.shade200,
-              child: const Text("Payment history",
+              child:  Text("Payment history".tr,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             // Table Header
@@ -166,10 +167,10 @@ class _PaymentHistoryContent extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Expanded(child: Text("Date", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-                    Expanded(child: Text("Amount", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-                    Expanded(child: Text("Mode", textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+                  children:  [
+                    Expanded(child: Text("Date".tr, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+                    Expanded(child: Text("Amount".tr, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
+                    Expanded(child: Text("Mode".tr, textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
                   ],
                 ),
               ),

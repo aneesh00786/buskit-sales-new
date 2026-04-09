@@ -287,16 +287,16 @@ class _CustomSwitchState extends State<CustomSwitch> {
         // Already checked in for attendance, standard confirmation
         proceedWithCustomerCheckIn = await _showConfirmDialog(
           context, 
-          'Confirm Check-In', 
-          'Are you sure you want to check in to this customer?'
+          'Confirm Check-In'.tr, 
+          'Are you sure you want to check in to this customer?'.tr
         );
       }
     } else {
       // Checking OUT of customer, standard confirmation
       proceedWithCustomerCheckIn = await _showConfirmDialog(
         context, 
-        'Confirm Check-Out', 
-        'Are you sure you want to check out?'
+        'Confirm Check-Out'.tr, 
+        'Are you sure you want to check out?'.tr
       );
     }
 
@@ -403,8 +403,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                               color: primaryColor,
                             ),
                             const SizedBox(width: 8.0),
-                            const Text(
-                              'No Customer Selected',
+                             Text(
+                              'No Customer Selected'.tr,
                               style: TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
@@ -413,8 +413,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                             ),
                           ],
                         ),
-                        content: const Text(
-                          'Please select a customer to check-in.',
+                        content:  Text(
+                          'Please select a customer to check-in.'.tr,
                           style: TextStyle(
                             fontSize: 19.0,
                             color: Colors.black87,
@@ -433,8 +433,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                               shadowColor: primaryColor.withOpacity(0.4),
                             ),
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text(
-                              'OK',
+                            child:  Text(
+                              'OK'.tr,
                               style: TextStyle(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w700,

@@ -141,7 +141,7 @@ class _TableeeState extends State<Tableee> {
               child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Customers & Orders',
+              Text('Customers & Orders'.tr,
                   style: TextStyle(
                       fontSize: NkFontSize.largeFont(largeFont: 20),
                       fontWeight: FontWeight.bold)),
@@ -223,6 +223,487 @@ class _TableeeState extends State<Tableee> {
     );
   }
 
+  // Widget calender() {
+  //   return LayoutBuilder(
+  //     builder: (context, constraints) {
+  //       return Consumer<DashboardProvider>(
+  //         builder: (context, dashboardProvider, child) {
+  //           return Consumer<CustomersProvider>(
+  //             builder: (context, provider, child) {
+  //               /// --- Tablet / Landscape Layout
+  //               if (isTabletOrPhoneLandscape(context)) {
+  //                 return Row(
+  //                   mainAxisAlignment: MainAxisAlignment.start,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Flexible(
+  //                       child: Row(
+  //                         children: [
+  //                           // const SizedBox(width: 5),
+  //                           buildFilterDropdown(provider, context),
+  //                           if (provider.selectedFilter ==
+  //                               FilterDateEnum.thisMonth) ...[
+  //                             const SizedBox(width: 5),
+  //                             MonthDropdown(
+  //                               onApplyTap: () => provider.fetchCustomerData(),
+  //                             ),
+  //                             // You can import and use MonthDropdown if needed, or keep existing behavior
+  //                             // For now, keeping existing range picker logic
+  //                           ],
+  //                           if (provider.selectedFilter ==
+  //                               FilterDateEnum.thisWeek) ...[
+  //                             const SizedBox(width: 5),
+  //                             WeekDropdown(
+  //                               onApplyTap: () {
+  //                                 provider
+  //                                     .fetchCustomerData(); // This triggers the API call
+  //                               },
+  //                             )
+  //                           ],
+  //                           if (provider.selectedFilter ==
+  //                               FilterDateEnum.thisYear) ...[
+  //                             const SizedBox(width: 5),
+  //                             YearDropdown(
+  //                               onApplyTap: () {
+  //                                 provider.fetchCustomerData();
+  //                               },
+  //                             )
+  //                           ],
+  //                           if (provider.selectedFilter ==
+  //                               FilterDateEnum.today) ...[
+  //                             const SizedBox(width: 5),
+  //                             DatePickerWidget(
+  //                               onApplyTap: () {
+  //                                 provider.fetchCustomerData();
+  //                               },
+  //                             )
+  //                           ],
+  //                           if (provider.selectedFilter ==
+  //                               FilterDateEnum.range) ...[
+  //                             const SizedBox(width: 5),
+  //                             Expanded(
+  //                               child: SingleChildScrollView(
+  //                                 scrollDirection: Axis.horizontal,
+  //                                 child: Row(
+  //                                   children: [
+  //                                     Padding(
+  //                                       padding: const EdgeInsets.symmetric(
+  //                                           horizontal: 4.0),
+  //                                       child: GestureDetector(
+  //                                         onTap: () => provider.selectDate(
+  //                                             context, true),
+  //                                         child: Container(
+  //                                           height: 50,
+  //                                           width: 125,
+  //                                           decoration: BoxDecoration(
+  //                                             gradient: LinearGradient(
+  //                                               colors: [
+  //                                                 Colors.white,
+  //                                                 Colors.white,
+  //                                               ],
+  //                                               begin: Alignment.topLeft,
+  //                                               end: Alignment.bottomRight,
+  //                                             ),
+  //                                             borderRadius:
+  //                                                 BorderRadius.circular(12),
+  //                                             border: Border.all(
+  //                                                 color:
+  //                                                     const Color(0xFFE1E5E9),
+  //                                                 width: 1),
+  //                                             boxShadow: [
+  //                                               BoxShadow(
+  //                                                 color: Colors.black
+  //                                                     .withOpacity(0.08),
+  //                                                 blurRadius: 8,
+  //                                                 offset: const Offset(0, 4),
+  //                                                 spreadRadius: 0,
+  //                                               ),
+  //                                               BoxShadow(
+  //                                                 color: Colors.white
+  //                                                     .withOpacity(0.8),
+  //                                                 blurRadius: 0,
+  //                                                 offset: const Offset(-2, -2),
+  //                                               ),
+  //                                             ],
+  //                                           ),
+  //                                           padding: const EdgeInsets.symmetric(
+  //                                               horizontal: 10, vertical: 6),
+  //                                           child: Row(
+  //                                             mainAxisAlignment:
+  //                                                 MainAxisAlignment
+  //                                                     .spaceBetween,
+  //                                             children: [
+  //                                               Expanded(
+  //                                                 child: Text(
+  //                                                   provider.selectedStartDate
+  //                                                           .isEmpty
+  //                                                       ? 'DD-MM-YYYY'
+  //                                                       : DateFormat(
+  //                                                               'dd-MM-yyyy')
+  //                                                           .format(DateTime
+  //                                                               .parse(provider
+  //                                                                   .selectedStartDate)),
+  //                                                   style: const TextStyle(
+  //                                                     fontSize: 13,
+  //                                                     fontWeight:
+  //                                                         FontWeight.w600,
+  //                                                     color: Colors.black87,
+  //                                                   ),
+  //                                                   overflow:
+  //                                                       TextOverflow.ellipsis,
+  //                                                 ),
+  //                                               ),
+  //                                               const Icon(Icons.calendar_today,
+  //                                                   size: 18,
+  //                                                   color: Colors.blue),
+  //                                             ],
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Padding(
+  //                                       padding: const EdgeInsets.symmetric(
+  //                                           horizontal: 4.0),
+  //                                       child: GestureDetector(
+  //                                         onTap: () => provider.selectDate(
+  //                                             context, false),
+  //                                         child: Container(
+  //                                           height: 50,
+  //                                           width: 125,
+  //                                           decoration: BoxDecoration(
+  //                                             gradient: LinearGradient(
+  //                                               colors: [
+  //                                                 Colors.white,
+  //                                                 Colors.white,
+  //                                               ],
+  //                                               begin: Alignment.topLeft,
+  //                                               end: Alignment.bottomRight,
+  //                                             ),
+  //                                             borderRadius:
+  //                                                 BorderRadius.circular(12),
+  //                                             border: Border.all(
+  //                                                 color:
+  //                                                     const Color(0xFFE1E5E9),
+  //                                                 width: 1),
+  //                                             boxShadow: [
+  //                                               BoxShadow(
+  //                                                 color: Colors.black
+  //                                                     .withOpacity(0.08),
+  //                                                 blurRadius: 8,
+  //                                                 offset: const Offset(0, 4),
+  //                                                 spreadRadius: 0,
+  //                                               ),
+  //                                               BoxShadow(
+  //                                                 color: Colors.white
+  //                                                     .withOpacity(0.8),
+  //                                                 blurRadius: 0,
+  //                                                 offset: const Offset(-2, -2),
+  //                                               ),
+  //                                             ],
+  //                                           ),
+  //                                           padding: const EdgeInsets.symmetric(
+  //                                               horizontal: 10, vertical: 6),
+  //                                           child: Row(
+  //                                             mainAxisAlignment:
+  //                                                 MainAxisAlignment
+  //                                                     .spaceBetween,
+  //                                             children: [
+  //                                               Expanded(
+  //                                                 child: Text(
+  //                                                   provider.selectedEndDate
+  //                                                           .isEmpty
+  //                                                       ? 'DD-MM-YYYY'
+  //                                                       : DateFormat(
+  //                                                               'dd-MM-yyyy')
+  //                                                           .format(DateTime
+  //                                                               .parse(provider
+  //                                                                   .selectedEndDate)),
+  //                                                   style: const TextStyle(
+  //                                                     fontSize: 13,
+  //                                                     fontWeight:
+  //                                                         FontWeight.w600,
+  //                                                     color: Colors.black87,
+  //                                                   ),
+  //                                                   overflow:
+  //                                                       TextOverflow.ellipsis,
+  //                                                 ),
+  //                                               ),
+  //                                               const Icon(Icons.calendar_today,
+  //                                                   size: 18,
+  //                                                   color: Colors.blue),
+  //                                             ],
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Padding(
+  //                                       padding: const EdgeInsets.symmetric(
+  //                                           horizontal: 4.0),
+  //                                       child: SizedBox(
+  //                                         height: 50,
+  //                                         width: 68,
+  //                                         child: ElevatedButton(
+  //                                           onPressed: () =>
+  //                                               provider.fetchCustomerData(),
+  //                                           style: ElevatedButton.styleFrom(
+  //                                             backgroundColor: primaryColor,
+  //                                             shape: RoundedRectangleBorder(
+  //                                                 borderRadius:
+  //                                                     BorderRadius.circular(
+  //                                                         12.0)),
+  //                                             elevation: 8,
+  //                                             shadowColor:
+  //                                                 Colors.black.withOpacity(0.2),
+  //                                             padding:
+  //                                                 const EdgeInsets.symmetric(
+  //                                                     horizontal: 16,
+  //                                                     vertical: 10),
+  //                                           ),
+  //                                           child:  Text('Go'.tr,
+  //                                               style: TextStyle(
+  //                                                   color: Colors.white,
+  //                                                   fontSize: 14,
+  //                                                   fontWeight:
+  //                                                       FontWeight.w600)),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ],
+  //                       ),
+  //                     ),
+  //                     // const SizedBox(width: 10),
+  //                     // addCustomer(context),
+  //                     // const SizedBox(width: 20),
+  //                     // NotificationWidget(
+  //                     //   startDate: provider.selectedStartDate,
+  //                     //   endDate: provider.selectedEndDate,
+  //                     // ),
+  //                     //  SizedBox(width: 95, child: profiloe()),
+  //                   ],
+  //                 );
+  //               }
+
+  //               /// --- Phone / Portrait Layout
+  //               return Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   // Top row: Add Customer + Notification + Update
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.end,
+  //                     children: [
+  //                       addCustomer(context),
+  //                       const SizedBox(width: 10),
+  //                       NotificationWidget(
+  //                         startDate: provider.selectedStartDate,
+  //                         endDate: provider.selectedEndDate,
+  //                       ),
+  //                       const SizedBox(width: 10),
+  //                       SizedBox(width: 120, child: profiloe()),
+  //                     ],
+  //                   ),
+  //                   const SizedBox(height: 8),
+
+  //                   // Filter row - horizontally scrollable
+  //                   SingleChildScrollView(
+  //                     scrollDirection: Axis.horizontal,
+  //                     child: Row(
+  //                       children: [
+  //                         const SizedBox(width: 5),
+  //                         buildFilterDropdown(provider, context),
+  //                         if (provider.selectedFilter ==
+  //                             FilterDateEnum.range) ...[
+  //                           const SizedBox(width: 10),
+  //                           Row(
+  //                             children: [
+  //                               GestureDetector(
+  //                                 onTap: () =>
+  //                                     provider.selectDate(context, true),
+  //                                 child: dateBox(provider.selectedStartDate),
+  //                               ),
+  //                               const SizedBox(width: 8),
+  //                               GestureDetector(
+  //                                 onTap: () =>
+  //                                     provider.selectDate(context, false),
+  //                                 child: dateBox(provider.selectedEndDate),
+  //                               ),
+  //                               const SizedBox(width: 8),
+  //                               SizedBox(
+  //                                 height: 36.4,
+  //                                 width: 68,
+  //                                 child: ElevatedButton(
+  //                                   onPressed: () =>
+  //                                       provider.fetchCustomerData(),
+  //                                   style: ElevatedButton.styleFrom(
+  //                                     backgroundColor: primaryColor,
+  //                                     shape: RoundedRectangleBorder(
+  //                                         borderRadius:
+  //                                             BorderRadius.circular(4)),
+  //                                   ),
+  //                                   child:  Text('Go'.tr,
+  //                                       style: TextStyle(
+  //                                           color: Colors.white, fontSize: 12)),
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         ],
+  //                       ],
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 12),
+  //                 ],
+  //               );
+  //             },
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
+  //   return SizedBox(
+  //     height: 50,
+  //     width: 125,
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         gradient: LinearGradient(
+  //           colors: [
+  //             Colors.white,
+  //             Colors.white,
+  //           ],
+  //           begin: Alignment.topLeft,
+  //           end: Alignment.bottomRight,
+  //         ),
+  //         borderRadius: BorderRadius.circular(12),
+  //         border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: Colors.black.withOpacity(0.08),
+  //             blurRadius: 8,
+  //             offset: const Offset(0, 4),
+  //             spreadRadius: 0,
+  //           ),
+  //           BoxShadow(
+  //             color: Colors.white.withOpacity(0.8),
+  //             blurRadius: 0,
+  //             offset: const Offset(-2, -2),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+  //         child: DropdownButton<FilterDateEnum>(
+  //           value: provider.selectedFilter,
+  //           onChanged: (newValue) async {
+  //             bool isOnline = await ConnectivityService().isOnline();
+  //             if (!isOnline) {
+  //               showCustomToastDisplay(
+  //                   context, "You are Offline!".tr, red, Icons.close);
+  //               return;
+  //             }
+  //             if (newValue != null) {
+  //               // This should ONLY update the variable `selectedFilter`
+  //               // and call notifyListeners(). Do not fetch API data here.
+  //               provider.updateFilterSelection(newValue);
+  //             }
+  //           },
+  //           // onChanged: (newValue) async {
+  //           //   bool isOnline = await ConnectivityService().isOnline();
+  //           //   if (!isOnline) {
+  //           //     showCustomToastDisplay(
+  //           //         context, "You are Offline!", red, Icons.close);
+  //           //     return;
+  //           //   }
+  //           //   if (newValue != null) {
+  //           //     provider.onFilterChanged(newValue);
+  //           //   }
+  //           // },
+  //           items:  [
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.thisMonth,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.calendar_month, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Month'.tr,
+  //                       style: TextStyle(
+  //                           fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.thisWeek,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.calendar_today, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Week'.tr,
+  //                       style: TextStyle(
+  //                           fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.today,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.today, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Day'.tr,
+  //                       style: TextStyle(
+  //                           fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.thisYear,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.calendar_view_month,
+  //                       size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Year'.tr,
+  //                       style: TextStyle(
+  //                           fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.range,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.date_range, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Range'.tr,
+  //                       style: TextStyle(
+  //                           fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //           isExpanded: true,
+  //           borderRadius: BorderRadius.circular(12),
+  //           underline: Container(),
+  //           icon: Icon(Icons.keyboard_arrow_down,
+  //               size: 20, color: Colors.grey[600]),
+  //           dropdownColor: Colors.white,
+  //           elevation: 8,
+  //           style: TextStyle(
+  //             color: Colors.black87,
+  //             fontSize: 13,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget calender() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -239,251 +720,159 @@ class _TableeeState extends State<Tableee> {
                       Flexible(
                         child: Row(
                           children: [
-                            // const SizedBox(width: 5),
+                            const SizedBox(width: 5),
+                            
+                            // 1. Conditional Standalone Year Dropdown
+                            if (provider.selectedFilter != FilterDateEnum.range) ...[
+                              buildYearDropdownWidget(context, dashboardProvider),
+                              const SizedBox(width: 10),
+                            ],
+
+                            // 2. Main Filter Dropdown
                             buildFilterDropdown(provider, context),
-                            if (provider.selectedFilter ==
-                                FilterDateEnum.thisMonth) ...[
-                              const SizedBox(width: 5),
-                              MonthDropdown(
-                                onApplyTap: () => provider.fetchCustomerData(),
-                              ),
-                              // You can import and use MonthDropdown if needed, or keep existing behavior
-                              // For now, keeping existing range picker logic
+                            
+                            // 3. Conditional Pickers (No internal Go buttons)
+                            if (provider.selectedFilter == FilterDateEnum.thisMonth) ...[
+                              const SizedBox(width: 10),
+                              const MonthDropdown(),
                             ],
-                            if (provider.selectedFilter ==
-                                FilterDateEnum.thisWeek) ...[
-                              const SizedBox(width: 5),
-                              WeekDropdown(
-                                onApplyTap: () {
-                                  provider
-                                      .fetchCustomerData(); // This triggers the API call
-                                },
-                              )
+                            if (provider.selectedFilter == FilterDateEnum.thisWeek) ...[
+                              const SizedBox(width: 10),
+                              const WeekDropdown(),
                             ],
-                            if (provider.selectedFilter ==
-                                FilterDateEnum.thisYear) ...[
-                              const SizedBox(width: 5),
-                              YearDropdown(
-                                onApplyTap: () {
-                                  provider.fetchCustomerData();
-                                },
-                              )
+                            if (provider.selectedFilter == FilterDateEnum.today) ...[
+                              const SizedBox(width: 10),
+                              const DatePickerWidget(),
                             ],
-                            if (provider.selectedFilter ==
-                                FilterDateEnum.today) ...[
-                              const SizedBox(width: 5),
-                              DatePickerWidget(
-                                onApplyTap: () {
-                                  provider.fetchCustomerData();
-                                },
-                              )
-                            ],
-                            if (provider.selectedFilter ==
-                                FilterDateEnum.range) ...[
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: GestureDetector(
-                                          onTap: () => provider.selectDate(
-                                              context, true),
-                                          child: Container(
-                                            height: 50,
-                                            width: 125,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.white,
-                                                  Colors.white,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
+                            if (provider.selectedFilter == FilterDateEnum.range) ...[
+                              const SizedBox(width: 10),
+                              Row(
+                                children: [
+                                  // Start Date Picker
+                                  SizedBox(
+                                    height: 50,
+                                    width: 125,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Colors.white, Colors.white],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                            spreadRadius: 0,
+                                          ),
+                                          BoxShadow(
+                                            color: Colors.white.withOpacity(0.8),
+                                            blurRadius: 0,
+                                            offset: const Offset(-2, -2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: InkWell(
+                                        onTap: () async {
+                                          bool isOnline = await ConnectivityService().isOnline();
+                                          if (!isOnline) {
+                                            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                                            return;
+                                          }
+                                          provider.selectDate(context, true);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  provider.selectedStartDate.isNotEmpty
+                                                      ? DateFormat('dd-MM-yyyy').format(DateTime.parse(provider.selectedStartDate))
+                                                      : "DD-MM-YYYY",
+                                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                  color:
-                                                      const Color(0xFFE1E5E9),
-                                                  width: 1),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.08),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 4),
-                                                  spreadRadius: 0,
-                                                ),
-                                                BoxShadow(
-                                                  color: Colors.white
-                                                      .withOpacity(0.8),
-                                                  blurRadius: 0,
-                                                  offset: const Offset(-2, -2),
-                                                ),
-                                              ],
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    provider.selectedStartDate
-                                                            .isEmpty
-                                                        ? 'DD-MM-YYYY'
-                                                        : DateFormat(
-                                                                'dd-MM-yyyy')
-                                                            .format(DateTime
-                                                                .parse(provider
-                                                                    .selectedStartDate)),
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.black87,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                const Icon(Icons.calendar_today,
-                                                    size: 18,
-                                                    color: Colors.blue),
-                                              ],
-                                            ),
+                                              const Icon(Icons.calendar_today, size: 18, color: primaryColor),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: GestureDetector(
-                                          onTap: () => provider.selectDate(
-                                              context, false),
-                                          child: Container(
-                                            height: 50,
-                                            width: 125,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.white,
-                                                  Colors.white,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                  color:
-                                                      const Color(0xFFE1E5E9),
-                                                  width: 1),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.08),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 4),
-                                                  spreadRadius: 0,
-                                                ),
-                                                BoxShadow(
-                                                  color: Colors.white
-                                                      .withOpacity(0.8),
-                                                  blurRadius: 0,
-                                                  offset: const Offset(-2, -2),
-                                                ),
-                                              ],
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    provider.selectedEndDate
-                                                            .isEmpty
-                                                        ? 'DD-MM-YYYY'
-                                                        : DateFormat(
-                                                                'dd-MM-yyyy')
-                                                            .format(DateTime
-                                                                .parse(provider
-                                                                    .selectedEndDate)),
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.black87,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                const Icon(Icons.calendar_today,
-                                                    size: 18,
-                                                    color: Colors.blue),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: SizedBox(
-                                          height: 50,
-                                          width: 68,
-                                          child: ElevatedButton(
-                                            onPressed: () =>
-                                                provider.fetchCustomerData(),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: primaryColor,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          12.0)),
-                                              elevation: 8,
-                                              shadowColor:
-                                                  Colors.black.withOpacity(0.2),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 10),
-                                            ),
-                                            child: const Text('Go',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 5),
+                                  
+                                  // End Date Picker
+                                  SizedBox(
+                                    height: 50,
+                                    width: 125,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Colors.white, Colors.white],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                            spreadRadius: 0,
+                                          ),
+                                          BoxShadow(
+                                            color: Colors.white.withOpacity(0.8),
+                                            blurRadius: 0,
+                                            offset: const Offset(-2, -2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: InkWell(
+                                        onTap: () async {
+                                          bool isOnline = await ConnectivityService().isOnline();
+                                          if (!isOnline) {
+                                            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                                            return;
+                                          }
+                                          provider.selectDate(context, false);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  provider.selectedEndDate.isNotEmpty
+                                                      ? DateFormat('dd-MM-yyyy').format(DateTime.parse(provider.selectedEndDate))
+                                                      : "DD-MM-YYYY",
+                                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const Icon(Icons.calendar_today, size: 18, color: primaryColor),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
+                            const SizedBox(width: 10),
+                            // 4. Unified Go Button
+                            buildGoButton(context, provider),
                           ],
                         ),
                       ),
-                      // const SizedBox(width: 10),
-                      // addCustomer(context),
-                      // const SizedBox(width: 20),
-                      // NotificationWidget(
-                      //   startDate: provider.selectedStartDate,
-                      //   endDate: provider.selectedEndDate,
-                      // ),
-                      //  SizedBox(width: 95, child: profiloe()),
                     ],
                   );
                 }
@@ -492,7 +881,6 @@ class _TableeeState extends State<Tableee> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row: Add Customer + Notification + Update
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -502,56 +890,59 @@ class _TableeeState extends State<Tableee> {
                           startDate: provider.selectedStartDate,
                           endDate: provider.selectedEndDate,
                         ),
-                        const SizedBox(width: 10),
-                        SizedBox(width: 120, child: profiloe()),
+                        // const SizedBox(width: 10),
+                        // const SizedBox(width: 120, child: UpdateAdminBt()),
                       ],
                     ),
                     const SizedBox(height: 8),
 
-                    // Filter row - horizontally scrollable
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
                           const SizedBox(width: 5),
+                          
+                          // 1. Conditional Standalone Year Dropdown
+                          if (provider.selectedFilter != FilterDateEnum.range) ...[
+                            buildYearDropdownWidget(context, dashboardProvider),
+                            const SizedBox(width: 10),
+                          ],
+
+                          // 2. Main Filter Dropdown
                           buildFilterDropdown(provider, context),
-                          if (provider.selectedFilter ==
-                              FilterDateEnum.range) ...[
+                          
+                          // 3. Conditional Pickers
+                          if (provider.selectedFilter == FilterDateEnum.thisMonth) ...[
+                            const SizedBox(width: 10),
+                            const MonthDropdown()
+                          ],
+                          if (provider.selectedFilter == FilterDateEnum.thisWeek) ...[
+                            const SizedBox(width: 10),
+                            const WeekDropdown()
+                          ],
+                          if (provider.selectedFilter == FilterDateEnum.today) ...[
+                            const SizedBox(width: 10),
+                            const DatePickerWidget()
+                          ],
+                          if (provider.selectedFilter == FilterDateEnum.range) ...[
                             const SizedBox(width: 10),
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () =>
-                                      provider.selectDate(context, true),
+                                  onTap: () => provider.selectDate(context, true),
                                   child: dateBox(provider.selectedStartDate),
                                 ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
-                                  onTap: () =>
-                                      provider.selectDate(context, false),
+                                  onTap: () => provider.selectDate(context, false),
                                   child: dateBox(provider.selectedEndDate),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  height: 36.4,
-                                  width: 68,
-                                  child: ElevatedButton(
-                                    onPressed: () =>
-                                        provider.fetchCustomerData(),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4)),
-                                    ),
-                                    child: const Text('Go',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12)),
-                                  ),
                                 ),
                               ],
                             ),
                           ],
+                          const SizedBox(width: 10),
+                          // 4. Unified Go Button
+                          buildGoButton(context, provider),
                         ],
                       ),
                     ),
@@ -572,11 +963,8 @@ class _TableeeState extends State<Tableee> {
       width: 125,
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Colors.white,
-            ],
+          gradient: const LinearGradient(
+            colors: [Colors.white, Colors.white],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -598,109 +986,166 @@ class _TableeeState extends State<Tableee> {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          child: DropdownButton<FilterDateEnum>(
-            value: provider.selectedFilter,
-            onChanged: (newValue) async {
-              bool isOnline = await ConnectivityService().isOnline();
-              if (!isOnline) {
-                showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
-                return;
-              }
-              if (newValue != null) {
-                // This should ONLY update the variable `selectedFilter`
-                // and call notifyListeners(). Do not fetch API data here.
-                provider.updateFilterSelection(newValue);
-              }
-            },
-            // onChanged: (newValue) async {
-            //   bool isOnline = await ConnectivityService().isOnline();
-            //   if (!isOnline) {
-            //     showCustomToastDisplay(
-            //         context, "You are Offline!", red, Icons.close);
-            //     return;
-            //   }
-            //   if (newValue != null) {
-            //     provider.onFilterChanged(newValue);
-            //   }
-            // },
-            items: const [
-              DropdownMenuItem(
-                value: FilterDateEnum.thisMonth,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Month',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<FilterDateEnum>(
+              // Fallback to month if somehow stuck on thisYear
+              value: provider.selectedFilter == FilterDateEnum.thisYear 
+                  ? FilterDateEnum.thisMonth 
+                  : provider.selectedFilter,
+              onChanged: (newValue) async {
+                bool isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                  return;
+                }
+                if (newValue != null) {
+                  provider.onFilterChanged(newValue);
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                    value: FilterDateEnum.thisMonth,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
+                        Text('Month'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.thisWeek,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Week',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+                DropdownMenuItem(
+                    value: FilterDateEnum.thisWeek,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
+                        Text('Week'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.today,
-                child: Row(
-                  children: [
-                    Icon(Icons.today, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Day',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+                DropdownMenuItem(
+                    value: FilterDateEnum.today,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.today, size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
+                        Text('Day'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.thisYear,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_view_month,
-                        size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Year',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.range,
-                child: Row(
-                  children: [
-                    Icon(Icons.date_range, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Range',
-                        style: TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ],
-            isExpanded: true,
-            borderRadius: BorderRadius.circular(12),
-            underline: Container(),
-            icon: Icon(Icons.keyboard_arrow_down,
-                size: 20, color: Colors.grey[600]),
-            dropdownColor: Colors.white,
-            elevation: 8,
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+                // REMOVED FilterDateEnum.thisYear
+                DropdownMenuItem(
+                    value: FilterDateEnum.range,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.date_range, size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
+                        Text('Range'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+              ],
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
+      ),
+    );
+  }
+  /// New Standalone Blue Year Dropdown Widget
+  Widget buildYearDropdownWidget(BuildContext context, DashboardProvider dashboardProvider) {
+    final int startYear = 2024;
+    final int currentYear = DateTime.now().year;
+    final int endYear = currentYear;
+
+    final List<int> years = startYear <= endYear
+        ? List.generate(endYear - startYear + 1, (index) => (startYear + index))
+        : [currentYear];
+
+    int displayYear = dashboardProvider.selectedYear != 0 ? dashboardProvider.selectedYear : currentYear;
+
+    return SizedBox(
+      height: 50,
+      width: 100,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: years.contains(displayYear) ? displayYear : years.last,
+              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54, size: 20),
+              dropdownColor: Colors.white,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              onChanged: (int? newValue) async {
+                bool isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                  return;
+                }
+                if (newValue != null) {
+                  dashboardProvider.updateSelectedYear(newValue);
+                  // UI updates automatically, wait for Go button press to fetch data
+                }
+              },
+              items: years.map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// New Unified Go Button
+  Widget buildGoButton(BuildContext context, CustomersProvider provider) {
+    return SizedBox(
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () async {
+          bool isOnline = await ConnectivityService().isOnline();
+          if (!isOnline) {
+            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+            return;
+          }
+          provider.currentPage = 1;
+          provider.fetchCustomerData();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF4A72FF), // Standard blue Go Button
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          shadowColor: const Color(0xFF4A72FF).withOpacity(0.4),
+          textStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        child: Text('Go'.tr),
       ),
     );
   }
@@ -815,8 +1260,8 @@ class _TableeeState extends State<Tableee> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
-                                          'Add Customer',
+                                         Text(
+                                          'Add Customer'.tr,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -832,29 +1277,29 @@ class _TableeeState extends State<Tableee> {
                                     child: Column(
                                       children: [
                                         buildInputField(bsNameController,
-                                            'Business Name', Assets.icBusiness),
+                                            'Business Name'.tr, Assets.icBusiness),
                                         buildInputField(addressController,
-                                            'Address', Assets.icLocation),
+                                            'Address'.tr, Assets.icLocation),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: buildInputField(
                                                   townController,
-                                                  'City or Suburb',
+                                                  'City or Suburb'.tr,
                                                   Assets.icCity),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   stateController,
-                                                  'State',
+                                                  'State'.tr,
                                                   Assets.icState),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   zipcodeController,
-                                                  'Zip/Post/Pin Code',
+                                                  'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
                                             ),
                                           ],
@@ -866,7 +1311,7 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                 phoneController,
-                                                'Mobile Number',
+                                                'Mobile Number'.tr,
                                                 Assets.icMobile,
                                                 length: 10,
                                               ),
@@ -875,25 +1320,25 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                   emailController,
-                                                  'Email',
+                                                  'Email'.tr,
                                                   Assets.icEmail),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   telephoneController,
-                                                  'Business Reg.No',
+                                                  'Business Reg.No'.tr,
                                                   Assets.icBusinessReg),
                                             ),
                                           ],
                                         ),
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 6.0),
                                           child: Align(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
-                                              'Contact Details',
+                                              'Contact Details'.tr,
                                               style: TextStyle(fontSize: 18),
                                             ),
                                           ),
@@ -905,14 +1350,14 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                   contactPersonNameController,
-                                                  'Contact Person',
+                                                  'Contact Person'.tr,
                                                   Assets.icUser),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                 contactNumController,
-                                                'Contact Number',
+                                                'Contact Number'.tr,
                                                 Assets.icPhone,
                                                 length: 10,
                                               ),
@@ -924,8 +1369,8 @@ class _TableeeState extends State<Tableee> {
                                               vertical: 6.0),
                                           child: Row(
                                             children: [
-                                              const Text(
-                                                'Delivery Address    ',
+                                               Text(
+                                                'Delivery Address    '.tr,
                                                 style: TextStyle(fontSize: 18),
                                               ),
                                               Checkbox(
@@ -969,34 +1414,34 @@ class _TableeeState extends State<Tableee> {
                                                 },
                                               ),
                                               const SizedBox(width: 5),
-                                              const Text('Same as Above'),
+                                               Text('Same as Above'.tr),
                                             ],
                                           ),
                                         ),
                                         buildInputField(
                                             deliveryAddressController,
-                                            'Address',
+                                            'Address'.tr,
                                             Assets.icLocation),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryTownController,
-                                                  'City or Suburb',
+                                                  'City or Suburb'.tr,
                                                   Assets.icCity),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryStateController,
-                                                  'State',
+                                                  'State'.tr,
                                                   Assets.icState),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryZipcodeController,
-                                                  'Zip/Post/Pin Code',
+                                                  'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
                                             ),
                                           ],
@@ -1004,17 +1449,17 @@ class _TableeeState extends State<Tableee> {
                                         // NEW: Delivery Contact Field Build
                                         buildInputField(
                                             deliveryContactNumController,
-                                            'Delivery Contact Number',
+                                            'Delivery Contact Number'.tr,
                                             Assets.icPhone,
                                             length: 10),
-                                        const SizedBox(
+                                         SizedBox(
                                           height: 30,
                                           child: Row(
                                             children: [
                                               Spacer(),
                                               SizedBox(width: 8.0),
                                               Expanded(
-                                                  child: Text("Company logo"))
+                                                  child: Text("Company logo".tr))
                                             ],
                                           ),
                                         ),
@@ -1167,8 +1612,8 @@ class _TableeeState extends State<Tableee> {
                                                           child: Text(
                                                             provider.imageFile ==
                                                                     null
-                                                                ? 'Pick an image from gallery'
-                                                                : 'Image selected',
+                                                                ? 'Pick an image from gallery'.tr
+                                                                : 'Image selected'.tr,
                                                             style: TextStyle(
                                                               color: Colors.grey
                                                                   .shade700,
@@ -1818,8 +2263,8 @@ class _TableeeState extends State<Tableee> {
                                                             Colors.white),
                                                   ),
                                                 )
-                                              : const Text(
-                                                  'Add Customer',
+                                              :  Text(
+                                                  'Add Customer'.tr,
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
@@ -2672,7 +3117,7 @@ class _TableeeState extends State<Tableee> {
     try {
       // Fetch first page to get totalPages
       final firstResponse = await apiService.fetchCustomer(
-        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+        salesmanId: '',
         customerName: provider.searchCustomerName,
         startDate: '',
         endDate: '',
@@ -2698,8 +3143,8 @@ class _TableeeState extends State<Tableee> {
       await customerBox.put(cacheKeyFirst, firstResponse.toJson());
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
-        final response = await apiService.fetchCustomer(
-          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+        final response = await ApiService().fetchCustomer(
+          salesmanId: '',
           customerName: provider.searchCustomerName,
           startDate: '',
           endDate: '',
@@ -2735,6 +3180,206 @@ class _TableeeState extends State<Tableee> {
       rethrow;
     }
   }
+  // Future<void> fetchAllCustomerPages(BuildContext context) async {
+  //   final provider = Provider.of<CustomersProvider>(context, listen: false);
+  //   final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+  //   final apiService = ApiService();
+    
+  //   List<CustomerModelxx> allCustomers = [];
+  //   List<OrderTotalxx> allOrderTotals = [];
+  //   List<YearsListOfAll> allYearsList = [];
+  //   int totalPages = 1;
+  //   int page = 1;
+
+  //   try {
+  //     // -------------------------------------------------------------
+  //     // 1. DYNAMICALLY CALCULATE DATES & PAYLOAD (Matches Web App)
+  //     // -------------------------------------------------------------
+  //     int selectedYear = dashboardProvider.selectedYear != 0 ? dashboardProvider.selectedYear : DateTime.now().year;
+
+  //     String apiValueFromDw = "All";
+  //     List<String> apiSelectedRange = [];
+  //     String apiStartDate = "";
+  //     String apiEndDate = "";
+
+  //     final List<String> monthNames = [
+  //       "January", "February", "March", "April", "May", "June",
+  //       "July", "August", "September", "October", "November", "December"
+  //     ];
+
+  //     switch (provider.selectedFilter) {
+  //       case FilterDateEnum.thisMonth:
+  //         apiValueFromDw = "Month";
+  //         apiSelectedRange = dashboardProvider.selectedFilterMonths;
+  //         String selectedMonth = apiSelectedRange.isNotEmpty ? apiSelectedRange.first : "";
+  //         int monthIndex = monthNames.indexOf(selectedMonth) + 1;
+  //         if (monthIndex > 0) {
+  //           apiStartDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, monthIndex, 1));
+  //           apiEndDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, monthIndex + 1, 0));
+  //         }
+  //         break;
+
+  //       case FilterDateEnum.thisWeek:
+  //         apiValueFromDw = "Week";
+  //         apiSelectedRange = dashboardProvider.selectedFilterWeeks;
+  //         apiStartDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 1, 1));
+  //         apiEndDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 12, 31));
+  //         break;
+
+  //       case FilterDateEnum.thisYear:
+  //         apiValueFromDw = "Year";
+  //         apiSelectedRange = [selectedYear.toString()];
+  //         apiStartDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 1, 1));
+  //         apiEndDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 12, 31));
+  //         break;
+
+  //       case FilterDateEnum.range:
+  //         apiValueFromDw = "Range";
+  //         apiSelectedRange = [provider.selectedStartDate, provider.selectedEndDate];
+  //         apiStartDate = provider.selectedStartDate;
+  //         apiEndDate = provider.selectedEndDate;
+  //         break;
+
+  //       case FilterDateEnum.today:
+  //         apiValueFromDw = "Day";
+  //         apiSelectedRange = [dashboardProvider.selectedDate];
+  //         apiStartDate = dashboardProvider.selectedDate;
+  //         apiEndDate = dashboardProvider.selectedDate;
+  //         break;
+
+  //       default:
+  //         apiValueFromDw = "All";
+  //     }
+
+  //     // -------------------------------------------------------------
+  //     // 2. FETCH FIRST PAGE
+  //     // -------------------------------------------------------------
+  //     final firstResponse = await apiService.fetchCustomer(
+  //       salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //       customerName: provider.searchCustomerName,
+  //       limit: 10,
+  //       page: 1,
+  //       valueFromDw: apiValueFromDw,
+  //       selectedRange: apiSelectedRange,
+  //       startDate: apiStartDate,  // Now passes "2025-01-01"
+  //       endDate: apiEndDate,      // Now passes "2025-01-31"
+  //       year: selectedYear,       // Now passes 2025 to previous_year_of_sales
+  //     );
+      
+  //     allCustomers.addAll(firstResponse.data);
+  //     allOrderTotals.addAll(firstResponse.orderTotal);
+  //     allYearsList.addAll(firstResponse.yearsListOfAll);
+  //     totalPages = firstResponse.pagination.totalPages;
+      
+  //     final customerBox = Hive.box('customerBox');
+  //     final cacheKeyFirst = '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
+  //     await customerBox.put(cacheKeyFirst, firstResponse.toJson());
+      
+  //     // -------------------------------------------------------------
+  //     // 3. FETCH REMAINING PAGES
+  //     // -------------------------------------------------------------
+  //     for (page = 2; page <= totalPages; page++) {
+  //       final response = await apiService.fetchCustomer(
+  //         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //         customerName: provider.searchCustomerName,
+  //         limit: 10,
+  //         page: page,
+  //         valueFromDw: apiValueFromDw,
+  //         selectedRange: apiSelectedRange,
+  //         startDate: apiStartDate,
+  //         endDate: apiEndDate,
+  //         year: selectedYear,
+  //       );
+  //       allCustomers.addAll(response.data);
+  //       allOrderTotals.addAll(response.orderTotal);
+  //       allYearsList.addAll(response.yearsListOfAll);
+        
+  //       final cacheKey = '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
+  //       await customerBox.put(cacheKey, response.toJson());
+  //     }
+      
+  //     provider.setCustomers(allCustomers, totalPages);
+  //     provider.setOrderTotal(allOrderTotals);
+  //     provider.setYearList(allYearsList);
+
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
+  // Future<void> fetchAllCustomerPages(BuildContext context) async {
+  //   final provider = Provider.of<CustomersProvider>(context, listen: false);
+  //   final apiService = ApiService();
+  //   List<CustomerModelxx> allCustomers = [];
+  //   List<OrderTotalxx> allOrderTotals = [];
+  //   List<YearsListOfAll> allYearsList = [];
+  //   int totalPages = 1;
+  //   int page = 1;
+  //   try {
+  //     // Fetch first page to get totalPages
+  //     final firstResponse = await apiService.fetchCustomer(
+  //       salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //       customerName: provider.searchCustomerName,
+  //       startDate: '',
+  //       endDate: '',
+  //       limit: 10,
+  //       page: 1,
+  //       valueFromDw: (provider.selectedFilter == FilterDateEnum.range
+  //               ? [
+  //                   provider.selectedFilter.name,
+  //                   provider.selectedStartDate,
+  //                   provider.selectedEndDate
+  //                 ]
+  //               : provider.selectedFilter.name)
+  //           .toString(),
+  //     );
+  //     allCustomers.addAll(firstResponse.data);
+  //     allOrderTotals.addAll(firstResponse.orderTotal);
+  //     allYearsList.addAll(firstResponse.yearsListOfAll);
+  //     totalPages = firstResponse.pagination.totalPages;
+  //     // Save first page to Hive with cacheKey
+  //     final customerBox = Hive.box('customerBox');
+  //     final cacheKeyFirst =
+  //         '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
+  //     await customerBox.put(cacheKeyFirst, firstResponse.toJson());
+  //     // Fetch remaining pages if any
+  //     for (page = 2; page <= totalPages; page++) {
+  //       final response = await apiService.fetchCustomer(
+  //         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+  //         customerName: provider.searchCustomerName,
+  //         startDate: '',
+  //         endDate: '',
+  //         limit: 10,
+  //         page: page,
+  //         valueFromDw: (provider.selectedFilter == FilterDateEnum.range
+  //                 ? [
+  //                     provider.selectedFilter.name,
+  //                     provider.selectedStartDate,
+  //                     provider.selectedEndDate
+  //                   ]
+  //                 : provider.selectedFilter.name)
+  //             .toString(),
+  //       );
+  //       allCustomers.addAll(response.data);
+  //       allOrderTotals.addAll(response.orderTotal);
+  //       allYearsList.addAll(response.yearsListOfAll);
+  //       final cacheKey =
+  //           '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
+  //       await customerBox.put(cacheKey, response.toJson());
+  //     }
+  //     provider.setCustomers(allCustomers, totalPages);
+  //     provider.setOrderTotal(allOrderTotals);
+  //     provider.setYearList(allYearsList);
+  //     // Build unique customerId list from all pages
+  //     // final allCustomerIds = allCustomers
+  //     //     .map((c) => c.customerId)
+  //     //     .where((id) => id.isNotEmpty)
+  //     //     .toSet()
+  //     //     .toList();
+  //     // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
 }
 
 class TopTotalWidget extends StatelessWidget {
@@ -2910,8 +3555,8 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Sales',
+                       Text(
+                        'Sales'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2924,8 +3569,8 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Deliveries',
+                       Text(
+                        'Deliveries'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2938,8 +3583,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Payments',
+                       Text(
+                        'Payments'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2952,8 +3597,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Bookings',
+                       Text(
+                        'Bookings'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2966,8 +3611,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Estimates',
+                       Text(
+                        'Estimates'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2980,8 +3625,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Drafts',
+                       Text(
+                        'Drafts'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -2994,8 +3639,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Cancelled',
+                       Text(
+                        'Cancelled'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -3008,8 +3653,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Visit',
+                       Text(
+                        'Visit'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -3337,10 +3982,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                         const SizedBox(width: 10),
                         Container(
                           color: Colors.grey[200],
-                          child: const Column(
+                          child:  Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Total',
+                              Text('Total'.tr,
                                   style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700)),
@@ -4418,7 +5063,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Customer Check-Out'),
+              title:  Text('Customer Check-Out'.tr),
               content: Text(
                   '$customerName is already checked In. Do you want to Check-out?'),
               actions: [
@@ -5243,9 +5888,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
-                                                child: const Center(
+                                                child:  Center(
                                                   child: Text(
-                                                    'Total',
+                                                    'Total'.tr,
                                                     maxLines: 2,
                                                   ),
                                                 ),
@@ -5416,9 +6061,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Customer List',
+                                                  'Customer List'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5434,9 +6079,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Order No.',
+                                                  'Order No.'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5451,9 +6096,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Created',
+                                                  'Created'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5468,9 +6113,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Created By',
+                                                  'Created By'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5485,9 +6130,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Amount',
+                                                  'Amount'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5502,9 +6147,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Invoice',
+                                                  'Invoice'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5519,9 +6164,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Payment Status',
+                                                  'Payment Status'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -5536,9 +6181,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child:  Center(
                                                 child: Text(
-                                                  'Status',
+                                                  'Status'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),

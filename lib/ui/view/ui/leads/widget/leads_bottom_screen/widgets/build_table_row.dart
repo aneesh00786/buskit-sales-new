@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget buildTableRow(
   LeadCustomerData leadCustomerData,
@@ -147,20 +148,20 @@ Widget buildTableRow(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: const Text('Delete Lead'),
-                              content: const Text(
-                                  'Are you sure you want to delete this lead?'),
+                              title:  Text('Delete Lead'.tr),
+                              content:  Text(
+                                  'Are you sure you want to delete this lead?'.tr),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.of(context).pop(false),
-                                  child: const Text('Cancel'),
+                                  child:  Text('Cancel'.tr),
                                 ),
                                 TextButton(
                                   onPressed: () async {
                                     Navigator.pop(context, true);
                                   },
-                                  child: const Text('Confirm'),
+                                  child:  Text('Confirm'.tr),
                                 ),
                               ],
                             );

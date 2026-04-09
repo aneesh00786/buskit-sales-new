@@ -375,7 +375,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               const Divider(),
               const SizedBox(height: 10),
               CustomText(
-                content: 'Reached Customer?',
+                content: 'Reached Customer?'.tr,
                 fontSize: 17,
               ),
             ],
@@ -454,7 +454,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       );
                     });
                   },
-                  child: const Text("Go to Customer",
+                  child:  Text("Go to Customer".tr,
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(height: 8),
@@ -490,7 +490,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       );
                     }
                   },
-                  child: const Text('Continue Navigation'),
+                  child:  Text('Continue Navigation'.tr),
                 ),
                 TextButton(
                   onPressed: () {
@@ -503,7 +503,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                     }
                   },
                   child:
-                      Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                      Text('Cancel'.tr, style: TextStyle(color: Colors.grey[600])),
                 ),
                 // TextButton(
                 //   onPressed: () => Navigator.of(context).pop(),
@@ -758,8 +758,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Customer List',
+                             Text(
+                              'Customer List'.tr,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20,
@@ -774,7 +774,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                               ),
                               icon: const Icon(Icons.play_arrow_rounded,
                                   color: Colors.green, size: 20),
-                              label: const Text("Start Navigation",
+                              label:  Text("Start Navigation".tr,
                                   style: TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold)),

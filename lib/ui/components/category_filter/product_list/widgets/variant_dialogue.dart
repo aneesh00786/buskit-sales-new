@@ -115,7 +115,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               right: screenWidth * 0.1,
                             ),
                             child: CustomText(
-                              content: 'Product Variant',
+                              content: 'Product Variant'.tr,
                               fontSize: screenWidth * 0.03,
                               fontWeight: FontWeight.bold,
                               fontFamily: fontFamilyName,
@@ -344,7 +344,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Variant',
+                                      content: 'Variant'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -356,7 +356,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Unit',
+                                      content: 'Unit'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -368,7 +368,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Sale price',
+                                      content: 'Sale price'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -380,7 +380,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Tax',
+                                      content: 'Tax'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -392,7 +392,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Pack',
+                                      content: 'Pack'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -404,7 +404,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Total',
+                                      content: 'Total'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -416,7 +416,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Stock',
+                                      content: 'Stock'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -428,7 +428,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Sale by',
+                                      content: 'Sale by'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -440,7 +440,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                 label: Expanded(
                                   child: Center(
                                     child: CustomText(
-                                      content: 'Quantity',
+                                      content: 'Quantity'.tr,
                                       color: black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: fontSize,
@@ -647,13 +647,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                               ],
                                                             ),
                                                             content:
-                                                                const Column(
+                                                                 Column(
                                                               mainAxisSize:
                                                                   MainAxisSize
                                                                       .min,
                                                               children: [
                                                                 Text(
-                                                                  'This item is out of stock.',
+                                                                  'This item is out of stock.'.tr,
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -668,7 +668,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                 SizedBox(
                                                                     height: 10),
                                                                 Text(
-                                                                  'Do you want to add this as a booking?',
+                                                                  'Do you want to add this as a booking?'.tr,
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -830,7 +830,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                             if (totalCount == 0) {
                               showCustomToastDisplay(
                                   context,
-                                  "Choose at least one variant to add to cart",
+                                  "Choose at least one variant to add to cart".tr,
                                   Colors.orange,
                                   Icons.warning);
                               return;
@@ -918,7 +918,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                         child: Row(
                           children: [
                             CustomText(
-                              content: "Add to Cart",
+                              content: "Add to Cart".tr,
                               fontSize: screenWidth * 0.02,
                               color: Colors.white,
                             ),

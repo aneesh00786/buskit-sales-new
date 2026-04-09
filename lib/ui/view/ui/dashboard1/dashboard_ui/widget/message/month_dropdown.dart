@@ -114,7 +114,8 @@ List<String> get months => [
     } else if (selectedMonths.length == 1) {
       return selectedMonths.first;
     } else if (selectedMonths.isNotEmpty) {
-      return "${selectedMonths.length} months selected";
+      return "${selectedMonths.length} " + "months selected".tr;
+      // return "${selectedMonths.length} months selected";
     } else {
       return "Select Months";
     }
@@ -188,7 +189,7 @@ List<String> get months => [
                               onChanged: (value) {
                                 _toggleSelectAll(context, value);
                               },
-                              title: const Text("Select All", style: TextStyle(fontWeight: FontWeight.bold)),
+                              title:  Text("Select All".tr, style: TextStyle(fontWeight: FontWeight.bold)),
                               controlAffinity: ListTileControlAffinity.leading,
                             );
                           },
@@ -245,45 +246,45 @@ List<String> get months => [
           const SizedBox(width: 5),
           
           // --- UPDATED BUTTON LOGIC STARTS HERE ---
-          Container(
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () async {
-                bool isOnline = await ConnectivityService().isOnline();
-                if (!isOnline) {
-                  showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
-                  return;
-                }
+          // Container(
+          //   height: 50,
+          //   child: ElevatedButton(
+          //     onPressed: () async {
+          //       bool isOnline = await ConnectivityService().isOnline();
+          //       if (!isOnline) {
+          //         showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
+          //         return;
+          //       }
 
-                // CHECK: Is a custom action (like Customer Fetch) provided?
-                if (widget.onApplyTap != null) {
-                  // If yes, execute that action!
-                  widget.onApplyTap!();
-                } else {
-                  // If no, fallback to original Dashboard behavior
-                  final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-                  await dashboardProvider.setTempToFilter();
-                  await dashboardProvider.fetchAllOrdersAtOnce();
-                  dashboardProvider.fetchData();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
-                textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              child:  Text('Go'.tr),
-            ),
-          ),
+          //       // CHECK: Is a custom action (like Customer Fetch) provided?
+          //       if (widget.onApplyTap != null) {
+          //         // If yes, execute that action!
+          //         widget.onApplyTap!();
+          //       } else {
+          //         // If no, fallback to original Dashboard behavior
+          //         final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+          //         await dashboardProvider.setTempToFilter();
+          //         await dashboardProvider.fetchAllOrdersAtOnce();
+          //         dashboardProvider.fetchData();
+          //       }
+          //     },
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: primaryColor,
+          //       foregroundColor: Colors.white,
+          //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //       elevation: 4,
+          //       shadowColor: primaryColor.withOpacity(0.4),
+          //       textStyle: const TextStyle(
+          //         fontSize: 13,
+          //         fontWeight: FontWeight.w700,
+          //       ),
+          //     ),
+          //     child:  Text('Go'.tr),
+          //   ),
+          // ),
           // --- UPDATED BUTTON LOGIC ENDS HERE ---
         ],
       );

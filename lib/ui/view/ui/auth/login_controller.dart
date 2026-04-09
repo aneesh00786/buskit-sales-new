@@ -105,6 +105,11 @@ class LoginController extends GetxController {
   final int currentYear = DateTime.now().year;
   int selectedTabIndex = 0;
   SearchModel searchData = SearchModel();
+   RxBool isSyncing = false.obs;
+
+  void setSyncing(bool value) {
+    isSyncing.value = value;
+  }
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;

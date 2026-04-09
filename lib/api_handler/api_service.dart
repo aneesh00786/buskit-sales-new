@@ -1011,6 +1011,7 @@ print('dashboard list body:$requestBody');
   bool isLogin = false,
   bool checkDate = false,
 }) async {
+  print('fetch fetchAllOrders apio called');
   
   // --- 1. PREPARE VARIABLES (Like in fetchDashboardData) ---
   dynamic sendData;
@@ -1045,13 +1046,13 @@ print('dashboard list body:$requestBody');
     default:
       sendData = selectedMonths;
   }
-
-  // --- 2. CONSTRUCT BODY ---
-  // We determine the year to send: 
-  // If timeRange is "year", use the selected `year`. Otherwise, current year.
-  final int yearToSend = (timeRangePayload == "year" && year != null) 
+final int yearToSend = (year != null && year != 0) 
       ? year 
       : DateTime.now().year;
+ 
+  // final int yearToSend = (timeRangePayload == "year" && year != null) 
+  //     ? year 
+  //     : DateTime.now().year;
 
   final requestBody = isLogin
       ? {
@@ -1140,226 +1141,6 @@ print('dashboard list body:$requestBody');
   }
 }
   
-  // Future<OrderResponse> fetchAllOrders({
-  //   String? fetchType,
-  //   String? startDate,
-  //   String? endDate,
-  //   String? selectedDay,
-  //   List<String>? selectedMonths,
-  //   List<String>? selectedWeeks,
-  //   int? year,
-  //   OrderStatus? orderStatus,
-  //   required dynamic orderType,
-  //   bool isLogin = false,
-  //   bool checkDate = false,
-  // }) async {
-  //   dynamic sendData;
-  //   switch (fetchType) {
-  //     case "Month":
-  //       sendData = selectedMonths;
-  //       break;
-  //     case "Week":
-  //       sendData = selectedWeeks;
-  //       break;
-  //     case "Day":
-  //       sendData = [selectedDay];
-  //       break;
-  //     case "Year":
-      
-  //       sendData = year.toString();
-         
-  //       break;
-  //     case "Range":
-  //       sendData = [startDate, endDate];
-  //       break;
-  //     default:
-  //       sendData = selectedMonths;
-  //   }
-
-  //   final requestBody = isLogin
-  //       ? {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": "",
-  //           "time_range": "Month",
-  //           "selected_range": [DateFormat('MMMM').format(DateTime.now())],
-  //           "payment_type": "",
-  //           "year": DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         }
-  //       : {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": "",
-  //           "time_range":
-  //               fetchType?.toLowerCase() == "year" ? "year" : fetchType,
-  //           "selected_range": sendData,
-  //           "payment_type": "",
-  //           "year": fetchType == "Year" ? year : DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         };
-
-  //   final cacheKey =
-  //       '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType${checkDate ? '_true' : ''}';
-
-  //   final orderBox = await getHiveBoxSafely('fetchAllOrdersBox');
-
-  //   try {
-  //     final isOnline = await ConnectivityService().isOnline();
-  //     if (!isOnline) {
-  //       final cachedData = orderBox.get(cacheKey);
-  //       if (cachedData != null) {
-  //         // log("Cached data found: $cachedData");
-  //         Map<String, dynamic> safeMap = ensureStringKeyedMap(cachedData);
-  //         return OrderResponse.fromJson(safeMap);
-  //       }
-  //     }
-  //     print('API REQUEST BODY: $requestBody');
-
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.fetchAllOrderByRange,
-  //       requestData: requestBody,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = response.data;
-  //     print('response from orders api:$jsonResponse');
-  //       await orderBox.put(cacheKey, Map<String, dynamic>.from(jsonResponse));
-
-  //       return OrderResponse.fromJson(ensureStringKeyedMap(jsonResponse));
-  //     } else {
-  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
-  //     }
-  //   } on SocketException {
-  //     final cachedData = orderBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       Map<String, dynamic> safeMap = ensureStringKeyedMap(cachedData);
-  //       return OrderResponse.fromJson(safeMap);
-  //     } else {
-  //       throw Exception('Network error, and no cached data is available.');
-  //     }
-  //   } catch (e) {
-  //     final cachedData = orderBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       Map<String, dynamic> safeMap = ensureStringKeyedMap(cachedData);
-  //       return OrderResponse.fromJson(safeMap);
-  //     } else {
-  //       throw Exception('Unexpected error occurred: $e');
-  //     }
-  //   }
-  // }
-
-  // Future<OrderResponse> fetchAllOrders({
-  //   String? fetchType,
-  //   String? startDate,
-  //   String? endDate,
-  //   String? selectedDay,
-  //   List<String>? selectedMonths,
-  //   List<String>? selectedWeeks,
-  //   int? year,
-  //   OrderStatus? orderStatus,
-  //   required dynamic orderType,
-  //   bool isLogin = false,
-  //   bool checkDate = false,
-  // }) async {
-  //   Object? sendData;
-  //   switch (fetchType) {
-  //     case "Month":
-  //       sendData = selectedMonths;
-  //       break;
-  //     case "Week":
-  //       sendData = selectedWeeks;
-  //       break;
-  //     case "Day":
-  //       sendData = [selectedDay];
-  //       break;
-  //     case "Year":
-  //       sendData = year.toString();
-  //       break;
-  //     case "Range":
-  //       sendData = [startDate, endDate];
-  //       break;
-  //     default:
-  //       sendData = selectedMonths;
-  //   }
-
-  //   final requestBody = isLogin
-  //       ? {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //           "time_range": "Month",
-  //           "selected_range": [DateFormat('MMMM').format(DateTime.now())],
-  //           "payment_type": "",
-  //           "year": DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         }
-  //       : {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //           "time_range": fetchType == "Year" ? 'year' : fetchType,
-  //           "selected_range": sendData,
-  //           "payment_type": "",
-  //           "year": fetchType == "Year" ? year : DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         };
-
-  //   final cacheKey =
-  //       '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType${checkDate ? '_true' : ''}';
-  //   final orderBox = Hive.box('fetchAllOrdersBox');
-  //   try {
-  //     final isOnline = await ConnectivityService().isOnline();
-  //     if (!isOnline) {
-  //       final cachedData = orderBox.get(cacheKey);
-  //       if (cachedData != null) {
-  //         final castedData = LocalStorage()
-  //             .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-  //         return OrderResponse.fromJson(castedData);
-  //       }
-  //     }
-
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.fetchAllOrderByRange,
-  //       requestData: requestBody,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = response.data;
-  //       await orderBox.put(cacheKey, jsonResponse);
-  //       return OrderResponse.fromJson(Map<String, dynamic>.from(jsonResponse));
-  //     } else {
-  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
-  //     }
-  //   } on SocketException {
-  //     final cachedData = orderBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       final castedData = LocalStorage()
-  //           .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-  //       return OrderResponse.fromJson(castedData);
-  //     } else {
-  //       throw Exception('Network error, and no cached data is available.');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Unexpected error occurred: $e');
-  //   }
-  // }
 
   Future<OrderResponse> fetchCustomerDashOrders({
     required String cusId,

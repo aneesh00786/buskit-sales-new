@@ -259,45 +259,45 @@ class _WeekDropdownState extends State<WeekDropdown> {
           const SizedBox(width: 5),
           
           // 2. Updated Go Button Logic
-          Container(
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () async {
-                if (!isOnline) {
-                  showCustomToastDisplay(
-                      context, "You are Offline!".tr, red, Icons.close);
-                  return;
-                }
+          // Container(
+          //   height: 50,
+          //   child: ElevatedButton(
+          //     onPressed: () async {
+          //       if (!isOnline) {
+          //         showCustomToastDisplay(
+          //             context, "You are Offline!".tr, red, Icons.close);
+          //         return;
+          //       }
 
-                // CHECK: If custom action exists, run it. Else, run Dashboard logic.
-                if (widget.onApplyTap != null) {
-                  widget.onApplyTap!();
-                } else {
-                  final dashboardProvider =
-                      Provider.of<DashboardProvider>(context, listen: false);
+          //       // CHECK: If custom action exists, run it. Else, run Dashboard logic.
+          //       if (widget.onApplyTap != null) {
+          //         widget.onApplyTap!();
+          //       } else {
+          //         final dashboardProvider =
+          //             Provider.of<DashboardProvider>(context, listen: false);
 
-                  await dashboardProvider.setTempToFilter();
-                  await dashboardProvider.fetchAllOrdersAtOnce();
-                  dashboardProvider.fetchData();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
-                textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              child: const Text('Go'),
-            ),
-          ),
+          //         await dashboardProvider.setTempToFilter();
+          //         await dashboardProvider.fetchAllOrdersAtOnce();
+          //         dashboardProvider.fetchData();
+          //       }
+          //     },
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: primaryColor,
+          //       foregroundColor: Colors.white,
+          //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //       elevation: 4,
+          //       shadowColor: primaryColor.withOpacity(0.4),
+          //       textStyle: const TextStyle(
+          //         fontSize: 13,
+          //         fontWeight: FontWeight.w700,
+          //       ),
+          //     ),
+          //     child: const Text('Go'),
+          //   ),
+          // ),
         ],
       );
     });

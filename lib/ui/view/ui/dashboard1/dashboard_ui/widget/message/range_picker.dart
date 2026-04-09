@@ -40,8 +40,8 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
             _datePickerButton(context, provider, widget.isSmallScreen, true),
             const SizedBox(width: 6),
             _datePickerButton(context, provider, widget.isSmallScreen, false),
-            const SizedBox(width: 6),
-            _goButton(context, provider, widget.isSmallScreen),
+            // const SizedBox(width: 6),
+            // _goButton(context, provider, widget.isSmallScreen),
           ],
         );
       },
@@ -122,54 +122,54 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
     );
   }
 
-  Widget _goButton(
-      BuildContext context, DashboardProvider provider, bool isSmallScreen) {
-    return Container(
-      height: 50,
-      child: ElevatedButton(
-        onPressed: () async {
-          await checkOnline();
-          if (!isOnline) {
-            showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
-            return;
-          }
+  // Widget _goButton(
+  //     BuildContext context, DashboardProvider provider, bool isSmallScreen) {
+  //   return Container(
+  //     height: 50,
+  //     child: ElevatedButton(
+  //       onPressed: () async {
+  //         await checkOnline();
+  //         if (!isOnline) {
+  //           showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
+  //           return;
+  //         }
 
-          if (provider.selectedStartDate.isEmpty) {
-            showCustomToastDisplay(
-                context, "Select start date", Colors.orange, Icons.warning);
-          }
-          if (provider.selectedEndDate.isEmpty) {
-            showCustomToastDisplay(
-                context, "Select end date", Colors.orange, Icons.warning);
-          }
-          if (provider.selectedStartDate.isNotEmpty &&
-              provider.selectedEndDate.isNotEmpty) {
-            final dashboardProvider =
-                Provider.of<DashboardProvider>(context, listen: false);
+  //         if (provider.selectedStartDate.isEmpty) {
+  //           showCustomToastDisplay(
+  //               context, "Select start date", Colors.orange, Icons.warning);
+  //         }
+  //         if (provider.selectedEndDate.isEmpty) {
+  //           showCustomToastDisplay(
+  //               context, "Select end date", Colors.orange, Icons.warning);
+  //         }
+  //         if (provider.selectedStartDate.isNotEmpty &&
+  //             provider.selectedEndDate.isNotEmpty) {
+  //           final dashboardProvider =
+  //               Provider.of<DashboardProvider>(context, listen: false);
 
-            await dashboardProvider.setTempToFilter();
+  //           await dashboardProvider.setTempToFilter();
 
-            await dashboardProvider.fetchAllOrdersAtOnce();
+  //           await dashboardProvider.fetchAllOrdersAtOnce();
 
-            dashboardProvider.fetchData();
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 4,
-          shadowColor: primaryColor.withOpacity(0.4),
-          textStyle: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        child: const Text('Go'),
-      ),
-    );
-  }
+  //           dashboardProvider.fetchData();
+  //         }
+  //       },
+  //       style: ElevatedButton.styleFrom(
+  //         backgroundColor: primaryColor,
+  //         foregroundColor: Colors.white,
+  //         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         elevation: 4,
+  //         shadowColor: primaryColor.withOpacity(0.4),
+  //         textStyle: const TextStyle(
+  //           fontSize: 13,
+  //           fontWeight: FontWeight.w700,
+  //         ),
+  //       ),
+  //       child: const Text('Go'),
+  //     ),
+  //   );
+  // }
 }

@@ -162,19 +162,14 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       ],
     );
   }
-
-  Widget _buildFilterDropdown(
-      DashboardProvider provider, BuildContext context) {
+  Widget _buildFilterDropdown(DashboardProvider provider, BuildContext context) {
     return SizedBox(
       height: 50,
       width: 125,
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Colors.white,
-            ],
+          gradient: const LinearGradient(
+            colors: [Colors.white, Colors.white],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -196,89 +191,190 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          child: DropdownButton<FilterDateEnum>(
-            value: provider.selectedFilterTemp,
-            onChanged: (newValue) async {
-              bool isOnline = await ConnectivityService().isOnline();
-              if (!isOnline) {
-                showCustomToastDisplay(
-                    context, "You are Offline!".tr, red, Icons.close);
-                return;
-              }
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<FilterDateEnum>(
+              // Fallback to month if somehow stuck on thisYear
+              value: provider.selectedFilterTemp == FilterDateEnum.thisYear 
+                  ? FilterDateEnum.thisMonth 
+                  : provider.selectedFilterTemp,
+              onChanged: (newValue) async {
+                bool isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                  return;
+                }
 
-              if (newValue != null) {
-                provider.onFilterChanged(newValue);
-              }
-            },
-            items:  [
-              DropdownMenuItem(
-                value: FilterDateEnum.thisMonth,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Month'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+                if (newValue != null) {
+                  provider.onFilterChanged(newValue);
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                  value: FilterDateEnum.thisMonth,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Month'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.thisWeek,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Week'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+                DropdownMenuItem(
+                  value: FilterDateEnum.thisWeek,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today, size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Week'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.today,
-                child: Row(
-                  children: [
-                    Icon(Icons.today, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Day'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+                DropdownMenuItem(
+                  value: FilterDateEnum.today,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.today, size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Day'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.thisYear,
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Year'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
+                // REMOVED FilterDateEnum.thisYear
+                DropdownMenuItem(
+                  value: FilterDateEnum.range,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.date_range, size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Range'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
-              ),
-              DropdownMenuItem(
-                value: FilterDateEnum.range,
-                child: Row(
-                  children: [
-                    Icon(Icons.date_range, size: 16, color: primaryColor),
-                    SizedBox(width: 8),
-                    Text('Range'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ],
-            isExpanded: true,
-            borderRadius: BorderRadius.circular(12),
-            underline: Container(),
+              ],
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ),
     );
   }
 
+  // Widget _buildFilterDropdown(
+  //     DashboardProvider provider, BuildContext context) {
+  //   return SizedBox(
+  //     height: 50,
+  //     width: 125,
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         gradient: LinearGradient(
+  //           colors: [
+  //             Colors.white,
+  //             Colors.white,
+  //           ],
+  //           begin: Alignment.topLeft,
+  //           end: Alignment.bottomRight,
+  //         ),
+  //         borderRadius: BorderRadius.circular(12),
+  //         border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: Colors.black.withOpacity(0.08),
+  //             blurRadius: 8,
+  //             offset: const Offset(0, 4),
+  //             spreadRadius: 0,
+  //           ),
+  //           BoxShadow(
+  //             color: Colors.white.withOpacity(0.8),
+  //             blurRadius: 0,
+  //             offset: const Offset(-2, -2),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+  //         child: DropdownButton<FilterDateEnum>(
+  //           value: provider.selectedFilterTemp,
+  //           onChanged: (newValue) async {
+  //             bool isOnline = await ConnectivityService().isOnline();
+  //             if (!isOnline) {
+  //               showCustomToastDisplay(
+  //                   context, "You are Offline!".tr, red, Icons.close);
+  //               return;
+  //             }
+
+  //             if (newValue != null) {
+  //               provider.onFilterChanged(newValue);
+  //             }
+  //           },
+  //           items:  [
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.thisMonth,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.calendar_month, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Month'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.thisWeek,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.calendar_today, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Week'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.today,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.today, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Day'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.thisYear,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Year'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //             DropdownMenuItem(
+  //               value: FilterDateEnum.range,
+  //               child: Row(
+  //                 children: [
+  //                   Icon(Icons.date_range, size: 16, color: primaryColor),
+  //                   SizedBox(width: 8),
+  //                   Text('Range'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //           isExpanded: true,
+  //           borderRadius: BorderRadius.circular(12),
+  //           underline: Container(),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget calender() {
-    Get.find<LoginController>();
+    final loginController = Get.find<LoginController>();
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return Consumer<DashboardProvider>(
           builder: (context, provider, child) {
-            /// --- Tablet Layout (keep as Row)
+            /// --- Tablet Layout
             if (isTabletOrPhoneLandscape(context)) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -287,79 +383,75 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                   Flexible(
                     child: Row(
                       children: [
-                        // CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
+                        const SizedBox(width: 5),
 
+                        // 1. Conditional Standalone Year Dropdown
+                        if (provider.selectedFilterTemp != FilterDateEnum.range) ...[
+                          buildYearDropdownWidget(context, provider),
+                          const SizedBox(width: 10),
+                        ],
+
+                        // 2. Main Filter Dropdown
                         _buildFilterDropdown(provider, context),
-                        if (provider.selectedFilterTemp ==
-                            FilterDateEnum.thisMonth) ...[
+
+                        // 3. Conditional Pickers
+                        if (provider.selectedFilterTemp == FilterDateEnum.thisMonth) ...[
                           const SizedBox(width: 10),
                           const MonthDropdown()
                         ],
-                        if (provider.selectedFilterTemp ==
-                            FilterDateEnum.thisWeek) ...[
+                        if (provider.selectedFilterTemp == FilterDateEnum.thisWeek) ...[
                           const SizedBox(width: 10),
                           const WeekDropdown()
                         ],
-                        if (provider.selectedFilterTemp ==
-                            FilterDateEnum.thisYear) ...[
-                          const SizedBox(width: 10),
-                          const YearDropdown()
-                        ],
-                        if (provider.selectedFilterTemp ==
-                            FilterDateEnum.today) ...[
+                        if (provider.selectedFilterTemp == FilterDateEnum.today) ...[
                           const SizedBox(width: 10),
                           const DatePickerWidget()
                         ],
-                        if (provider.selectedFilterTemp ==
-                            FilterDateEnum.range) ...[
+                        if (provider.selectedFilterTemp == FilterDateEnum.range) ...[
                           const SizedBox(width: 10),
                           const Expanded(
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: SizedBox(
-                                width: 320,
+                                width: 300,
                                 child: RangePickerWidget(),
                               ),
                             ),
                           ),
                         ],
+                        const SizedBox(width: 10),
+                        
+                        // 4. Unified Go Button
+                        buildGoButton(context, provider),
                       ],
                     ),
                   ),
                   const SizedBox(width: 15),
-                  // Obx(() => loginController.isSyncing.value
-                  //     ? SizedBox(
-                  //         width: 100,
-                  //         child: Center(
-                  //           child: GestureDetector(
-                  //             onTap: () {
-                  //               showDialog(
-                  //                 context: context,
-                  //                 builder: (context) => AlertDialog(
-                  //                   title: const Text('Syncing'),
-                  //                   content: const Text(
-                  //                       'Data syncing in background'),
-                  //                   actions: [
-                  //                     TextButton(
-                  //                       onPressed: () =>
-                  //                           Navigator.of(context).pop(),
-                  //                       child: const Text('OK'),
-                  //                     ),
-                  //                   ],
-                  //                 ),
-                  //               );
-                  //             },
-                  //             child: const CircularProgressIndicator(),
-                  //           ),
-                  //         ),
-                  //       )
-                  //     : const SizedBox.shrink()),
-                  const SizedBox(width: 15),
-                  // NotificationWidget(
-                  //   startDate: provider.selectedStartDate,
-                  //   endDate: provider.selectedEndDate,
-                  // ),
-                  // SizedBox(width: 110, child: profiloe()),
+                  Obx(() => loginController.isSyncing.value
+                      ? SizedBox(
+                          width: 100,
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Syncing'),
+                                    content: const Text('Data syncing in background'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const CircularProgressIndicator(),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink()),
                 ],
               );
             }
@@ -368,7 +460,6 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Top Row: Notification + Update Button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -382,74 +473,77 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                 ),
                 const SizedBox(height: 4),
 
-                /// Filters and Sync in a horizontal scroll
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(width: 5),
+
+                      // 1. Conditional Standalone Year Dropdown
+                      if (provider.selectedFilterTemp != FilterDateEnum.range) ...[
+                        buildYearDropdownWidget(context, provider),
+                        const SizedBox(width: 10),
+                      ],
+
+                      // 2. Main Filter Dropdown
                       _buildFilterDropdown(provider, context),
-                      if (provider.selectedFilterTemp ==
-                          FilterDateEnum.thisMonth) ...[
+
+                      // 3. Conditional Pickers
+                      if (provider.selectedFilterTemp == FilterDateEnum.thisMonth) ...[
                         const SizedBox(width: 10),
                         const MonthDropdown()
                       ],
-                      if (provider.selectedFilterTemp ==
-                          FilterDateEnum.thisWeek) ...[
+                      if (provider.selectedFilterTemp == FilterDateEnum.thisWeek) ...[
                         const SizedBox(width: 10),
                         const WeekDropdown()
                       ],
-                      if (provider.selectedFilterTemp ==
-                          FilterDateEnum.thisYear) ...[
-                        const SizedBox(width: 10),
-                        const YearDropdown()
-                      ],
-                      if (provider.selectedFilterTemp ==
-                          FilterDateEnum.today) ...[
+                      if (provider.selectedFilterTemp == FilterDateEnum.today) ...[
                         const SizedBox(width: 10),
                         const DatePickerWidget()
                       ],
-                      if (provider.selectedFilterTemp ==
-                          FilterDateEnum.range) ...[
+                      if (provider.selectedFilterTemp == FilterDateEnum.range) ...[
                         const SizedBox(width: 10),
                         const SizedBox(
                           width: 320,
                           child: RangePickerWidget(),
                         ),
                       ],
-                      const SizedBox(width: 20),
-                      // Obx(() => loginController.isSyncing.value
-                      //     ? SizedBox(
-                      //         width: 100,
-                      //         child: Center(
-                      //           child: GestureDetector(
-                      //             onTap: () {
-                      //               showDialog(
-                      //                 context: context,
-                      //                 builder: (context) => AlertDialog(
-                      //                   title: const Text('Syncing'),
-                      //                   content: const Text(
-                      //                       'Data syncing in background'),
-                      //                   actions: [
-                      //                     TextButton(
-                      //                       onPressed: () =>
-                      //                           Navigator.of(context).pop(),
-                      //                       child: const Text('OK'),
-                      //                     ),
-                      //                   ],
-                      //                 ),
-                      //               );
-                      //             },
-                      //             child: const CircularProgressIndicator(),
-                      //           ),
-                      //         ),
-                      //       )
-                      //     : const SizedBox.shrink()),
+                      // const SizedBox(width: 10),
+
+                      // 4. Unified Go Button
+                      buildGoButton(context, provider),
+                      
+                      // const SizedBox(width: 20),
+                      Obx(() => loginController.isSyncing.value
+                          ? SizedBox(
+                              width: 100,
+                              child: Center(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Syncing'),
+                                        content: const Text('Data syncing in background'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  child: const CircularProgressIndicator(),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink()),
                     ],
                   ),
                 ),
-                SizedBox(height: 12)
+                const SizedBox(height: 12)
               ],
             );
           },
@@ -458,6 +552,232 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     );
   }
 
+  // Widget calender() {
+  //   Get.find<LoginController>();
+
+  //   return LayoutBuilder(
+  //     builder: (context, constraints) {
+  //       return Consumer<DashboardProvider>(
+  //         builder: (context, provider, child) {
+  //           /// --- Tablet Layout (keep as Row)
+  //           if (isTabletOrPhoneLandscape(context)) {
+  //             return Row(
+  //               mainAxisAlignment: MainAxisAlignment.start,
+  //               crossAxisAlignment: CrossAxisAlignment.center,
+  //               children: [
+  //                 Flexible(
+  //                   child: Row(
+  //                     children: [
+  //                       // CustomText(content: 'Dashboard',fontWeight: FontWeight.bold,),
+
+  //                       _buildFilterDropdown(provider, context),
+  //                       if (provider.selectedFilterTemp ==
+  //                           FilterDateEnum.thisMonth) ...[
+  //                         const SizedBox(width: 10),
+  //                         const MonthDropdown()
+  //                       ],
+  //                       if (provider.selectedFilterTemp ==
+  //                           FilterDateEnum.thisWeek) ...[
+  //                         const SizedBox(width: 10),
+  //                         const WeekDropdown()
+  //                       ],
+  //                       if (provider.selectedFilterTemp ==
+  //                           FilterDateEnum.thisYear) ...[
+  //                         const SizedBox(width: 10),
+  //                         const YearDropdown()
+  //                       ],
+  //                       if (provider.selectedFilterTemp ==
+  //                           FilterDateEnum.today) ...[
+  //                         const SizedBox(width: 10),
+  //                         const DatePickerWidget()
+  //                       ],
+  //                       if (provider.selectedFilterTemp ==
+  //                           FilterDateEnum.range) ...[
+  //                         const SizedBox(width: 10),
+  //                         const Expanded(
+  //                           child: SingleChildScrollView(
+  //                             scrollDirection: Axis.horizontal,
+  //                             child: SizedBox(
+  //                               width: 320,
+  //                               child: RangePickerWidget(),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 15),
+                 
+  //                 const SizedBox(width: 15),
+                
+  //               ],
+  //             );
+  //           }
+
+  //           /// --- Phone Layout
+  //           return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               /// Top Row: Notification + Update Button
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.end,
+  //                 children: [
+  //                   NotificationWidget(
+  //                     startDate: provider.selectedStartDate,
+  //                     endDate: provider.selectedEndDate,
+  //                   ),
+  //                   const SizedBox(width: 10),
+  //                   SizedBox(width: 120, child: profiloe()),
+  //                 ],
+  //               ),
+  //               const SizedBox(height: 4),
+
+  //               /// Filters and Sync in a horizontal scroll
+  //               SingleChildScrollView(
+  //                 scrollDirection: Axis.horizontal,
+  //                 child: Row(
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     const SizedBox(width: 5),
+  //                     _buildFilterDropdown(provider, context),
+  //                     if (provider.selectedFilterTemp ==
+  //                         FilterDateEnum.thisMonth) ...[
+  //                       const SizedBox(width: 10),
+  //                       const MonthDropdown()
+  //                     ],
+  //                     if (provider.selectedFilterTemp ==
+  //                         FilterDateEnum.thisWeek) ...[
+  //                       const SizedBox(width: 10),
+  //                       const WeekDropdown()
+  //                     ],
+  //                     if (provider.selectedFilterTemp ==
+  //                         FilterDateEnum.thisYear) ...[
+  //                       const SizedBox(width: 10),
+  //                       const YearDropdown()
+  //                     ],
+  //                     if (provider.selectedFilterTemp ==
+  //                         FilterDateEnum.today) ...[
+  //                       const SizedBox(width: 10),
+  //                       const DatePickerWidget()
+  //                     ],
+  //                     if (provider.selectedFilterTemp ==
+  //                         FilterDateEnum.range) ...[
+  //                       const SizedBox(width: 10),
+  //                       const SizedBox(
+  //                         width: 320,
+  //                         child: RangePickerWidget(),
+  //                       ),
+  //                     ],
+  //                     const SizedBox(width: 20),
+                    
+  //                   ],
+  //                 ),
+  //               ),
+  //               SizedBox(height: 12)
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider) {
+    final int startYear = 2024;
+    final int currentYear = DateTime.now().year;
+    final int endYear = currentYear;
+
+    final List<int> years = startYear <= endYear
+        ? List.generate(endYear - startYear + 1, (index) => (startYear + index))
+        : [currentYear];
+
+    int displayYear = provider.selectedYear != 0 ? provider.selectedYear : currentYear;
+
+    return SizedBox(
+      height: 50,
+      width: 100,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white, // White background style from your reference
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: years.contains(displayYear) ? displayYear : years.last,
+              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54, size: 20),
+              dropdownColor: Colors.white,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              onChanged: (int? newValue) async {
+                bool isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                  return;
+                }
+                if (newValue != null) {
+                  provider.updateSelectedYear(newValue);
+                  // Only updates UI. Wait for user to press Go to trigger data fetch.
+                }
+              },
+              items: years.map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  Widget buildGoButton(BuildContext context, DashboardProvider provider) {
+    return SizedBox(
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () async {
+          bool isOnline = await ConnectivityService().isOnline();
+          if (!isOnline) {
+            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+            return;
+          }
+
+          // Triggers the specific Dashboard Data update
+          await provider.setTempToFilter();
+          await provider.fetchAllOrdersAtOnce();
+          provider.fetchData();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF4A72FF), // Standard blue Dashboard Go Button
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          shadowColor: const Color(0xFF4A72FF).withOpacity(0.4),
+          textStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        child: Text('Go'.tr),
+      ),
+    );
+  }
   int calculateNotificationCount() {
     return (widget.dashBoardController.recentOrderCountData.mainNotification!
                 .recentOrders ??

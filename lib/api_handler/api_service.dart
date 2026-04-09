@@ -1289,45 +1289,48 @@ final int yearToSend = (year != null && year != 0)
 
     throw Exception('Failed to fetch admin details from API and Hive.');
   }
-
-    Future<CustomerResponseModelxx> fetchCustomer({
+   Future<CustomerResponseModelxx> fetchCustomer({
     required String salesmanId,
     required String customerName,
     required int limit,
     required int page,
-    // Changed params to match new payload structure
-    required String valueFromDw, 
-     List<String> selectedRange = const [], 
+    required String valueFromDw,
+    List<String> selectedRange = const [],
     String startDate = "",
     String endDate = "",
+    int? year, // <--- ADDED YEAR PARAMETER
   }) async {
-    
+    // If year is not passed, fallback to current year
+    final int finalYear = year ?? DateTime.now().year;
+
     // Construct the payload based on the new backend requirement
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "salesman_id":SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": salesmanId,
       "business_name": customerName,
       "limit": limit,
       "page": page,
-      "valueFromDw": valueFromDw, // e.g., "Month", "Week", "Range"
-      "selected_range": selectedRange, // e.g., ["January", "February"]
-      "start_date": startDate, // Keep empty if not needed, or use for Range/Day
+      "valueFromDw": valueFromDw, 
+      "selected_range": selectedRange, 
+      "start_date": startDate, 
       "end_date": endDate,
+      "previous_year_of_sales": finalYear.toString(), // <--- ADDED TO MATCH WEB PAYLOAD
     };
 
     final customerBox = Hive.box('customerBox');
-    final cacheKey =
-        '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
+    final cacheKey = '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
 
     try {
       final response = await responsePostMethod(
         endPoint: ApiConstants.fetchCustomer,
         requestData: requestBody,
       );
+      print('request body of fetch customer: $requestBody'); // Debug print
+      log('response of fetch customer: ${response.data}');
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-log('response of the fetchCustomer API :${response.data}');
+
         if (jsonResponse['status'] != true) {
           throw Exception('API returned error: ${jsonResponse['message']}');
         }
@@ -1335,23 +1338,18 @@ log('response of the fetchCustomer API :${response.data}');
         final customers = (jsonResponse['data'] as List?)
                 ?.where((json) => json != null)
                 .map((json) => CustomerModelxx.fromJson(json))
-                .toList() ??
-            [];
+                .toList() ?? [];
 
         final orderTotal = (jsonResponse['orderTotal'] as List?)
                 ?.where((json) => json != null)
                 .map((json) => OrderTotalxx.fromJson(json))
-                .toList() ??
-            [];
+                .toList() ?? [];
 
         final yearList = (jsonResponse['years_list_of_all'] as List?)
                 ?.where((json) => json != null)
                 .map((json) => YearsListOfAll.fromJson(json))
-                .toList() ??
-            [];
+                .toList() ?? [];
 
-        // You might want to update how you cache given the complex filters, 
-        // but keeping it simple for now:
         await customerBox.put(cacheKey, jsonResponse);
 
         return CustomerResponseModelxx(
@@ -1366,7 +1364,7 @@ log('response of the fetchCustomer API :${response.data}');
       } else {
         throw Exception('Request failed with status: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch  (e) {
       handleHttpResponseError(
         statusCode: e is http.Response ? e.statusCode : 0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
@@ -1418,140 +1416,135 @@ log('response of the fetchCustomer API :${response.data}');
     }
   }
 
+//     Future<CustomerResponseModelxx> fetchCustomer({
+//     required String salesmanId,
+//     required String customerName,
+//     required int limit,
+//     required int page,
+//     // Changed params to match new payload structure
+//     required String valueFromDw, 
+//      List<String> selectedRange = const [], 
+//     String startDate = "",
+//     String endDate = "",
+//   }) async {
+    
+//     // Construct the payload based on the new backend requirement
+//     final requestBody = {
+//       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+//       "salesman_id":SessionHelper.loginSavedData?.salesmanId ?? '',
+//       "business_name": customerName,
+//       "limit": limit,
+//       "page": page,
+//       "valueFromDw": valueFromDw, // e.g., "Month", "Week", "Range"
+//       "selected_range": selectedRange, // e.g., ["January", "February"]
+//       "start_date": startDate, // Keep empty if not needed, or use for Range/Day
+//       "end_date": endDate,
+//     };
 
-  // Future<CustomerResponseModelxx> fetchCustomer({
-  //   required String salesmanId,
-  //   required String customerName,
-  //   required String startDate,
-  //   required String endDate,
-  //   required int limit,
-  //   required int page,
-  //   required dynamic valueFromDw,
-  // }) async {
+//     final customerBox = Hive.box('customerBox');
+//     final cacheKey =
+//         '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
 
-  //   dynamic value;
-  //   if (valueFromDw == 'This Month') {
-  //     value = 'This Month';
-  //   } else if (valueFromDw == 'Today') {
-  //     value = 'Today';
-  //   } else if (valueFromDw == 'This Week') {
-  //     value = 'This Week';
-  //   } else if (valueFromDw == 'This Year') {
-  //     value = 'This Year';
-  //   } else if (valueFromDw.toString().contains('Range')) {
-  //     value = valueFromDw;
-  //   }
+//     try {
+//       final response = await responsePostMethod(
+//         endPoint: ApiConstants.fetchCustomer,
+//         requestData: requestBody,
+//       );
 
-  //   final requestBody = {
-  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //     "business_name": customerName,
-  //     "start_date": startDate,
-  //     "end_date": endDate,
-  //     "limit": limit,
-  //     "page": page,
-  //     "valueFromDw": value,
-  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //   };
+//       if (response.statusCode == 200) {
+//         final jsonResponse = response.data;
+// log('response of the fetchCustomer API :${response.data}');
+//         if (jsonResponse['status'] != true) {
+//           throw Exception('API returned error: ${jsonResponse['message']}');
+//         }
 
-  //   final customerBox = Hive.box('customerBox');
+//         final customers = (jsonResponse['data'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => CustomerModelxx.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //   final cacheKey =
-  //       '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
+//         final orderTotal = (jsonResponse['orderTotal'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => OrderTotalxx.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //   try {
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.fetchCustomer,
-  //       requestData: requestBody,
-  //     );
+//         final yearList = (jsonResponse['years_list_of_all'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => YearsListOfAll.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = response.data;
+//         // You might want to update how you cache given the complex filters, 
+//         // but keeping it simple for now:
+//         await customerBox.put(cacheKey, jsonResponse);
 
-  //       if (jsonResponse['status'] != true) {
-  //         throw Exception('API returned error: ${jsonResponse['message']}');
-  //       }
+//         return CustomerResponseModelxx(
+//           statusCode: jsonResponse['status_code'] ?? 0,
+//           status: jsonResponse['status'] ?? false,
+//           message: jsonResponse['message'] ?? '',
+//           data: customers,
+//           orderTotal: orderTotal,
+//           pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
+//           yearsListOfAll: yearList,
+//         );
+//       } else {
+//         throw Exception('Request failed with status: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       handleHttpResponseError(
+//         statusCode: e is http.Response ? e.statusCode : 0,
+//         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+//         message: 'Customer',
+//       );
 
-  //       final customers = (jsonResponse['data'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => CustomerModelxx.fromJson(json))
-  //               .toList() ??
-  //           [];
+//       // Offline Fallback Logic
+//       final isOnline = await ConnectivityService().isOnline();
+//       if (!isOnline) log('Using cached data due to offline mode');
 
-  //       final orderTotal = (jsonResponse['orderTotal'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => OrderTotalxx.fromJson(json))
-  //               .toList() ??
-  //           [];
+//       final cachedData = customerBox.get(cacheKey);
 
-  //       final yearList = (jsonResponse['years_list_of_all'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => YearsListOfAll.fromJson(json))
-  //               .toList() ??
-  //           [];
+//       if (cachedData != null) {
+//         final castedData = ensureStringKeyedMap(cachedData);
+//         // ... (Existing offline mapping logic remains the same)
+//         final customers = (castedData['data'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => CustomerModelxx.fromJson(json))
+//                 .toList() ?? [];
+                
 
-  //       await customerBox.put(cacheKey, jsonResponse);
+//                 final orderTotal = (castedData['orderTotal'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => OrderTotalxx.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //       return CustomerResponseModelxx(
-  //         statusCode: jsonResponse['status_code'] ?? 0,
-  //         status: jsonResponse['status'] ?? false,
-  //         message: jsonResponse['message'] ?? '',
-  //         data: customers,
-  //         orderTotal: orderTotal,
-  //         pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
-  //         yearsListOfAll: yearList,
-  //       );
-  //     } else {
-  //       throw Exception('Request failed with status: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     handleHttpResponseError(
-  //       statusCode: e is http.Response ? e.statusCode : 0,
-  //       showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-  //       message: 'Customer',
-  //     );
+//         final yearList = (castedData['years_list_of_all'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => YearsListOfAll.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //     final cachedData = customerBox.get(cacheKey);
+//         await customerBox.put(cacheKey, castedData);
+//          // ... map other fields ...
 
-  //     if (cachedData != null) {
-  //       final castedData = castToStringDynamic(cachedData);
+//         return CustomerResponseModelxx(
+//           statusCode: castedData['status_code'] ?? 0,
+//           status: castedData['status'] ?? false,
+//           message: castedData['message'] ?? '',
+//           data: customers,
+//           orderTotal: [], // Handle empty or cached totals
+//           pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
+//           yearsListOfAll: [],
+//         );
+//       } else {
+//         throw Exception('No cached data available');
+//       }
+//     }
+//   }
 
-  //       final customers = (castedData['data'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => CustomerModelxx.fromJson(json))
-  //               .toList() ??
-  //           [];
 
-  //       final orderTotal = (castedData['orderTotal'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => OrderTotalxx.fromJson(json))
-  //               .toList() ??
-  //           [];
-
-  //       final yearList = (castedData['years_list_of_all'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => YearsListOfAll.fromJson(json))
-  //               .toList() ??
-  //           [];
-
-  //       return CustomerResponseModelxx(
-  //         statusCode: castedData['status_code'] ?? 0,
-  //         status: castedData['status'] ?? false,
-  //         message: castedData['message'] ?? '',
-  //         data: customers,
-  //         orderTotal: orderTotal,
-  //         pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
-  //         yearsListOfAll: yearList,
-  //       );
-  //     } else {
-  //       handleHttpResponseError(
-  //         statusCode: 0,
-  //         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-  //         message: 'No cached data available',
-  //       );
-  //       throw Exception('No cached data available');
-  //     }
-  //   }
-  // }
 
   Future<AddEvent> addEvent(
     String customerId,

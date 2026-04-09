@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_ret
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_month_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_pagination.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_rangepicker.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_week_dropdown.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/sales_return_year_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -339,46 +340,83 @@ class _SalesReturnState extends State<SalesReturn> {
 
     // This widget Row holds the dropdown AND the dynamic pickers
     // Inside _buildFilters in sales_return.dart
-
     Widget buildTimeFilterRow() {
       return Obx(() => Row(
-            // Wrap in Obx to listen to selectedFilter changes
             mainAxisSize: MainAxisSize.min,
             children: [
-              timePeriodDropdown(), // The main dropdown
-
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.thisMonth) ...[
+              
+              // NEW: Conditional Standalone Year Dropdown
+              if (salesReturnController.selectedFilter.value != FilterDateEnum.range) ...[
+                const SalesReturnYearDropdown(),
                 const SizedBox(width: 10),
-                const SalesReturnMonthDropdown() // <-- NEW WIDGET
               ],
 
-              // if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
-              //   const SizedBox(width: 10),
-              //   const SalesReturnWeekDropdown() // <-- NEW WIDGET
-              // ],
+              // Main dropdown
+              timePeriodDropdown(),
 
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.thisYear) ...[
+              if (salesReturnController.selectedFilter.value == FilterDateEnum.thisMonth) ...[
                 const SizedBox(width: 10),
-                // You can create SalesReturnYearDropdown similarly or use logic here
-                const SalesReturnYearDropdown()
+                const SalesReturnMonthDropdown() 
+              ],
+               if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
+                const SizedBox(width: 10),
+                const SalesReturnWeekDropdown() // <-- NEW WIDGET
               ],
 
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.today) ...[
+            
+
+              if (salesReturnController.selectedFilter.value == FilterDateEnum.today) ...[
                 const SizedBox(width: 10),
-                const SalesReturnDayPicker() // <-- NEW WIDGET
+                const SalesReturnDayPicker() 
               ],
 
-              if (salesReturnController.selectedFilter.value ==
-                  FilterDateEnum.range) ...[
+              if (salesReturnController.selectedFilter.value == FilterDateEnum.range) ...[
                 const SizedBox(width: 10),
-                const SalesReturnRangePicker() // <-- NEW WIDGET
+                const SalesReturnRangePicker() 
               ],
             ],
           ));
     }
+
+    // Widget buildTimeFilterRow() {
+    //   return Obx(() => Row(
+    //         // Wrap in Obx to listen to selectedFilter changes
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //           timePeriodDropdown(), // The main dropdown
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.thisMonth) ...[
+    //             const SizedBox(width: 10),
+    //             const SalesReturnMonthDropdown() // <-- NEW WIDGET
+    //           ],
+
+    //           // if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
+    //           //   const SizedBox(width: 10),
+    //           //   const SalesReturnWeekDropdown() // <-- NEW WIDGET
+    //           // ],
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.thisYear) ...[
+    //             const SizedBox(width: 10),
+    //             // You can create SalesReturnYearDropdown similarly or use logic here
+    //             const SalesReturnYearDropdown()
+    //           ],
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.today) ...[
+    //             const SizedBox(width: 10),
+    //             const SalesReturnDayPicker() // <-- NEW WIDGET
+    //           ],
+
+    //           if (salesReturnController.selectedFilter.value ==
+    //               FilterDateEnum.range) ...[
+    //             const SizedBox(width: 10),
+    //             const SalesReturnRangePicker() // <-- NEW WIDGET
+    //           ],
+    //         ],
+    //       ));
+    // }
 
     return [
       // 1. Time Period (Dropdown + Conditional Widgets)

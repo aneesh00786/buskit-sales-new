@@ -3349,102 +3349,104 @@ log('response of alll products get :${response.data}');
     }
   }
 
-  Future<GetRecentOrderReturn> getRecentOrdersReturns({
-    SearchModel? searchModel,
-    int? page,
-    // New strict parameters
-    required String valueFromDw,
-    required List<String> selectedRange,
-  }) async {
-    bool isConnected = await ConnectivityService().isOnline();
+Future<GetRecentOrderReturn> getRecentOrdersReturns({
+  SearchModel? searchModel,
+  int? page,
+  // New strict parameters
+  required String valueFromDw,
+  required List<String> selectedRange,
+}) async {
+  bool isConnected = await ConnectivityService().isOnline();
 
-    // Update cache key to be unique based on the new filters
-    final cacheKey =
-        "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
-    final box = Hive.box('salesReturnBox');
+  // Update cache key to be unique based on the new filters
+  final cacheKey = "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
+  final box = Hive.box('salesReturnBox');
 
-    if (!isConnected) {
-      final savedData = box.get(cacheKey);
-      if (savedData != null && savedData is Map) {
-        return GetRecentOrderReturn.fromJson(
-            ApiService().castToStringDynamic(savedData));
-      } else {
-        throw Exception('No offline data available');
-      }
+  if (!isConnected) {
+    final savedData = box.get(cacheKey);
+    if (savedData != null && savedData is Map) {
+      return GetRecentOrderReturn.fromJson(ApiService().castToStringDynamic(savedData));
+    } else {
+      throw Exception('No offline data available');
     }
-
-    // UPDATED PAYLOAD
-    final response = await dio.postbycustom(
-      ApiConstants.getRecentOrder,
-      data: {
-        "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
-        "limit": 10, // Updated to 1000 as per your payload
-        "page": page ?? 1,
-        "valueFromDw": valueFromDw,
-        "selected_range": selectedRange,
-        "order_status": 2,
-      },
-    ).onError((DioException error, _) {
-      return Future.error(DioExceptionHandler.fromDioError(error));
-    });
-
-    final responseJson = response.data as Map<String, dynamic>;
-    await box.put(cacheKey, responseJson);
-
-    return GetRecentOrderReturn.fromJson(responseJson);
   }
+
+  // UPDATED PAYLOAD
+  final response = await dio.postbycustom(
+    ApiConstants.getRecentOrder,
+    data: {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+      "limit": 10, // Updated to 1000 as per your payload
+      "page": page ?? 1,
+      "valueFromDw": valueFromDw,
+      "selected_range": selectedRange,
+      "order_status": 2,
+    },
+    
+  ).onError((DioException error, _) {
+    
+    return Future.error(DioExceptionHandler.fromDioError(error));
+  });
+ print({
+  "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+  "limit": 10,
+  "page": page ?? 1,
+  "valueFromDw": valueFromDw,
+  "selected_range": selectedRange,
+  "order_status": 2,
+});
+  final responseJson = response.data as Map<String, dynamic>;
+  await box.put(cacheKey, responseJson);
+
+  return GetRecentOrderReturn.fromJson(responseJson);
+}
 
   // Future<GetRecentOrderReturn> getRecentOrdersReturns({
   //   SearchModel? searchModel,
-  //   String? customerId,
-  //   String? salesmanId,
-  //   String? startDate,
-  //   String? endDate,
-  //   // PaginationModel? paginationModel,
   //   int? page,
+  //   // New strict parameters
+  //   required String valueFromDw,
+  //   required List<String> selectedRange,
   // }) async {
+  //   print('api called');
   //   bool isConnected = await ConnectivityService().isOnline();
-  //   final cacheKey =
-  //      "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${startDate ?? ''}_${endDate ?? ''}";
-  //       // "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${''}_${''}";
 
+  //   // Update cache key to be unique based on the new filters
+  //   final cacheKey =
+  //       "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
   //   final box = Hive.box('salesReturnBox');
 
   //   if (!isConnected) {
   //     final savedData = box.get(cacheKey);
   //     if (savedData != null && savedData is Map) {
   //       return GetRecentOrderReturn.fromJson(
-  //         ApiService().castToStringDynamic(savedData),
-  //       );
+  //           ApiService().castToStringDynamic(savedData));
   //     } else {
   //       throw Exception('No offline data available');
   //     }
   //   }
 
+  //   // UPDATED PAYLOAD
   //   final response = await dio.postbycustom(
   //     ApiConstants.getRecentOrder,
   //     data: {
-  //       "companyId": 1,
-  //       "start_date": startDate ?? "",
-  //      "end_date": endDate ?? "",
+  //       "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+  //       "limit": 10, // Updated to 1000 as per your payload
+  //       "page": page ?? 1,
+  //       "valueFromDw": valueFromDw,
+  //       "selected_range": selectedRange,
   //       "order_status": 2,
-  //      "limit": 10,
-  //       "page": page,
   //     },
   //   ).onError((DioException error, _) {
   //     return Future.error(DioExceptionHandler.fromDioError(error));
   //   });
 
-  //   final responseJson =
-  //       response.data as Map<String, dynamic>; // ✅ Ensure object
-
-  //   // ✅ Save full response object for correct offline parsing
+  //   final responseJson = response.data as Map<String, dynamic>;
   //   await box.put(cacheKey, responseJson);
-
-  //   log("[getRecentOrdersReturns] Response Data: $responseJson");
 
   //   return GetRecentOrderReturn.fromJson(responseJson);
   // }
+
 
   Future<ProductReturn> getProductReturnDetails(
       {required String orderId}) async {

@@ -681,8 +681,14 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                   }
 
                                                   Map<String, dynamic> data = {
-                                                    "userid": "ADMIN",
-                                                    "salesman_id": "",
+                                                    "userid": SessionHelper
+                                                            .loginSavedData
+                                                            ?.salesmanId ??
+                                                        '',
+                                                    "salesman_id": SessionHelper
+                                                            .loginSavedData
+                                                            ?.salesmanId ??
+                                                        '',
                                                     "businessname": widget
                                                         .leadsController
                                                         .businessNameController

@@ -157,10 +157,8 @@ Widget buildTableRow(
                                   child: const Text('Cancel'),
                                 ),
                                 TextButton(
-                                  onPressed: () {
-                                    leadsController.deleteLeads(
-                                        leadCustomerData.customerId.toString());
-                                    Navigator.pop(context);
+                                  onPressed: () async {
+                                    Navigator.pop(context, true);
                                   },
                                   child: const Text('Confirm'),
                                 ),
@@ -170,7 +168,8 @@ Widget buildTableRow(
                         );
 
                         if (confirm == true) {
-                          leadsController.deleteLead(leadCustomerData.id ?? 0);
+                          await leadsController.deleteLeads(
+                              leadCustomerData.customerId.toString());
                         }
                       },
                       padding: const EdgeInsets.all(2),

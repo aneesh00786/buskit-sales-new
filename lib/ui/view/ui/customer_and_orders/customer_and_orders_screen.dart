@@ -1379,7 +1379,10 @@ class _TableeeState extends State<Tableee> {
                                                   }
 
                                                   Map<String, dynamic> data = {
-                                                    "userid": "ADMIN",
+                                                    "userid":  SessionHelper
+                                                            .loginSavedData
+                                                            ?.salesmanId ??
+                                                        '',
                                                     "salesman_id": SessionHelper
                                                             .loginSavedData
                                                             ?.salesmanId ??
@@ -1452,7 +1455,7 @@ class _TableeeState extends State<Tableee> {
                                                     "remark": remarkController
                                                         .text
                                                         .trim(),
-                                                    "status_type": 3,
+                                                    "status_type": 1,
                                                     "company_id": SessionHelper
                                                             .loginSavedData
                                                             ?.company_id ??

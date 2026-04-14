@@ -479,7 +479,9 @@
     "Delete Order":"Delete Order",
     "Are you sure you want to delete this offline order?":"Are you sure you want to delete this offline order?",
     "Are you sure you want to check in to this customer?":"Are you sure you want to check in to this customer?",
-    "Your order has been successfully saved as Draft":"Your order has been successfully saved as Draft"
+    "Your order has been successfully saved as Draft":"Your order has been successfully saved as Draft",
+    "App Settings":"App Settings",
+    "Language Settings":"Language Settings"
 
     
 

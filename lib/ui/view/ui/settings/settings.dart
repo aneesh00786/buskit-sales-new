@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/localization_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -38,6 +39,30 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  late String _selectedLanguageCode;
+  bool _isTranslating = false;
+
+  static const List<List<String>> ALL_LANGUAGES = [
+    ['en', 'English (Default)'],
+    ['hi', 'Hindi - हिन्दी'],
+    ['ar', 'Arabic - العربية'],
+    ['zh-CN', 'Chinese Simplified - 简体中文'],
+    ['fr', 'French - Français'],
+    ['de', 'German - Deutsch'],
+    ['es', 'Spanish - Español'],
+    ['pt', 'Portuguese - Português'],
+    ['ru', 'Russian - Русский'],
+    ['ja', 'Japanese - 日本語'],
+    ['it', 'Italian - Italiano'],
+    ['nl', 'Dutch - Nederlands'],
+    ['tr', 'Turkish - Türkçe'],
+    ['vi', 'Vietnamese - Tiếng Việt'],
+    ['th', 'Thai - ภาษาไทย'],
+    ['ur', 'Urdu - اردو'],
+    ['bn', 'Bengali - বাংলা'],
+    ['ms', 'Malay - Bahasa Melayu'],
+    ['id', 'Indonesian - Bahasa Indonesia'],
+  ];
   File? photoId;
   File? photoBrowser;
   bool isIdNotSelected = false, isBrowserNotSelected = false;
@@ -60,6 +85,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _checkConnectivity();
     _connectivityService.connectivityStream.listen(_updateConnectivityStatus);
     _loadAdminDetails();
+    final activeLocale = Get.locale ?? const Locale('en'); 
+    _selectedLanguageCode = activeLocale.countryCode != null 
+        ? '${activeLocale.languageCode}-${activeLocale.countryCode}' 
+        : activeLocale.languageCode;
   }
 
   Future<void> _checkConnectivity() async {
@@ -336,6 +365,123 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         labelText: "Full Address".tr,
                                         prefixIcon: Icon(EneftyIcons.house_2_outline,
                                             color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Card(
+                                elevation: 0,
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(color: Colors.grey.shade200)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSectionHeader('Language Settings'.tr,
+                                          EneftyIcons.global_outline), // Ensure EneftyIcons is imported
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: DropdownButtonFormField<String>(
+                                              value: _selectedLanguageCode,
+                                              decoration: InputDecoration(
+                                                labelText: 'Language'.tr,
+                                                labelStyle: const TextStyle(color: Colors.black),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: BorderSide(color: Colors.black, width: 1),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(color: Colors.blue, width: 1),
+                                                ),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                              ),
+                                              isExpanded: true,
+                                              menuMaxHeight: 300.0,
+                                              items: ALL_LANGUAGES.map((lang) {
+                                                return DropdownMenuItem(
+                                                  value: lang[0],
+                                                  child: Text(lang[1]),
+                                                );
+                                              }).toList(),
+                                              onChanged: (newValue) {
+                                                if (newValue != null) {
+                                                  setState(() {
+                                                    _selectedLanguageCode = newValue;
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          SizedBox(
+                                            height: 52, // Matches the height of the dropdown
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.blue,
+                                                foregroundColor: Colors.white,
+                                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                elevation: 0,
+                                              ),
+                                              onPressed: _isTranslating ? null : () async {
+                                                bool isOnline = await ConnectivityService().isOnline();
+                                                if (!isOnline && _selectedLanguageCode != 'en') {
+                                                  showCustomToastDisplay(context, "You are Offline! Cannot download translation.".tr, Colors.red, Icons.wifi_off);
+                                                  return;
+                                                }
+
+                                                setState(() {
+                                                  _isTranslating = true;
+                                                });
+                                                
+                                                try {
+                                                  
+                                                  final locService = Get.find<LocalizationService>();
+                                                  
+                                                  // 1. Fetch missing translations from Google API if needed
+                                                  await locService.fetchAndSaveTranslations(_selectedLanguageCode);
+                                                  
+                                                  // 2. Change the locale locally & save to SharedPreferences
+                                                  locService.changeLocale(_selectedLanguageCode);
+                                                  
+                                                  showCustomToastDisplay(context, 'Language saved successfully'.tr, Colors.green, Icons.check);
+                                                } catch (e) {
+                                                  showCustomToastDisplay(context, 'Failed to update language'.tr, Colors.red, Icons.close);
+                                                } finally {
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      _isTranslating = false;
+                                                    });
+                                                  }
+                                                }
+                                              },
+                                              child: _isTranslating
+                                                  ? const SizedBox(
+                                                      width: 20, 
+                                                      height: 20, 
+                                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                                                    )
+                                                  : Text(
+                                                      'Save'.tr,
+                                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                    ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

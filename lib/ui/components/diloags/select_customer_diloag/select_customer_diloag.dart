@@ -201,7 +201,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                             cusEmail: customer.email ?? '',
                             cusMobile: customer.mobileno ?? '',
                             isFromCalendar: true,
-                            isFromGoogle: false,
+                            isFromGoogle: true,
                             eventIds: widget.eventData
                                 .map((e) => e.event!.eventId.toString())
                                 .toList(),

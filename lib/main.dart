@@ -257,6 +257,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               navigatorKey: Get.key,
                 translations: widget.translations,
               locale: widget.initialLocale,
+               fallbackLocale: const Locale('en'),
+               builder: (context, child) {
+                return Directionality(
+                  textDirection: TextDirection.ltr, 
+                  child: child!,
+                );
+              },
               theme: NkGetXTheme.lightTheme,
               darkTheme: NkGetXTheme.lightTheme,
               highContrastTheme: NkGetXTheme.lightTheme,

@@ -290,7 +290,7 @@ class LoginController extends GetxController {
 
         await SessionHelper().setLoginData(loginResponce!.data!);
         await SessionHelper().getLoginData();
-        await syncAppLanguage();
+        // await syncAppLanguage();
         await Future.delayed(const Duration(seconds: 2));
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final settings = await _apiWorker
@@ -762,7 +762,7 @@ class LoginController extends GetxController {
           currentMonth,
           DateTime.now().year.toString(),
         ),
-        syncAppLanguage(),
+        // syncAppLanguage(),
         ApiWorker().getTimeSheetData(
   filterValue: currentMonth,  // Passes "March"
   filterType: "Month",        // Explicitly asks for Month data
@@ -788,33 +788,33 @@ class LoginController extends GetxController {
       // Do NOT rethrow, so the future always completes
     }
   }
-  Future<void> syncAppLanguage() async {
-    try {
-      // 1. Get just the language string from your ApiWorker
-      String apiLanguage = await _apiWorker.getCompanyActiveLanguage();
+  // Future<void> syncAppLanguage() async {
+  //   try {
+  //     // 1. Get just the language string from your ApiWorker
+  //     String apiLanguage = await _apiWorker.getCompanyActiveLanguage();
 
-      final localizationService = Get.find<LocalizationService>();
+  //     final localizationService = Get.find<LocalizationService>();
       
-      // 2. Reconstruct the current locale string (e.g., 'en' or 'zh-CN') to compare
-      String currentLangCode = localizationService.activeLocale.languageCode;
-      if (localizationService.activeLocale.countryCode != null) {
-        currentLangCode += '-${localizationService.activeLocale.countryCode}';
-      }
+  //     // 2. Reconstruct the current locale string (e.g., 'en' or 'zh-CN') to compare
+  //     String currentLangCode = localizationService.activeLocale.languageCode;
+  //     if (localizationService.activeLocale.countryCode != null) {
+  //       currentLangCode += '-${localizationService.activeLocale.countryCode}';
+  //     }
 
-      // 3. Only trigger the UI change and download if the admin changed the language
-      if (apiLanguage != currentLangCode) {
-        print("Admin set language to $apiLanguage. Syncing Sales App...");
+  //     // 3. Only trigger the UI change and download if the admin changed the language
+  //     if (apiLanguage != currentLangCode) {
+  //       print("Admin set language to $apiLanguage. Syncing Sales App...");
 
-        // Instantly change locale to update the UI with any cached data
-        localizationService.changeLocale(apiLanguage);
+  //       // Instantly change locale to update the UI with any cached data
+  //       localizationService.changeLocale(apiLanguage);
 
-        // Silently fetch missing translations from Google Translate in the background
-        await localizationService.fetchAndSaveTranslations(apiLanguage);
-      } else {
-        print("Language is already in sync ($apiLanguage).");
-      }
-    } catch (e) {
-      print("Error syncing language: $e");
-    }
-  }
+  //       // Silently fetch missing translations from Google Translate in the background
+  //       await localizationService.fetchAndSaveTranslations(apiLanguage);
+  //     } else {
+  //       print("Language is already in sync ($apiLanguage).");
+  //     }
+  //   } catch (e) {
+  //     print("Error syncing language: $e");
+  //   }
+  // }
 }

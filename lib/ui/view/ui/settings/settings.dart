@@ -973,7 +973,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Icon(EneftyIcons.image_outline, color: Colors.grey.shade400, size: 40),
                   const SizedBox(height: 8),
-                  Text('No Image Available', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                  Text('No Image Available'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
                 ],
               ),
             ),

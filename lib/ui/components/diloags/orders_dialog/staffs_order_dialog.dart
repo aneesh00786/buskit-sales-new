@@ -565,10 +565,10 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                   Expanded(
                                                                     child: Container(
                                                                         color: Colors.blue,
-                                                                        child: const Center(
+                                                                        child:  Center(
                                                                           child:
                                                                               Text(
-                                                                            'Quick Sale',
+                                                                            'Quick Sale'.tr,
                                                                             style: TextStyle(
                                                                                 color: white,
                                                                                 fontWeight: FontWeight.bold,

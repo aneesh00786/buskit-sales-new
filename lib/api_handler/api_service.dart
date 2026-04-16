@@ -1586,7 +1586,7 @@ final int yearToSend = (year != null && year != 0)
     } catch (e) {
       showCustomToastDisplay(
         context,
-        "Please Assign Staff",
+        "Please Assign Staff".tr,
         red,
         Icons.close,
       );

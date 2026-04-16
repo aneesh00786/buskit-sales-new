@@ -2279,7 +2279,7 @@ class _TableeeState extends State<Tableee> {
                   },
                 );
               },
-              text: 'Customer',
+              text: 'Customer'.tr,
             ),
           );
         },
@@ -3412,7 +3412,7 @@ class TopTotalWidget extends StatelessWidget {
                 },
                 controller: searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: 'Search'.tr,
                   hintStyle: const TextStyle(color: Colors.grey),
                   fillColor: Colors.white,
                   filled: true,
@@ -5803,9 +5803,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                       Expanded(
                                                                         child: Container(
                                                                             color: Colors.blue,
-                                                                            child: const Center(
+                                                                            child:  Center(
                                                                               child: Text(
-                                                                                'Quick Sale',
+                                                                                'Quick Sale'.tr,
                                                                                 style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
                                                                               ),
                                                                             )),

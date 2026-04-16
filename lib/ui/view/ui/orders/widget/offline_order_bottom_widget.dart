@@ -81,7 +81,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                             flex: 2,
                             child: Center(
                               child: CustomText(
-                                  content: 'SI No.',
+                                  content: 'Sl No.'.tr,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white),

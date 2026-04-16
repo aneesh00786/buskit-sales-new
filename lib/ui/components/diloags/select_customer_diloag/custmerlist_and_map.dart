@@ -805,7 +805,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                           actionsPadding:
                                               const EdgeInsets.fromLTRB(
                                                   16.0, 0, 16.0, 16.0),
-                                          title: const Row(
+                                          title:Row(
                                             children: [
                                               Icon(
                                                 Icons.warning_amber_rounded,
@@ -815,7 +815,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               ),
                                               SizedBox(width: 8.0),
                                               Text(
-                                                'Required',
+                                                'Required'.tr,
                                                 style: TextStyle(
                                                   fontSize: 20.0,
                                                   fontWeight: FontWeight.bold,
@@ -824,8 +824,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               ),
                                             ],
                                           ),
-                                          content: const Text(
-                                            'You are required to sign in to proceed with navigation.',
+                                          content:Text(
+                                            'You are required to sign in to proceed with navigation.'.tr,
                                             style: TextStyle(
                                               fontSize: 19.0,
                                               color: Colors.black87,
@@ -852,8 +852,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               onPressed: () =>
                                                   Navigator.of(context)
                                                       .pop(false),
-                                              child: const Text(
-                                                'Cancel',
+                                              child: Text(
+                                                'Cancel'.tr,
                                                 style: TextStyle(
                                                   fontSize: 14.0,
                                                   color: primaryColor,
@@ -881,8 +881,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                               onPressed: () =>
                                                   Navigator.of(context)
                                                       .pop(true),
-                                              child: const Text(
-                                                'Check-In',
+                                              child:Text(
+                                                'Check-In'.tr,
                                                 style: TextStyle(
                                                   fontSize: 14.0,
                                                   fontWeight: FontWeight.w700,
@@ -1240,7 +1240,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                                   0,
                                                                   16.0,
                                                                   16.0),
-                                                          title: const Row(
+                                                          title: Row(
                                                             children: [
                                                               Icon(
                                                                 Icons
@@ -1252,7 +1252,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                               SizedBox(
                                                                   width: 8.0),
                                                               Text(
-                                                                'Required',
+                                                                'Required'.tr,
                                                                 style:
                                                                     TextStyle(
                                                                   fontSize:
@@ -1266,8 +1266,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                               ),
                                                             ],
                                                           ),
-                                                          content: const Text(
-                                                            'You are required to sign in to proceed with navigation.',
+                                                          content:Text(
+                                                            'You are required to sign in to proceed with navigation.'.tr,
                                                             style: TextStyle(
                                                               fontSize: 19.0,
                                                               color: Colors
@@ -1306,8 +1306,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                                           context)
                                                                       .pop(
                                                                           false),
-                                                              child: const Text(
-                                                                'Cancel',
+                                                              child:Text(
+                                                                'Cancel'.tr,
                                                                 style:
                                                                     TextStyle(
                                                                   fontSize:
@@ -1353,8 +1353,8 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                                                           context)
                                                                       .pop(
                                                                           true),
-                                                              child: const Text(
-                                                                'Check-In',
+                                                              child:Text(
+                                                                'Check-In'.tr,
                                                                 style:
                                                                     TextStyle(
                                                                   fontSize:

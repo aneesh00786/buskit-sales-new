@@ -61,8 +61,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
       SnackBar(
         backgroundColor: isOn ? Colors.green : Colors.red,
         content: Text(isOn
-            ? 'You are successfully checked-in'
-            : 'You are successfully checked-out'),
+            ? 'You are successfully checked-in'.tr
+            : 'You are successfully checked-out'.tr),
         duration: const Duration(seconds: 3),
       ),
     );

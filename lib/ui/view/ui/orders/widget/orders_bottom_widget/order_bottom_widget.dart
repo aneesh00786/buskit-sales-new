@@ -262,7 +262,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                               flex: 2,
                               child: Center(
                                 child: CustomText(
-                                    content: 'SI No.',
+                                    content: 'Sl No.'.tr,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white),
@@ -273,7 +273,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                               flex: 8,
                               child: Center(
                                 child: CustomText(
-                                    content: '$option List',
+                                    content: '$option'.tr + ' ' + 'List'.tr,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white),

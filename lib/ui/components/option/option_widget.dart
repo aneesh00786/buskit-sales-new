@@ -237,7 +237,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           DashboardProvider provider, OrderCountListt? orderCountList) =>
       [
         OptionData(
-          title: 'Orders',
+          title: 'Orders'.tr,
           count: widget.orderCount.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
@@ -261,7 +261,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Estimates',
+          title: 'Estimates'.tr,
           unfilteredCount: widget.eastimatesCount.toString(),
           count: widget.eastimatesFilterCount.toString(),
           svg: Assets.iconsIcDashboardEstimates,
@@ -295,7 +295,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 context,
                 provider,
                 OrderStatus.estimates,
-                'Estimate',
+                'Estimate'.tr,
                 false,
                 productsController,
                 customerOrderController,
@@ -305,7 +305,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Bookings',
+          title: 'Bookings'.tr,
           unfilteredCount: widget.preOrderCount.toString(),
           count: widget.preOrderFilterCount.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
@@ -337,7 +337,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             if (subscriptionController.bookingView.value == 'true') {
               if (orderCountList?.preorderOrder.toString() == "0") {
                 showCustomToastDisplay(
-                    context, "No Record Found", red, Icons.close);
+                    context, "No Record Found".tr, red, Icons.close);
               } else {
                 provider.fetchOrdersData(OrderStatus.preOrder,
                     checkDate: false);
@@ -373,7 +373,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             List<dynamic> offlineDraftDetails = drafts.toList();
             if (_totalDraftCount == 0) {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               // Draft filtering handled within the app, not using checkDate
               provider.fetchOrdersData(
@@ -402,7 +402,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             List<dynamic> offlineDraftDetails = drafts.toList();
             if (_totalUnfilteredDraftCount == 0) {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               provider.fetchOrdersData(
                 OrderStatus.draft,
@@ -425,7 +425,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Cancelled',
+          title: 'Cancelled'.tr,
           unfilteredCount: 0.toString(),
           count: widget.cancelledCount.toString(),
           svg: Assets.iconsIcDashboardCancel,
@@ -434,7 +434,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           onTap: () {
             if (orderCountList?.cancelOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               provider.fetchOrdersData(OrderStatus.cancelled);
               _showOrderTypeDialog(

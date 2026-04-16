@@ -197,9 +197,9 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
       bool confirm = await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text("Warning"),
-          content: const Text(
-              "You already generated routes twice and only one more route generation can be done today."),
+          title: Text("Warning".tr),
+          content: Text(
+              "You already generated routes twice and only one more route generation can be done today.".tr),
           actions: [
             TextButton(
               onPressed: (){
@@ -207,11 +207,11 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                 Get.back();
               },
               // onPressed: () => Navigator.pop(ctx, false), 
-              child: const Text("Cancel"),
+              child: Text("Cancel".tr),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true), 
-              child: const Text("OK"),
+              child: Text("OK".tr),
             ),
           ],
         ),
@@ -231,7 +231,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
         setState(() => isLoading = false);
         showCustomToastDisplay(
             context,
-            "Daily limit reached. You cannot search new custom routes today.",
+            "Daily limit reached. You cannot search new custom routes today.".tr,
             Colors.red,
             Icons.block);
         return;

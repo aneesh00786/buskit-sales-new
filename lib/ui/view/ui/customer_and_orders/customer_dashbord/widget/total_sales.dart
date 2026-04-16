@@ -14,6 +14,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provid
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_revenue_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 Widget totalSalse(BuildContext context) {
@@ -90,7 +91,7 @@ Widget totalSalse(BuildContext context) {
                                     },
                                     child: _buildLegendItem(
                                       Colors.blue.shade900,
-                                      'Bookings : ${formatAmount(paymentCompleted)}',
+                                      'Bookings'.tr + ' : ${formatAmount(paymentCompleted)}',
                                     ),
                                   ),
                                   SizedBox(width: 10),
@@ -116,7 +117,7 @@ Widget totalSalse(BuildContext context) {
                                     },
                                     child: _buildLegendItem(
                                       Colors.blue,
-                                      'Orders : ${formatAmount(remaCompleted)}',
+                                      'Orders'.tr + ' : ${formatAmount(remaCompleted)}',
                                     ),
                                   ),
                                 ],

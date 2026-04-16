@@ -3447,10 +3447,10 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Row(
                         children: [
-                          const Padding(
+                           Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Sales',
+                              'Sales'.tr,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.white,
@@ -5074,7 +5074,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                   )
                 else ...[
                   TextButton(
-                    child: const Text('Stay'),
+                    child: Text('Stay'.tr),
                     onPressed: () {
                       shouldProceed = false;
                       Navigator.of(context).pop();

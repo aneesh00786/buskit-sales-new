@@ -153,7 +153,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     _performCheckInFromMap();
                   },
                   child:  Text(
-                    "Check In".tr,
+                    "Check-In".tr,
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -265,7 +265,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           if (mounted) {
             showCustomToastDisplay(
               context,
-              'Checked-in successfully!',
+              'Checked-in successfully!'.tr,
               Colors.green,
               Icons.check_circle,
             );
@@ -418,8 +418,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Customer Check-Out'),
-              content: const Text('Do you want to Check-out?'),
+              title: Text('Customer Check-Out'.tr),
+              content: Text('Do you want to Check-out?'.tr),
               actions: [
                 if (isCheckingOut)
                   const Padding(
@@ -428,7 +428,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   )
                 else ...[
                   TextButton(
-                    child: const Text('Stay'),
+                    child: Text('Stay'.tr),
                     onPressed: () {
                       shouldProceed = false;
                       Navigator.of(context).pop();

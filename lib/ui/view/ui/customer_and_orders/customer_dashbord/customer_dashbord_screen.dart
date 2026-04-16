@@ -1077,7 +1077,7 @@ InkWell(
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 290,
+                                  width: 280,
                                 ),
                                 Row(
                                   children: [
@@ -1097,9 +1097,9 @@ InkWell(
                                               BorderRadius.circular(4.0),
                                         ),
                                       ),
-                                      child: const Text(
-                                        'Sales Return',
-                                        style: TextStyle(color: Colors.white),
+                                      child:  Text(
+                                        'Sales Return'.tr,
+                                        style: TextStyle(color: Colors.white,overflow: TextOverflow.ellipsis),
                                       ),
                                     ),
                                   ],
@@ -1140,8 +1140,8 @@ InkWell(
                                           side: const BorderSide(
                                               color: primaryColor)),
                                     ),
-                                    child: const Text(
-                                      'Order Taking',
+                                    child:  Text(
+                                      'Order Taking'.tr,
                                       style: TextStyle(
                                           color: white,
                                           fontSize: 12,

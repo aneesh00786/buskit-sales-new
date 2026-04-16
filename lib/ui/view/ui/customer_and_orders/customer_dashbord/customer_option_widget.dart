@@ -206,7 +206,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           CustomersProvider provider, OrderDataas orderCountList) =>
       [
         OptionData(
-          title: 'Orders'.tr,
+          title: 'Orders',
           count: orderCountList.totalOrder.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
@@ -233,7 +233,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Estimates'.tr,
+          title: 'Estimates',
           unfilteredCount: orderCountList.estimateOrder.toString(),
           count: orderCountList.estimateFilteredOrder.toString(),
           svg: Assets.iconsIcDashboardEstimates,
@@ -281,7 +281,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Bookings'.tr,
+          title: 'Bookings',
           unfilteredCount: orderCountList.preorderOrder.toString(),
           count: orderCountList.preorderFilteredOrder.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
@@ -329,7 +329,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Drafts'.tr,
+          title: 'Drafts',
           count: _totalDraftCount.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardDraft,
@@ -366,7 +366,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           },
         ),
         OptionData(
-          title: 'Cancelled'.tr,
+          title: 'Cancelled',
           unfilteredCount: 0.toString(),
           count: orderCountList.cancelOrder.toString(),
           svg: Assets.iconsIcDashboardCancel,
@@ -441,7 +441,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     direction: Axis.vertical,
                     children: [
                       CustomText(
-                        content: optionData.title,
+                        content: optionData.title.tr,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: secondaryTextColor,
@@ -536,7 +536,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                       direction: Axis.vertical,
                       children: [
                         CustomText(
-                          content: optionData.title,
+                          content: optionData.title.tr,
                           maxLine: 1,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

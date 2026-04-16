@@ -541,7 +541,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
               ),
               const SizedBox(width: 8.0),
               Text(
-                newState ? 'Confirm Check-In' : 'Confirm Check-Out',
+                newState ? 'Confirm Check-In'.tr : 'Confirm Check-Out'.tr,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -551,7 +551,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
             ],
           ),
           content: Text(
-            'Are you sure you want to ${newState ? 'check in' : 'check out'}?',
+            'Are you sure you want to'.tr + ' ${newState ? 'check in'.tr : 'check out'.tr}?',
             style: TextStyle(
               fontSize: 19.0,
               color: Colors.black87,
@@ -570,7 +570,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
               ),
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
-                'Cancel',
+                'Cancel'.tr,
                 style: TextStyle(
                   fontSize: 14.0,
                   color: primaryColor,
@@ -591,7 +591,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
               ),
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
-                'Confirm',
+                'Confirm'.tr,
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w700,

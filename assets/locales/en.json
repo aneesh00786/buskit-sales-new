@@ -504,8 +504,26 @@
   "Week 4":"Week 4",
   "Please Assign Staff":"Please Assign Staff",
   "Search":"Search",
-  "No history found":"No history found"
-
+  "No history found":"No history found",
+  "You are required to sign in, to proceed with customer location check-in and order taking":"You are required to sign in, to proceed with customer location check-in and order taking",
+  "Required":"Required",
+  "Check-In":"Check-In",
+  "Confirm Check-Out":"Confirm Check-Out",
+  "Are you sure you want to":"Are you sure you want to",
+  "Performance & Targets":"Performance & Targets",
+  "Applicable Products:": "Applicable Products:",
+  "OFFER : ":"OFFER : ",
+  "APPLICABLE : ":"APPLICABLE : ",
+  "TARGET : ":"TARGET : ",
+  "MIN ORDER : ":"MIN ORDER : ",
+  "BUNDLE PRICE : ":"BUNDLE PRICE : ",
+  "TIERS : ":"TIERS : ",
+  "ITEMS : ":"ITEMS : ",
+   "EXTRA : ": "EXTRA : ",
+   "DAYS : ":"DAYS : ",
+   "Sale Order":"Sale Order",
+   "Please check-in before processing the order":"Please check-in before processing the order",
+   "Collect Payment":"Collect Payment"
     
 
 

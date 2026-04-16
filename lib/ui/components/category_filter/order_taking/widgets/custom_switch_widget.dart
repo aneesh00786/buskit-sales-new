@@ -110,7 +110,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
               ),
               const SizedBox(width: 8.0),
               Text(
-                title,
+                title.tr,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -120,7 +120,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
             ],
           ),
           content: Text(
-            content,
+            content.tr,
             style: TextStyle(
               fontSize: 19.0,
               color: Colors.black87,
@@ -139,7 +139,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
               ),
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
-                'Cancel',
+                'Cancel'.tr,
                 style: TextStyle(
                   fontSize: 14.0,
                   color: primaryColor,
@@ -159,8 +159,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                 shadowColor: primaryColor.withOpacity(0.4),
               ),
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text(
-                'Confirm',
+              child:  Text(
+                'Confirm'.tr,
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w700,
@@ -198,8 +198,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     color: primaryColor,
                   ),
                   const SizedBox(width: 8.0),
-                  const Text(
-                    'Required',
+                   Text(
+                    'Required'.tr,
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
@@ -208,8 +208,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                   ),
                 ],
               ),
-              content: const Text(
-                'You are required to sign in, to proceed with customer location check-in and order taking',
+              content:  Text(
+                'You are required to sign in, to proceed with customer location check-in and order taking'.tr,
                 style: TextStyle(
                   fontSize: 19.0,
                   color: Colors.black87,
@@ -228,7 +228,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                   ),
                   onPressed: () => Navigator.of(context).pop(false),
                   child: Text(
-                    'Cancel',
+                    'Cancel'.tr,
                     style: TextStyle(
                       fontSize: 14.0,
                       color: primaryColor,
@@ -248,8 +248,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     shadowColor: primaryColor.withOpacity(0.4),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    'Check-In',
+                  child:  Text(
+                    'Check-In'.tr,
                     style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.w700,
@@ -470,7 +470,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                         ? const EdgeInsets.only(left: 8)
                         : const EdgeInsets.only(right: 8),
                     child: MyRegularText(
-                      label: isOn ? "Checked-in" : "Check-out",
+                      label: isOn ? "Checked-in".tr : "Check-out".tr,
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 15,

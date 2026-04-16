@@ -349,7 +349,7 @@ void showValueDialogCusDash(
                         children: [
                           Expanded(
                             child: Text(
-                              title,
+                              title.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

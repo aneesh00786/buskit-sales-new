@@ -1304,7 +1304,7 @@ bool _needsRefresh = true;
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomText(
-            content: 'Discount',
+            content: 'Discount'.tr,
             fontSize: 16,
             color: Colors.black,
             fontWeight: FontWeight.w600,
@@ -1803,7 +1803,7 @@ Obx(() {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               CustomText(
-                                content: 'Discount',
+                                content: 'Discount'.tr,
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
@@ -1942,7 +1942,7 @@ Obx(() {
                                       }
                                     },
                                   ),
-                                  Text(option),
+                                  Text(option.tr),
                                 ],
                               ),
                             );
@@ -2331,12 +2331,12 @@ Obx(() {
                                 builder: (ctx) => AlertDialog(
                                   title: const Icon(Icons.warning_amber_rounded,
                                       color: Colors.red, size: 60),
-                                  content: const Text(
-                                      'Please check-in before processing the order'),
+                                  content:  Text(
+                                      'Please check-in before processing the order'.tr),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(ctx),
-                                      child: const Text('OK'),
+                                      child:  Text('OK'.tr),
                                     ),
                                   ],
                                 ),

@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CategoryItemPromo {
@@ -86,7 +87,7 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
               ),
               const SizedBox(width: 20),
               Text(
-                'Categories',
+                'Categories'.tr,
                 style: GoogleFonts.poppins(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,

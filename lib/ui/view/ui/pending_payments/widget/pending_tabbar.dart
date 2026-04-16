@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payme
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_payment_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_payment_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class PendingTabBar extends StatefulWidget {
   final PendingPaymentController orderController;
@@ -30,7 +31,7 @@ class _PendingTabBarState extends State<PendingTabBar> {
   }
 
   int _selectedTabIndex = 0;
-  final List<String> _tabs = ['All', 'Nearly Due', 'Due', 'Over Due'];
+  final List<String> _tabs = ['All'.tr, 'Nearly Due'.tr, 'Due'.tr, 'Over Due'.tr];
   final List<bool> _visibleTabs = [true, false, false, false];
   bool _snackbarShown = false;
   void _onBarTapped(int index) async {

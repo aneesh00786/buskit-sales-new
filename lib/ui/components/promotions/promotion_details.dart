@@ -4796,8 +4796,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
           if (promo.productScope == "products" &&
               promo.products != null &&
               promo.products!.isNotEmpty) ...[
-            const Text(
-              "Applicable Products:",
+             Text(
+              "Applicable Products:".tr,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -4952,23 +4952,23 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildRow("OFFER : ", promo.discountText),
+            _buildRow("OFFER : ".tr, promo.discountText),
             const Divider(color: Colors.grey),
-            _buildRow("APPLICABLE : ", promo.scopeText),
+            _buildRow("APPLICABLE : ".tr, promo.scopeText),
             const Divider(color: Colors.grey),
-            _buildRow("TARGET : ", promo.targetText),
+            _buildRow("TARGET : ".tr, promo.targetText),
 
             // Min order (if available)
             if (promo.minOrderValue != null) ...[
               const Divider(color: Colors.grey),
-              _buildRow("MIN ORDER : ", formatAmount(promo.minOrderValue)),
+              _buildRow("MIN ORDER : ".tr, formatAmount(promo.minOrderValue)),
             ],
 
             // Bundle price for product_bundle
             if (promo.promoType == "product_bundle" &&
                 promo.bundlePrice != null) ...[
               const Divider(color: Colors.grey),
-              _buildRow("BUNDLE PRICE : ", formatAmount(promo.bundlePrice)),
+              _buildRow("BUNDLE PRICE : ".tr, formatAmount(promo.bundlePrice)),
             ],
 
             // Extra info (tiers / bundle items)
@@ -4976,10 +4976,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
               const Divider(color: Colors.grey),
               _buildRow(
                 promo.promoType == "tiered_discount"
-                    ? "TIERS : "
+                    ? "TIERS : ".tr
                     : promo.promoType == "product_bundle"
-                        ? "ITEMS : "
-                        : "EXTRA : ",
+                        ? "ITEMS : ".tr
+                        : "EXTRA : ".tr,
                 promo.extraInfoText.toString(),
               ),
             ],
@@ -4987,7 +4987,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
             // Days (for happy_hours)
             if (promo.daysText != null && promo.daysText != '') ...[
               const Divider(color: Colors.grey),
-              _buildRow("DAYS : ", promo.daysText!),
+              _buildRow("DAYS : ".tr, promo.daysText!),
             ],
           ],
         ),

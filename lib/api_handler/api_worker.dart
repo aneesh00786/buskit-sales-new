@@ -48,6 +48,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart' show Get;
 import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -2011,7 +2012,7 @@ log('response of alll products get :${response.data}');
 
       if (response.statusCode == 200) {
         onResponse(
-            200, 'Your order has been successfully placed.', response.data);
+            200, 'Your order has been successfully placed.'.tr, response.data);
       } else {
         handleExceptionMessage(response: response, apiName: "place order");
       }

@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SalesmanTargetByCategoryDialog extends StatefulWidget {
   String title;
@@ -55,7 +56,7 @@ class _SalesmanTargetByCategoryDialogState
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            widget.title,
+            widget.title.tr,
             style: TextStyle(
               color: white,
               fontSize: 15,
@@ -113,7 +114,7 @@ class _SalesmanTargetByCategoryDialogState
   Widget _buildTableHeader(String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(text,
+      child: Text(text.tr,
           textAlign: TextAlign.center,
           style: const TextStyle(fontWeight: FontWeight.bold)),
     );

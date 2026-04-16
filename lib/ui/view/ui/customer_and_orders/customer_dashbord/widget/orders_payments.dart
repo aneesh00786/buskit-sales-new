@@ -78,7 +78,7 @@ MyCommnonContainer OrdersPayments(
                 const SizedBox(width: 7),
                 SizedBox(
                   height: 25,
-                  width: 95,
+                  // width: 95,
                   child: ElevatedButton(
                     onPressed: () {
                       if (subscriptionController.customerPaymentCollection.value == "true") {
@@ -103,7 +103,7 @@ MyCommnonContainer OrdersPayments(
                         borderRadius: BorderRadius.circular(4.0),
                       ),
                     ),
-                    child: const Text('Collection', style: TextStyle(color: Colors.white)),
+                    child:  Text('Collection'.tr, style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
@@ -228,7 +228,7 @@ MyCommnonContainer OrdersPayments(
                                                 vertical: 2.0,
                                               ),
                                               child: Text(
-                                                getStatusName(order.orderStatus),
+                                                getStatusName(order.orderStatus).tr,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(

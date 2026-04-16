@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 
@@ -200,7 +201,7 @@ Widget customerOrderDialogueMainDash({
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            getStatusName(order.orderStatus),
+                            getStatusName(order.orderStatus).tr,
                             style: const TextStyle(
                                 fontSize: 14.0, fontWeight: FontWeight.w400),
                             textAlign: TextAlign.center,

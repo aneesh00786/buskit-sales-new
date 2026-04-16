@@ -58,7 +58,7 @@ void showValueDialog(
                           children: [
                             Expanded(
                               child: Text(
-                                title,
+                                title.tr,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -207,7 +207,7 @@ void showValueDialog(
                                                                 index]
                                                             .orderStatus)!
                                                     .toInt(),
-                                              ),
+                                              ).tr,
                                             ),
                                           ),
                                           Expanded(
@@ -251,12 +251,12 @@ void showValueDialog(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
-                              const Expanded(
+                               Expanded(
                                 flex: 1,
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Total',
+                                    'Total'.tr,
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold),
@@ -349,7 +349,7 @@ void showValueDialogCusDash(
                         children: [
                           Expanded(
                             child: Text(
-                              title,
+                              title.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

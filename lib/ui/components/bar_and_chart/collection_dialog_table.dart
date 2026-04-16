@@ -207,7 +207,7 @@ void showValueCollectionDialog(
                                         child: Center(
                                           child: Text(
                                             getStatusName(
-                                                order.orderStatus ?? 0),
+                                                order.orderStatus ?? 0).tr,
                                             style: const TextStyle(
                                               fontSize: 13,
                                               color: secondaryTextColor,

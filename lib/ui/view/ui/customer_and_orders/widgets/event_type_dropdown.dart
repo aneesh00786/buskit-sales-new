@@ -28,15 +28,15 @@ extension EventTypeExtension on EventType {
   String get displayName {
     switch (this) {
       case EventType.select:
-        return "-Select-";
+        return "-Select-".tr;
       case EventType.weekly:
-        return "Weekly";
+        return "Weekly".tr;
       case EventType.fortnightly:
-        return "Fortnightly";
+        return "Fortnightly".tr;
       case EventType.monthly:
-        return "Monthly";
+        return "Monthly".tr;
       case EventType.daily:
-        return "Daily";
+        return "Daily".tr;
     }
   }
 
@@ -690,7 +690,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                               items: weekOptions
                                   .map((week) => DropdownMenuItem(
                                         value: week,
-                                        child: Text(week),
+                                        child: Text(week.tr),
                                       ))
                                   .toList(),
                               onChanged: (value) {
@@ -702,10 +702,10 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                             const SizedBox(height: 16),
                           ],
                         ),
-                      const Align(
+                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Select Days",
+                          "Select Days".tr,
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold),
                         ),
@@ -722,7 +722,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                 contentPadding: EdgeInsets.zero,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
-                                title: Text(day),
+                                title: Text(day.tr),
                                 value: selectedDays.contains(day.toLowerCase()),
                                 onChanged: (bool? value) {
                                   setState(() {

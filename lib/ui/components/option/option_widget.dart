@@ -237,7 +237,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           DashboardProvider provider, OrderCountListt? orderCountList) =>
       [
         OptionData(
-          title: 'Orders'.tr,
+          title: 'Orders',
           count: widget.orderCount.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
@@ -261,7 +261,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Estimates'.tr,
+          title: 'Estimates',
           unfilteredCount: widget.eastimatesCount.toString(),
           count: widget.eastimatesFilterCount.toString(),
           svg: Assets.iconsIcDashboardEstimates,
@@ -305,7 +305,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Bookings'.tr,
+          title: 'Bookings',
           unfilteredCount: widget.preOrderCount.toString(),
           count: widget.preOrderFilterCount.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
@@ -322,7 +322,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                   context,
                   provider,
                   OrderStatus.preOrder,
-                  'Booking',
+                  'Booking'.tr,
                   false,
                   productsController,
                   customerOrderController,
@@ -345,7 +345,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                   context,
                   provider,
                   OrderStatus.preOrder,
-                  'Booking',
+                  'Booking'.tr,
                   false,
                   productsController,
                   customerOrderController,
@@ -358,7 +358,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Drafts'.tr,
+          title: 'Drafts',
           // unfilteredCount: 0.toString(),
           unfilteredCount: widget.draftCount.toString(),
           // count: widget.draftCount.toString(),
@@ -384,7 +384,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 context,
                 provider,
                 OrderStatus.draft,
-                'Draft',
+                'Draft'.tr,
                 true,
                 productsController,
                 customerOrderController,
@@ -412,7 +412,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 context,
                 provider,
                 OrderStatus.draft,
-                'Draft',
+                'Draft'.tr,
                 true,
                 productsController,
                 customerOrderController,
@@ -425,7 +425,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Cancelled'.tr,
+          title: 'Cancelled',
           unfilteredCount: 0.toString(),
           count: widget.cancelledCount.toString(),
           svg: Assets.iconsIcDashboardCancel,
@@ -441,7 +441,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 context,
                 provider,
                 OrderStatus.cancelled,
-                'Cancelled',
+                'Cancelled'.tr,
                 false,
                 productsController,
                 customerOrderController,
@@ -965,7 +965,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       : 0),
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType Amount'.tr,
+                                                                   '${orderType.tr} ${'Amount'.tr}',
+                                                                  // '$orderType Amount'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1147,7 +1148,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                         Expanded(
                                                                   child: Center(
                                                                     child: Text(
-                                                                      '$orderType Amount'.tr,
+                                                                       '${orderType.tr} ${'Amount'.tr}',
+                                                                      // '$orderType Amount'.tr,
                                                                       maxLines:
                                                                           2,
                                                                     ),
@@ -1382,7 +1384,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                           mainAxisSize: MainAxisSize.min,
                                                                                           children: [
                                                                                             Text(
-                                                                                              getStatusName(order.orderStatus),
+                                                                                              getStatusName(order.orderStatus).tr,
                                                                                               style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                               textAlign: TextAlign.center,
                                                                                             ),
@@ -1418,9 +1420,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                                   Expanded(
                                                                                                     child: Container(
                                                                                                         color: Colors.blue,
-                                                                                                        child: const Center(
+                                                                                                        child:  Center(
                                                                                                           child: Text(
-                                                                                                            'Quick Sale',
+                                                                                                            'Quick Sale'.tr,
                                                                                                             style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
                                                                                                           ),
                                                                                                         )),
@@ -1753,13 +1755,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   FontWeight
                                                                       .w700),
                                                       columns: [
-                                                        const DataColumn(
+                                                         DataColumn(
                                                             label: Expanded(
                                                           child: Align(
                                                             alignment: Alignment
                                                                 .centerRight,
                                                             child: Text(
-                                                              'Total',
+                                                              'Total'.tr,
                                                               maxLines: 2,
                                                             ),
                                                           ),
@@ -2277,7 +2279,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                       right:
                                                           200), // Space between label and TextField
                                                   child: CustomText(
-                                                    content: '${orderType}s',
+                                                    content: '${orderType}s'.tr,
                                                     fontWeight: FontWeight.w600,
                                                     fontSize: 22,
                                                   ),
@@ -2466,7 +2468,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                       : 0),
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType Amount'.tr,
+                                                                   '${orderType.tr} ${'Amount'.tr}',
+                                                                  // '$orderType Amount'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -2890,7 +2893,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                     mainAxisSize: MainAxisSize.min,
                                                                                     children: [
                                                                                       Text(
-                                                                                        getStatusName(order.orderStatus),
+                                                                                        getStatusName(order.orderStatus).tr,
                                                                                         style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                         textAlign: TextAlign.center,
                                                                                       ),
@@ -2926,9 +2929,9 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                                             Expanded(
                                                                                               child: Container(
                                                                                                   color: Colors.blue,
-                                                                                                  child: const Center(
+                                                                                                  child:  Center(
                                                                                                     child: Text(
-                                                                                                      'Quick Sale',
+                                                                                                      'Quick Sale'.tr,
                                                                                                       style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
                                                                                                     ),
                                                                                                   )),
@@ -3009,13 +3012,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                                   FontWeight
                                                                       .w700),
                                                       columns: [
-                                                        const DataColumn(
+                                                         DataColumn(
                                                             label: Expanded(
                                                           child: Align(
                                                             alignment: Alignment
                                                                 .centerRight,
                                                             child: Text(
-                                                              'Total',
+                                                              'Total'.tr,
                                                               maxLines: 2,
                                                             ),
                                                           ),

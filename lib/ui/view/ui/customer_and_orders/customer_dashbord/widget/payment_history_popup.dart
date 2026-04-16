@@ -143,9 +143,9 @@ class _PaymentHistoryContent extends StatelessWidget {
         }
 
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Padding(
+          return  Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text("No history found"),
+            child: Text("No history found".tr),
           );
         }
 

@@ -15,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_re
 
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class StaffOrdersDialog extends StatefulWidget {
@@ -481,7 +482,7 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                               child: Text(
                                                                 getStatusName(
                                                                     order.orderStatus ??
-                                                                        0),
+                                                                        0).tr,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         fontSize,
@@ -564,10 +565,10 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                   Expanded(
                                                                     child: Container(
                                                                         color: Colors.blue,
-                                                                        child: const Center(
+                                                                        child:  Center(
                                                                           child:
                                                                               Text(
-                                                                            'Quick Sale',
+                                                                            'Quick Sale'.tr,
                                                                             style: TextStyle(
                                                                                 color: white,
                                                                                 fontWeight: FontWeight.bold,

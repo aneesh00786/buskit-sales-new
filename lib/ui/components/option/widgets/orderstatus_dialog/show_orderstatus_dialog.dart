@@ -610,9 +610,9 @@ void showOrderStatusDialog(
                                                                                 MainAxisSize.min,
                                                                             children: [
                                                                               Padding(
-                                                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12.0),
+                                                                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12.0),
                                                                                 child: Text(
-                                                                                  getStatusName(order.orderStatus),
+                                                                                  getStatusName(order.orderStatus).tr,
                                                                                   style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                   textAlign: TextAlign.center,
                                                                                 ),
@@ -652,9 +652,9 @@ void showOrderStatusDialog(
                                                                                     Expanded(
                                                                                       child: Container(
                                                                                           color: Colors.blue,
-                                                                                          child: const Center(
+                                                                                          child:  Center(
                                                                                             child: Text(
-                                                                                              'Quick Sale',
+                                                                                              'Quick Sale'.tr,
                                                                                               style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
                                                                                             ),
                                                                                           )),

@@ -768,7 +768,7 @@ void pendingPaymentCollectionDialog(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Payment',
+                     Text('Payment'.tr,
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -862,7 +862,7 @@ void pendingPaymentCollectionDialog(
                             child: Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 5),
-                                child: Text(getStatusName(payment.orderStatus),
+                                child: Text(getStatusName(payment.orderStatus).tr,
                                     style:
                                         const TextStyle(color: Colors.white))),
                           ))),
@@ -962,7 +962,7 @@ void pendingPaymentCollectionDialog(
                         value: selectedPaymentMethod.value,
                         items: ['Cash', 'Cheque', 'Bank Transfer', 'QR Payment']
                             .map((e) =>
-                                DropdownMenuItem(value: e, child: Text(e)))
+                                DropdownMenuItem(value: e, child: Text(e.tr)))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) selectedPaymentMethod.value = val;
@@ -1122,8 +1122,8 @@ void pendingPaymentCollectionDialog(
                         ),
                         child: Obx(() => Text(
                               selectedPaymentMethod.value == 'QR Payment'
-                                  ? 'Pay'
-                                  : 'Submit',
+                                  ? 'Pay'.tr
+                                  : 'Submit'.tr,
                               style: const TextStyle(color: Colors.white),
                             )),
                       ))),

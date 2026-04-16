@@ -40,7 +40,7 @@ Widget buildHeader(
               width: 205,
               child: Column(
                 children: [
-                  Expanded(child: _buildHeaderText("Customer List", fontSize)),
+                  Expanded(child: _buildHeaderText("Customer List".tr, fontSize)),
                   const SizedBox(
                     height: 8,
                   )
@@ -466,7 +466,7 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
             children: [
               CustomText(
                 content:
-                    OrderHandlingClass.fromType(customerData.orderStatus).name,
+                    OrderHandlingClass.fromType(customerData.orderStatus).name.tr,
                 textAlign: TextAlign.center,
                 fontSize: 10,
                 overflow: TextOverflow.ellipsis,

@@ -170,7 +170,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                             child: Center(
                                               child: Text(
                                                 getStatusName(
-                                                    order.orderStatus),
+                                                    order.orderStatus).tr,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(

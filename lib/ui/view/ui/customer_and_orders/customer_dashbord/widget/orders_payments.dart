@@ -228,7 +228,7 @@ MyCommnonContainer OrdersPayments(
                                                 vertical: 2.0,
                                               ),
                                               child: Text(
-                                                getStatusName(order.orderStatus),
+                                                getStatusName(order.orderStatus).tr,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(

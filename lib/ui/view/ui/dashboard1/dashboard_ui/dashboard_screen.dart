@@ -534,7 +534,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> with WidgetsBindingOb
             Icon(Icons.access_time_filled, size: 25.0, color: primaryColor),
             const SizedBox(width: 8.0),
             Text(
-              "Check-In",
+              "Check-In".tr,
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,

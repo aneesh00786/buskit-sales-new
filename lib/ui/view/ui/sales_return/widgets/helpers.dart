@@ -203,7 +203,7 @@ Widget buildStatus(GetRecentOrderReturnData statusData) {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             onPressed: () {},
             child: CustomText(
-              content: getStatusName.call(statusData.orderStatus!),
+              content: getStatusName.call(statusData.orderStatus!).tr,
               fontWeight: FontWeight.bold,
               fontSize: 14,
               color: Colors.white,

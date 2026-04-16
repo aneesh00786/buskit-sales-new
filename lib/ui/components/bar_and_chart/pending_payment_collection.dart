@@ -190,10 +190,10 @@ void pendingPaymentCollectionDialog(
                     horizontalInside: BorderSide(color: Colors.grey.shade300),
                     bottom: BorderSide(color: Colors.grey.shade300),
                   ),
-                  columns: const [
+                  columns:  [
                     DataColumn(
                       label: Text(
-                        'Order ID',
+                        'Order ID'.tr,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -202,7 +202,7 @@ void pendingPaymentCollectionDialog(
                     ),
                     DataColumn(
                       label: Text(
-                        'Amount',
+                        'Amount'.tr,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -211,7 +211,7 @@ void pendingPaymentCollectionDialog(
                     ),
                     DataColumn(
                       label: Text(
-                        'Time',
+                        'Time'.tr,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -220,7 +220,7 @@ void pendingPaymentCollectionDialog(
                     ),
                     DataColumn(
                       label: Text(
-                        'Action',
+                        'Action'.tr,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -715,7 +715,7 @@ void pendingPaymentCollectionDialog(
                             horizontal: 5,
                           ),
                           child: Text(
-                              getStatusName(payment.orderStatus?.toInt() ?? 0),
+                              getStatusName(payment.orderStatus?.toInt() ?? 0).tr,
                               style: const TextStyle(
                                 color: Colors.white,
                               )))))),
@@ -967,7 +967,7 @@ void pendingPaymentCollectionDialog(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    title,
+                    title.tr,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -1150,7 +1150,7 @@ void pendingPaymentCollectionDialog(
                                       child: TextField(
                                         controller: receivedAmountController,
                                         decoration: InputDecoration(
-                                          hintText: 'Enter Amount',
+                                          hintText: 'Enter Amount'.tr,
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
@@ -1289,7 +1289,7 @@ void pendingPaymentCollectionDialog(
                                     ),
                                     child: Obx(
                                       () => Text(
-                                        selectedPaymentMethod.value == 'QR Payment' ? 'Pay' : 'Submit',
+                                        selectedPaymentMethod.value == 'QR Payment' ? 'Pay'.tr : 'Submit'.tr,
                                         style: const TextStyle(fontSize: 14, color: Colors.white),
                                       ),
                                     ),

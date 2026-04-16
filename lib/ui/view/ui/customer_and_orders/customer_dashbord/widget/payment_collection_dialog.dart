@@ -443,7 +443,7 @@ void paymentCollectionDialog(
                                                 horizontal: 5,
                                               ),
                                               child: Text(
-                                                getStatusName(order.orderStatus),
+                                                getStatusName(order.orderStatus).tr,
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                 ),

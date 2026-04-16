@@ -1140,7 +1140,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                             Padding(
                                                                               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12.0),
                                                                               child: Text(
-                                                                                getStatusName(order.orderStatus),
+                                                                                getStatusName(order.orderStatus).tr,
                                                                                 style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                 textAlign: TextAlign.center,
                                                                               ),
@@ -1939,7 +1939,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                       mainAxisSize: MainAxisSize.min,
                                                                                       children: [
                                                                                         Text(
-                                                                                          getStatusName(order.orderStatus),
+                                                                                          getStatusName(order.orderStatus).tr,
                                                                                           style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                           textAlign: TextAlign.center,
                                                                                         ),

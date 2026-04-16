@@ -5729,7 +5729,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   child: Text(
                                                                     getStatusName(
                                                                         order
-                                                                            .orderStatus),
+                                                                            .orderStatus).tr,
                                                                     style: TextStyle(
                                                                         fontSize:
                                                                             fontSize,

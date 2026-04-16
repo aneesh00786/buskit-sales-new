@@ -862,7 +862,7 @@ void pendingPaymentCollectionDialog(
                             child: Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 5),
-                                child: Text(getStatusName(payment.orderStatus),
+                                child: Text(getStatusName(payment.orderStatus).tr,
                                     style:
                                         const TextStyle(color: Colors.white))),
                           ))),

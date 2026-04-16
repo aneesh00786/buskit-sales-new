@@ -158,7 +158,7 @@ void showDetailedOrderDialog(
                             style: TextStyle(fontSize: 18))),
                     const Spacer(),
                     Text(
-                        'Order Status : ${getStatusName(orderData.orderStatus)}',
+                        'Order Status : ${getStatusName(orderData.orderStatus).tr}',
                         style: const TextStyle(fontSize: 18))
                   ],
                 ),

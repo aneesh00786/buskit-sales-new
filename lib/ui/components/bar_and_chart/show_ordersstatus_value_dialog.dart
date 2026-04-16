@@ -66,7 +66,7 @@ void showValueOrderDialog(
                         children: [
                           Expanded(
                             child: Text(
-                              title,
+                              title.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -225,7 +225,7 @@ void showValueOrderDialog(
                                             child: Text(
                                               getStatusName(
                                                   orderDetails.orderStatus ??
-                                                      0),
+                                                      0).tr,
                                               style: const TextStyle(
                                                 fontSize: 13,
                                                 color: secondaryTextColor,

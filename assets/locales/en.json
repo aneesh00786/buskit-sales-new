@@ -481,7 +481,20 @@
     "Are you sure you want to check in to this customer?":"Are you sure you want to check in to this customer?",
     "Your order has been successfully saved as Draft":"Your order has been successfully saved as Draft",
     "App Settings":"App Settings",
-    "Language Settings":"Language Settings"
+    "Language Settings":"Language Settings",
+    "Booking":"Booking",
+    "Out for Delivery":"Out for Delivery",
+    "Packed for Delivery":"Packed for Delivery",
+    "New Order":"New Order",
+    "Unknown":"Unknown",
+    "Search Estimate No.": "Search Estimate No.",
+    "Search Booking No.": "Search Booking No.",
+    "Search Cancelled No.": "Search Cancelled No.",
+    "Frequently Ordered Products":"Frequently Ordered Products",
+    "To track your location even when the app is closed (for accurate attendance), please allow \"Always\" permission.": "To track your location even when the app is closed (for accurate attendance), please allow \"Always\" permission.",
+    "Language saved successfully":"Language saved successfully",
+    "All months":"All months",
+    "Select Months":"Select Months"
 
     
 

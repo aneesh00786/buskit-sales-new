@@ -105,10 +105,10 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                     // INDEX 0 = ORDER
                     // INDEX 1 = BOOKING
                     if (touchedIndex == 0) {
-                    final   title = 'Order'.tr;
+                    final   title = 'Order';
                       showValueDialog(context, widget.categoryData, title);
                     } else if (touchedIndex == 1) {
-                      final title = 'Booking'.tr;
+                      final title = 'Booking';
                       showValueDialog(context, widget.categoryData, title);
                     }
                   }

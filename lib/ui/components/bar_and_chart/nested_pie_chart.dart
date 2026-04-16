@@ -76,7 +76,7 @@ class NestedPieChartj extends StatelessWidget {
                       context, 'Due Payment', collection);
                 } else if (details.pointIndex == 1) {
                   pendingPaymentCollectionDialog(
-                      context, 'Over Due Payment'.tr, collection);
+                      context, 'Over Due Payment', collection);
                 }
               },
             ),

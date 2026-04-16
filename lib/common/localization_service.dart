@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class LocalizationService extends GetxService {
   static const String _languageKey = 'selected_language';
-  static const String _googleApiKey = 'AIzaSyB-N33vxcGobuqrWEB61BZnc2tyKNHuNF4'; // Consider securing this later!
+  static const String _googleApiKey = 'AIzaSyCNY2Kg4C7lzkaP2VSFukD5ZXsiwydOydc'; // Consider securing this later!
   
   late SharedPreferences _prefs;
   Locale activeLocale = const Locale('en');

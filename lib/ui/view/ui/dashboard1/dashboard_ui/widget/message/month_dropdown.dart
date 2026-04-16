@@ -24,24 +24,24 @@ class _MonthDropdownState extends State<MonthDropdown> {
   bool isInitOnline = false;
 
   final GlobalKey _dropdownKey = GlobalKey(); 
-List<String> get months => [
-  "January".tr, 
-  "February".tr, 
-  "March".tr, 
-  "April".tr, 
-  "May".tr, 
-  "June".tr,
-  "July".tr, 
-  "August".tr, 
-  "September".tr, 
-  "October".tr, 
-  "November".tr, 
-  "December".tr
-];
-  // final List<String> months = [
-  //   "January", "February", "March", "April", "May", "June",
-  //   "July", "August", "September", "October", "November", "December"
-  // ];
+// List<String> get months => [
+//   "January".tr, 
+//   "February".tr, 
+//   "March".tr, 
+//   "April".tr, 
+//   "May".tr, 
+//   "June".tr,
+//   "July".tr, 
+//   "August".tr, 
+//   "September".tr, 
+//   "October".tr, 
+//   "November".tr, 
+//   "December".tr
+// ];
+  final List<String> months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   final Map<String, StateSetter> _monthStateSetters = {};
   StateSetter? _selectAllStateSetter;
@@ -110,14 +110,14 @@ List<String> get months => [
   String _getSelectedText(BuildContext context) {
     final selectedMonths = Provider.of<DashboardProvider>(context).selectedFilterMonths;
     if (selectedMonths.length == months.length) {
-      return "All months";
+      return "All months".tr;
     } else if (selectedMonths.length == 1) {
-      return selectedMonths.first;
+      return selectedMonths.first.tr;
     } else if (selectedMonths.isNotEmpty) {
       return "${selectedMonths.length} " + "months selected".tr;
       // return "${selectedMonths.length} months selected";
     } else {
-      return "Select Months";
+      return "Select Months".tr;
     }
   }
 
@@ -206,7 +206,7 @@ List<String> get months => [
                                 onChanged: (value) {
                                   _toggleMonthSelection(context, month);
                                 },
-                                title: Text(month),
+                                title: Text(month.tr),
                                 controlAffinity: ListTileControlAffinity.leading,
                               );
                             },

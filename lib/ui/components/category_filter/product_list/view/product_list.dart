@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
@@ -405,14 +406,11 @@ class _ProductGridState extends State<ProductGrid> {
                                                               30),
                                                       color: Colors.yellow[700],
                                                     ),
-                                                    child: Text(
-                                                      '$lowstockItem Low',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 7,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
+                                                     child: CustomText(
+                                                      content: '$lowstockItem ${'Low'.tr}',
+                                                      fontSize: 7,
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 6),
@@ -428,16 +426,12 @@ class _ProductGridState extends State<ProductGrid> {
                                                       color:
                                                           Colors.red.shade800,
                                                     ),
-                                                    child: Text(
-                                                      '$outOfStockItem Nil',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 7,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
+                                                    child: CustomText(
+                                                    content: '$outOfStockItem ${'Nill'.tr}',
+                                                    fontSize: 7,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                   ),
                                                 ],
                                                 const Spacer(),
@@ -525,16 +519,12 @@ class _ProductGridState extends State<ProductGrid> {
                                                                   .symmetric(
                                                                   horizontal: 6,
                                                                   vertical: 3),
-                                                          child: Text(
-                                                            'Stock : ${product.stock}',
-                                                            style: const TextStyle(
-                                                                fontSize: 7,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600),
-                                                          ),
+                                                        child:CustomText(
+                                                          content: '${'Stock'.tr} : ${product.stock}',
+                                                          fontSize: 7,
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w600,
+                                                        ),
                                                         ),
                                                       )
                                                     : SizedBox(),

@@ -751,387 +751,401 @@ void pendingPaymentCollectionDialog(
           Get.put(PendingPaymentController());
 
       return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header
-              Container(
-                height: 45,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: primaryColor,
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10)),
+        child: SizedBox(
+          width:double.infinity,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Container(
+                  height: 45,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                       Text('Payment'.tr,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600)),
+                      dialogCloseButton1(context, red),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                     Text('Payment'.tr,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600)),
-                    dialogCloseButton1(context, red),
-                  ],
+          
+                // Pending Items Table
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                   width: double.infinity,
+                    child: Obx(() => DataTable(
+                         columnSpacing: 15.0, 
+                          dataRowHeight: 30,
+                          headingRowHeight: 40,
+                          border: TableBorder.all(color: Colors.grey.shade300),
+                          columns:  [
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Date'.tr, fontSize: 13)),
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Invoice'.tr, fontSize: 13)),
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Amount'.tr, fontSize: 13)),
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Status'.tr, fontSize: 13)),
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Payment'.tr, fontSize: 13)),
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Receivable'.tr, fontSize: 13)),
+                            DataColumn(
+                                label: DialogTableHeaderText(
+                                    text: 'Select'.tr, fontSize: 13)),
+                          ],
+                          rows: controller.individualPendingPayments
+                              .asMap()
+                              .entries
+                              .map<DataRow>((entry) {
+                            int index = entry.key;
+                            var payment = entry.value;
+                            
+                            // Check offline status for Info Icon
+                            bool isOfflinePending =
+                                isOfflinePaymentPending(payment.orderId.toString());
+                            
+                            return DataRow(cells: [
+                              DataCell(
+                                Center(
+                                  child: Text(
+                                    payment.orderCreatAt != null &&
+                                            payment.orderCreatAt
+                                                .toString()
+                                                .isNotEmpty
+                                        ? TimeUtils.formatTimeInZone(
+                                            DateTime.parse(
+                                                payment.orderCreatAt.toString()),
+                                            format: 'dd-MM-yyyy'
+                                            // Optional: Add a specific format here if needed, like format: 'dd-MM-yyyy'
+                                            )
+                                        : 'N/A',
+                                  ),
+                                ),
+                              ),
+                              // DataCell(Center(child: Text(getFormattedOrderCreatAt(payment.orderCreatAt)))),
+                              DataCell(Center(
+                                  child: InkWell(
+                                onTap: () => showInvoicePreviewOnline(
+                                    context, payment.orderId),
+                                child: Text(payment.invoiceId,
+                                    style: TextStyle(
+                                        color: primaryColor,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 10),
+                                    maxLines: 1),
+                              ))),
+                              DataCell(Center(
+                                  child: Text(formatAmount(payment.orderTotal),
+                                      maxLines: 1))),
+                              DataCell(Center(
+                                  child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4.0))),
+                                child: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(getStatusName(payment.orderStatus).tr,
+                                        style:
+                                            const TextStyle(color: Colors.white))),
+                              ))),
+                              // Payment Status / Info Icon
+                              DataCell(Center(
+                                child: isOfflinePending
+                                    ? InkWell(
+                                        onTap: () {
+                                          showOfflineInfoDialog(
+                                              context, payment.orderId.toString());
+                                        },
+                                        child: const Icon(Icons.info,
+                                            color: Colors.blue, size: 20),
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          color: payment.paymentStatus == 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                              color: payment.paymentStatus == 0
+                                                  ? Colors.red
+                                                  : Colors.green),
+                                        ),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(1.0),
+                                            child: Icon(
+                                                payment.paymentStatus == 0
+                                                    ? Icons.close
+                                                    : Icons.done,
+                                                color: Colors.white,
+                                                size: 14.0)),
+                                      ),
+                              )),
+                              DataCell(Center(
+                                  child: Padding(
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 3.0),
+                                      child: EditablePendingPaymentCell(
+                                        initialValue:
+                                            payment.pendingAmount.toString(),
+                                        index: index,
+                                        orderId: payment.orderId,
+                                        orderTotal: payment.orderTotal,
+                                        onValueChanged: (newValue, index) {},
+                                        amountEdited: payment.amountEdited,
+                                      )))),
+                              DataCell(Center(child: Obx(() {
+                                return Checkbox(
+                                  value: selectedItems[index],
+                                  onChanged: (bool? value) {
+                                    selectedItems[index] = value ?? false;
+                                    totalBalanceAmount.value =
+                                        calculateTotalBalanceAmount();
+                                    balanceAmountController.text =
+                                        totalBalanceAmount.value.toStringAsFixed(2);
+                                  },
+                                );
+                              }))),
+                            ]);
+                          }).toList(),
+                        )),
+                  ),
                 ),
-              ),
-
-              // Pending Items Table
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Obx(() => DataTable(
-                      dataRowHeight: 30,
-                      headingRowHeight: 40,
-                      border: TableBorder.all(color: Colors.grey.shade300),
+          // const SizedBox(height: 10),
+                // Payment Input Table
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    // padding: const EdgeInsets.all(8.0),
+                    child: DataTable(
+                      columnSpacing: 15.0,
                       columns:  [
                         DataColumn(
                             label: DialogTableHeaderText(
-                                text: 'Date'.tr, fontSize: 13)),
+                                text: 'Payment Method'.tr,
+                                fontSize: 11,
+                                align: TextAlign.start)),
                         DataColumn(
                             label: DialogTableHeaderText(
-                                text: 'Invoice'.tr, fontSize: 13)),
+                                text: 'Balance Amount'.tr,
+                                fontSize: 11,
+                                align: TextAlign.start)),
                         DataColumn(
                             label: DialogTableHeaderText(
-                                text: 'Amount'.tr, fontSize: 13)),
+                                text: 'Received Amount'.tr,
+                                fontSize: 11,
+                                align: TextAlign.start)),
                         DataColumn(
                             label: DialogTableHeaderText(
-                                text: 'Status'.tr, fontSize: 13)),
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Payment'.tr, fontSize: 13)),
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Receivable'.tr, fontSize: 13)),
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Select'.tr, fontSize: 13)),
+                                text: 'Remarks'.tr,
+                                fontSize: 11,
+                                align: TextAlign.start)),
+                        DataColumn(label: Text('')),
                       ],
-                      rows: controller.individualPendingPayments
-                          .asMap()
-                          .entries
-                          .map<DataRow>((entry) {
-                        int index = entry.key;
-                        var payment = entry.value;
-
-                        // Check offline status for Info Icon
-                        bool isOfflinePending =
-                            isOfflinePaymentPending(payment.orderId.toString());
-
-                        return DataRow(cells: [
-                          DataCell(
-                            Center(
-                              child: Text(
-                                payment.orderCreatAt != null &&
-                                        payment.orderCreatAt
-                                            .toString()
-                                            .isNotEmpty
-                                    ? TimeUtils.formatTimeInZone(
-                                        DateTime.parse(
-                                            payment.orderCreatAt.toString()),
-                                        format: 'dd-MM-yyyy'
-                                        // Optional: Add a specific format here if needed, like format: 'dd-MM-yyyy'
-                                        )
-                                    : 'N/A',
-                              ),
-                            ),
-                          ),
-                          // DataCell(Center(child: Text(getFormattedOrderCreatAt(payment.orderCreatAt)))),
-                          DataCell(Center(
-                              child: InkWell(
-                            onTap: () => showInvoicePreviewOnline(
-                                context, payment.orderId),
-                            child: Text(payment.invoiceId,
-                                style: TextStyle(
-                                    color: primaryColor,
-                                    fontFamily: 'Poppins_Regular',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 10),
-                                maxLines: 1),
-                          ))),
-                          DataCell(Center(
-                              child: Text(formatAmount(payment.orderTotal),
-                                  maxLines: 1))),
-                          DataCell(Center(
-                              child: Container(
-                            decoration: const BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4.0))),
-                            child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 5),
-                                child: Text(getStatusName(payment.orderStatus).tr,
-                                    style:
-                                        const TextStyle(color: Colors.white))),
-                          ))),
-                          // Payment Status / Info Icon
-                          DataCell(Center(
-                            child: isOfflinePending
-                                ? InkWell(
-                                    onTap: () {
-                                      showOfflineInfoDialog(
-                                          context, payment.orderId.toString());
-                                    },
-                                    child: const Icon(Icons.info,
-                                        color: Colors.blue, size: 20),
-                                  )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      color: payment.paymentStatus == 0
-                                          ? Colors.red
-                                          : Colors.green,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                          color: payment.paymentStatus == 0
-                                              ? Colors.red
-                                              : Colors.green),
-                                    ),
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(1.0),
-                                        child: Icon(
-                                            payment.paymentStatus == 0
-                                                ? Icons.close
-                                                : Icons.done,
-                                            color: Colors.white,
-                                            size: 14.0)),
-                                  ),
+                      rows: [
+                        DataRow(cells: [
+                          // Dropdown
+                          DataCell(DropdownButtonFormField<String>(
+                            value: selectedPaymentMethod.value,
+                            items: ['Cash', 'Cheque', 'Bank Transfer', 'QR Payment']
+                                .map((e) =>
+                                    DropdownMenuItem(value: e, child: Text(e.tr)))
+                                .toList(),
+                            onChanged: (val) {
+                              if (val != null) selectedPaymentMethod.value = val;
+                            },
                           )),
+                          // Balance
+                          DataCell(Row(children: [
+                            Text(addCurrencySymbol()),
+                            const SizedBox(width: 5),
+                            Expanded(
+                                child: TextField(
+                                    readOnly: true,
+                                    controller: balanceAmountController,
+                                    decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0)),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0))))
+                          ])),
+                          // Received
+                          DataCell(Row(children: [
+                            Text(addCurrencySymbol()),
+                            const SizedBox(width: 5),
+                            Expanded(
+                                child: TextField(
+                                    controller: receivedAmountController,
+                                    decoration: InputDecoration(
+                                        hintText: 'Enter Amount'.tr,
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0)),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0))))
+                          ])),
+                          // Remarks
+                          DataCell(TextField(
+                              controller: remarksController,
+                              decoration: InputDecoration(
+                                  hintText: 'Remarks'.tr,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.grey.shade300),
+                                      borderRadius: BorderRadius.circular(10.0)),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0)))),
+                          // Submit Button
                           DataCell(Center(
-                              child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 3.0),
-                                  child: EditablePendingPaymentCell(
-                                    initialValue:
-                                        payment.pendingAmount.toString(),
-                                    index: index,
-                                    orderId: payment.orderId,
-                                    orderTotal: payment.orderTotal,
-                                    onValueChanged: (newValue, index) {},
-                                    amountEdited: payment.amountEdited,
-                                  )))),
-                          DataCell(Center(child: Obx(() {
-                            return Checkbox(
-                              value: selectedItems[index],
-                              onChanged: (bool? value) {
-                                selectedItems[index] = value ?? false;
-                                totalBalanceAmount.value =
-                                    calculateTotalBalanceAmount();
-                                balanceAmountController.text =
-                                    totalBalanceAmount.value.toStringAsFixed(2);
-                              },
-                            );
-                          }))),
-                        ]);
-                      }).toList(),
-                    )),
-              ),
-
-              // Payment Input Table
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: DataTable(
-                  columns:  [
-                    DataColumn(
-                        label: DialogTableHeaderText(
-                            text: 'Payment Method'.tr,
-                            fontSize: 11,
-                            align: TextAlign.start)),
-                    DataColumn(
-                        label: DialogTableHeaderText(
-                            text: 'Balance Amount'.tr,
-                            fontSize: 11,
-                            align: TextAlign.start)),
-                    DataColumn(
-                        label: DialogTableHeaderText(
-                            text: 'Received Amount'.tr,
-                            fontSize: 11,
-                            align: TextAlign.start)),
-                    DataColumn(
-                        label: DialogTableHeaderText(
-                            text: 'Remarks'.tr,
-                            fontSize: 11,
-                            align: TextAlign.start)),
-                    DataColumn(label: Text('')),
-                  ],
-                  rows: [
-                    DataRow(cells: [
-                      // Dropdown
-                      DataCell(DropdownButtonFormField<String>(
-                        value: selectedPaymentMethod.value,
-                        items: ['Cash', 'Cheque', 'Bank Transfer', 'QR Payment']
-                            .map((e) =>
-                                DropdownMenuItem(value: e, child: Text(e.tr)))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) selectedPaymentMethod.value = val;
-                        },
-                      )),
-                      // Balance
-                      DataCell(Row(children: [
-                        Text(addCurrencySymbol()),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            child: TextField(
-                                readOnly: true,
-                                controller: balanceAmountController,
-                                decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade300),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0)),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0))))
-                      ])),
-                      // Received
-                      DataCell(Row(children: [
-                        Text(addCurrencySymbol()),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            child: TextField(
-                                controller: receivedAmountController,
-                                decoration: InputDecoration(
-                                    hintText: 'Enter Amount'.tr,
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade300),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0)),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0))))
-                      ])),
-                      // Remarks
-                      DataCell(TextField(
-                          controller: remarksController,
-                          decoration: InputDecoration(
-                              hintText: 'Remarks'.tr,
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.grey.shade300),
+                              child: ElevatedButton(
+                            onPressed: () async {
+                              // Validation
+                              double enteredAmount =
+                                  double.tryParse(receivedAmountController.text) ??
+                                      0;
+                              if (enteredAmount <= 0) {
+                                showCustomToastDisplay(context,
+                                    "Enter valid amount".tr, Colors.red, Icons.error);
+                                return;
+                              }
+                            
+                              List<IndividualPendingData> selectedItemsList = [];
+                              for (int i = 0; i < selectedItems.length; i++) {
+                                if (selectedItems[i])
+                                  selectedItemsList
+                                      .add(controller.individualPendingPayments[i]);
+                              }
+                              if (selectedItemsList.isEmpty) {
+                                showCustomToastDisplay(
+                                    context,
+                                    "Select at least one item".tr,
+                                    Colors.red,
+                                    Icons.error);
+                                return;
+                              }
+                            
+                              // Check Connectivity for processing
+                              bool isOnlineForSubmit =
+                                  await ConnectivityService().isOnline();
+                            
+                              if (selectedPaymentMethod.value == 'QR Payment') {
+                                if (!isOnlineForSubmit) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text("Online Required"),
+                                      content:  Text(
+                                          "QR Payments can only be processed while online.".tr),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () => Navigator.pop(ctx),
+                                            child:  Text("OK".tr))
+                                      ],
+                                    ),
+                                  );
+                                  return;
+                                }
+                                await _startOnlinePayment(
+                                    enteredAmount, selectedItemsList,
+                                    remarks: remarksController.text);
+                                await orderController.loadOrderData(chartIndex: 0);
+                              } else {
+                                // Offline/Online Processing (Cash/Cheque/Bank)
+                                await processPayments(
+                                    selectedItemsList, enteredAmount);
+                            
+                                if (isOnlineForSubmit) {
+                                  Navigator.pop(context);
+                                  showCustomToastDisplay(
+                                      context,
+                                      "Payment submitted".tr,
+                                      Colors.green,
+                                      Icons.check);
+                                  await orderController.loadOrderData(
+                                      chartIndex: 0);
+                                } else {
+                                  // Offline Success Dialog
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (ctx) => AlertDialog(
+                                      title:  Row(children: [
+                                        Icon(Icons.wifi_off, color: Colors.orange),
+                                        SizedBox(width: 10),
+                                        Text("Payment Queue".tr)
+                                      ]),
+                                      content:  Text(
+                                          "You are offline. The payment has been saved locally and will complete automatically when you go online.".tr),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(ctx);
+                                              Get.back();
+                                              controller
+                                                  .refresh(); // Refresh UI to show info icons
+                                            },
+                                            child:  Text("OK".tr))
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0)))),
-                      // Submit Button
-                      DataCell(Center(
-                          child: ElevatedButton(
-                        onPressed: () async {
-                          // Validation
-                          double enteredAmount =
-                              double.tryParse(receivedAmountController.text) ??
-                                  0;
-                          if (enteredAmount <= 0) {
-                            showCustomToastDisplay(context,
-                                "Enter valid amount".tr, Colors.red, Icons.error);
-                            return;
-                          }
-
-                          List<IndividualPendingData> selectedItemsList = [];
-                          for (int i = 0; i < selectedItems.length; i++) {
-                            if (selectedItems[i])
-                              selectedItemsList
-                                  .add(controller.individualPendingPayments[i]);
-                          }
-                          if (selectedItemsList.isEmpty) {
-                            showCustomToastDisplay(
-                                context,
-                                "Select at least one item".tr,
-                                Colors.red,
-                                Icons.error);
-                            return;
-                          }
-
-                          // Check Connectivity for processing
-                          bool isOnlineForSubmit =
-                              await ConnectivityService().isOnline();
-
-                          if (selectedPaymentMethod.value == 'QR Payment') {
-                            if (!isOnlineForSubmit) {
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text("Online Required"),
-                                  content:  Text(
-                                      "QR Payments can only be processed while online.".tr),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () => Navigator.pop(ctx),
-                                        child:  Text("OK".tr))
-                                  ],
-                                ),
-                              );
-                              return;
-                            }
-                            await _startOnlinePayment(
-                                enteredAmount, selectedItemsList,
-                                remarks: remarksController.text);
-                            await orderController.loadOrderData(chartIndex: 0);
-                          } else {
-                            // Offline/Online Processing (Cash/Cheque/Bank)
-                            await processPayments(
-                                selectedItemsList, enteredAmount);
-
-                            if (isOnlineForSubmit) {
-                              Navigator.pop(context);
-                              showCustomToastDisplay(
-                                  context,
-                                  "Payment submitted".tr,
-                                  Colors.green,
-                                  Icons.check);
-                              await orderController.loadOrderData(
-                                  chartIndex: 0);
-                            } else {
-                              // Offline Success Dialog
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (ctx) => AlertDialog(
-                                  title:  Row(children: [
-                                    Icon(Icons.wifi_off, color: Colors.orange),
-                                    SizedBox(width: 10),
-                                    Text("Payment Queue".tr)
-                                  ]),
-                                  content:  Text(
-                                      "You are offline. The payment has been saved locally and will complete automatically when you go online.".tr),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(ctx);
-                                          Get.back();
-                                          controller
-                                              .refresh(); // Refresh UI to show info icons
-                                        },
-                                        child:  Text("OK".tr))
-                                  ],
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0)),
-                        ),
-                        child: Obx(() => Text(
-                              selectedPaymentMethod.value == 'QR Payment'
-                                  ? 'Pay'.tr
-                                  : 'Submit'.tr,
-                              style: const TextStyle(color: Colors.white),
-                            )),
-                      ))),
-                    ]),
-                  ],
+                            ),
+                            child: Obx(() => Text(
+                                  selectedPaymentMethod.value == 'QR Payment'
+                                      ? 'Pay'.tr
+                                      : 'Submit'.tr,
+                                  style: const TextStyle(color: Colors.white),
+                                )),
+                          ))),
+                        ]),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

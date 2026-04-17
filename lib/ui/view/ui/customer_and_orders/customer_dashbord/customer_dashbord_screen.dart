@@ -212,7 +212,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     }
 
     // 2. Show loading indicator if needed (optional)
-    showCustomToastDisplay(context, "Checking in...", Colors.blue, Icons.info);
+    showCustomToastDisplay(context, "Checking in...".tr, Colors.blue, Icons.info);
 
     try {
       // 3. Get Location

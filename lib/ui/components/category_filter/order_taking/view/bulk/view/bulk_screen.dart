@@ -186,7 +186,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
               child: Center(
                 child: CustomText(
                   content:
-                      'You Save'.tr + ': ${formatAmount(savings.toStringAsFixed(2))} ($discountText)',
+                      'You Save'.tr + ': \u200E${formatAmount(savings.toStringAsFixed(2))} ($discountText)',
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,

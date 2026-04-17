@@ -818,7 +818,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                               DropdownButtonHideUnderline(
                                             child: DropdownButton<Tier>(
                                               value: value,
-                                              hint: const Text('Select Tier'),
+                                              hint:  Text('Select Tier'.tr),
                                               isExpanded: true,
                                               items:
                                                   promo.tiers!.map((Tier tier) {
@@ -931,7 +931,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                       }
                                       final double total = unitSum * value;
                                       return Text(
-                                        'Total: ${formatAmount(total.toString())}',
+                                        'Total'.tr + ': \u200E${formatAmount(total.toString())}',
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -4920,7 +4920,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Code : ${promo.promoCode}",
+                  'Code'.tr + ' : ${promo.promoCode}',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.green.shade800,

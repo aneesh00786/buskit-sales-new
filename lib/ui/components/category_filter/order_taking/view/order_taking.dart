@@ -780,8 +780,8 @@ class _OrderTakingState extends State<OrderTaking>
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          const MyRegularText(
-                                            label: "Customer",
+                                           MyRegularText(
+                                            label: "Customer".tr,
                                             fontSize: 9,
                                           ),
                                         ],
@@ -1157,7 +1157,7 @@ class _OrderTakingState extends State<OrderTaking>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomSearchBar(
-                          text: "Search customer...",
+                          text: "Search customer...".tr,
                           controller: customerSearchController,
                           onChange: (value) {
                             filterCustomers(value);

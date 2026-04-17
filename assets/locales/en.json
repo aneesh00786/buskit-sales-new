@@ -318,7 +318,7 @@
   "Please insert": "Please insert",
   "Picture": "Picture",
   "Target by values": "Target by values",
-  " Target by category": " Target by category",
+  "Target by category": "Target by category",
   "Staff Projection": "Staff Projection",
   "Performance": "Performance",
   "Category": "Category",
@@ -556,7 +556,8 @@
 "Process Date":"Process Date",
 "Packed & ready for delivery":"Packed & ready for delivery",
 "Record Not Found":"Record Not Found",
-"Rejection Reason : ":"Rejection Reason : "
+"Rejection Reason : ":"Rejection Reason : ",
+"Target by Category":"Target by Category"
 
   
 

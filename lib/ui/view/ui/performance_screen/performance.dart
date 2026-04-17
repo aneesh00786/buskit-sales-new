@@ -351,7 +351,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                               ),
                               const SizedBox(width: 10),
                               CustomText(
-                                content: monthName,
+                                content: monthName.tr,
                                 color: isSelected ? Colors.black87 : Colors.grey[700],
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                 fontSize: 13,
@@ -405,7 +405,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               options: [
                 OptionData(
                     title: 'Timesheet'.tr,
-                    month: _selectedMonthName,
+                    month: _selectedMonthName!.tr,
                     unfilteredCount: "0",
                     count: targetContent?.timesheet?.toString() ?? '0',
                     svg: "assets/icons/event.png",
@@ -434,7 +434,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 OptionData(
                     title: 'Visits'.tr,
                     width: 165.0,
-                    month: _selectedMonthName,
+                    month: _selectedMonthName!.tr,
                     unfilteredCount: "0",
                     count: targetContent?.visit?.toString() ?? '0',
                     svg: "assets/icons/location.png",
@@ -454,8 +454,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             );
                           }),
                             OptionData(
-                  title: ' Visit Report'.tr,
-                  month: _selectedMonthName,
+                  title: 'Visit Report'.tr,
+                  month: _selectedMonthName!.tr,
                   unfilteredCount: "0",
                  count: targetContent?.visitReport?.toString() ?? '0',
                   svg: "assets/icons/check-in.png",

@@ -1480,7 +1480,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                   'Created At'.tr + ' : $dateString',
+                                   'Created At'.tr + ' : \u200E$dateString',
                                   style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,

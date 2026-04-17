@@ -91,7 +91,7 @@ Widget totalSalse(BuildContext context) {
                                     },
                                     child: _buildLegendItem(
                                       Colors.blue.shade900,
-                                      'Bookings'.tr + ' : ${formatAmount(paymentCompleted)}',
+                                      'Bookings'.tr + ' : \u200E${formatAmount(paymentCompleted)}',
                                     ),
                                   ),
                                   SizedBox(width: 10),
@@ -117,7 +117,7 @@ Widget totalSalse(BuildContext context) {
                                     },
                                     child: _buildLegendItem(
                                       Colors.blue,
-                                      'Orders'.tr + ' : ${formatAmount(remaCompleted)}',
+                                      'Orders'.tr + ' : \u200E${formatAmount(remaCompleted)}',
                                     ),
                                   ),
                                 ],

@@ -114,8 +114,8 @@ Widget profiloe() {
                             ),
                           ),
                           Expanded(
-                            child: const MyRegularText(
-                              label: "Salesman",
+                            child:  MyRegularText(
+                              label: "Salesman".tr,
                               fontSize: 8.5,
                               color: Colors.grey,
                               fontWeight: FontWeight.bold,

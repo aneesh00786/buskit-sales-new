@@ -66,7 +66,7 @@ class CustomerDachScreen extends StatefulWidget {
   final bool isFromOrder;
   final bool isFromGoogle;
   final ProductsController? productsController;
-  final List<String> eventIds;    
+  final List<String> eventIds;
   final List<String> customerIds;
 
   const CustomerDachScreen({
@@ -84,7 +84,7 @@ class CustomerDachScreen extends StatefulWidget {
     this.isFromOrder = false,
     this.productsController,
     this.isFromGoogle = false,
-    this.eventIds = const [], 
+    this.eventIds = const [],
     this.customerIds = const [],
   });
 
@@ -118,7 +118,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
 
     // Fetch fresh data for current year
     _loadDashboardData(customerProvider);
-    
+
     // --- CHECK-IN POPUP LOGIC FOR MAP NAVIGATION ---
     if (widget.isFromGoogle) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -130,14 +130,14 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              title:  Text("Reached Customer Location".tr),
-              content:  Text("Would you like to Check-In now?".tr),
+              title: Text("Reached Customer Location".tr),
+              content: Text("Would you like to Check-In now?".tr),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child:  Text(
+                  child: Text(
                     "Cancel".tr,
                     style: TextStyle(color: Colors.grey),
                   ),
@@ -145,16 +145,18 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     // Call the check-in function
                     _performCheckInFromMap();
                   },
-                  child:  Text(
+                  child: Text(
                     "Check-In".tr,
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -176,18 +178,22 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     });
   }
-  
-  void _navigateTooNext(double startLat, double startLng, double endLat, double endLng) async {
+
+  void _navigateTooNext(
+      double startLat, double startLng, double endLat, double endLng) async {
     if (Platform.isAndroid) {
-      final Uri googleMapsUrl = Uri.parse('https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
+      final Uri googleMapsUrl = Uri.parse(
+          'https://www.google.com/maps/dir/?api=1&origin=$startLat,$startLng&destination=$endLat,$endLng&travelmode=driving');
       if (await canLaunchUrl(googleMapsUrl)) {
         await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
       } else {
         throw 'Could not launch Google Maps on Android';
       }
     } else if (Platform.isIOS) {
-      final Uri googleMapsUrl = Uri.parse('comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving');
-      final Uri appleMapsUrl = Uri.parse('https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat,$endLng&dirflg=d');
+      final Uri googleMapsUrl = Uri.parse(
+          'comgooglemaps://?saddr=$startLat,$startLng&daddr=$endLat,$endLng&directionsmode=driving');
+      final Uri appleMapsUrl = Uri.parse(
+          'https://maps.apple.com/?saddr=$startLat,$startLng&daddr=$endLat,$endLng&dirflg=d');
       if (await canLaunchUrl(googleMapsUrl)) {
         await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
       } else if (await canLaunchUrl(appleMapsUrl)) {
@@ -218,7 +224,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       final connectivityService = ConnectivityService();
       final isOnline = await connectivityService.isOnline();
       final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
-      final time = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
+      final time =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString();
       final direction = "IN";
       final lat = position.latitude.toString();
       final long = position.longitude.toString();
@@ -234,7 +241,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           long: long,
           customerId: customerId,
         );
-        
+
         // Update Controller State
         customerOrderController.isActive.value = true;
         await ApiWorker().saveSwitchState(true);
@@ -283,7 +290,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       }
     } catch (e) {
       if (mounted) {
-        showCustomToastDisplay(context, "Check-in failed: $e", Colors.red, Icons.error);
+        showCustomToastDisplay(
+            context, "Check-in failed: $e", Colors.red, Icons.error);
       }
     }
   }
@@ -297,7 +305,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   }
 
   // ... rest of your code (didUpdateWidget, _fetchCredit, _navigateToOrderTaking, etc.) ...
-  
+
   @override
   void didUpdateWidget(CustomerDachScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -305,7 +313,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       _fetchCredit();
     }
   }
-  
+
   void _fetchCredit() {
     if (widget.cusId.isNotEmpty) {
       _customercreditctrl.fetchCustomerCredit(
@@ -435,7 +443,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     },
                   ),
                   ElevatedButton(
-                    child:  Text('Check-out and leave'.tr),
+                    child: Text('Check-out and leave'.tr),
                     onPressed: () async {
                       setState(() => isCheckingOut = true);
 
@@ -473,7 +481,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           if (context.mounted) {
                             showCustomToastDisplay(
                               context,
-                              'You are offline. Your check-out will sync when online.'.tr,
+                              'You are offline. Your check-out will sync when online.'
+                                  .tr,
                               Colors.orange,
                               Icons.info,
                             );
@@ -528,13 +537,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   // ... Build Method and other Widgets remain exactly the same as previous code ...
   @override
   Widget build(BuildContext context) {
-      // The content of the build method from the previous response remains unchanged.
-      // Copy the build method from the previous 'customer_dashbord_screen.dart' here.
-      // (This prevents the code block from being too long, but let me know if you need it repeated)
-      
-      final customerId = widget.isFromCalendar
-      ? widget.cusId
-      : productsController.selectedCustomerId.value;
+    // The content of the build method from the previous response remains unchanged.
+    // Copy the build method from the previous 'customer_dashbord_screen.dart' here.
+    // (This prevents the code block from being too long, but let me know if you need it repeated)
+
+    final customerId = widget.isFromCalendar
+        ? widget.cusId
+        : productsController.selectedCustomerId.value;
     final loginData = SessionHelper.loginSavedData;
     final salesmanInternalId = loginData?.salesmanId?.toString();
     final customerName = widget.isFromCalendar
@@ -557,246 +566,267 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               : screenHeight * 1.55,
       child: Scaffold(
         appBar: AppBar(
-            leadingWidth: 200,
+          leadingWidth: 200,
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
-          
             child: Row(
               children: [
                 // Replace your existing InkWell inside the AppBar's leading Row with this:
 
-InkWell(
-  onTap: () async {
-    bool shouldProceed = await checkCustomerOut();
-    if (!shouldProceed) return;
+                InkWell(
+                  onTap: () async {
+                    bool shouldProceed = await checkCustomerOut();
+                    if (!shouldProceed) return;
 
-    if (!context.mounted) return;
+                    if (!context.mounted) return;
 
-    // --- 1. FIND THE NEXT UNVISITED ITEM ---
-    final mapController = Get.find<CalenderMapController>();
-    final custOrderController = Get.find<CustomerAndOrderController>();
-    dynamic nextCustomer;
+                    // --- 1. FIND THE NEXT UNVISITED ITEM ---
+                    final mapController = Get.find<CalenderMapController>();
+                    final custOrderController =
+                        Get.find<CustomerAndOrderController>();
+                    dynamic nextCustomer;
 
-    for (var customer in mapController.selectedCustomers) {
-      if (!custOrderController.visitedCustomerIds.contains(customer.customerId)) {
-        nextCustomer = customer;
-        break; // Found the next item!
-      }
-    }
+                    for (var customer in mapController.selectedCustomers) {
+                      if (!custOrderController.visitedCustomerIds
+                          .contains(customer.customerId)) {
+                        nextCustomer = customer;
+                        break; // Found the next item!
+                      }
+                    }
 
-    bool wantsToContinueNav = false;
+                    bool wantsToContinueNav = false;
 
-    // --- 2. SHOW SNACKBAR OR POPUP ---
-    if (widget.isFromGoogle) {
-      if (nextCustomer != null) {
-        String nextName = nextCustomer.businessName?.toLowerCase() ?? "";
-        
-        // If the next item is just the End Location, mark it visited and show SnackBar
-        if (nextName.contains("end location") || nextName.contains("destination") || nextName.isEmpty) {
-          
-          // ---> NEW: Mark the end location as visited so the map screen updates <---
-          if (nextCustomer.customerId != null) {
-             await custOrderController.markAsVisited(nextCustomer.customerId!);
-          }
+                    // --- 2. SHOW SNACKBAR OR POPUP ---
+                    if (widget.isFromGoogle) {
+                      if (nextCustomer != null) {
+                        String nextName =
+                            nextCustomer.businessName?.toLowerCase() ?? "";
 
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("All customer visits are complete. Today’s route plan has been completed."),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 3),
-              ),
-            );
-          }
-        } else {
-          // It's a real customer, show the "Continue Navigation" dialog
+                        // If the next item is just the End Location, mark it visited and show SnackBar
+                        if (nextName.contains("end location") ||
+                            nextName.contains("destination") ||
+                            nextName.isEmpty) {
+                          // ---> NEW: Mark the end location as visited so the map screen updates <---
+                          if (nextCustomer.customerId != null) {
+                            await custOrderController
+                                .markAsVisited(nextCustomer.customerId!);
+                          }
 
-          // It's a real customer, show the "Continue Navigation" dialog
-         // It's a real customer, show the "Continue Navigation" dialog
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                title: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Aligns image and text to the top
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Colors.blueAccent.withOpacity(0.2), width: 2),
-                      ),
-                      child: CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.grey[100],
-                        backgroundImage: NetworkImage(
-                            '${ApiConstants.imageBaseUrl}${nextCustomer.imageUrl}'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Next: ${nextCustomer.businessName ?? 'Customer'}",
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          // ---> ADDED THE ADDRESS ROW HERE <---
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.location_on, size: 14, color: Colors.red),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  nextCustomer.address ?? "Address not available",
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    "All customer visits are complete. Today’s route plan has been completed."),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 3),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                content:  Padding(
-                  padding: EdgeInsets.only(top: 15.0),
-                  child: Text("Would you like to continue navigation to this customer?".tr),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child:  Text(
-                      "Cancel".tr,
-                      style: TextStyle(color: Colors.grey),
+                            );
+                          }
+                        } else {
+                          // It's a real customer, show the "Continue Navigation" dialog
+
+                          // It's a real customer, show the "Continue Navigation" dialog
+                          // It's a real customer, show the "Continue Navigation" dialog
+                          await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                titlePadding:
+                                    const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                                title: Row(
+                                  crossAxisAlignment: CrossAxisAlignment
+                                      .start, // Aligns image and text to the top
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: Colors.blueAccent
+                                                .withOpacity(0.2),
+                                            width: 2),
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 28,
+                                        backgroundColor: Colors.grey[100],
+                                        backgroundImage: NetworkImage(
+                                            '${ApiConstants.imageBaseUrl}${nextCustomer.imageUrl}'),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Next: ${nextCustomer.businessName ?? 'Customer'}",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          // ---> ADDED THE ADDRESS ROW HERE <---
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Icon(Icons.location_on,
+                                                  size: 14, color: Colors.red),
+                                              const SizedBox(width: 4),
+                                              Expanded(
+                                                child: Text(
+                                                  nextCustomer.address ??
+                                                      "Address not available",
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                content: Padding(
+                                  padding: EdgeInsets.only(top: 15.0),
+                                  child: Text(
+                                      "Would you like to continue navigation to this customer?"
+                                          .tr),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "Cancel".tr,
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                    ),
+                                    onPressed: () {
+                                      wantsToContinueNav = true;
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "Continue Navigation".tr,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      } else {
+                        // Fallback just in case the list is completely empty
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  "All customers visited! Route completed."),
+                              backgroundColor: Colors.green,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
+                    }
+
+                    // 1. PREVENT "BuildContext is no longer valid" CRASH
+                    if (!context.mounted) return;
+
+                    customerOrderController.isActive.value = false;
+
+                    // 2. CLEAR THE SIMPLE OBSERVABLES
+                    productsController.selectedCustomerId.value = '';
+                    productsController.selectedCustomerName.value = '';
+                    customerOrderController.setCustomerId('');
+
+                    // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
+                    productsController.customerAndOrderData.value.customerId =
+                        null;
+                    productsController.customerAndOrderData.refresh();
+
+                    // 4. Handle External Map Navigation for Next Customer
+                    if (wantsToContinueNav && nextCustomer != null) {
+                      try {
+                        CustomerMapScreen.isNavigatingFromDashboard = true;
+                        CustomerMapScreen.nextCustomerToVisit = nextCustomer;
+
+                        final currentLatitude =
+                            mapController.currentLatLng.value?.latitude ?? 0.0;
+                        final currentLongitude =
+                            mapController.currentLatLng.value?.longitude ?? 0.0;
+
+                        _navigateTooNext(
+                          currentLatitude,
+                          currentLongitude,
+                          double.parse(nextCustomer.latitude!),
+                          double.parse(nextCustomer.longitude!),
+                        );
+                      } catch (e) {
+                        print("Error finding next customer: $e");
+                      }
+                    }
+
+                    // 5. ROUTE SAFELY
+                    if (widget.isFromGoogle) {
+                      homeController.sidebarXController.selectIndex(5);
+                      homeController.selectedIndex.value = 5;
+                      Get.back(id: 2);
+                    } else if (widget.isDirectDialogue) {
+                      homeController.sidebarXController.selectIndex(5);
+                      homeController.selectedIndex.value = 5;
+                      Get.toNamed(AppRoutes.calender, id: 2);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: primaryColor)),
+                    child: const Icon(
+                      EneftyIcons.arrow_left_3_outline,
+                      color: primaryColor,
+                      size: 20,
                     ),
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed: () {
-                      wantsToContinueNav = true;
-                      Navigator.of(context).pop();
-                    },
-                    child:  Text(
-                      "Continue Navigation".tr,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        
-        }
-      } else {
-        // Fallback just in case the list is completely empty
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("All customers visited! Route completed."),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    }
+                ),
 
-    // 1. PREVENT "BuildContext is no longer valid" CRASH
-    if (!context.mounted) return;
-
-    customerOrderController.isActive.value = false;
-
-    // 2. CLEAR THE SIMPLE OBSERVABLES
-    productsController.selectedCustomerId.value = '';
-    productsController.selectedCustomerName.value = '';
-    customerOrderController.setCustomerId('');
-
-    // 3. THE GETX MAGIC BULLET: Clear the ID and FORCE a refresh
-    productsController.customerAndOrderData.value.customerId = null;
-    productsController.customerAndOrderData.refresh(); 
-
-    // 4. Handle External Map Navigation for Next Customer
-    if (wantsToContinueNav && nextCustomer != null) {
-      try {
-        CustomerMapScreen.isNavigatingFromDashboard = true;
-        CustomerMapScreen.nextCustomerToVisit = nextCustomer;
-
-        final currentLatitude = mapController.currentLatLng.value?.latitude ?? 0.0;
-        final currentLongitude = mapController.currentLatLng.value?.longitude ?? 0.0;
-        
-        _navigateTooNext(
-          currentLatitude,
-          currentLongitude,
-          double.parse(nextCustomer.latitude!),
-          double.parse(nextCustomer.longitude!),
-        );
-      } catch (e) {
-        print("Error finding next customer: $e");
-      }
-    }
-
-    // 5. ROUTE SAFELY
-    if (widget.isFromGoogle) {
-      homeController.sidebarXController.selectIndex(5);
-      homeController.selectedIndex.value = 5;
-      Get.back(id: 2); 
-    } 
-    else if (widget.isDirectDialogue) {
-      homeController.sidebarXController.selectIndex(5);
-      homeController.selectedIndex.value = 5;
-      Get.toNamed(AppRoutes.calender, id: 2);
-    } 
-    else {
-      Navigator.pop(context);
-    }
-  },
-  child: Container(
-    decoration: BoxDecoration(
-        color: primaryColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: primaryColor)),
-    child: const Icon(
-      EneftyIcons.arrow_left_3_outline,
-      color: primaryColor,
-      size: 20,
-    ),
-  ),
-),
-
-
-
-                  SizedBox(
-                width: 10,
-              ),
-              Text(
-                "Customer dashboard".tr,
-                style: TextStyle(
-                    fontSize: NkFontSize.largeFont(largeFont: 20),
-                    fontWeight: FontWeight.bold),
-              ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Customer dashboard".tr,
+                  style: TextStyle(
+                      fontSize: NkFontSize.largeFont(largeFont: 20),
+                      fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -819,47 +849,56 @@ InkWell(
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('Credit:'.tr),
-                      SizedBox(width: 7,),
-                      Icon(
-                        Icons.account_balance_wallet_outlined,
-                        size: 15,
-                        color: credit > 0
-                            ? Colors.green.shade700
-                            : Colors.grey.shade600,
-                      ),
-                      SizedBox(width: 5),
-                      Text(
-                        credit > 0 ? "${formatAmount(credit)}" : "${formatAmount(0)}",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: credit > 0
-                              ? Colors.green.shade800
-                              : Colors.grey.shade700,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text('Credit:'.tr),
+                        SizedBox(
+                          width: 7,
                         ),
-                      ),
-                      if (isLoading)
-                        Padding(
-                          padding: EdgeInsets.only(left: 4),
-                          child: SizedBox(
-                            width: 10,
-                            height: 10,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 15,
+                          color: credit > 0
+                              ? Colors.green.shade700
+                              : Colors.grey.shade600,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          credit > 0
+                              ? "${formatAmount(credit)}"
+                              : "${formatAmount(0)}",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: credit > 0
+                                ? Colors.green.shade800
+                                : Colors.grey.shade700,
                           ),
                         ),
-                    ],
+                        if (isLoading)
+                          Padding(
+                            padding: EdgeInsets.only(left: 4),
+                            child: SizedBox(
+                              width: 10,
+                              height: 10,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 );
               }),
             ),
             InkWell(
               onTap: () {
-               showUpdateCustomerDialog(context, customerId, customerName, customerImage);
+                showUpdateCustomerDialog(
+                    context, customerId, customerName, customerImage);
               },
               child: SizedBox(
                 width: 130,
@@ -874,7 +913,8 @@ InkWell(
                           backgroundColor: const Color(0xffe6ecff),
                           radius: 15,
                           child: CachedNetworkImage(
-                            imageUrl: '${ApiConstants.baseUrl}uploads/$customerImage',
+                            imageUrl:
+                                '${ApiConstants.baseUrl}uploads/$customerImage',
                             placeholder: (context, url) =>
                                 const CircularProgressIndicator(),
                             errorWidget: (context, url, error) =>
@@ -896,8 +936,8 @@ InkWell(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(maxWidth: double.infinity),
+                                constraints: const BoxConstraints(
+                                    maxWidth: double.infinity),
                                 child: MyRegularText(
                                   label: customerName,
                                   fontSize: 8.8,
@@ -905,7 +945,8 @@ InkWell(
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const MyRegularText(label: "Customer", fontSize: 9),
+                               MyRegularText(
+                                  label: "Customer".tr, fontSize: 9),
                             ],
                           ),
                         ),
@@ -924,8 +965,7 @@ InkWell(
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                }
-                else if (snapshot.hasError) {
+                } else if (snapshot.hasError) {
                   final responseModel = snapshot.data;
                   final frequentProductLists =
                       responseModel?.data.frequentProductLists;
@@ -1028,7 +1068,6 @@ InkWell(
                     padding: const EdgeInsets.all(5.0),
                     child: Column(
                       children: [
-
                         Row(
                           children: [
                             Row(
@@ -1037,42 +1076,45 @@ InkWell(
                                 SizedBox(
                                   width: 110, // Adjusted width
                                   child: YearCustomerAndOrdersDropdown(
-                                    onYearSelected: (int year) async{
-                                      final isOnline = await ConnectivityService().isOnline();
+                                    onYearSelected: (int year) async {
+                                      final isOnline =
+                                          await ConnectivityService()
+                                              .isOnline();
                                       if (!isOnline) {
-        // 2. Show a popup message if offline
-        if (context.mounted) {
-          showCustomToastDisplay(
-            context,
-            'No internet connection. Please connect to the internet to filter data.'.tr,
-            Colors.orange,
-            Icons.wifi_off,
-          );
-        }
-        return; // 3. Stop execution here, do not fetch new data
-      }
-                                     if(context.mounted){
-                                       final customerProvider =
-                                          Provider.of<CustomersProvider>(
-                                              context,
-                                              listen: false);
-                                      customerProvider
-                                          .updateDashboardYear(year);
-                                      customerProvider
-                                          .fetchCustomerDashboardData(
-                                              widget.cusId);
-                                      customerProvider
-                                          .fetchCustomerDashboardRevenueData(
-                                              widget.cusId);
-                                      customerProvider
-                                          .fetchCustomerDashboardDataSalseData(
-                                              widget.cusId);
-                                      customerProvider
-                                          .fetchCustomersDataDash(widget.cusId);
-                                      customerProvider
-                                          .fetchCustomerDashboardCountData(
-                                              widget.cusId);
-                                     }
+                                        // 2. Show a popup message if offline
+                                        if (context.mounted) {
+                                          showCustomToastDisplay(
+                                            context,
+                                            'No internet connection. Please connect to the internet to filter data.'
+                                                .tr,
+                                            Colors.orange,
+                                            Icons.wifi_off,
+                                          );
+                                        }
+                                        return; // 3. Stop execution here, do not fetch new data
+                                      }
+                                      if (context.mounted) {
+                                        final customerProvider =
+                                            Provider.of<CustomersProvider>(
+                                                context,
+                                                listen: false);
+                                        customerProvider
+                                            .updateDashboardYear(year);
+                                        customerProvider
+                                            .fetchCustomerDashboardData(
+                                                widget.cusId);
+                                        customerProvider
+                                            .fetchCustomerDashboardRevenueData(
+                                                widget.cusId);
+                                        customerProvider
+                                            .fetchCustomerDashboardDataSalseData(
+                                                widget.cusId);
+                                        customerProvider.fetchCustomersDataDash(
+                                            widget.cusId);
+                                        customerProvider
+                                            .fetchCustomerDashboardCountData(
+                                                widget.cusId);
+                                      }
                                     },
                                   ),
                                 ),
@@ -1097,9 +1139,11 @@ InkWell(
                                               BorderRadius.circular(4.0),
                                         ),
                                       ),
-                                      child:  Text(
+                                      child: Text(
                                         'Sales Return'.tr,
-                                        style: TextStyle(color: Colors.white,overflow: TextOverflow.ellipsis),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            overflow: TextOverflow.ellipsis),
                                       ),
                                     ),
                                   ],
@@ -1140,7 +1184,7 @@ InkWell(
                                           side: const BorderSide(
                                               color: primaryColor)),
                                     ),
-                                    child:  Text(
+                                    child: Text(
                                       'Order Taking'.tr,
                                       style: TextStyle(
                                           color: white,
@@ -1271,7 +1315,6 @@ InkWell(
                 Row(
                   children: [
                     dashboardContainerHeader('Category Sales'.tr),
-                
                     const Spacer(),
                     Padding(
                       padding: EdgeInsets.only(
@@ -1565,7 +1608,6 @@ InkWell(
                               ),
                             ],
                           ),
-                         
                         ],
                       ),
                       SizedBox(
@@ -1590,8 +1632,9 @@ InkWell(
   String formatDate(DateTime dateTime) {
     return DateFormat('dd-MMMM-yyyy').format(dateTime);
   }
-  
-  void showUpdateCustomerDialog(BuildContext context, String customerId, String customerName, String? customerImage) {
+
+  void showUpdateCustomerDialog(BuildContext context, String customerId,
+      String customerName, String? customerImage) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1600,7 +1643,7 @@ InkWell(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.all(15),
           child: UpdateCustomerPopup(
-            customerId: customerId, 
+            customerId: customerId,
             initialName: customerName,
           ),
         );
@@ -1675,8 +1718,3 @@ void useEffect(VoidCallback callback, List<Object?> dependencies) {
     callback();
   });
 }
-
-
-
-
-

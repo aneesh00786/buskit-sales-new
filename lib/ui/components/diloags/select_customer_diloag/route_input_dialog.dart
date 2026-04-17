@@ -114,7 +114,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                     border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: Text(
-                    "Daily Route Credit -'.tr + ' $dailyCreditCount/3",
+                    'Daily Route Credit -'.tr + ' \u200E$dailyCreditCount/3',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

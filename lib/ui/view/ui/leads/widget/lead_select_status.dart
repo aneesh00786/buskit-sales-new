@@ -145,7 +145,7 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> dropdownItems = ['Rejected'.tr, 'Accept'.tr, 'Move to Leads'.tr];
+    List<String> dropdownItems = ['Rejected', 'Accept', 'Move to Leads'];
     return Container(
       height: 26,
       decoration: BoxDecoration(
@@ -169,7 +169,7 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
               value: value,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                child: Text(value),
+                child: Text(value.tr),
               ),
             );
           }).toList(),

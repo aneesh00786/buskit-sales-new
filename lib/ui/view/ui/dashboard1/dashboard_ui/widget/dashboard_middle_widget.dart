@@ -356,7 +356,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color.fromARGB(255, 90, 119, 37),
-                                        'Completed'.tr + ' : ${formatAmount(completed)}',
+                                        'Completed'.tr + ' : \u200E${formatAmount(completed)}',
                                       ),
                                     ),
                                     
@@ -373,7 +373,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color(0xffa30c13),
-                                        'Pending'.tr + ' : ${formatAmount(pending)}',
+                                        'Pending'.tr + ' : \u200E${formatAmount(pending)}',
                                       ),
                                     ),
                                     
@@ -390,7 +390,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color.fromARGB(255, 255, 173, 181),
-                                        'Due'.tr + ' : ${formatAmount(due)}',
+                                        'Due'.tr + ' : \u200E${formatAmount(due)}',
                                       ),
                                     ),
                                     
@@ -407,7 +407,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: buildLegendItem(
                                         const Color.fromARGB(255, 255, 101, 132),
-                                        'Overdue'.tr + ' : ${formatAmount(overdue)}',
+                                        'Overdue'.tr + ' : \u200E${formatAmount(overdue)}',
                                       ),
                                     ),
                                   ],
@@ -918,7 +918,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: _buildLegendItem(
                                         Colors.blue.shade300,
-                                        'Processing'.tr + '  : ${formatAmount(processing)}',
+                                        'Processing'.tr + '  : \u200E${formatAmount(processing)}',
                                       ),
                                     ),
                                     
@@ -935,7 +935,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: _buildLegendItem(
                                         const Color(0xffc38a42),
-                                        'Packed & Ready for Delivery'.tr + '  : ${formatAmount(packed)}',
+                                        'Packed & Ready for Delivery'.tr + '  : \u200E${formatAmount(packed)}',
                                       ),
                                     ),
                                 
@@ -952,7 +952,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                       },
                                       child: _buildLegendItem(
                                         const Color(0xff33b4a8),
-                                        'Delivered'.tr + '  : ${formatAmount(delivered)}',
+                                        'Delivered'.tr + '  : \u200E${formatAmount(delivered)}',
                                       ),
                                     ),
                                   ],

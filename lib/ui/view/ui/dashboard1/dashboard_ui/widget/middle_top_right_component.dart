@@ -530,7 +530,8 @@ Widget _buildRevenueLegend(
             },
             child: buildLegendItem(
               const Color(0xff1d3d63),
-              'Bookings'.tr + ' : ${formatAmount(bookingVal)}',
+              'Bookings'.tr + ' : \u200E${formatAmount(bookingVal)}',
+              // 'Bookings'.tr + ' : ${formatAmount(bookingVal)}',
             ),
           ),
           const SizedBox(width: 10), 
@@ -545,7 +546,8 @@ Widget _buildRevenueLegend(
             },
             child: buildLegendItem(
               Colors.blue,
-              'Orders'.tr + ' : ${formatAmount(orderVal)}',
+              'Orders'.tr + ' : \u200E${formatAmount(orderVal)}',
+              // 'Orders'.tr + ' : ${formatAmount(orderVal)}',
             ),
           ),
         ],

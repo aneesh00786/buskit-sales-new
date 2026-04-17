@@ -237,7 +237,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           DashboardProvider provider, OrderCountListt? orderCountList) =>
       [
         OptionData(
-          title: 'Orders'.tr,
+          title: 'Orders',
           count: widget.orderCount.toString(),
           unfilteredCount: 0.toString(),
           svg: Assets.iconsIcDashboardShoppingCart,
@@ -261,7 +261,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Estimates'.tr,
+          title: 'Estimates',
           unfilteredCount: widget.eastimatesCount.toString(),
           count: widget.eastimatesFilterCount.toString(),
           svg: Assets.iconsIcDashboardEstimates,
@@ -305,7 +305,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Bookings'.tr,
+          title: 'Bookings',
           unfilteredCount: widget.preOrderCount.toString(),
           count: widget.preOrderFilterCount.toString(),
           svg: Assets.iconsIcDashboardPreOrder,
@@ -425,7 +425,7 @@ class _OptionWidgetState extends State<OptionWidget> {
           },
         ),
         OptionData(
-          title: 'Cancelled'.tr,
+          title: 'Cancelled',
           unfilteredCount: 0.toString(),
           count: widget.cancelledCount.toString(),
           svg: Assets.iconsIcDashboardCancel,
@@ -503,7 +503,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                       direction: Axis.vertical,
                       children: [
                         CustomText(
-                          content: optionData.title,
+                          content: optionData.title.tr,
                           maxLine: 1,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -2293,7 +2293,10 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                     },
                                                     decoration: InputDecoration(
                                                       hintText:
-                                                          'Search ${orderType} No.'.tr,
+                                                      'search_order_no'.trParams({
+      'orderType': orderType,
+    }),
+                                                          // 'Search ${orderType} No.',
                                                       prefixIcon: const Icon(
                                                           Icons.search,
                                                           color: Colors.blue),

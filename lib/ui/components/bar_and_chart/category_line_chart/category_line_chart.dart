@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../../view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
@@ -126,12 +127,12 @@ class _CustomBarChartCustomerDashState
         );
 
         if (perfIndex == -1) {
-          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
         } else {
           final perf = widget.categoryPerformance[perfIndex];
           if (perf.totalPrice == 0) {
             showCustomToastDisplay(
-                context, "No Record Found", red, Icons.close);
+                context, "No Record Found".tr, red, Icons.close);
           } else {
             showSalesmanPopup(
                 cid: perf.cid,

@@ -473,7 +473,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),
                   onTap: targetContent?.customer?.toString() == '0'
                       ? () => showCustomToastDisplay(
-                          context, 'Record Not Found', red, Icons.close)
+                          context, 'Record Not Found'.tr, red, Icons.close)
                       : () => showTileDialog(
                           context, _selectedMonthName ?? '', 4, true),
                 ),

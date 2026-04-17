@@ -74,7 +74,7 @@ Widget totalSalse(BuildContext context) {
                                       if (paymentCompleted == 0) {
                                         showCustomToastDisplay(
                                             context,
-                                            "No Record Found",
+                                            "No Record Found".tr,
                                             red,
                                             Icons.close);
                                       } else {
@@ -100,7 +100,7 @@ Widget totalSalse(BuildContext context) {
                                       if (remaCompleted == 0) {
                                         showCustomToastDisplay(
                                             context,
-                                            "No Record Found",
+                                            "No Record Found".tr,
                                             red,
                                             Icons.close);
                                       } else {

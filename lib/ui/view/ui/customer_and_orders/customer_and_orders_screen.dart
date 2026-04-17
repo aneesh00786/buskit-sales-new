@@ -4718,7 +4718,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.sales == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -4754,7 +4754,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.delivery == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -4787,7 +4787,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.payment == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -4820,7 +4820,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.preOrder == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -4864,7 +4864,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.estimates == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -4901,7 +4901,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.drafts == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -4942,7 +4942,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.cancelled == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -5288,7 +5288,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           ? [
                                               const DataRow(cells: [
                                                 DataCell(
-                                                    Text('Record Not Found')),
+                                                    Text('Record Not Found.tr')),
                                                 DataCell(Text('')),
                                                 DataCell(Text('')),
                                                 DataCell(Text('')),

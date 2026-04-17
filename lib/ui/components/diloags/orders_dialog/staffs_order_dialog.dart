@@ -157,8 +157,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                   ],
                                   rows: filteredOrders.isEmpty
                                       ? [
-                                          const DataRow(cells: [
-                                            DataCell(Text('Record Not Found')),
+                                           DataRow(cells: [
+                                            DataCell(Text('Record Not Found'.tr)),
                                             DataCell(Text('')),
                                             DataCell(Text('')),
                                             DataCell(Text('')),

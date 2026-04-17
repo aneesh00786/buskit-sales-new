@@ -221,7 +221,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab == 0) {
-          return const Center(child: Text('Record Not Found'));
+          return  Center(child: Text('Record Not Found'.tr));
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {

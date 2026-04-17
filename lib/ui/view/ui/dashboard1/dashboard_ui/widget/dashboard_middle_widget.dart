@@ -347,7 +347,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (completed == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (collectionData?.payment?.completedOrders?.isNotEmpty ?? false) {
                                             showValueCollectionDialog(context, collectionData!, 'Recieved Payment');
@@ -364,7 +364,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (pending == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (collectionData?.order?.pendingAmount?.isNotEmpty ?? false) {
                                             pendingPaymentCollectionDialog(context, 'Pending Payment', collectionData!);
@@ -381,7 +381,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (due == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (collectionData?.due?.dueAmount?.isNotEmpty ?? false) {
                                             pendingPaymentCollectionDialog(context, 'Due Payment', collectionData!);
@@ -398,7 +398,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (overdue == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (collectionData?.overdue?.overdueAmount?.isNotEmpty ?? false) {
                                             pendingPaymentCollectionDialog(context, 'Over Due Payment', collectionData!);
@@ -909,7 +909,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
                                     InkWell(
                                       onTap: () {
                                         if (processing == 0) {
-                                          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                                          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
                                         } else {
                                           if (categoryPerformance != null) {
                                             showValueOrderDialog(context, categoryPerformance, "Processing Orders", 5);

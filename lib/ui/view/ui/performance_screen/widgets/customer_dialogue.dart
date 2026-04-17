@@ -22,10 +22,10 @@ Widget buildCustomersDialogContent(
           staffController.customerDatas.value!.data == null ||
           staffController.customerDatas.value!.data!.isEmpty)
       ? [
-          const TableViewRow(
+           TableViewRow(
             height: 60,
             cells: [
-              TableViewCell(child: Text("Record Not Found")),
+              TableViewCell(child: Text("Record Not Found".tr)),
               TableViewCell(child: SizedBox()),
               TableViewCell(child: SizedBox()),
               TableViewCell(child: SizedBox()),

@@ -371,7 +371,7 @@ Widget orderStatus(OrderData orderData) {
                         content: orderData.orderStatus != null
                             ? OrderHandlingClass.fromType(
                                     orderData.orderStatus!)
-                                .name
+                                .name.tr
                             : 'Unknown',
                         fontSize: 11.0,
                         fontWeight: FontWeight.w600,
@@ -420,7 +420,7 @@ Widget orderStatus(OrderData orderData) {
                     content: orderData.orderStatus != null
                         ? OrderHandlingClass.fromType(
                                 orderData.orderStatus!)
-                            .name
+                            .name.tr
                         : 'Unknown',
                     fontSize: 11,
                     textAlign: TextAlign.center,

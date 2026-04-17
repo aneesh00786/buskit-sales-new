@@ -2678,9 +2678,9 @@ Widget noOrderDataFoundWidget() {
                           ),
                         )),
                       ],
-                      rows: const [
+                      rows:  [
                         DataRow(cells: [
-                          DataCell(Text('Record Not Found')),
+                          DataCell(Text('Record Not Found'.tr)),
                           DataCell(Text('')),
                           DataCell(Text('')),
                           DataCell(Text('')),

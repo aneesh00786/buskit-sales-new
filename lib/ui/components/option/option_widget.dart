@@ -2678,10 +2678,10 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                             rows: filteredOrders
                                                                     .isEmpty
                                                                 ? [
-                                                                    const DataRow(
+                                                                     DataRow(
                                                                         cells: [
                                                                           DataCell(
-                                                                              Text('Record Not Found')),
+                                                                              Text('Record Not Found'.tr)),
                                                                           DataCell(
                                                                               Text('')),
                                                                           DataCell(

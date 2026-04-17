@@ -608,7 +608,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                       children: [
                         CustomText(
                           content: status != null
-                              ? OrderHandlingClass.fromType(status).name
+                              ? OrderHandlingClass.fromType(status).name.tr
                               : 'Unknown',
                           fontSize: 11.0,
                           fontWeight: FontWeight.w600,
@@ -653,7 +653,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                   child: Center(
                     child: CustomText(
                       content: status != null
-                          ? OrderHandlingClass.fromType(status).name
+                          ? OrderHandlingClass.fromType(status).name.tr
                           : 'Unknown',
                       fontSize: 11,
                       textAlign: TextAlign.center,

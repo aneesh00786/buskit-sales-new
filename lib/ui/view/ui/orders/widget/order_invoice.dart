@@ -1471,8 +1471,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 Text(
                                   widget.customTitle ??
                                       (widget.selectedTabIndex == 5
-                                          ? 'INVOICE DETAILS'
-                                          : 'ORDER DETAILS'),
+                                          ? 'INVOICE DETAILS'.tr
+                                          : 'ORDER DETAILS'.tr),
                                   style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
@@ -1870,7 +1870,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (widget.selectedTabIndex == 6) ...[
-                            const Text('Rejection Reason : '),
+                             Text('Rejection Reason : '.tr),
                             Text((data?.rejectionReason?.toString() ?? '')),
                             Text(NKDateUtils.commonDayFormat2(
                                 NKDateUtils.formatStringUTCDateTime(

@@ -134,7 +134,7 @@ void showRevenueChartDialog(
                                               } else {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               }

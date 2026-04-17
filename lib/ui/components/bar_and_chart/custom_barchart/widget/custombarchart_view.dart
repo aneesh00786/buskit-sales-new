@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CustomBarChartView extends StatelessWidget {
   final double finalWidth;
@@ -73,7 +74,7 @@ class CustomBarChartView extends StatelessWidget {
                               perf.actualSales == 0 &&
                               perf.actualTarget == 0) {
                             showCustomToastDisplay(
-                                context, "No Record Found", red, Icons.close);
+                                context, "No Record Found".tr, red, Icons.close);
                           } else {
                             showSalesmanPopupMonthly(
                               cid: perf.cid ?? '',
@@ -91,7 +92,7 @@ class CustomBarChartView extends StatelessWidget {
                               perf.actualSales == 0 &&
                               perf.actualTarget == 0) {
                             showCustomToastDisplay(
-                                context, "No Record Found", red, Icons.close);
+                                context, "No Record Found".tr, red, Icons.close);
                           } else {
                             showSalesmanPopup(
                               cid: perf.cid ?? 0,

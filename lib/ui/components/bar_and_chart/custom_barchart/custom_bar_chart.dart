@@ -327,7 +327,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   perfMonth.actualSales == 0 &&
                   perfMonth.actualTarget == 0) {
                 showCustomToastDisplay(
-                    context, "No Record Found", red, Icons.close);
+                    context, "No Record Found".tr, red, Icons.close);
               } else {
                 _showSalesmanPopupMonthly(
                     perfMonth.cid ?? '', perfMonth.cid ?? '');
@@ -342,7 +342,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   perf.actualSales == 0 &&
                   perf.actualTarget == 0) {
                 showCustomToastDisplay(
-                    context, "No Record Found", red, Icons.close);
+                    context, "No Record Found".tr, red, Icons.close);
               } else {
                 _showSalesmanPopup(perf.cid ?? 0, categoryName ?? '');
               }
@@ -1236,12 +1236,12 @@ class _CustomBarChartCustomerDashState
         );
 
         if (perfIndex == -1) {
-          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+          showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
         } else {
           final perf = widget.categoryPerformance[perfIndex];
           if (perf.totalPrice == 0) {
             showCustomToastDisplay(
-                context, "No Record Found", red, Icons.close);
+                context, "No Record Found".tr, red, Icons.close);
           } else {
             _showSalesmanPopup(
                 perf.cid, widget.allCategory[index].categoryName);

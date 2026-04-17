@@ -129,7 +129,7 @@ void showCustomerRevenueChartDialog(
                                         if (paymentCompleted == 0) {
                                           showCustomToastDisplay(
                                               context,
-                                              "No Record Found",
+                                              "No Record Found".tr,
                                               red,
                                               Icons.close);
                                         } else {
@@ -155,7 +155,7 @@ void showCustomerRevenueChartDialog(
                                         if (remaCompleted == 0) {
                                           showCustomToastDisplay(
                                               context,
-                                              "No Record Found",
+                                              "No Record Found".tr,
                                               red,
                                               Icons.close);
                                         } else {

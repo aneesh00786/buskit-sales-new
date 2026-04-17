@@ -180,7 +180,7 @@ void showCollectionChartDialog(
                                                   'Completed: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {
@@ -209,7 +209,7 @@ void showCollectionChartDialog(
                                                   'Pending: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {
@@ -238,7 +238,7 @@ void showCollectionChartDialog(
                                                   'Due: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {
@@ -268,7 +268,7 @@ void showCollectionChartDialog(
                                                   'Overdue: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {

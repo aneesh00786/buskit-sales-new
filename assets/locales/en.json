@@ -217,7 +217,7 @@
   "Add Customer": "Add Customer",
   "Business Name": "Business Name",
   "City or Suburb": "City or Suburb",
-  "'Zip/Post/Pin Code'": "Zip/Post/Pin Code",
+  "Zip/Post/Pin Code": "Zip/Post/Pin Code",
   "Mobile Number": "Mobile Number",
   "Business Reg.No": "Business Reg.No",
   "Contact Details": "Contact Details",
@@ -286,7 +286,7 @@
   "Assign": "Assign",
   "Please select Leads": "Please select Leads",
   "Delete Lead": "Delete Lead",
-  "Are you sure you want to delete this Lead?": "Are you sure you want to delete this Lead?",
+  "Are you sure you want to delete this lead?": "Are you sure you want to delete this lead?",
   "Calendar": "Calendar",
   "Salesman Visits for": "Salesman Visits for",
   "salesman": "salesman",
@@ -546,7 +546,8 @@
 "Salesman":"Salesman",
 "Select Tier":"Select Tier",
 "Code":"Code",
-"Total:":"Total:"
+"Total:":"Total:",
+"Select":"Select"
 
   
 

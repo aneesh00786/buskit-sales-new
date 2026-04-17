@@ -61,6 +61,9 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     );
   }
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
+    bool isArabic = Get.locale?.languageCode == 'ar';
+    double slNoWidth = isArabic ? 70 : 50; 
+    double leadsWidth = isArabic ? 230 : 250;
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     return Row(
       children: [
@@ -72,32 +75,74 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                 children: [
                   buildTableHeader1(
                     Center(
-                      child: CustomText(
-                        content: "Sl.No.".tr,
-                        textAlign: TextAlign.center,
-                        fontSize: 12.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        overflow: TextOverflow.ellipsis,
-                        // maxLines: 1, // Added maxLines back
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Text( // Changed to Text widget to ensure ellipsis works perfectly
+                          "Sl.No.".tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis, // Automatically adds ...
+                        ),
                       ),
                     ),
-                    50, // Header width is 50
+                    slNoWidth, // Using dynamic width
                   ),
+                  // buildTableHeader1(
+                  //   Center(
+                  //     child: CustomText(
+                  //       content: "Sl.No.".tr,
+                  //       textAlign: TextAlign.center,
+                  //       fontSize: 12.5,
+                  //       color: Colors.white,
+                  //       fontWeight: FontWeight.bold,
+                  //       overflow: TextOverflow.ellipsis,
+                  //       // maxLines: 1, // Added maxLines back
+                  //     ),
+                  //   ),
+                  //   50, // Header width is 50
+                  // ),
                   buildTableHeader1(
-                    Center(
-                      child: CustomText(
-                        content: "Leads".tr,
-                        textAlign: TextAlign.center,
-                        fontSize: 12.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        overflow: TextOverflow.ellipsis, 
-                        // maxLines: 1, // Added maxLines back
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded( // Forces text to respect bounds
+                            child: Text(
+                              "Leads".tr,
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis, // Automatically adds ...
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    250,
+                    leadsWidth, // Using dynamic width
                   ),
+                  // buildTableHeader1(
+                  //   Center(
+                  //     child: CustomText(
+                  //       content: "Leads".tr,
+                  //       textAlign: TextAlign.center,
+                  //       fontSize: 12.5,
+                  //       color: Colors.white,
+                  //       fontWeight: FontWeight.bold,
+                  //       overflow: TextOverflow.ellipsis, 
+                  //       // maxLines: 1, // Added maxLines back
+                  //     ),
+                  //   ),
+                  //   250,
+                  // ),
                 ],
               ),
               Expanded(
@@ -123,7 +168,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                           child: Row(
                             children: [
                               SizedBox(
-                                width: 50, // MATCHED to header width (was 60)
+                                width: slNoWidth,
+                                // width: 50, // MATCHED to header width (was 60)
                                 child: CustomText(
                                   content:
                                       '   ${((widget.leadsController.currentPage.value - 1) * 10) + (index + 1)}.',
@@ -246,184 +292,6 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
     );
   }
 
-  // Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-  //   double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
-  //   return Row(
-  //     children: [
-  //       SizedBox(
-  //         width: 300,
-  //         child: Column(
-  //           children: [
-  //             Row(
-  //               children: [
-  //                 buildTableHeader1(
-  //                   Center(
-  //                     child: CustomText(
-  //                       content: "Sl.No.".tr,
-  //                       textAlign: TextAlign.center,
-  //                       fontSize: 12.5,
-  //                       color: Colors.white,
-  //                       fontWeight: FontWeight.bold,
-  //                       overflow: TextOverflow.ellipsis,
-  //                     ),
-  //                   ),
-  //                   50,
-  //                 ),
-  //                 buildTableHeader1(
-  //                   Center(
-  //                     child: CustomText(
-  //                       content: "Leads".tr,
-  //                       textAlign: TextAlign.center,
-  //                       fontSize: 12.5,
-  //                       color: Colors.white,
-  //                       fontWeight: FontWeight.bold,
-  //                       overflow: TextOverflow.ellipsis, 
-  //                       // maxLines: 1,
-  //                     ),
-  //                   ),
-  //                   250,
-  //                 ),
-  //               ],
-  //             ),
-  //             Expanded(
-  //               child: SingleChildScrollView(
-  //                 scrollDirection: Axis.vertical,
-  //                 controller: vertical,
-  //                 physics: const ClampingScrollPhysics(),
-  //                 child: Column(
-  //                   children: widget.leadsController.leadsCustomerDataList
-  //                       .asMap()
-  //                       .entries
-  //                       .map((entry) {
-  //                     int index = entry.key;
-  //                     LeadCustomerData leadCustomerData = entry.value;
-
-  //                     return Container(
-  //                       height: fixedRowHeight,
-  //                       decoration: BoxDecoration(
-  //                        color: index.isEven ? Colors.grey[50] : Color.fromARGB(255, 255, 255, 255),
-                          
-  //                       ),
-  //                       child: Padding(
-  //                         padding: const EdgeInsets.all(8.0),
-  //                         child: Row(
-  //                           children: [
-  //                             SizedBox(
-  //                               width: 60,
-  //                               child: CustomText(
-  //                                 content:
-  //                                     '   ${((widget.leadsController.currentPage.value - 1) * 10) + (index + 1)}.',
-  //                                 fontSize: 12,
-  //                                 fontWeight: FontWeight.bold,
-  //                                 overflow: TextOverflow.ellipsis,
-  //                               ),
-  //                             ),
-  //                             Expanded(
-  //                               flex: 2,
-  //                               child: Row(
-  //                                 children: [
-  //                                   ClipOval(
-  //                                     child: Container(
-  //                                       height: 40,
-  //                                       width: 40,
-  //                                       color: Colors.grey[200],
-  //                                       child: Image.network(
-  //                                         '${ApiConstants.baseUrl}uploads/${leadCustomerData.imageUrl ?? ''}',
-  //                                         fit: BoxFit.cover,
-  //                                         width: 25,
-  //                                         height: 25,
-  //                                         errorBuilder:
-  //                                             (context, error, stackTrace) {
-  //                                           return Container(
-  //                                             color: Colors.grey[200],
-  //                                             child: const Icon(
-  //                                               Icons.person,
-  //                                               color: Colors.blue,
-  //                                               size: 34,
-  //                                             ),
-  //                                           );
-  //                                         },
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   const SizedBox(width: 10),
-  //                                   CustomText(
-  //                                     content:
-  //                                         leadCustomerData.businessName ?? '',
-  //                                     fontSize: 12,
-  //                                     fontWeight: FontWeight.bold,
-  //                                     overflow: TextOverflow.ellipsis,
-  //                                   ),
-  //                                 ],
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     );
-  //                   }).toList(),
-  //                 ),
-  //               ),
-  //             ),
-  //             if (widget.leadsController.totalPages > 1)
-  //               Container(
-  //                 padding: const EdgeInsets.all(3),
-  //                 height: 50,
-  //                 color: const Color.fromARGB(255, 238, 238, 238),
-  //                 child: Row(
-  //                   children: [LeadsBottomPaginationWidget(), const Spacer()],
-  //                 ),
-  //               ),
-  //           ],
-  //         ),
-  //       ),
-  //       Expanded(
-  //         child: SingleChildScrollView(
-  //           scrollDirection: Axis.horizontal,
-  //           child: SizedBox(
-  //             width: totalTableWidth,
-  //             child: Column(
-  //               children: [
-  //                 SizedBox(child: buildTableHeader()),
-  //                 widget.leadsController.leadsCustomerDataList.isEmpty
-  //                     ? SizedBox(
-  //                         height: MediaQuery.of(context).size.height * 0.4)
-  //                     : Container(),
-  //                 widget.leadsController.leadsCustomerDataList.isEmpty
-  //                     ? const Center(child: NodataWidget())
-  //                     : Expanded(
-  //                         child: SingleChildScrollView(
-  //                           scrollDirection: Axis.vertical,
-  //                           physics: const ClampingScrollPhysics(),
-  //                           controller: vertical1,
-  //                           child: Column(
-  //                             children: widget
-  //                                 .leadsController.leadsCustomerDataList
-  //                                 .asMap()
-  //                                 .entries
-  //                                 .map((entry) {
-  //                               int index = entry.key;
-  //                               LeadCustomerData leadCustomerData = entry.value;
-  //                               return buildTableRow(leadCustomerData, context,
-  //                                   index, fixedRowHeight,widget.leadsController,subscriptionController);
-  //                             }).toList(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       if (widget.leadsController.totalPages > 1)
-  //                   Container(
-  //                     padding: const EdgeInsets.all(3),
-  //                     height: 50,
-  //                     color: Colors.grey[200],
-  //                   ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }
 
 

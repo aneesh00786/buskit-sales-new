@@ -435,7 +435,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: Row(
                         children: [
-                           Text('Delivery Address    '.tr,
+                           Text('Delivery Address'.tr,
                               style: TextStyle(fontSize: 18)),
                           Checkbox(
                             value: sameAsAbove,

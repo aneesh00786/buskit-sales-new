@@ -39,11 +39,14 @@ Widget buildTableHeader1(Widget child, double width) {
       child: Text(
         text,
         textAlign: TextAlign.center,
+        maxLines: 1,
         style: TextStyle(
           fontSize: fontSize,
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontFamily: 'Poppins_Regular',
+          overflow: TextOverflow.ellipsis,
+          
         ),
       ),
     );

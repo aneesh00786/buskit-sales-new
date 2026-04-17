@@ -621,7 +621,9 @@ class _SalesReturnState extends State<SalesReturn> {
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     final ScrollController _horizontalScrollController = ScrollController();
-    
+    bool isArabic = Get.locale?.languageCode == 'ar';
+    double slNoWidth = isArabic ? 80 : 60; 
+double customerDetailsWidth = isArabic ? 220 : 240;
     // DEFINE ITEMS PER PAGE (Set this to whatever your pagination expects, e.g., 10)
     const int itemsPerPage = 10; 
 
@@ -641,32 +643,75 @@ class _SalesReturnState extends State<SalesReturn> {
                     Row(
                       children: [
                         buildSalesReturnTableHeader1(
-                          Center(
-                            child: CustomText(
-                              content: "Sl.No.".tr,
-                              textAlign: TextAlign.center,
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          60,
-                        ),
-                        buildSalesReturnTableHeader1(
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const SizedBox(width: 40),
-                              CustomText(
-                                content: "Customer Details".tr,
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ],
-                          ),
-                          240,
-                        ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                child: Text( // Replaced CustomText with Text to ensure overflow works
+                  "Sl.No.".tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis, // Adds ... if it still overflows
+                ),
+              ),
+            ),
+            slNoWidth, // Uses dynamic width
+          ),
+                        // buildSalesReturnTableHeader1(
+                        //   Center(
+                        //     child: CustomText(
+                        //       content: "Sl.No.".tr,
+                        //       textAlign: TextAlign.center,
+                        //       fontSize: 14,
+                        //       color: Colors.white,
+                        //       fontWeight: FontWeight.bold,
+                        //     ),
+                        //   ),
+                        //   60,
+                        // ),
+                         buildSalesReturnTableHeader1(
+            Padding(
+              // Better for RTL than a hardcoded SizedBox(width: 40)
+              padding: const EdgeInsets.symmetric(horizontal: 16.0), 
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded( // Forces the text to respect the parent width constraint
+                    child: Text(
+                      "Customer Details".tr,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis, // Adds ... if text is too long
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            customerDetailsWidth, // Uses dynamic width
+          ),
+                        // buildSalesReturnTableHeader1(
+                        //   Row(
+                        //     mainAxisAlignment: MainAxisAlignment.start,
+                        //     children: [
+                        //       const SizedBox(width: 40),
+                        //       CustomText(
+                        //         content: "Customer Details".tr,
+                        //         fontSize: 14,
+                        //         color: Colors.white,
+                        //         fontWeight: FontWeight.bold,
+                        //       ),
+                        //     ],
+                        //   ),
+                        //   240,
+                        // ),
                       ],
                     ),
                     Expanded(

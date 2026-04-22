@@ -316,7 +316,7 @@ class HomeController extends GetxController {
                     Icon(Icons.logout, size: 25.0, color: primaryColor),
                       const SizedBox(width: 8.0),
                       Text(
-                        "Logout ?",
+                        "Logout ?".tr,
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
@@ -328,7 +328,7 @@ class HomeController extends GetxController {
                     content: Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Text(
-                      "Are you sure you want to log out ?.",
+                      "Are you sure you want to log out ?.".tr,
                       style: TextStyle(
                         fontSize: 19.0,
                         color: Colors.black87,
@@ -351,7 +351,7 @@ class HomeController extends GetxController {
                               sidebarXController.selectIndex(previousIndex);
                     },
                     child: Text(
-                      "Cancel",
+                      "Cancel".tr,
                     style: TextStyle(
                           fontSize: 14.0,
                           color: primaryColor,
@@ -374,7 +374,7 @@ class HomeController extends GetxController {
                         shadowColor: primaryColor.withOpacity(0.4),
                       ),
                     child: CustomText(
-                      content: 'Confirm',
+                      content: 'Confirm'.tr,
                       color: white,
                       fontSize: 14.0,
                       fontWeight: FontWeight.w600

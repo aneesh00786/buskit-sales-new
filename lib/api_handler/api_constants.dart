@@ -133,5 +133,6 @@ mixin class ApiConstants {
   static const String staffDiscount = "staff_discount";
   static const String updatedeliveryaddress = "update-delivery-address";
   static const String visitReport = "visit_report";
-  static const String getEvents = "get_events";
+ static const String getEvents = "get_events";
+ static const String config = "config";
 }

@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/model/bulk_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/promotions/widgets/promo_status_chip.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
@@ -111,10 +112,23 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(data.volumeName ?? "Bulk Item",
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 28)),
+                            Builder(
+                  builder: (context) {
+                    final int availableStock = int.tryParse(data.stock?.toString() ?? '0') ?? 0;
+                     final int itemsPerBulk = data.itemNumbers ?? 1;
+                    // You can change this to `availableStock < (data.itemNumbers ?? 1)` 
+                    // if you want strict bulk availability checking.
+                    if (availableStock <= 0 || availableStock < itemsPerBulk) {
+                      return const PromoStockStatusChip();
+                    }
+                    return const SizedBox.shrink();
+                  }
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -343,6 +357,143 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
           height: 45,
           child: ElevatedButton(
             onPressed: () async {
+               final int availableStock =
+                  int.tryParse(data.stock?.toString() ?? '0') ?? 0;
+              final int itemsPerBulk = data.itemNumbers ?? 1;
+              final int totalRequestedStock = _currentQuantity * itemsPerBulk;
+
+              if (availableStock <= 0) {
+            showDialog(
+  context: context,
+  builder: (context) => AlertDialog(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent, // Removes Android 12+ weird tint
+    title: Row(
+      children: [
+        const Icon(Icons.warning_amber_rounded, color: Colors.red),
+        const SizedBox(width: 10),
+        Text(
+          "Out of Stock".tr,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+    content: Text(
+      "${data.productName} is currently out of stock.",
+      style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+    ),
+    actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
+    actions: [
+      TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.blue.shade50,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: () => Navigator.pop(context),
+        child:  Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+          child: Text(
+            "OK".tr,
+            style: TextStyle(
+              color: Color(0xFF4285F4),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+);
+                // showDialog(
+                //   context: context,
+                //   builder: (context) => AlertDialog(
+                //     title: Text("Out of Stock".tr,
+                //         style: TextStyle(color: Colors.red)),
+                //     content:
+                //         Text("${data.productName} is currently out of stock."),
+                //     actions: [
+                //       TextButton(
+                //         onPressed: () => Navigator.pop(context),
+                //         child: const Text("OK",
+                //             style: TextStyle(color: Color(0xFF4285F4))),
+                //       ),
+                //     ],
+                //   ),
+                // );
+                return;
+              } else if (totalRequestedStock > availableStock) {
+                showDialog(
+  context: context,
+  builder: (context) => AlertDialog(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent, // Removes Android 12+ weird tint
+    title: Row(
+      children: [
+        const Icon(Icons.warning_amber_rounded, color: Colors.orange), // Orange for insufficient
+        const SizedBox(width: 10),
+        Text(
+          "Insufficient Stock".tr,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+    content: Text(
+       "Only $availableStock items available. You requested $totalRequestedStock items ($_currentQuantity bulks of $itemsPerBulk).",
+      style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+    ),
+    actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
+    actions: [
+      TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.blue.shade50,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: () => Navigator.pop(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+          child: Text(
+            "OK".tr,
+            style: const TextStyle(
+              color: Color(0xFF4285F4), // Or you can change back to primaryColor here
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+);
+                // showDialog(
+                //   context: context,
+                //   builder: (context) => 
+                //   AlertDialog(
+                //     title:  Text("Insufficient Stock".tr,
+                //         style: TextStyle(color: Colors.orange)),
+                //     content: Text(
+                //         "Only $availableStock items available. You requested $totalRequestedStock items ($_currentQuantity bulks of $itemsPerBulk)."),
+                //     actions: [
+                //       TextButton(
+                //         onPressed: () => Navigator.pop(context),
+                //         child: Text("OK".tr,
+                //             style: TextStyle(color: Color(0xFF4285F4))),
+                //       ),
+                //     ],
+                //   ),
+                // );
+                return;
+              }
               // 1. Retrieve the controllers
               final CustomerAndOrderController customerAndOrderController =
                   Get.find<CustomerAndOrderController>();

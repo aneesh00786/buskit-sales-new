@@ -3369,10 +3369,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
           ),
         ),
         onPressed: () => Navigator.pop(context),
-        child: const Padding(
+        child:  Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
           child: Text(
-            "OK",
+            "OK".tr,
             style: TextStyle(
               color: Color(0xFF4285F4),
               fontWeight: FontWeight.bold,

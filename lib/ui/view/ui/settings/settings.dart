@@ -85,9 +85,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _checkConnectivity();
     _connectivityService.connectivityStream.listen(_updateConnectivityStatus);
     _loadAdminDetails();
-    final activeLocale = Get.locale ?? const Locale('en'); 
-    _selectedLanguageCode = activeLocale.countryCode != null 
-        ? '${activeLocale.languageCode}-${activeLocale.countryCode}' 
+    final activeLocale = Get.locale ?? const Locale('en');
+    _selectedLanguageCode = activeLocale.countryCode != null
+        ? '${activeLocale.languageCode}-${activeLocale.countryCode}'
         : activeLocale.languageCode;
   }
 
@@ -160,7 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   surfaceTintColor: Colors.transparent,
-                  title:  Text(
+                  title: Text(
                     'Settings'.tr,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -170,11 +170,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   actions: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 4.0),
                       child: _buildChangePasswordButton(),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 12.0),
                       child: _buildCancelPlanButton(),
                     ),
                   ],
@@ -196,14 +198,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    side: BorderSide(color: Colors.grey.shade200)),
+                                    side: BorderSide(
+                                        color: Colors.grey.shade200)),
                                 child: Padding(
                                   padding: const EdgeInsets.all(24.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             child: idAndImagePicWidget(
@@ -236,13 +241,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    side: BorderSide(color: Colors.grey.shade200)),
+                                    side: BorderSide(
+                                        color: Colors.grey.shade200)),
                                 child: Padding(
                                   padding: const EdgeInsets.all(24.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      _buildSectionHeader('Personal Information'.tr,
+                                      _buildSectionHeader(
+                                          'Personal Information'.tr,
                                           EneftyIcons.profile_circle_outline),
                                       Row(
                                         children: [
@@ -251,7 +259,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               label: _adminData?.fullname ?? '',
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
-                                              prefixIcon: Icon(EneftyIcons.user_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.user_outline,
                                                   color: Colors.grey.shade600),
                                               labelText: "First Name".tr,
                                             ),
@@ -262,7 +271,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               label: _adminData?.lastname ?? '',
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
-                                              prefixIcon: Icon(EneftyIcons.user_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.user_outline,
                                                   color: Colors.grey.shade600),
                                               labelText: "Last Name".tr,
                                             ),
@@ -277,9 +287,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               label: _adminData?.email ?? '',
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
-                                              textInputType: TextInputType.emailAddress,
+                                              textInputType:
+                                                  TextInputType.emailAddress,
                                               labelText: "Email Address".tr,
-                                              prefixIcon: Icon(EneftyIcons.sms_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.sms_outline,
                                                   color: Colors.grey.shade600),
                                             ),
                                           ),
@@ -289,9 +301,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               label: _adminData?.mobileno ?? '',
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
-                                              textInputType: TextInputType.phone,
+                                              textInputType:
+                                                  TextInputType.phone,
                                               labelText: "Mobile No".tr,
-                                              prefixIcon: Icon(EneftyIcons.call_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.call_outline,
                                                   color: Colors.grey.shade600),
                                             ),
                                           ),
@@ -309,11 +323,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    side: BorderSide(color: Colors.grey.shade200)),
+                                    side: BorderSide(
+                                        color: Colors.grey.shade200)),
                                 child: Padding(
                                   padding: const EdgeInsets.all(24.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       _buildSectionHeader('Address Details'.tr,
                                           EneftyIcons.location_outline),
@@ -322,11 +338,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           Expanded(
                                             flex: 2,
                                             child: formFiled(
-                                              label: (_adminData?.zipcode ?? '').toString(),
+                                              label: (_adminData?.zipcode ?? '')
+                                                  .toString(),
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
                                               labelText: 'Zip / Postal Code'.tr,
-                                              prefixIcon: Icon(EneftyIcons.routing_2_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.routing_2_outline,
                                                   color: Colors.grey.shade600),
                                             ),
                                           ),
@@ -339,7 +357,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               isReadOnly: true,
                                               borderColor: Colors.grey.shade300,
                                               maxLines: 1,
-                                              prefixIcon: Icon(EneftyIcons.buildings_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.buildings_outline,
                                                   color: Colors.grey.shade600),
                                             ),
                                           ),
@@ -351,7 +370,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               isReadOnly: true,
                                               labelText: "State".tr,
                                               borderColor: Colors.grey.shade300,
-                                              prefixIcon: Icon(EneftyIcons.map_outline,
+                                              prefixIcon: Icon(
+                                                  EneftyIcons.map_outline,
                                                   color: Colors.grey.shade600),
                                             ),
                                           ),
@@ -363,7 +383,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         isReadOnly: true,
                                         borderColor: Colors.grey.shade300,
                                         labelText: "Full Address".tr,
-                                        prefixIcon: Icon(EneftyIcons.house_2_outline,
+                                        prefixIcon: Icon(
+                                            EneftyIcons.house_2_outline,
                                             color: Colors.grey.shade600),
                                       ),
                                     ],
@@ -376,36 +397,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    side: BorderSide(color: Colors.grey.shade200)),
+                                    side: BorderSide(
+                                        color: Colors.grey.shade200)),
                                 child: Padding(
                                   padding: const EdgeInsets.all(24.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      _buildSectionHeader('Language Settings'.tr,
-                                          EneftyIcons.global_outline), // Ensure EneftyIcons is imported
+                                      _buildSectionHeader(
+                                          'Language Settings'.tr,
+                                          EneftyIcons.global_outline),
                                       Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
-                                            child: DropdownButtonFormField<String>(
+                                            child:
+                                                DropdownButtonFormField<String>(
                                               value: _selectedLanguageCode,
                                               decoration: InputDecoration(
                                                 labelText: 'Language'.tr,
-                                                labelStyle: const TextStyle(color: Colors.black),
+                                                labelStyle: const TextStyle(
+                                                    color: Colors.black),
                                                 border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: BorderSide(color: Colors.black, width: 1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.black,
+                                                      width: 1),
                                                 ),
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  borderSide: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade300,
+                                                      width: 1),
                                                 ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  borderSide: const BorderSide(color: Colors.blue, width: 1),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.blue,
+                                                      width: 1),
                                                 ),
-                                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 16),
                                               ),
                                               isExpanded: true,
                                               menuMaxHeight: 300.0,
@@ -415,69 +457,232 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   child: Text(lang[1]),
                                                 );
                                               }).toList(),
-                                              onChanged: (newValue) {
-                                                if (newValue != null) {
-                                                  setState(() {
-                                                    _selectedLanguageCode = newValue;
-                                                  });
+                                              onChanged: (newValue) async {
+                                                if (newValue != null &&
+                                                    newValue !=
+                                                        _selectedLanguageCode) {
+                                                  final localizationService =
+                                                      Get.find<
+                                                          LocalizationService>();
+
+                                                  // 1. Check Limits
+                                                  bool canChange =
+                                                      await localizationService
+                                                          .canChangeLanguage();
+                                                  int remaining =
+                                                      await localizationService
+                                                          .getRemainingChanges();
+
+                                                  if (!canChange) {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          AlertDialog(
+                                                        title: Text(
+                                                            "Limit Reached".tr),
+                                                        content: Text(
+                                                            "You can only change the language 3 times per month. Please try again next month."
+                                                                .tr),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context),
+                                                            child:
+                                                                Text("OK".tr),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    );
+                                                    setState(
+                                                        () {}); // Revert visual selection
+                                                    return;
+                                                  }
+
+                                                  // 2. Show Warning using trParams for translation
+                                                  bool? confirm =
+                                                      await showDialog<bool>(
+                                                    context: context,
+                                                    barrierDismissible: false,
+                                                    builder: (context) =>
+                                                        AlertDialog(
+                                                      title: Text(
+                                                          "Change Language?"
+                                                              .tr),
+                                                      content: SizedBox(
+                                                        height: 50,
+                                                        child: Column(
+                                                          children: [
+                                                            Text(
+                                                                "You can only change your language 3 times a month"
+                                                                    .tr),
+                                                            Text('You have'.tr +
+                                                                ' $remaining ' +
+                                                                'change(s) left this month. Do you want to proceed?'
+                                                                    .tr)
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      // Text(
+                                                      //   "language_change_warning".trParams({'remaining': remaining.toString()}),
+                                                      // ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  false), // Cancel
+                                                          child: Text(
+                                                              "Cancel".tr,
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .red)),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  true), // Proceed
+                                                          child: Text(
+                                                              "Proceed".tr,
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .green)),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+
+                                                  // 3. Update Dropdown state if they proceed
+                                                  if (confirm == true) {
+                                                    setState(() {
+                                                      _selectedLanguageCode =
+                                                          newValue;
+                                                    });
+                                                  } else {
+                                                    setState(
+                                                        () {}); // Revert visual state
+                                                  }
                                                 }
                                               },
                                             ),
                                           ),
                                           const SizedBox(width: 16),
                                           SizedBox(
-                                            height: 52, // Matches the height of the dropdown
+                                            height:
+                                                52, // Matches the height of the dropdown
                                             child: ElevatedButton(
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Colors.blue,
                                                 foregroundColor: Colors.white,
-                                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 24),
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
                                                 ),
                                                 elevation: 0,
                                               ),
-                                              onPressed: _isTranslating ? null : () async {
-                                                bool isOnline = await ConnectivityService().isOnline();
-                                                if (!isOnline && _selectedLanguageCode != 'en') {
-                                                  showCustomToastDisplay(context, "You are Offline! Cannot download translation.".tr, Colors.red, Icons.wifi_off);
-                                                  return;
-                                                }
+                                              onPressed: _isTranslating
+                                                  ? null
+                                                  : () async {
+                                                      bool isOnline =
+                                                          await ConnectivityService()
+                                                              .isOnline();
+                                                      if (!isOnline &&
+                                                          _selectedLanguageCode !=
+                                                              'en') {
+                                                        showCustomToastDisplay(
+                                                            context,
+                                                            "You are Offline! Cannot download translation."
+                                                                .tr,
+                                                            Colors.red,
+                                                            Icons.wifi_off);
+                                                        return;
+                                                      }
 
-                                                setState(() {
-                                                  _isTranslating = true;
-                                                });
-                                                
-                                                try {
-                                                  
-                                                  final locService = Get.find<LocalizationService>();
-                                                  
-                                                  // 1. Fetch missing translations from Google API if needed
-                                                  await locService.fetchAndSaveTranslations(_selectedLanguageCode);
-                                                  
-                                                  // 2. Change the locale locally & save to SharedPreferences
-                                                  locService.changeLocale(_selectedLanguageCode);
-                                                  
-                                                  showCustomToastDisplay(context, 'Language saved successfully'.tr, Colors.green, Icons.check);
-                                                } catch (e) {
-                                                  showCustomToastDisplay(context, 'Failed to update language'.tr, Colors.red, Icons.close);
-                                                } finally {
-                                                  if (mounted) {
-                                                    setState(() {
-                                                      _isTranslating = false;
-                                                    });
-                                                  }
-                                                }
-                                              },
+                                                      final locService = Get.find<
+                                                          LocalizationService>();
+
+                                                      // Get the currently active locale before we check
+                                                      String
+                                                          currentActiveLangStr =
+                                                          locService.activeLocale
+                                                                      .countryCode !=
+                                                                  null
+                                                              ? '${locService.activeLocale.languageCode}-${locService.activeLocale.countryCode}'
+                                                              : locService
+                                                                  .activeLocale
+                                                                  .languageCode;
+
+                                                      // ONLY deduct a token and fetch translations if it's genuinely a new language
+                                                      if (currentActiveLangStr !=
+                                                          _selectedLanguageCode) {
+                                                        setState(() {
+                                                          _isTranslating = true;
+                                                        });
+
+                                                        try {
+                                                          // Deducts the 1 chance!
+                                                          await locService
+                                                              .recordLanguageChange();
+
+                                                          // 1. Fetch missing translations from Google API if needed
+                                                          await locService
+                                                              .fetchAndSaveTranslations(
+                                                                  _selectedLanguageCode);
+
+                                                          // 2. Change the locale locally & save to SharedPreferences
+                                                          locService.changeLocale(
+                                                              _selectedLanguageCode);
+
+                                                          showCustomToastDisplay(
+                                                              context,
+                                                              'Language saved successfully'
+                                                                  .tr,
+                                                              Colors.green,
+                                                              Icons.check);
+                                                        } catch (e) {
+                                                          showCustomToastDisplay(
+                                                              context,
+                                                              'Failed to update language'
+                                                                  .tr,
+                                                              Colors.red,
+                                                              Icons.close);
+                                                        } finally {
+                                                          if (mounted) {
+                                                            setState(() {
+                                                              _isTranslating =
+                                                                  false;
+                                                            });
+                                                          }
+                                                        }
+                                                      } else {
+                                                        // Optional: Let them know it's already applied if they spam the save button
+                                                        showCustomToastDisplay(
+                                                            context,
+                                                            'Language is already applied'
+                                                                .tr,
+                                                            Colors.blue,
+                                                            Icons.info);
+                                                      }
+                                                    },
                                               child: _isTranslating
                                                   ? const SizedBox(
-                                                      width: 20, 
-                                                      height: 20, 
-                                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                                                    )
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                              color:
+                                                                  Colors.white,
+                                                              strokeWidth: 2))
                                                   : Text(
                                                       'Save'.tr,
-                                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
                                                     ),
                                             ),
                                           ),
@@ -487,6 +692,122 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                 ),
                               ),
+                              // Card(
+                              //   elevation: 0,
+                              //   color: Colors.white,
+                              //   shape: RoundedRectangleBorder(
+                              //       borderRadius: BorderRadius.circular(16),
+                              //       side: BorderSide(color: Colors.grey.shade200)),
+                              //   child: Padding(
+                              //     padding: const EdgeInsets.all(24.0),
+                              //     child: Column(
+                              //       crossAxisAlignment: CrossAxisAlignment.start,
+                              //       children: [
+                              //         _buildSectionHeader('Language Settings'.tr,
+                              //             EneftyIcons.global_outline), // Ensure EneftyIcons is imported
+                              //         Row(
+                              //           crossAxisAlignment: CrossAxisAlignment.start,
+                              //           children: [
+                              //             Expanded(
+                              //               child: DropdownButtonFormField<String>(
+                              //                 value: _selectedLanguageCode,
+                              //                 decoration: InputDecoration(
+                              //                   labelText: 'Language'.tr,
+                              //                   labelStyle: const TextStyle(color: Colors.black),
+                              //                   border: OutlineInputBorder(
+                              //                     borderRadius: BorderRadius.circular(10),
+                              //                     borderSide: BorderSide(color: Colors.black, width: 1),
+                              //                   ),
+                              //                   enabledBorder: OutlineInputBorder(
+                              //                     borderRadius: BorderRadius.circular(10),
+                              //                     borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                              //                   ),
+                              //                   focusedBorder: OutlineInputBorder(
+                              //                     borderRadius: BorderRadius.circular(10),
+                              //                     borderSide: const BorderSide(color: Colors.blue, width: 1),
+                              //                   ),
+                              //                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                              //                 ),
+                              //                 isExpanded: true,
+                              //                 menuMaxHeight: 300.0,
+                              //                 items: ALL_LANGUAGES.map((lang) {
+                              //                   return DropdownMenuItem(
+                              //                     value: lang[0],
+                              //                     child: Text(lang[1]),
+                              //                   );
+                              //                 }).toList(),
+                              //                 onChanged: (newValue) async{
+                              //                   if (newValue != null) {
+                              //                     setState(() {
+                              //                       _selectedLanguageCode = newValue;
+                              //                     });
+                              //                   }
+                              //                 },
+                              //               ),
+                              //             ),
+                              //             const SizedBox(width: 16),
+                              //             SizedBox(
+                              //               height: 52, // Matches the height of the dropdown
+                              //               child: ElevatedButton(
+                              //                 style: ElevatedButton.styleFrom(
+                              //                   backgroundColor: Colors.blue,
+                              //                   foregroundColor: Colors.white,
+                              //                   padding: const EdgeInsets.symmetric(horizontal: 24),
+                              //                   shape: RoundedRectangleBorder(
+                              //                     borderRadius: BorderRadius.circular(10),
+                              //                   ),
+                              //                   elevation: 0,
+                              //                 ),
+                              //                 onPressed: _isTranslating ? null : () async {
+                              //                   bool isOnline = await ConnectivityService().isOnline();
+                              //                   if (!isOnline && _selectedLanguageCode != 'en') {
+                              //                     showCustomToastDisplay(context, "You are Offline! Cannot download translation.".tr, Colors.red, Icons.wifi_off);
+                              //                     return;
+                              //                   }
+
+                              //                   setState(() {
+                              //                     _isTranslating = true;
+                              //                   });
+
+                              //                   try {
+
+                              //                     final locService = Get.find<LocalizationService>();
+
+                              //                     // 1. Fetch missing translations from Google API if needed
+                              //                     await locService.fetchAndSaveTranslations(_selectedLanguageCode);
+
+                              //                     // 2. Change the locale locally & save to SharedPreferences
+                              //                     locService.changeLocale(_selectedLanguageCode);
+
+                              //                     showCustomToastDisplay(context, 'Language saved successfully'.tr, Colors.green, Icons.check);
+                              //                   } catch (e) {
+                              //                     showCustomToastDisplay(context, 'Failed to update language'.tr, Colors.red, Icons.close);
+                              //                   } finally {
+                              //                     if (mounted) {
+                              //                       setState(() {
+                              //                         _isTranslating = false;
+                              //                       });
+                              //                     }
+                              //                   }
+                              //                 },
+                              //                 child: _isTranslating
+                              //                     ? const SizedBox(
+                              //                         width: 20,
+                              //                         height: 20,
+                              //                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                              //                       )
+                              //                     : Text(
+                              //                         'Save'.tr,
+                              //                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              //                       ),
+                              //               ),
+                              //             ),
+                              //           ],
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ),
+                              // ),
                               const SizedBox(height: 32),
                             ],
                           ),
@@ -598,208 +919,222 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ElevatedButton.icon(
         onPressed: () {
           showDialog(
-              context: context,
-              builder: (context) {
-                final password = SessionHelper.loginSavedData?.password ?? '';
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 10,
-                      backgroundColor: Colors.white,
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          double dialogWidth = constraints.maxWidth > 500 ? 500 : constraints.maxWidth * 0.9;
-                          double maxDialogHeight = constraints.maxHeight * 0.95;
+            context: context,
+            builder: (context) {
+              final password = SessionHelper.loginSavedData?.password ?? '';
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 10,
+                    backgroundColor: Colors.white,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        double dialogWidth = constraints.maxWidth > 500
+                            ? 500
+                            : constraints.maxWidth * 0.9;
+                        double maxDialogHeight = constraints.maxHeight * 0.95;
 
-                          return ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: dialogWidth,
-                              maxHeight: maxDialogHeight,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Form(
-                                key: _formKey,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue.withOpacity(0.1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          EneftyIcons.lock_outline,
-                                          color: Colors.blue,
-                                          size: 36,
-                                        ),
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: dialogWidth,
+                            maxHeight: maxDialogHeight,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Form(
+                              key: _formKey,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        shape: BoxShape.circle,
                                       ),
-                                      const SizedBox(height: 16),
-                                       Text(
-                                        'Change Password'.tr,
-                                        style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87),
+                                      child: const Icon(
+                                        EneftyIcons.lock_outline,
+                                        color: Colors.blue,
+                                        size: 36,
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Secure your account with a new password.'.tr,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey.shade600,
-                                        ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'Change Password'.tr,
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Secure your account with a new password.'
+                                          .tr,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade600,
                                       ),
-                                      const SizedBox(height: 24),
-                                      PasswordField(
-                                        controller: _oldPasswordController,
-                                        label: 'Old Password'.tr,
-                                        obscureText: _obscureOld,
-                                        toggleVisibility: () => setState(
-                                            () => _obscureOld = !_obscureOld),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Old password is required';
-                                          }
-                                          if (value != password) {
-                                            return 'Old password is incorrect';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      const SizedBox(height: 12),
-                                      PasswordField(
-                                        controller: _newPasswordController,
-                                        label: 'New Password'.tr,
-                                        obscureText: _obscureNew,
-                                        toggleVisibility: () => setState(
-                                            () => _obscureNew = !_obscureNew),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'New password is required';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      const SizedBox(height: 12),
-                                      PasswordField(
-                                        controller: _confirmPasswordController,
-                                        label: 'Confirm Password'.tr,
-                                        obscureText: _obscureConfirm,
-                                        toggleVisibility: () => setState(() =>
-                                            _obscureConfirm = !_obscureConfirm),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Confirm password is required';
-                                          }
-                                          if (value !=
-                                              _newPasswordController.text) {
-                                            return 'Passwords do not match';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                      const SizedBox(height: 32),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                side: BorderSide(color: Colors.grey.shade300),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    PasswordField(
+                                      controller: _oldPasswordController,
+                                      label: 'Old Password'.tr,
+                                      obscureText: _obscureOld,
+                                      toggleVisibility: () => setState(
+                                          () => _obscureOld = !_obscureOld),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Old password is required';
+                                        }
+                                        if (value != password) {
+                                          return 'Old password is incorrect';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 12),
+                                    PasswordField(
+                                      controller: _newPasswordController,
+                                      label: 'New Password'.tr,
+                                      obscureText: _obscureNew,
+                                      toggleVisibility: () => setState(
+                                          () => _obscureNew = !_obscureNew),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'New password is required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 12),
+                                    PasswordField(
+                                      controller: _confirmPasswordController,
+                                      label: 'Confirm Password'.tr,
+                                      obscureText: _obscureConfirm,
+                                      toggleVisibility: () => setState(() =>
+                                          _obscureConfirm = !_obscureConfirm),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Confirm password is required';
+                                        }
+                                        if (value !=
+                                            _newPasswordController.text) {
+                                          return 'Passwords do not match';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 32),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton(
+                                            style: OutlinedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 14),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                               ),
-                                              onPressed: () {
+                                              side: BorderSide(
+                                                  color: Colors.grey.shade300),
+                                            ),
+                                            onPressed: () {
+                                              _newPasswordController.clear();
+                                              _oldPasswordController.clear();
+                                              _confirmPasswordController
+                                                  .clear();
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text(
+                                              'Cancel'.tr,
+                                              style: TextStyle(
+                                                color: Colors.grey.shade800,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.blue,
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 14),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              elevation: 0,
+                                            ),
+                                            onPressed: () async {
+                                              bool isOnline =
+                                                  await ConnectivityService()
+                                                      .isOnline();
+                                              if (!isOnline) {
+                                                showCustomToastDisplay(
+                                                    context,
+                                                    "You are Offline!".tr,
+                                                    red,
+                                                    Icons.close);
+                                                return;
+                                              }
+                                              if (_formKey.currentState!
+                                                  .validate()) {
+                                                staffController.changePassword(
+                                                    currentPassword:
+                                                        _oldPasswordController
+                                                            .text,
+                                                    newPassword:
+                                                        _newPasswordController
+                                                            .text,
+                                                    confirmPassword:
+                                                        _confirmPasswordController
+                                                            .text);
                                                 _newPasswordController.clear();
                                                 _oldPasswordController.clear();
-                                                _confirmPasswordController.clear();
+                                                _confirmPasswordController
+                                                    .clear();
                                                 Navigator.pop(context);
-                                              },
-                                              child: Text(
-                                                'Cancel'.tr,
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade800,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
+                                              }
+                                            },
+                                            child: Text(
+                                              'Submit'.tr,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 16),
-                                          Expanded(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.blue,
-                                                foregroundColor: Colors.white,
-                                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                elevation: 0,
-                                              ),
-                                              onPressed: () async {
-                                                bool isOnline =
-                                                    await ConnectivityService()
-                                                        .isOnline();
-                                                if (!isOnline) {
-                                                  showCustomToastDisplay(
-                                                      context,
-                                                      "You are Offline!".tr,
-                                                      red,
-                                                      Icons.close);
-                                                  return;
-                                                }
-                                                if (_formKey.currentState!
-                                                    .validate()) {
-                                                  staffController.changePassword(
-                                                      currentPassword:
-                                                          _oldPasswordController.text,
-                                                      newPassword:
-                                                          _newPasswordController.text,
-                                                      confirmPassword:
-                                                          _confirmPasswordController
-                                                              .text);
-                                                  _newPasswordController.clear();
-                                                  _oldPasswordController.clear();
-                                                  _confirmPasswordController.clear();
-                                                  Navigator.pop(context);
-                                                }
-                                              },
-                                              child:  Text(
-                                                'Submit'.tr,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-            );
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          );
         },
         icon: const Icon(EneftyIcons.lock_outline, size: 18),
-        label:  Text(
+        label: Text(
           'Change Password'.tr,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
@@ -807,7 +1142,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: Colors.blue.shade600,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
@@ -819,111 +1155,115 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ElevatedButton.icon(
         onPressed: () {
           showDialog(
-              context: context,
-              builder: (context) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 10,
-                  backgroundColor: Colors.white,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              EneftyIcons.trash_outline,
-                              color: Colors.red.shade600,
-                              size: 36,
-                            ),
+            context: context,
+            builder: (context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 10,
+                backgroundColor: Colors.white,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(height: 16),
-                           Text(
-                            'Delete Account'.tr,
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87),
+                          child: Icon(
+                            EneftyIcons.trash_outline,
+                            color: Colors.red.shade600,
+                            size: 36,
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?'.tr,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.grey.shade600,
-                              height: 1.4,
-                            ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Delete Account'.tr,
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Once deleted, your account and all associated data will be permanently removed.\n\nDo you wish to proceed?'
+                              .tr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey.shade600,
+                            height: 1.4,
                           ),
-                          const SizedBox(height: 32),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        const SizedBox(height: 32),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                  child: Text(
-                                    'Cancel'.tr,
-                                    style: TextStyle(
-                                      color: Colors.grey.shade800,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  side: BorderSide(color: Colors.grey.shade300),
+                                ),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: Text(
+                                  'Cancel'.tr,
+                                  style: TextStyle(
+                                    color: Colors.grey.shade800,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red.shade600,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 0,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(true);
-                                    showCancelPlanDialog(context);
-                                  },
-                                  child:  Text(
-                                    'Delete'.tr,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  elevation: 0,
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                  showCancelPlanDialog(context);
+                                },
+                                child: Text(
+                                  'Delete'.tr,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-            );
+                ),
+              );
+            },
+          );
         },
         icon: const Icon(EneftyIcons.trash_outline, size: 18),
-        label:  Text(
+        label: Text(
           'Delete Account'.tr,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
@@ -931,7 +1271,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: Colors.red.shade50,
           foregroundColor: Colors.red.shade700,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
@@ -971,9 +1312,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               errorWidget: (context, url, error) => Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(EneftyIcons.image_outline, color: Colors.grey.shade400, size: 40),
+                  Icon(EneftyIcons.image_outline,
+                      color: Colors.grey.shade400, size: 40),
                   const SizedBox(height: 8),
-                  Text('No Image Available'.tr, style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                  Text('No Image Available'.tr,
+                      style:
+                          TextStyle(color: Colors.grey.shade500, fontSize: 12)),
                 ],
               ),
             ),

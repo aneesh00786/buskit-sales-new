@@ -562,7 +562,21 @@
 "Logout ?":"Logout ?",
 "OUT OF STOCK":"OUT OF STOCK",
 "Out of Stock":"Out of Stock",
-"Insufficient Stock":"Insufficient Stock"
+"Insufficient Stock":"Insufficient Stock",
+"Apply":"Apply",
+"Limit Reached":"Limit Reached",
+"Choose your preferred application language:":"Choose your preferred application language:",
+"You can only change the language 3 times per month. Please try again next month.":"You can only change the language 3 times per month. Please try again next month.",
+"Change Language":"Change Language",
+"Proceed":"Proceed",
+"Sync in Background":"Sync in Background",
+"Select Language":"Select Language",
+"We are settling up your App and it might take a few minutes. Thanks for your patience.": "We are settling up your App and it might take a few minutes. Thanks for your patience.",
+"Change Language?":"Change Language?",
+"You can only change your language 3 times a month":"You can only change your language 3 times a month",
+"change(s) left this month. Do you want to proceed?":"change(s) left this month. Do you want to proceed?",
+"You have":"You have"
+
 
   
 

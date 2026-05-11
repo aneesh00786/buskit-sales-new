@@ -140,8 +140,8 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
                 },
                 icon: Icon(
                   widget.loginController.isPasswordVisible.value
-                      ? EneftyIcons.eye_outline
-                      : EneftyIcons.eye_slash_outline,
+                      ? EneftyIcons.eye_slash_outline
+                      : EneftyIcons.eye_outline,
                   color: primaryColor,
                 ),
               ),

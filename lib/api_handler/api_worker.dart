@@ -717,7 +717,7 @@ class ApiWorker with ApiConstants {
 
         // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
         final response = await dio.getbycustom(requestUrl);
-log('response of alll products get :${response.data}'); 
+        log('response of alll products get :${response.data}');
         if (response.statusCode == 200) {
           final responseData = response.data;
           // log('category data from backend in order taking screen:${responseData}');
@@ -751,7 +751,6 @@ log('response of alll products get :${response.data}');
         return [];
       }
     } else {
-      
       final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
       return cachedProducts;
     }
@@ -1710,7 +1709,6 @@ log('response of alll products get :${response.data}');
       );
       log('get recent orders response:${response.data}');
 
-    
       if (response.data['status'] == true &&
           response.data['status_code'] == 200) {}
 
@@ -1796,7 +1794,7 @@ log('response of alll products get :${response.data}');
       };
       final response = await responsePostMethod(
           requestData: requestBody, endPoint: ApiConstants.orderProcessInvoice);
-          log('reponse of the order invoice details:${response.data}');
+      log('reponse of the order invoice details:${response.data}');
       if (response.statusCode == 200) {
         return OrderProcessInvoice.fromJson(response.data);
       } else {
@@ -1846,7 +1844,6 @@ log('response of alll products get :${response.data}');
     final scheduleBox = Hive.box('scheduleBox');
 
     bool isOnline = await ConnectivityService().isOnline();
-
     if (isOnline) {
       try {
         final requestData = {
@@ -1861,25 +1858,71 @@ log('response of alll products get :${response.data}');
           requestData: requestData,
         );
 
+        print('Raw Schedule Response: ${response.data}');
+
+        if (response.data == null) {
+          print('Response data is null. Returning empty state.');
+          return null;
+        }
+
+        if (response.data is List && (response.data as List).isEmpty) {
+          print('Backend returned an empty list. Returning null.');
+          return null;
+        }
+
         final scheduleResponse = ScheduleListResponse.fromJson(response.data);
 
         await scheduleBox.put(cacheKey, response.data);
 
         return scheduleResponse;
-      } on DioException {
+      } on DioException catch (dioError) {
+        print('Dio Error: ${dioError.message}');
         final cachedData = scheduleBox.get(cacheKey);
         if (cachedData != null) {
           return ScheduleListResponse.fromJson(
               Map<String, dynamic>.from(cachedData));
-        } else {
-          // NkCommonFunction.showErrorSnakBar(
-          //   // 'No offline schedule data available.',
-          // );
         }
-      } catch (e) {
-        NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+      } catch (e, stackTrace) {
+        print('My Unexpected Error: $e');
+        print('Stack trace: $stackTrace');
+
+        NkCommonFunction.showErrorSnakBar('An unexpected error occurredeee.');
       }
     }
+
+    // if (isOnline) {
+    //   try {
+    //     final requestData = {
+    //       "end_date": endDate,
+    //       "salesman_id": salesmanId,
+    //       "start_date": startDate,
+    //       "company_id": companyId,
+    //     };
+
+    //     final response = await responsePostMethod(
+    //       endPoint: ApiConstants.fetchSchedule,
+    //       requestData: requestData,
+    //     );
+
+    //     final scheduleResponse = ScheduleListResponse.fromJson(response.data);
+
+    //     await scheduleBox.put(cacheKey, response.data);
+
+    //     return scheduleResponse;
+    //   } on DioException {
+    //     final cachedData = scheduleBox.get(cacheKey);
+    //     if (cachedData != null) {
+    //       return ScheduleListResponse.fromJson(
+    //           Map<String, dynamic>.from(cachedData));
+    //     } else {
+    //       // NkCommonFunction.showErrorSnakBar(
+    //       //   // 'No offline schedule data available.',
+    //       // );
+    //     }
+    //   } catch (e) {
+    //     NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+    //   }
+    // }
 
     try {
       final cachedData = scheduleBox.get(cacheKey);
@@ -2106,45 +2149,46 @@ log('response of alll products get :${response.data}');
     }
     return null;
   }
+
   Future<StaffTimesheetResponse> getTimeSheetData({
-  required String filterValue, // Pass "March" here
-  required String filterType,  // Pass "Month" here
-}) async {
-  final id = SessionHelper.loginSavedData?.id ?? '';
+    required String filterValue, // Pass "March" here
+    required String filterType, // Pass "Month" here
+  }) async {
+    final id = SessionHelper.loginSavedData?.id ?? '';
 
-  // Update cache key to be unique based on inputs
-  final cacheKey = 'timesheet_${id}_${filterType}_$filterValue';
-  final timesheetBox = await Hive.openBox('timesheetBox');
+    // Update cache key to be unique based on inputs
+    final cacheKey = 'timesheet_${id}_${filterType}_$filterValue';
+    final timesheetBox = await Hive.openBox('timesheetBox');
 
-  bool isOnline = await ConnectivityService().isOnline();
+    bool isOnline = await ConnectivityService().isOnline();
 
-  // Correct Payload Structure matches Web App
-  final requestData = {
-    "id": id,
-    "valueFromDw": filterType, // "Month"
-    "selected_range": [filterValue] // ["March"]
-  };
+    // Correct Payload Structure matches Web App
+    final requestData = {
+      "id": id,
+      "valueFromDw": filterType, // "Month"
+      "selected_range": [filterValue] // ["March"]
+    };
 
-  if (isOnline) {
-    try {
-      final response = await responsePostMethod(
-        requestData: requestData,
-        endPoint: ApiConstants.getStaffTimeSheet,
-      );
-      
-      if (response.statusCode == 200) {
-        await timesheetBox.put(cacheKey, response.data);
-        return StaffTimesheetResponse.fromJson(response.data);
-      } else {
+    if (isOnline) {
+      try {
+        final response = await responsePostMethod(
+          requestData: requestData,
+          endPoint: ApiConstants.getStaffTimeSheet,
+        );
+
+        if (response.statusCode == 200) {
+          await timesheetBox.put(cacheKey, response.data);
+          return StaffTimesheetResponse.fromJson(response.data);
+        } else {
+          return _getFromCache(timesheetBox, cacheKey);
+        }
+      } catch (e) {
         return _getFromCache(timesheetBox, cacheKey);
       }
-    } catch (e) {
+    } else {
       return _getFromCache(timesheetBox, cacheKey);
     }
-  } else {
-    return _getFromCache(timesheetBox, cacheKey);
   }
-}
 
   // Future<StaffTimesheetResponse> getTimeSheetData({
   //   required String year, // Changed parameters to accept Year
@@ -2160,8 +2204,8 @@ log('response of alll products get :${response.data}');
   //   // New Payload Structure
   //   final requestData = {
   //     "id": id,
-  //     "valueFromDw": "Year", 
-  //     "selected_range": [year] 
+  //     "valueFromDw": "Year",
+  //     "selected_range": [year]
   //   };
 
   //   if (isOnline) {
@@ -2188,8 +2232,6 @@ log('response of alll products get :${response.data}');
   //     return _getFromCache(timesheetBox, cacheKey);
   //   }
   // }
-
-  
 
   StaffTimesheetResponse _getFromCache(Box timesheetBox, String cacheKey) {
     final cachedData = timesheetBox.get(cacheKey);
@@ -3092,7 +3134,7 @@ log('response of alll products get :${response.data}');
 
     // 2. Get the Sales ID (Assuming it is stored in SessionHelper like company_id)
     // If your sales ID variable is named differently (e.g., userId), change '.id' below.
-    String salesId = SessionHelper.loginSavedData?.id?.toString() ?? "0"; 
+    String salesId = SessionHelper.loginSavedData?.id?.toString() ?? "0";
 
     // 3. Generate the Unique ID
     String uniqueId = "${timestamp}_$salesId";
@@ -3107,9 +3149,10 @@ log('response of alll products get :${response.data}');
       "transation_date": transactionDate,
       "transation_id": transactionId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      
+
       // ✅ Add the new fields here
-      "sales_id": salesId,   // Ensure sales_id is in payload for your offline logic
+      "sales_id":
+          salesId, // Ensure sales_id is in payload for your offline logic
       "unique_id": uniqueId, // The unique string you requested
     };
 
@@ -3350,57 +3393,57 @@ log('response of alll products get :${response.data}');
     }
   }
 
-Future<GetRecentOrderReturn> getRecentOrdersReturns({
-  SearchModel? searchModel,
-  int? page,
-  // New strict parameters
-  required String valueFromDw,
-  required List<String> selectedRange,
-}) async {
-  bool isConnected = await ConnectivityService().isOnline();
+  Future<GetRecentOrderReturn> getRecentOrdersReturns({
+    SearchModel? searchModel,
+    int? page,
+    // New strict parameters
+    required String valueFromDw,
+    required List<String> selectedRange,
+  }) async {
+    bool isConnected = await ConnectivityService().isOnline();
 
-  // Update cache key to be unique based on the new filters
-  final cacheKey = "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
-  final box = Hive.box('salesReturnBox');
+    // Update cache key to be unique based on the new filters
+    final cacheKey =
+        "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
+    final box = Hive.box('salesReturnBox');
 
-  if (!isConnected) {
-    final savedData = box.get(cacheKey);
-    if (savedData != null && savedData is Map) {
-      return GetRecentOrderReturn.fromJson(ApiService().castToStringDynamic(savedData));
-    } else {
-      throw Exception('No offline data available');
+    if (!isConnected) {
+      final savedData = box.get(cacheKey);
+      if (savedData != null && savedData is Map) {
+        return GetRecentOrderReturn.fromJson(
+            ApiService().castToStringDynamic(savedData));
+      } else {
+        throw Exception('No offline data available');
+      }
     }
-  }
 
-  // UPDATED PAYLOAD
-  final response = await dio.postbycustom(
-    ApiConstants.getRecentOrder,
-    data: {
+    // UPDATED PAYLOAD
+    final response = await dio.postbycustom(
+      ApiConstants.getRecentOrder,
+      data: {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+        "limit": 10, // Updated to 1000 as per your payload
+        "page": page ?? 1,
+        "valueFromDw": valueFromDw,
+        "selected_range": selectedRange,
+        "order_status": 2,
+      },
+    ).onError((DioException error, _) {
+      return Future.error(DioExceptionHandler.fromDioError(error));
+    });
+    print({
       "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
-      "limit": 10, // Updated to 1000 as per your payload
+      "limit": 10,
       "page": page ?? 1,
       "valueFromDw": valueFromDw,
       "selected_range": selectedRange,
       "order_status": 2,
-    },
-    
-  ).onError((DioException error, _) {
-    
-    return Future.error(DioExceptionHandler.fromDioError(error));
-  });
- print({
-  "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
-  "limit": 10,
-  "page": page ?? 1,
-  "valueFromDw": valueFromDw,
-  "selected_range": selectedRange,
-  "order_status": 2,
-});
-  final responseJson = response.data as Map<String, dynamic>;
-  await box.put(cacheKey, responseJson);
+    });
+    final responseJson = response.data as Map<String, dynamic>;
+    await box.put(cacheKey, responseJson);
 
-  return GetRecentOrderReturn.fromJson(responseJson);
-}
+    return GetRecentOrderReturn.fromJson(responseJson);
+  }
 
   // Future<GetRecentOrderReturn> getRecentOrdersReturns({
   //   SearchModel? searchModel,
@@ -3447,7 +3490,6 @@ Future<GetRecentOrderReturn> getRecentOrdersReturns({
 
   //   return GetRecentOrderReturn.fromJson(responseJson);
   // }
-
 
   Future<ProductReturn> getProductReturnDetails(
       {required String orderId}) async {
@@ -3920,7 +3962,7 @@ Future<GetRecentOrderReturn> getRecentOrdersReturns({
 
 //         if (response.statusCode == 200) {
 //           final responseData = response.data;
-          
+
 //           // 1. Parse Data
 //           final bulk = Bulk.fromJson(responseData);
 
@@ -3953,7 +3995,7 @@ Future<GetRecentOrderReturn> getRecentOrdersReturns({
 //       }
 //     }
 //   }
-Future<Bulk> getBulkVolumes() async {
+  Future<Bulk> getBulkVolumes() async {
     // 1. Setup Keys
     final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final String cacheKey = "${companyId}_bulk_volumes";
@@ -3965,7 +4007,7 @@ Future<Bulk> getBulkVolumes() async {
       if (isConnected) {
         // --- ONLINE MODE ---
         print('Attempting Online Fetch...');
-        
+
         final response = await dio.postbycustom(
           ApiConstants.getVolumes,
           data: {"company_id": companyId},
@@ -3980,10 +4022,11 @@ Future<Bulk> getBulkVolumes() async {
 
             // B. Save to Cache (Only if parsing works)
             await _cacheBulkData(boxName, cacheKey, response.data);
-            
+
             return bulk;
           } catch (e) {
-            print('CRITICAL: JSON Parsing Failed! Check your Bulk.fromJson model.');
+            print(
+                'CRITICAL: JSON Parsing Failed! Check your Bulk.fromJson model.');
             print('Error: $e');
             // If parsing fails, we throw to trigger the offline fallback
             throw Exception('JSON Parsing Error: $e');
@@ -3996,7 +4039,6 @@ Future<Bulk> getBulkVolumes() async {
         print('No Internet. Loading from cache...');
         return await _loadCachedBulkData(boxName, cacheKey);
       }
-
     } catch (e) {
       // --- FALLBACK (API Failed or Parsing Failed) ---
       print('Online fetch failed ($e). Attempting fallback to cache...');
@@ -4006,11 +4048,12 @@ Future<Bulk> getBulkVolumes() async {
       } catch (cacheError) {
         // Both failed.
         print('Cache also failed or is empty: $cacheError');
-        
+
         // OPTIONAL: Return an empty object instead of throwing error
         // return Bulk(data: []); // Uncomment if you have an empty constructor
-        
-        throw Exception('Failed to fetch bulk volumes (Online & Offline failed)');
+
+        throw Exception(
+            'Failed to fetch bulk volumes (Online & Offline failed)');
       }
     }
   }
@@ -4033,40 +4076,39 @@ Future<Bulk> getBulkVolumes() async {
 
   // --- Helper: Load from Cache ---
 
-
 // ... inside your class ...
 
-Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
-  try {
-    late Box box;
-    if (Hive.isBoxOpen(boxName)) {
-      box = Hive.box(boxName);
-    } else {
-      box = await Hive.openBox(boxName);
+  Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
+    try {
+      late Box box;
+      if (Hive.isBoxOpen(boxName)) {
+        box = Hive.box(boxName);
+      } else {
+        box = await Hive.openBox(boxName);
+      }
+
+      final cachedData = box.get(key);
+
+      if (cachedData != null) {
+        print('Cache hit for $key. Processing data...');
+
+        // --- THE FIX ---
+        // Hive returns Map<dynamic, dynamic>.
+        // We encode it to String and decode it back to JSON.
+        // This cleans up all nested Map types to Map<String, dynamic>.
+        final jsonString = json.encode(cachedData);
+        final Map<String, dynamic> cleanJson = json.decode(jsonString);
+
+        return Bulk.fromJson(cleanJson);
+      } else {
+        print('Cache miss: No data found for key $key');
+        throw Exception('No offline data available');
+      }
+    } catch (e) {
+      print('Error loading cached bulk data: $e');
+      throw e;
     }
-
-    final cachedData = box.get(key);
-
-    if (cachedData != null) {
-      print('Cache hit for $key. Processing data...');
-
-      // --- THE FIX ---
-      // Hive returns Map<dynamic, dynamic>.
-      // We encode it to String and decode it back to JSON.
-      // This cleans up all nested Map types to Map<String, dynamic>.
-      final jsonString = json.encode(cachedData);
-      final Map<String, dynamic> cleanJson = json.decode(jsonString);
-
-      return Bulk.fromJson(cleanJson);
-    } else {
-      print('Cache miss: No data found for key $key');
-      throw Exception('No offline data available');
-    }
-  } catch (e) {
-    print('Error loading cached bulk data: $e');
-    throw e;
   }
-}
 
   // Future<void> _cacheBulkData(String boxName, String key, dynamic json) async {
   //   try {
@@ -4451,33 +4493,36 @@ Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
       return null;
     }
   }
+
   Future<String> getCompanyActiveLanguage() async {
     final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
-    final requestUrl = '${ApiConstants.baseUrl1}/Companydetails_GET?company_id=$companyId';
+    final requestUrl =
+        '${ApiConstants.baseUrl1}/Companydetails_GET?company_id=$companyId';
     final isConnected = await ConnectivityService().isOnline();
 
     // 1. If offline, return the last saved language from SharedPreferences
     if (!isConnected) {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('selected_language') ?? 'en'; 
+      return prefs.getString('selected_language') ?? 'en';
     }
 
     // 2. If online, fetch from API
     try {
-      final response = await dio.getbycustom(requestUrl); // Use your existing Dio setup
-      
+      final response =
+          await dio.getbycustom(requestUrl); // Use your existing Dio setup
+
       if (response.data == null) {
         throw Exception("API returned empty data");
       }
 
       // Check if data exists and safely extract just the active_language
       if (response.data['status'] == true && response.data['data'] != null) {
-        String activeLanguage = response.data['data']['active_language'] ?? 'en';
+        String activeLanguage =
+            response.data['data']['active_language'] ?? 'en';
         return activeLanguage;
       }
-      
-      return 'en'; // Default fallback
 
+      return 'en'; // Default fallback
     } catch (e) {
       print("Error fetching active language: $e");
       // Fallback to local storage on error

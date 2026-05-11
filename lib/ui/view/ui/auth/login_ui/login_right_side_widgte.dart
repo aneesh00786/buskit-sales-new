@@ -12,6 +12,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/nk_loading_button.d
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginRightSideWidget extends StatefulWidget {
@@ -97,43 +98,98 @@ class _LoginRightSideWidgetState extends State<LoginRightSideWidget> {
                           style: TextStyle(color: Colors.red)),
                     ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: widget.loginController.passwordController,
-                    obscureText: widget.loginController.isPasswordVisible.value,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(EneftyIcons.lock_2_outline,
-                          color: primaryColor),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: (statusCode == 401) ? Colors.red : Colors.grey,
-                          width: 1.5,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: (statusCode == 401)
-                              ? Colors.red
-                              : primaryButtonColor,
-                          width: 1.5,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 1.5),
-                      ),
-                      suffixIcon: widget.loginController.getIsPasswordVisible,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                  ),
+                    Obx(() => TextFormField(
+            controller: widget.loginController.passwordController,
+            obscureText: widget.loginController.isPasswordVisible.value, // This is now reactive!
+            decoration: InputDecoration(
+              labelText: 'Password',
+              prefixIcon: const Icon(
+                EneftyIcons.lock_2_outline,
+                color: primaryColor,
+              ),
+           
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                    color: widget.loginController.loginResponce?.statusCode == 401
+                            ? Colors.red
+                            : Colors.grey,
+                    width: 1.5),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                    color: widget.loginController.loginResponce?.statusCode == 401
+                            ? Colors.red
+                            : primaryButtonColor,
+                    width: 1.5),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.red, width: 1.5),
+              ),
+              // Moved the icon logic directly here (Best Practice)
+              suffixIcon: IconButton(
+                onPressed: () {
+                  widget.loginController.isPasswordVisible.value = 
+                      !widget.loginController.isPasswordVisible.value;
+                },
+                icon: Icon(
+                  widget.loginController.isPasswordVisible.value
+                      ? EneftyIcons.eye_outline
+                      : EneftyIcons.eye_slash_outline,
+                  color: primaryColor,
+                ),
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your Password';
+              }
+              return null;
+            },
+          )),
+                  // TextFormField(
+                  //   controller: widget.loginController.passwordController,
+                  //   obscureText: widget.loginController.isPasswordVisible.value,
+                  //   decoration: InputDecoration(
+                  //     labelText: 'Password',
+                  //     prefixIcon: const Icon(EneftyIcons.lock_2_outline,
+                  //         color: primaryColor),
+                  //     enabledBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: BorderSide(
+                  //         color: (statusCode == 401) ? Colors.red : Colors.grey,
+                  //         width: 1.5,
+                  //       ),
+                  //     ),
+                  //     focusedBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: BorderSide(
+                  //         color: (statusCode == 401)
+                  //             ? Colors.red
+                  //             : primaryButtonColor,
+                  //         width: 1.5,
+                  //       ),
+                  //     ),
+                  //     errorBorder: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide:
+                  //           const BorderSide(color: Colors.red, width: 1.5),
+                  //     ),
+                  //     suffixIcon: widget.loginController.getIsPasswordVisible,
+                  //   ),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter your password';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   if (statusCode == 401)
                     const Padding(
                       padding: EdgeInsets.only(top: 4.0),

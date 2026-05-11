@@ -179,23 +179,23 @@ class LoginController extends GetxController {
     otpController.clear();
   }
 
-  Widget get getIsPasswordVisible {
-    if (isPasswordVisible.value) {
-      return IconButton(
-        onPressed: () {
-          isPasswordVisible.value = !isPasswordVisible.value;
-        },
-        icon: const Icon(Icons.visibility),
-      );
-    } else {
-      return IconButton(
-        onPressed: () {
-          isPasswordVisible.value = !isPasswordVisible.value;
-        },
-        icon: const Icon(Icons.visibility_off),
-      );
-    }
-  }
+  // Widget get getIsPasswordVisible {
+  //   if (isPasswordVisible.value) {
+  //     return IconButton(
+  //       onPressed: () {
+  //         isPasswordVisible.value = !isPasswordVisible.value;
+  //       },
+  //       icon: const Icon(Icons.visibility),
+  //     );
+  //   } else {
+  //     return IconButton(
+  //       onPressed: () {
+  //         isPasswordVisible.value = !isPasswordVisible.value;
+  //       },
+  //       icon: const Icon(Icons.visibility_off),
+  //     );
+  //   }
+  // }
 
   void initializeTabController(TickerProvider vsync, {required int length}) {
     _tabController = TabController(length: length, vsync: vsync);

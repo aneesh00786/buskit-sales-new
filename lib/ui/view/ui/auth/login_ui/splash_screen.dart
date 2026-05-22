@@ -2,6 +2,7 @@ import 'package:busskit_salesexecutive/common/localization_service.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -47,7 +48,7 @@ class _SplashScreenLoggingState extends State<SplashScreenLogging> {
   late String _selectedLanguageCode;
   bool _isTranslating = false;
 
-@override
+  @override
   void initState() {
     super.initState();
     final activeLocale = Get.find<LocalizationService>().activeLocale;
@@ -55,11 +56,41 @@ class _SplashScreenLoggingState extends State<SplashScreenLogging> {
         ? '${activeLocale.languageCode}-${activeLocale.countryCode}'
         : activeLocale.languageCode;
 
-   
+    // Change this to call our new async checker method
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showLanguageDropdownPopup();
+      _checkFirstTimeLanguageSelection();
     });
   }
+
+  // Add this new method to check shared preferences
+  Future<void> _checkFirstTimeLanguageSelection() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    
+    // Check if the user has already seen the popup (defaults to true if null)
+    bool isFirstTime = prefs.getBool('isFirstTimeLanguage') ?? true;
+
+    if (isFirstTime) {
+      // Show the popup
+      _showLanguageDropdownPopup();
+      
+      // Save that the user has now seen the popup so it won't show again
+      await prefs.setBool('isFirstTimeLanguage', false);
+    }
+  }
+
+// @override
+//   void initState() {
+//     super.initState();
+//     final activeLocale = Get.find<LocalizationService>().activeLocale;
+//     _selectedLanguageCode = activeLocale.countryCode != null
+//         ? '${activeLocale.languageCode}-${activeLocale.countryCode}'
+//         : activeLocale.languageCode;
+
+   
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       _showLanguageDropdownPopup();
+//     });
+//   }
   
   Widget _buildLanguageTriggerButton() {
     String currentLangName = ALL_LANGUAGES.firstWhere(

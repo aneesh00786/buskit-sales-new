@@ -65,6 +65,7 @@ Widget profiloe() {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (snapshot.hasData) {
           final admin = snapshot.data!.data.first;
+          print('image URL: ${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
           return SizedBox(
             width: 130,
             child: SizedBox(
@@ -75,6 +76,7 @@ Widget profiloe() {
                 child: Row(
                   children: [
                     SizedBox(width: 5),
+                    
                     CircleAvatar(
                       backgroundColor: const Color(0xffe6ecff),
                       radius: 15,

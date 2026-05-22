@@ -42,9 +42,16 @@ class SessionHelper {
 
   // Clear original login data but keep backup
   Future<void> clearLoginDataKeepBackup() async {
-    await SessionManager.clearData();
+    // ❌ REMOVE: await SessionManager.clearData();
+    // ✅ INSTEAD, ONLY DELETE THE LOGIN KEY:
+    await SessionManager.deleteData(SpString.spLogin);
+    
     loginSavedData = null;
   }
+  // Future<void> clearLoginDataKeepBackup() async {
+  //   await SessionManager.clearData();
+  //   loginSavedData = null;
+  // }
 
   Future<void> setLoginData(LoginData loginResponse) async {
     await SessionManager.setStringValue(
@@ -92,13 +99,26 @@ class SessionHelper {
       }
     }
   }
-
   Future<void> clearAll() async {
-    await SessionManager.clearData();
+    // ❌ REMOVE: await SessionManager.clearData();
+    // ✅ INSTEAD, DELETE ONLY THE KEYS RELATED TO THE USER SESSION:
+    await SessionManager.deleteData(SpString.spLogin);
+    await SessionManager.deleteData(SpString.settingsKey);
+    
+    // (If you have other specific keys like tokens, delete them here too)
+    // await SessionManager.deleteData(SpString.someOtherKey);
+
     loginSavedData = null;
     settingsData = null;
     isLoggedIn.value = false;
   }
+
+  // Future<void> clearAll() async {
+  //   await SessionManager.clearData();
+  //   loginSavedData = null;
+  //   settingsData = null;
+  //   isLoggedIn.value = false;
+  // }
   Future<void> clearSettingsData() async {
     await SessionManager.deleteData(SpString.settingsKey);
     settingsData = null;

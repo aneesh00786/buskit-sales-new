@@ -92,16 +92,19 @@ class PendingPaymentController extends GetxController {
 
   Future<void> loadIndividualPendingPayments(String customerId) async {
     try {
+      print('api called');
       isLoading.value = true;
       
       bool isOnline = await ConnectivityService().isOnline();
 
       if (isOnline) {
+        print('Online mode: Fetching from API');
         // --- ONLINE FLOW ---
         // 1. Fetch from API
         var response = await _apiWorker.getAllPendingPaymentIndividual(
           customerId: customerId,
         );
+       
 
         if (response.data != null) {
           individualPendingPayments.assignAll(response.data);
@@ -119,6 +122,7 @@ class PendingPaymentController extends GetxController {
           individualPendingPayments.clear();
         }
       } else {
+    
         // --- OFFLINE FLOW ---
         // 3. LOAD FROM HIVE
         try {

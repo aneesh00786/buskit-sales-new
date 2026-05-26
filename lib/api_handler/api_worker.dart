@@ -33,6 +33,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/payment_link_resposnse.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_event_details_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
@@ -1639,6 +1640,7 @@ class ApiWorker with ApiConstants {
       final response = await responsePostMethod(
           requestData: requestData,
           endPoint: ApiConstants.fetchPendingPayments);
+          log("API Response for pending payments: ${response.data}");
       if (response.statusCode == 200 && response.data != null) {
         await pendingPaymentBox.put(cacheKey, response.data);
         return PendingPaymentResponse.fromJson(response.data);
@@ -1672,6 +1674,7 @@ class ApiWorker with ApiConstants {
       final response = await responsePostMethod(
           requestData: requestData,
           endPoint: ApiConstants.getAllPendingPaymentIndividuals);
+           log("API Response for individual pending payments: ${response.data}");
       if (response.statusCode == 200) {
         return IndividualPendingPaymentResponse.fromJson(response.data);
       } else {
@@ -1683,6 +1686,82 @@ class ApiWorker with ApiConstants {
       handleExceptionMessage(
           response: error.response, apiName: "pending payments", error: error);
       return Future.error(handledError);
+    }
+  }
+  Future<PaymentLinkResponse> createPaymentLink({
+    required String customerId,
+    required List<String> orderIds,
+    required String amount,
+    required String remarks,
+  }) async {
+    try {
+      final requestData = {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 1, // Fallback to 1 as per your payload
+        "customer_id": customerId,
+        "order_ids": orderIds,
+        "amount": amount,
+        "remarks": remarks,
+      };
+
+      // If you add this to ApiConstants, replace the string with ApiConstants.createPaymentLink
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint:ApiConstants.createPaymentLink
+         
+      );
+      
+      log("API Response for create payment link: ${response.data}");
+
+      if (response.statusCode == 200) {
+        return PaymentLinkResponse.fromJson(response.data);
+      } else {
+        handleExceptionMessage(response: response, apiName: "create payment link");
+        return Future.error('API Error: ${response.statusCode}');
+      }
+    } on DioException catch (error) {
+      final handledError = DioExceptionHandler.fromDioError(error);
+      handleExceptionMessage(
+          response: error.response, apiName: "create payment link", error: error);
+      return Future.error(handledError);
+    }
+  }
+  Future<bool> sendPaymentLink({
+    required String token,
+    required String type,
+    String? email,
+    String? mobile,
+  }) async {
+    try {
+      // Build payload dynamically based on type
+      final requestData = {
+        "token": token,
+        "type": type,
+      };
+      
+      if (type == 'email' && email != null) {
+        requestData["email"] = email;
+      } else if (type == 'mobile' && mobile != null) {
+        // Adjust "mobile" key if your API expects something else (e.g., "phone")
+        requestData["mobile"] = mobile; 
+      }
+
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint: ApiConstants.sendPaymentLink
+        
+      );
+
+      log("API Response for send payment link: ${response.data}");
+
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        return true;
+      } else {
+        handleExceptionMessage(response: response, apiName: "send payment link");
+        return false;
+      }
+    } on DioException catch (error) {
+      handleExceptionMessage(response: error.response, apiName: "send payment link", error: error);
+      return false;
     }
   }
 

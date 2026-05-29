@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
@@ -23,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart'; // Required for Offline Storage
 import 'package:intl/intl.dart'; // Required for DateFormat
+import 'package:path/path.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 // --- OFFLINE HELPER FUNCTIONS ---
@@ -320,108 +319,12 @@ void showOfflineInfoDialog(BuildContext context, String orderId) {
     },
   );
 }
-// void showOfflineInfoDialog(BuildContext context, String orderId) {
-//   showDialog(
-//     context: context,
-//     builder: (ctx) {
-//       return StatefulBuilder(
-//         builder: (context, setState) {
-//           // Fetch the list every time the builder runs (allowing delete updates)
-//           var paymentList = getOfflinePaymentsList(orderId);
 
-//           // If user deleted the last item, close the dialog automatically
-//           if (paymentList.isEmpty) {
-//             WidgetsBinding.instance.addPostFrameCallback((_) {
-//               Navigator.pop(ctx);
-//               // Optional: Trigger a refresh on the main controller if needed
-//               // Get.find<PendingPaymentController>().update();
-//             });
-//             return const SizedBox();
-//           }
-
-//           return AlertDialog(
-//             title: const Row(
-//               children: [
-//                 Icon(Icons.wifi_off, color: Colors.orange),
-//                 SizedBox(width: 10),
-//                 Text("Offline Queue", style: TextStyle(fontSize: 16)),
-//               ],
-//             ),
-//             content: SingleChildScrollView(
-//               scrollDirection: Axis.horizontal,
-//               child: SingleChildScrollView(
-//                 scrollDirection: Axis.vertical,
-//                 child: DataTable(
-//                   columnSpacing: 20,
-//                   headingRowColor: MaterialStateProperty.all(Colors.grey.shade100),
-//                   columns: const [
-//                     DataColumn(label: Text('Amount',  style: TextStyle(fontWeight: FontWeight.bold))),
-//                     DataColumn(label: Text('Type',    style: TextStyle(fontWeight: FontWeight.bold))),
-//                     DataColumn(label: Text('Time',    style: TextStyle(fontWeight: FontWeight.bold))),
-//                     DataColumn(label: Text('Action',  style: TextStyle(fontWeight: FontWeight.bold))),
-//                   ],
-//                   rows: paymentList.map<DataRow>((item) {
-//                     final data        = item['data'];
-//                     final payload     = data['payload'];
-//                     final hiveKey     = item['hive_key'];
-//                     final uniqueKeyStr = item['unique_id'];
-//                     final timestamp   = DateTime.parse(data['timestamp']);
-//                     final formattedTime = DateFormat('dd MMM, hh:mm a').format(timestamp);
-
-//                     String paymentType = payload['payment_type'] == '0' ? 'Cash'
-//                                        : payload['payment_type'] == '1' ? 'Cheque'
-//                                        : 'Bank';
-
-//                     return DataRow(
-//                       key: ValueKey(uniqueKeyStr),
-//                       cells: [
-//                         DataCell(
-//                           Text("${addCurrencySymbol()}${payload['recieved_amount']}"),
-//                         ),
-//                         DataCell(
-//                           Text(paymentType),
-//                         ),
-//                         DataCell(
-//                           Text(formattedTime, style: const TextStyle(fontSize: 12)),
-//                         ),
-//                         DataCell(
-//                           IconButton(
-//                             icon: const Icon(Icons.delete, color: Colors.red),
-//                             onPressed: () async {
-//                               // Delete from Hive
-//                               var box = Hive.box('offlineRequests');
-//                               await box.delete(hiveKey);
-
-//                               // Trigger UI rebuild inside this dialog
-//                               setState(() {});
-//                               Get.back();
-//                             },
-//                           ),
-//                         ),
-//                       ],
-//                     );
-//                   }).toList(),
-//                 ),
-//               ),
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () => Navigator.pop(ctx),
-//                 child: const Text("Close"),
-//               )
-//             ],
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
-
-//
-
-// ---------------------------------
 void pendingPaymentCollectionDialog(
-    BuildContext context, String customerId) async {
+    BuildContext context, String customerId,{
+    String? customerEmail,
+    String? customerMobile,
+}) async {
   final PendingPaymentController controller =
       Get.put(PendingPaymentController());
 
@@ -451,7 +354,8 @@ void pendingPaymentCollectionDialog(
       // Offline and no data in Hive
       showCustomToastDisplay(
           context,
-          "No offline data available. Please connect to the internet once to sync this customer.".tr,
+          "No offline data available. Please connect to the internet once to sync this customer."
+              .tr,
           Colors.red,
           Icons.warning);
     } else {
@@ -668,7 +572,7 @@ void pendingPaymentCollectionDialog(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                 Text("Scan QR to Pay".tr,
+                Text("Scan QR to Pay".tr,
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
@@ -682,8 +586,7 @@ void pendingPaymentCollectionDialog(
                     "Amount: ${addCurrencySymbol()}${totalAmount.toStringAsFixed(2)}",
                     style: const TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
-                 Text(
-                    "Scan with Phone Camera\nGoogle Pay • Apple Pay • Card".tr,
+                Text("Scan with Phone Camera\nGoogle Pay • Apple Pay • Card".tr,
                     textAlign: TextAlign.center),
                 const SizedBox(height: 20),
                 ElevatedButton(
@@ -692,7 +595,7 @@ void pendingPaymentCollectionDialog(
                     Get.back(closeOverlays: true);
                     Get.back();
                   },
-                  child:  Text("Cancel".tr),
+                  child: Text("Cancel".tr),
                 ),
               ],
             ),
@@ -751,10 +654,11 @@ void pendingPaymentCollectionDialog(
           Get.put(PendingPaymentController());
 
       return Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+        insetPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: SizedBox(
-          width:double.infinity,
+          width: double.infinity,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -772,7 +676,7 @@ void pendingPaymentCollectionDialog(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                       Text('Payment'.tr,
+                      Text('Payment'.tr,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -781,18 +685,18 @@ void pendingPaymentCollectionDialog(
                     ],
                   ),
                 ),
-          
+
                 // Pending Items Table
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
-                   width: double.infinity,
+                    width: double.infinity,
                     child: Obx(() => DataTable(
-                         columnSpacing: 15.0, 
+                          columnSpacing: 15.0,
                           dataRowHeight: 30,
                           headingRowHeight: 40,
                           border: TableBorder.all(color: Colors.grey.shade300),
-                          columns:  [
+                          columns: [
                             DataColumn(
                                 label: DialogTableHeaderText(
                                     text: 'Date'.tr, fontSize: 13)),
@@ -821,11 +725,11 @@ void pendingPaymentCollectionDialog(
                               .map<DataRow>((entry) {
                             int index = entry.key;
                             var payment = entry.value;
-                            
+
                             // Check offline status for Info Icon
-                            bool isOfflinePending =
-                                isOfflinePaymentPending(payment.orderId.toString());
-                            
+                            bool isOfflinePending = isOfflinePaymentPending(
+                                payment.orderId.toString());
+
                             return DataRow(cells: [
                               DataCell(
                                 Center(
@@ -835,8 +739,8 @@ void pendingPaymentCollectionDialog(
                                                 .toString()
                                                 .isNotEmpty
                                         ? TimeUtils.formatTimeInZone(
-                                            DateTime.parse(
-                                                payment.orderCreatAt.toString()),
+                                            DateTime.parse(payment.orderCreatAt
+                                                .toString()),
                                             format: 'dd-MM-yyyy'
                                             // Optional: Add a specific format here if needed, like format: 'dd-MM-yyyy'
                                             )
@@ -867,19 +771,20 @@ void pendingPaymentCollectionDialog(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(4.0))),
                                 child: Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 5),
-                                    child: Text(getStatusName(payment.orderStatus).tr,
-                                        style:
-                                            const TextStyle(color: Colors.white))),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: Text(
+                                        getStatusName(payment.orderStatus).tr,
+                                        style: const TextStyle(
+                                            color: Colors.white))),
                               ))),
                               // Payment Status / Info Icon
                               DataCell(Center(
                                 child: isOfflinePending
                                     ? InkWell(
                                         onTap: () {
-                                          showOfflineInfoDialog(
-                                              context, payment.orderId.toString());
+                                          showOfflineInfoDialog(context,
+                                              payment.orderId.toString());
                                         },
                                         child: const Icon(Icons.info,
                                             color: Colors.blue, size: 20),
@@ -907,8 +812,8 @@ void pendingPaymentCollectionDialog(
                               )),
                               DataCell(Center(
                                   child: Padding(
-                                      padding:
-                                          const EdgeInsets.symmetric(vertical: 3.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 3.0),
                                       child: EditablePendingPaymentCell(
                                         initialValue:
                                             payment.pendingAmount.toString(),
@@ -916,7 +821,8 @@ void pendingPaymentCollectionDialog(
                                         orderId: payment.orderId,
                                         orderTotal: payment.orderTotal,
                                         onValueChanged: (newValue, index) {},
-                                        amountEdited: payment.amountEdited,
+                                        amountEdited:
+                                            payment.amountEdited?.toInt(),
                                       )))),
                               DataCell(Center(child: Obx(() {
                                 return Checkbox(
@@ -926,7 +832,8 @@ void pendingPaymentCollectionDialog(
                                     totalBalanceAmount.value =
                                         calculateTotalBalanceAmount();
                                     balanceAmountController.text =
-                                        totalBalanceAmount.value.toStringAsFixed(2);
+                                        totalBalanceAmount.value
+                                            .toStringAsFixed(2);
                                   },
                                 );
                               }))),
@@ -935,7 +842,7 @@ void pendingPaymentCollectionDialog(
                         )),
                   ),
                 ),
-          // const SizedBox(height: 10),
+                // const SizedBox(height: 10),
                 // Payment Input Table
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -944,7 +851,7 @@ void pendingPaymentCollectionDialog(
                     // padding: const EdgeInsets.all(8.0),
                     child: DataTable(
                       columnSpacing: 15.0,
-                      columns:  [
+                      columns: [
                         DataColumn(
                             label: DialogTableHeaderText(
                                 text: 'Payment Method'.tr,
@@ -972,12 +879,19 @@ void pendingPaymentCollectionDialog(
                           // Dropdown
                           DataCell(DropdownButtonFormField<String>(
                             value: selectedPaymentMethod.value,
-                            items: ['Cash', 'Cheque', 'Bank Transfer', 'QR Payment']
-                                .map((e) =>
-                                    DropdownMenuItem(value: e, child: Text(e.tr)))
+                            items: [
+                              'Cash',
+                              'Cheque',
+                              'Bank Transfer',
+                              'QR Payment',
+                              'Payment Link'
+                            ]
+                                .map((e) => DropdownMenuItem(
+                                    value: e, child: Text(e.tr)))
                                 .toList(),
                             onChanged: (val) {
-                              if (val != null) selectedPaymentMethod.value = val;
+                              if (val != null)
+                                selectedPaymentMethod.value = val;
                             },
                           )),
                           // Balance
@@ -996,8 +910,9 @@ void pendingPaymentCollectionDialog(
                                                 color: Colors.grey.shade300),
                                             borderRadius:
                                                 BorderRadius.circular(10.0)),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0))))
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 8.0))))
                           ])),
                           // Received
                           DataCell(Row(children: [
@@ -1015,8 +930,9 @@ void pendingPaymentCollectionDialog(
                                                 color: Colors.grey.shade300),
                                             borderRadius:
                                                 BorderRadius.circular(10.0)),
-                                        contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0))))
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 8.0))))
                           ])),
                           // Remarks
                           DataCell(TextField(
@@ -1026,9 +942,10 @@ void pendingPaymentCollectionDialog(
                                   filled: true,
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.grey.shade300),
-                                      borderRadius: BorderRadius.circular(10.0)),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade300),
+                                      borderRadius:
+                                          BorderRadius.circular(10.0)),
                                   contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 8.0)))),
                           // Submit Button
@@ -1036,20 +953,24 @@ void pendingPaymentCollectionDialog(
                               child: ElevatedButton(
                             onPressed: () async {
                               // Validation
-                              double enteredAmount =
-                                  double.tryParse(receivedAmountController.text) ??
-                                      0;
+                              double enteredAmount = double.tryParse(
+                                      receivedAmountController.text) ??
+                                  0;
                               if (enteredAmount <= 0) {
-                                showCustomToastDisplay(context,
-                                    "Enter valid amount".tr, Colors.red, Icons.error);
+                                showCustomToastDisplay(
+                                    context,
+                                    "Enter valid amount".tr,
+                                    Colors.red,
+                                    Icons.error);
                                 return;
                               }
-                            
-                              List<IndividualPendingData> selectedItemsList = [];
+
+                              List<IndividualPendingData> selectedItemsList =
+                                  [];
                               for (int i = 0; i < selectedItems.length; i++) {
                                 if (selectedItems[i])
-                                  selectedItemsList
-                                      .add(controller.individualPendingPayments[i]);
+                                  selectedItemsList.add(
+                                      controller.individualPendingPayments[i]);
                               }
                               if (selectedItemsList.isEmpty) {
                                 showCustomToastDisplay(
@@ -1059,23 +980,45 @@ void pendingPaymentCollectionDialog(
                                     Icons.error);
                                 return;
                               }
-                            
+
                               // Check Connectivity for processing
                               bool isOnlineForSubmit =
                                   await ConnectivityService().isOnline();
-                            
+                              if (selectedPaymentMethod.value ==
+                                  'Payment Link') {
+                                if (!isOnlineForSubmit) {
+                                  showCustomToastDisplay(
+                                      context,
+                                      "Internet required to create a payment link."
+                                          .tr,
+                                      Colors.red,
+                                      Icons.wifi_off);
+                                  return;
+                                }
+
+                                await _createAndSharePaymentLink(
+                                    context, enteredAmount, selectedItemsList,
+                                    remarks: remarksController.text,
+                                    customerId: customerId,
+                                    customerEmail: customerEmail ?? "",   // Pass the email
+                                    customerMobile: customerMobile ?? "",
+                                    );
+                                return;
+                              }
+
                               if (selectedPaymentMethod.value == 'QR Payment') {
                                 if (!isOnlineForSubmit) {
                                   showDialog(
                                     context: context,
                                     builder: (ctx) => AlertDialog(
                                       title: const Text("Online Required"),
-                                      content:  Text(
-                                          "QR Payments can only be processed while online.".tr),
+                                      content: Text(
+                                          "QR Payments can only be processed while online."
+                                              .tr),
                                       actions: [
                                         TextButton(
                                             onPressed: () => Navigator.pop(ctx),
-                                            child:  Text("OK".tr))
+                                            child: Text("OK".tr))
                                       ],
                                     ),
                                   );
@@ -1084,12 +1027,13 @@ void pendingPaymentCollectionDialog(
                                 await _startOnlinePayment(
                                     enteredAmount, selectedItemsList,
                                     remarks: remarksController.text);
-                                await orderController.loadOrderData(chartIndex: 0);
+                                await orderController.loadOrderData(
+                                    chartIndex: 0);
                               } else {
                                 // Offline/Online Processing (Cash/Cheque/Bank)
                                 await processPayments(
                                     selectedItemsList, enteredAmount);
-                            
+
                                 if (isOnlineForSubmit) {
                                   Navigator.pop(context);
                                   showCustomToastDisplay(
@@ -1105,13 +1049,15 @@ void pendingPaymentCollectionDialog(
                                     context: context,
                                     barrierDismissible: false,
                                     builder: (ctx) => AlertDialog(
-                                      title:  Row(children: [
-                                        Icon(Icons.wifi_off, color: Colors.orange),
+                                      title: Row(children: [
+                                        Icon(Icons.wifi_off,
+                                            color: Colors.orange),
                                         SizedBox(width: 10),
                                         Text("Payment Queue".tr)
                                       ]),
-                                      content:  Text(
-                                          "You are offline. The payment has been saved locally and will complete automatically when you go online.".tr),
+                                      content: Text(
+                                          "You are offline. The payment has been saved locally and will complete automatically when you go online."
+                                              .tr),
                                       actions: [
                                         TextButton(
                                             onPressed: () {
@@ -1120,7 +1066,7 @@ void pendingPaymentCollectionDialog(
                                               controller
                                                   .refresh(); // Refresh UI to show info icons
                                             },
-                                            child:  Text("OK".tr))
+                                            child: Text("OK".tr))
                                       ],
                                     ),
                                   );
@@ -1151,4 +1097,365 @@ void pendingPaymentCollectionDialog(
       );
     },
   );
+}
+Future<void> _createAndSharePaymentLink(
+    BuildContext context,
+    double amount,
+    List<IndividualPendingData> selectedItemsList, {
+    required String remarks,
+    required String customerId,
+    required String customerEmail,  // --- NEW PARAMETER ---
+    required String customerMobile, // --- NEW PARAMETER ---
+  }) async {
+    if (amount <= 0 || selectedItemsList.isEmpty) return;
+
+    final List<String> orderIds = selectedItemsList.map((e) => e.orderId.toString()).toList();
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final response = await ApiWorker().createPaymentLink(
+        customerId: customerId,
+        orderIds: orderIds,
+        amount: amount.toString(), 
+        remarks: remarks,
+      );
+
+      Navigator.pop(context); // Close loading indicator
+
+      if (response.status == true && response.url != null && response.token != null) {
+        
+        // --- USE DYNAMIC DATA HERE ---
+        _showSharePaymentLinkDialog(
+           context, 
+           response.url!, 
+           customerEmail, 
+           customerMobile,
+           response.token!
+        );
+        
+      } else {
+        showCustomToastDisplay(context, response.message ?? "Failed to generate link".tr, Colors.red, Icons.error);
+      }
+      
+    } catch (error) {
+      Navigator.pop(context); 
+      showCustomToastDisplay(context, "Error creating payment link".tr, Colors.red, Icons.close);
+    }
+}
+
+// Future<void> _createAndSharePaymentLink(
+//   BuildContext context, // <-- Add this parameter
+//   double amount,
+//   List<IndividualPendingData> selectedItemsList, {
+//   required String remarks,
+//   required String customerId,
+//   required String customerEmail,  // --- NEW PARAMETER ---
+//   required String customerMobile
+// }) async {
+//   if (amount <= 0 || selectedItemsList.isEmpty) return;
+
+//   final List<String> orderIds =
+//       selectedItemsList.map((e) => e.orderId.toString()).toList();
+
+//   try {
+//     // Show Loading Dialog
+//     showDialog(
+//       context: context, // Now uses the passed context
+//       barrierDismissible: false,
+//       builder: (_) => const Center(child: CircularProgressIndicator()),
+//     );
+
+//     // Call the API
+//     final response = await ApiWorker().createPaymentLink(
+//       customerId: customerId,
+//       orderIds: orderIds,
+//       amount: amount.toString(),
+//       remarks: remarks,
+//     );
+
+//     Navigator.pop(context); // Close loading indicator
+
+//     if (response.status == true && response.url != null) {
+//       String custEmail = "aneesh@jrboonsolutions.com";
+//       String custMobile = "8995566623";
+
+//       // Show the Share Dialog
+//       _showSharePaymentLinkDialog(
+//           context, response.url!, custEmail, custMobile);
+//     } else {
+//       showCustomToastDisplay(
+//           context,
+//           response.message ?? "Failed to generate link".tr,
+//           Colors.red,
+//           Icons.error);
+//     }
+//   } catch (error) {
+//     Navigator.pop(context);
+//     showCustomToastDisplay(
+//         context, "Error creating payment link".tr, Colors.red, Icons.close);
+//   }
+// }
+
+void _showSharePaymentLinkDialog(
+    BuildContext context, String url, String email, String mobile,String token) {
+  bool isEmailSelected = true;
+  bool isMobileSelected = true;
+  bool isSending = false;
+  TextEditingController emailController = TextEditingController(text: email);
+  TextEditingController mobileController = TextEditingController(text: mobile);
+
+  showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return Dialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            backgroundColor: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF335098), // Custom Blue from screenshot
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Share Payment Link",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+                // Body
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      // Email Box
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Checkbox(
+                              value: isEmailSelected,
+                              activeColor: const Color(0xFF335098),
+                              side: BorderSide(
+                                  color: Colors.grey.shade400, width: 1.5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4)),
+                              onChanged: (val) =>
+                                  setState(() => isEmailSelected = val ?? true),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Customer Email",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF4A5568),
+                                        fontSize: 13),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextField(
+                                    controller: emailController,
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      filled: true,
+                                      fillColor: const Color(0xFFF7F8FA),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 12),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Mobile Box
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Checkbox(
+                              value: isMobileSelected,
+                              activeColor: const Color(0xFF335098),
+                              side: BorderSide(
+                                  color: Colors.grey.shade400, width: 1.5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4)),
+                              onChanged: (val) => setState(
+                                  () => isMobileSelected = val ?? true),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Customer Mobile",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF4A5568),
+                                        fontSize: 13),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextField(
+                                    controller: mobileController,
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      filled: true,
+                                      fillColor: const Color(0xFFF7F8FA),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 12),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      // Send Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF335098),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            elevation: 0,
+                          ),
+                       onPressed: isSending ? null : () async {
+                        // 1. Validate Selection
+                        if (!isEmailSelected && !isMobileSelected) {
+                          showCustomToastDisplay(context, "Please select at least one method to share.".tr, Colors.red, Icons.warning);
+                          return;
+                        }
+
+                        // 2. Start Loading State
+                        setState(() => isSending = true);
+
+                        bool allSuccessful = true;
+
+                        // 3. Process Email Call
+                        if (isEmailSelected && emailController.text.isNotEmpty) {
+                          bool emailSuccess = await ApiWorker().sendPaymentLink(
+                            token: token,
+                            type: 'email',
+                            email: emailController.text,
+                          );
+                          if (!emailSuccess) allSuccessful = false;
+                        }
+
+                        // 4. Process Mobile Call
+                        if (isMobileSelected && mobileController.text.isNotEmpty) {
+                          bool mobileSuccess = await ApiWorker().sendPaymentLink(
+                            token: token,
+                            type: 'mobile', // Adjust this string if your backend expects 'sms' or 'whatsapp'
+                            mobile: mobileController.text,
+                          );
+                          if (!mobileSuccess) allSuccessful = false;
+                        }
+
+                        // 5. End Loading State
+                        setState(() => isSending = false);
+
+                        // 6. Handle Final UI Response
+                        if (allSuccessful) {
+                          if (!context.mounted) return;
+                         
+                          Navigator.pop(context); // Close Dialog
+                          showCustomToastDisplay(context, "Payment link shared successfully!".tr, Colors.green, Icons.check);
+                        } else {
+                          if (!context.mounted) return;
+                         
+                          Navigator.pop(context); // Close Dialog
+                          showCustomToastDisplay(context, "Payment link shared successfully!".tr, Colors.green, Icons.check);
+                          Get.back(closeOverlays: true); // Close Pending Payment Dialog
+                        }
+                      },
+                          child: isSending 
+                          ? const SizedBox(
+                              height: 20, 
+                              width: 20, 
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            )
+                          : const Text(
+                              "Send Payment Link", 
+                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)
+                            ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+      });
 }

@@ -136,4 +136,6 @@ mixin class ApiConstants {
   static const String visitReport = "visit_report";
  static const String getEvents = "get_events";
  static const String config = "config";
+ static const String createPaymentLink = "create-payment-link";
+ static const String sendPaymentLink = "send-payment-link";
 }

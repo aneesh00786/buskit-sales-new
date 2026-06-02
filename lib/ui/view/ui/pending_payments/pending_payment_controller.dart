@@ -26,6 +26,7 @@ class PendingPaymentController extends GetxController {
   RxDouble nearlyDueAmount = 0.0.obs;
   RxDouble dueAmount = 0.0.obs;
   RxDouble overdueAmount = 0.0.obs;
+  PaginationModel paginationModel = PaginationModel();
 
   RxList<IndividualPendingData> individualPendingPayments =
       <IndividualPendingData>[].obs;
@@ -69,7 +70,7 @@ class PendingPaymentController extends GetxController {
       var data = await _apiWorker.getPendingPaymentData(
           chartIndex: chartIndex,
           searchModel: searchModel,
-          paginationModel: PaginationModel(),
+          paginationModel:paginationModel,
           salesmanId: salesmanId,
           compId: compId,
           isLogin: isLogin);

@@ -104,6 +104,7 @@ class CustomerData {
   num receivedAmount;
   String invoiceId;
   String mobileno;
+  int hasActiveLink;
 
   CustomerData({
     required this.imageUrl,
@@ -121,6 +122,7 @@ class CustomerData {
     required this.receivedAmount,
     required this.invoiceId,
     this.mobileno = '',
+    this.hasActiveLink = 0,
   });
 
   factory CustomerData.fromJson(Map<String, dynamic> json) => CustomerData(
@@ -141,6 +143,7 @@ class CustomerData {
         invoiceId: json["invoice_id"],
         receivedAmount: num.tryParse(json["received_amount"].toString()) ?? 0,
         mobileno: json["mobileno"] ?? '',
+        hasActiveLink: json["has_active_link"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -159,6 +162,7 @@ class CustomerData {
         "received_amount": receivedAmount,
         "invoice_id": invoiceId,
         "mobileno": mobileno,
+        "has_active_link": hasActiveLink,
       };
 }
 

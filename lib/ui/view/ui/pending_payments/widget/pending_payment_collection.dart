@@ -1208,7 +1208,8 @@ void _showSharePaymentLinkDialog(
   bool isSending = false;
   TextEditingController emailController = TextEditingController(text: email);
   TextEditingController mobileController = TextEditingController(text: mobile);
-
+  PendingPaymentController orderController =
+        Get.put(PendingPaymentController());
   showDialog(
       context: context,
       builder: (context) {
@@ -1430,11 +1431,15 @@ void _showSharePaymentLinkDialog(
                          
                           Navigator.pop(context); // Close Dialog
                           showCustomToastDisplay(context, "Payment link shared successfully!".tr, Colors.green, Icons.check);
+                          await orderController.loadOrderData(
+                                      chartIndex: 0);
                         } else {
                           if (!context.mounted) return;
                          
                           Navigator.pop(context); // Close Dialog
                           showCustomToastDisplay(context, "Payment link shared successfully!".tr, Colors.green, Icons.check);
+                          await orderController.loadOrderData(
+                                      chartIndex: 0);
                           Get.back(closeOverlays: true); // Close Pending Payment Dialog
                         }
                       },

@@ -25,9 +25,18 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 void paymentCollectionDialog(
-    BuildContext context, List<RecentOrder> selectedOrders) {
-  List<num?> newOrderTotal =
-      selectedOrders.map((order) => order.receivedAmount).toList();
+  BuildContext context,
+  List<RecentOrder> selectedOrders,
+  String customerId, {
+  String? customerEmail,
+  String? customerMobile,
+}) {
+  List<num?> newOrderTotal = selectedOrders.map((order) {
+    return (order.receivableAmount ??
+        (order.orderTotal - order.receivedAmount));
+  }).toList();
+  // List<num?> newOrderTotal =
+  //     selectedOrders.map((order) => order.receivedAmount).toList();
   double calculateTotalBalanceAmount() {
     return newOrderTotal.fold(0, (sum, value) => sum + (value ?? 0));
   }
@@ -38,8 +47,11 @@ void paymentCollectionDialog(
   );
   late RxString selectedPaymentMethod = 'Cash'.obs;
   // String selectedPaymentMethod = 'Cash';
-  final receivedAmountController = TextEditingController();
-   final remarksController = TextEditingController();
+  // final receivedAmountController = TextEditingController();
+  final receivedAmountController = TextEditingController(
+    text: totalBalanceAmount.toStringAsFixed(2),
+  );
+  final remarksController = TextEditingController();
 
   void processPayments(
       List<IndividualPendingData> selectedItems, double enteredAmount) {
@@ -297,6 +309,378 @@ void paymentCollectionDialog(
     }
   }
 
+  void _showSharePaymentLinkDialog(BuildContext context, String url,
+      String email, String mobile, String token, String customerId,
+      {required List<IndividualPendingData> selectedOrders}) {
+    bool isEmailSelected = true;
+    bool isMobileSelected = true;
+    bool isSending = false;
+
+    TextEditingController emailController = TextEditingController(text: email);
+    TextEditingController mobileController =
+        TextEditingController(text: mobile);
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+              backgroundColor: Colors.white,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF335098),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Share Payment Link",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500)),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        // --- EMAIL CHECKBOX ---
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Checkbox(
+                                value: isEmailSelected,
+                                activeColor: const Color(0xFF335098),
+                                onChanged: (val) => setState(
+                                    () => isEmailSelected = val ?? true),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("Customer Email",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF4A5568),
+                                            fontSize: 13)),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                        controller: emailController,
+                                        decoration: InputDecoration(
+                                            isDense: true,
+                                            filled: true,
+                                            fillColor: const Color(0xFFF7F8FA),
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(6)))),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // --- MOBILE CHECKBOX ---
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Checkbox(
+                                value: isMobileSelected,
+                                activeColor: const Color(0xFF335098),
+                                onChanged: (val) => setState(
+                                    () => isMobileSelected = val ?? true),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("Customer Mobile",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF4A5568),
+                                            fontSize: 13)),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                        controller: mobileController,
+                                        decoration: InputDecoration(
+                                            isDense: true,
+                                            filled: true,
+                                            fillColor: const Color(0xFFF7F8FA),
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(6)))),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // --- SUBMIT BUTTON ---
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF335098),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                                elevation: 0),
+                            onPressed: isSending
+                                ? null
+                                : () async {
+                                    if (!isEmailSelected && !isMobileSelected) {
+                                      showCustomToastDisplay(
+                                          context,
+                                          "Please select at least one method to share."
+                                              .tr,
+                                          Colors.red,
+                                          Icons.warning);
+                                      return;
+                                    }
+                                    setState(() => isSending = true);
+                                    bool allSuccessful = true;
+                                    if (isEmailSelected &&
+                                        emailController.text.isNotEmpty) {
+                                      bool emailSuccess = await ApiWorker()
+                                          .sendPaymentLink(
+                                              token: token,
+                                              type: 'email',
+                                              email: emailController.text);
+                                      if (!emailSuccess) allSuccessful = false;
+                                    }
+                                    if (isMobileSelected &&
+                                        mobileController.text.isNotEmpty) {
+                                      bool mobileSuccess = await ApiWorker()
+                                          .sendPaymentLink(
+                                              token: token,
+                                              type: 'mobile',
+                                              mobile: mobileController.text);
+                                      if (!mobileSuccess) allSuccessful = false;
+                                    }
+                                    setState(() => isSending = false);
+                                    if (allSuccessful) {
+                                      if (!context.mounted) return;
+
+                                      final customerProvider =
+                                          Provider.of<CustomersProvider>(
+                                              context,
+                                              listen: false);
+                                      final pendingController =
+                                          Get.put(PendingPaymentController());
+
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+
+                                      showCustomToastDisplay(
+                                          context,
+                                          "Payment link shared successfully!"
+                                              .tr,
+                                          Colors.green,
+                                          Icons.check);
+
+                                      customerProvider
+                                          .fetchCustomerDashboardData(
+                                              customerId);
+                                      customerProvider
+                                          .fetchCustomerDashboardRevenueData(
+                                              customerId);
+                                      customerProvider
+                                          .fetchCustomerDashboardDataSalseData(
+                                              customerId);
+                                      customerProvider
+                                          .fetchCustomersDataDash(customerId);
+                                      customerProvider
+                                          .fetchCustomerDashboardCountData(
+                                              customerId);
+
+                                      pendingController.loadOrderData(
+                                          chartIndex: 0);
+                                    } else {
+                                      if (!context.mounted) return;
+
+                                      Navigator.pop(context);
+                                      showCustomToastDisplay(
+                                          context,
+                                          "Payment link shared successfully!"
+                                              .tr,
+                                          Colors.green,
+                                          Icons.check);
+                                      if (!context.mounted) return;
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+
+                                      Get.back(closeOverlays: true);
+                                    }
+                                  },
+                            child: isSending
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2))
+                                : const Text("Send Payment Link",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600)),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          });
+        });
+  }
+
+  Future<void> createAndSharePaymentLink(
+    BuildContext context,
+    double amount,
+    List<IndividualPendingData> selectedItemsList, {
+    required String remarks,
+    required String customerId,
+    required String customerEmail,
+    required String customerMobile,
+  }) async {
+    if (amount <= 0 || selectedItemsList.isEmpty) return;
+
+    final List<String> orderIds =
+        selectedItemsList.map((e) => e.orderId.toString()).toList();
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final response = await ApiWorker().createPaymentLink(
+        customerId: customerId,
+        orderIds: orderIds,
+        amount: amount.toString(),
+        remarks: remarks,
+      );
+
+      Navigator.pop(context); // Close loading indicator
+
+      if (response.status == true &&
+          response.url != null &&
+          response.token != null) {
+        _showSharePaymentLinkDialog(context, response.url!, customerEmail,
+            customerMobile, response.token!, customerId,
+            selectedOrders: selectedItemsList);
+      } else {
+        showCustomToastDisplay(
+            context,
+            response.message ?? "Failed to generate link".tr,
+            Colors.red,
+            Icons.error);
+      }
+    } catch (error) {
+      if (context.mounted) Navigator.pop(context);
+      showCustomToastDisplay(
+          context, "Error creating payment link".tr, Colors.red, Icons.close);
+    }
+  }
+
+  Future<void> handleFormSubmit() async {
+    double enteredAmount = double.tryParse(receivedAmountController.text) ?? 0;
+
+    if (enteredAmount <= 0) {
+      showCustomToastDisplay(
+          context, "Enter valid amount".tr, Colors.red, Icons.error);
+      return;
+    }
+
+    // Convert RecentOrder → IndividualPendingData
+    List<IndividualPendingData> selectedItemsList = selectedOrders.map((order) {
+      return IndividualPendingData(
+        orderId: order.orderId,
+        orderTotal: order.orderTotal?.toDouble() ?? 0.0,
+        receivedAmount: 0.0,
+        receivableAmount: order.orderTotal?.toInt() ?? 0,
+        pendingAmount: order.orderTotal?.toInt() ?? 0,
+        paymentType: order.paymentType,
+        creditPeriod: order.creditPeriod ?? 0,
+        orderCreatAt: DateTime.now(),
+        orderStatus: order.orderStatus ?? 0,
+        paymentStatus: order.paymentStatus ?? 0,
+        customerId: order.customerId ?? "0",
+        invoiceId: order.invoiceId ?? "",
+        receivedAmountDate: null,
+        amountEdited: 0,
+      );
+    }).toList();
+
+    if (selectedItemsList.isEmpty) {
+      showCustomToastDisplay(
+          context, "No orders to process".tr, Colors.red, Icons.error);
+      return;
+    }
+
+    if (selectedPaymentMethod.value == 'Payment Link') {
+      bool isOnline = true;
+
+      await createAndSharePaymentLink(
+        context,
+        enteredAmount,
+        selectedItemsList,
+        remarks: remarksController.text,
+        customerId: customerId, // from function params
+        customerEmail: customerEmail ?? "",
+        customerMobile: customerMobile ?? "",
+      );
+      return;
+    }
+
+    if (selectedPaymentMethod.value == 'QR Payment') {
+      await _startOnlinePayment(
+        enteredAmount,
+        selectedItemsList,
+        remarks: remarksController.text,
+      );
+    } else {
+      processPayments(selectedItemsList, enteredAmount);
+      Navigator.pop(context);
+      showCustomToastDisplay(
+          context, "Payment submitted".tr, Colors.green, Icons.check);
+    }
+  }
 
   showDialog(
     context: context,
@@ -354,13 +738,15 @@ void paymentCollectionDialog(
                               thumbVisibility: true,
                               trackVisibility: true,
                               child: Container(
-                                width: MediaQuery.of( context).size.width * 0.89,
+                                width: MediaQuery.of(context).size.width * 0.89,
                                 child: Padding(
-                                  padding: const EdgeInsets.only(left: 5,right: 10),
+                                  padding:
+                                      const EdgeInsets.only(left: 5, right: 10),
                                   child: DataTable(
                                     dataRowHeight: 30,
                                     headingRowHeight: 40,
-                                    columnSpacing: getResponsiveColumnSpacing(context),
+                                    columnSpacing:
+                                        getResponsiveColumnSpacing(context),
                                     // columnSpacing: 30,
                                     border: TableBorder.all(
                                         color: Colors.grey.shade300),
@@ -402,14 +788,22 @@ void paymentCollectionDialog(
                                         ),
                                       ),
                                     ],
-                                    rows:
-                                        selectedOrders.asMap().entries.map((entry) {
+                                    rows: selectedOrders
+                                        .asMap()
+                                        .entries
+                                        .map((entry) {
                                       int index = entry.key;
                                       RecentOrder order = entry.value;
+                                      double orderBalance =
+                                          (order.receivableAmount ??
+                                                  (order.orderTotal -
+                                                      order.receivedAmount))
+                                              .toDouble();
                                       return DataRow(cells: [
                                         DataCell(Center(
-                                            child: Text(getFormattedOrderCreatAt(
-                                                order.orderCreatAt)))),
+                                            child: Text(
+                                                getFormattedOrderCreatAt(
+                                                    order.orderCreatAt)))),
                                         DataCell(Center(
                                             child: InkWell(
                                           onTap: () {
@@ -428,8 +822,8 @@ void paymentCollectionDialog(
                                           ),
                                         ))),
                                         DataCell(Center(
-                                            child: Text(
-                                                formatAmount(order.orderTotal)))),
+                                            child: Text(formatAmount(
+                                                order.orderTotal)))),
                                         DataCell(Center(
                                           child: Container(
                                             decoration: const BoxDecoration(
@@ -439,11 +833,13 @@ void paymentCollectionDialog(
                                                   Radius.circular(4.0)),
                                             ),
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 5,
                                               ),
                                               child: Text(
-                                                getStatusName(order.orderStatus).tr,
+                                                getStatusName(order.orderStatus)
+                                                    .tr,
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                 ),
@@ -456,18 +852,24 @@ void paymentCollectionDialog(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 3.0),
                                             child: EditableDataCell(
-                                              initialValue:
-                                                  order.receivedAmount.toString(),
+                                              initialValue: orderBalance
+                                                  .toStringAsFixed(2),
+                                              // order.receivedAmount
+                                              //     .toString(),
                                               index: index, // Pass index
                                               orderId: order.orderId,
                                               orderTotal: order.orderTotal,
-                                              onValueChanged: (newValue, index) {
+                                              onValueChanged:
+                                                  (newValue, index) {
                                                 // setState(() {
                                                 newOrderTotal[index] =
                                                     int.tryParse(newValue);
                                                 totalBalanceAmount =
                                                     calculateTotalBalanceAmount();
                                                 balanceAmountController.text =
+                                                    totalBalanceAmount
+                                                        .toStringAsFixed(2);
+                                                receivedAmountController.text =
                                                     totalBalanceAmount
                                                         .toStringAsFixed(2);
                                                 //  });
@@ -484,13 +886,15 @@ void paymentCollectionDialog(
                                                     : Colors.green,
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                  color: order.paymentStatus == 0
-                                                      ? Colors.red
-                                                      : Colors.green,
+                                                  color:
+                                                      order.paymentStatus == 0
+                                                          ? Colors.red
+                                                          : Colors.green,
                                                 ),
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsets.all(1.0),
+                                                padding:
+                                                    const EdgeInsets.all(1.0),
                                                 child: Icon(
                                                   order.paymentStatus == 0
                                                       ? Icons.close
@@ -560,10 +964,10 @@ void paymentCollectionDialog(
                               cells: [
                                 DataCell(
                                   SizedBox(
-                                    height: 35,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.15,
-                                    child: DropdownButtonFormField<String>(
+                                      height: 35,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.16,
+                                      child: DropdownButtonFormField<String>(
                                         decoration: InputDecoration(
                                           filled: true,
                                           fillColor: Colors.white,
@@ -582,7 +986,8 @@ void paymentCollectionDialog(
                                           'Cash',
                                           'Cheque',
                                           'Bank Transfer',
-                                          'QR Payment', // Added
+                                          'QR Payment',
+                                          'Payment Link'
                                         ]
                                             .map((e) => DropdownMenuItem(
                                                 value: e, child: Text(e)))
@@ -591,8 +996,7 @@ void paymentCollectionDialog(
                                           if (val != null)
                                             selectedPaymentMethod.value = val;
                                         },
-                                      )
-                                  ),
+                                      )),
                                 ),
                                 DataCell(
                                   SizedBox(
@@ -690,86 +1094,9 @@ void paymentCollectionDialog(
                                 ),
                                 DataCell(Center(
                                     child: ElevatedButton(
-                                  onPressed: () async {
-                                    double enteredAmount = double.tryParse(
-                                            receivedAmountController.text) ??
-                                        0;
-
-                                    if (enteredAmount <= 0) {
-                                      showCustomToastDisplay(
-                                          context,
-                                          "Enter valid amount",
-                                          Colors.red,
-                                          Icons.error);
-                                      return;
-                                    }
-
-                                    // CRITICAL FIX: Use selectedOrders directly instead of relying on selectedItems
-                                    // Convert RecentOrder → IndividualPendingData (or mimic the structure needed)
-                                    List<IndividualPendingData>
-                                        selectedItemsList =
-                                        selectedOrders.map((order) {
-                                      return IndividualPendingData(
-                                        orderId: order.orderId,
-                                        orderTotal:
-                                            order.orderTotal?.toDouble() ?? 0.0,
-                                        receivedAmount:
-                                            0.0, // assuming full pending for simplicity
-                                        receivableAmount:
-                                            order.orderTotal?.toInt() ?? 0,
-                                        pendingAmount:
-                                            order.orderTotal?.toInt() ?? 0,
-                                        paymentType: order.paymentType,
-                                        creditPeriod: order.creditPeriod ?? 0,
-                                        orderCreatAt: DateTime.now(),
-                                        orderStatus: order.orderStatus ?? 0,
-                                        paymentStatus: order.paymentStatus ?? 0,
-                                        customerId:
-                                            order.customerId ?? 0.toString(),
-                                        invoiceId: order.invoiceId ?? "",
-                                        receivedAmountDate: null,
-                                        amountEdited: 0,
-                                        // Add other required fields if needed
-                                      );
-                                    }).toList();
-
-                                    if (selectedItemsList.isEmpty) {
-                                      showCustomToastDisplay(
-                                          context,
-                                          "No orders to process",
-                                          Colors.red,
-                                          Icons.error);
-                                      return;
-                                    }
-
-                                    // Now proceed with payment
-                                    if (selectedPaymentMethod.value ==
-                                        'QR Payment') {
-                                      print('online payment selected');
-                                      await _startOnlinePayment(
-                                        enteredAmount,
-                                        selectedItemsList,
-                                        remarks: remarksController.text,
-                                      );
-                                    } else {
-                                      // Process Cash/Cheque/Bank Transfer
-                                      processPayments(
-                                          selectedItemsList, enteredAmount);
-                                      print(
-                                          'enetered amounttt first: $enteredAmount');
-                                      print(
-                                          'payment method: ${selectedPaymentMethod.value}');
-                                      Navigator.pop(context);
-                                      showCustomToastDisplay(
-                                          context,
-                                          "Payment submitted",
-                                          Colors.green,
-                                          Icons.check);
-                                    }
-                                  },
+                                  onPressed: handleFormSubmit,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue,
-                                    // primaryColor.withOpacity(0.2),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10.0)),
@@ -777,13 +1104,12 @@ void paymentCollectionDialog(
                                   child: Obx(() => Text(
                                         selectedPaymentMethod.value ==
                                                 'QR Payment'
-                                            ? 'Pay'
-                                            : 'Submit',
-                                        style: TextStyle(color: Colors.white),
+                                            ? 'Pay'.tr
+                                            : 'Submit'.tr,
+                                        style: const TextStyle(
+                                            color: Colors.white),
                                       )),
-                                )
-                                )
-                                ),
+                                ))),
                               ],
                             ),
                           ],
@@ -822,11 +1148,13 @@ void paymentCollectionDialog(
                                   cells: [
                                     DataCell(
                                       SizedBox(
-                                        height: 35,
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.35,
-                                        child: DropdownButtonFormField<String>(
+                                          height: 35,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.35,
+                                          child:
+                                              DropdownButtonFormField<String>(
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
@@ -846,7 +1174,8 @@ void paymentCollectionDialog(
                                               'Cash',
                                               'Cheque',
                                               'Bank Transfer',
-                                              'QR Payment', // Added
+                                              'QR Payment',
+                                              'Payment Link'
                                             ]
                                                 .map((e) => DropdownMenuItem(
                                                     value: e, child: Text(e)))
@@ -856,8 +1185,7 @@ void paymentCollectionDialog(
                                                 selectedPaymentMethod.value =
                                                     val;
                                             },
-                                          )
-                                      ),
+                                          )),
                                     ),
                                     DataCell(
                                       SizedBox(
@@ -984,90 +1312,9 @@ void paymentCollectionDialog(
                                     ),
                                     DataCell(Center(
                                         child: ElevatedButton(
-                                      onPressed: () async {
-                                        double enteredAmount = double.tryParse(
-                                                receivedAmountController
-                                                    .text) ??
-                                            0;
-
-                                        if (enteredAmount <= 0) {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "Enter valid amount",
-                                              Colors.red,
-                                              Icons.error);
-                                          return;
-                                        }
-
-                                        // CRITICAL FIX: Use selectedOrders directly instead of relying on selectedItems
-                                        // Convert RecentOrder → IndividualPendingData (or mimic the structure needed)
-                                        List<IndividualPendingData>
-                                            selectedItemsList =
-                                            selectedOrders.map((order) {
-                                          return IndividualPendingData(
-                                            orderId: order.orderId,
-                                            orderTotal:
-                                                order.orderTotal?.toDouble() ??
-                                                    0.0,
-                                            receivedAmount:
-                                                0.0, // assuming full pending for simplicity
-                                            receivableAmount:
-                                                order.orderTotal?.toInt() ?? 0,
-                                            pendingAmount:
-                                                order.orderTotal?.toInt() ?? 0,
-                                            paymentType: order.paymentType,
-                                            creditPeriod:
-                                                order.creditPeriod ?? 0,
-                                            orderCreatAt: DateTime.now(),
-                                            orderStatus: order.orderStatus ?? 0,
-                                            paymentStatus:
-                                                order.paymentStatus ?? 0,
-                                            customerId: order.customerId ??
-                                                0.toString(),
-                                            invoiceId: order.invoiceId ?? "",
-                                            receivedAmountDate: null,
-                                            amountEdited: 0,
-                                            // Add other required fields if needed
-                                          );
-                                        }).toList();
-
-                                        if (selectedItemsList.isEmpty) {
-                                          showCustomToastDisplay(
-                                              context,
-                                              "No orders to process",
-                                              Colors.red,
-                                              Icons.error);
-                                          return;
-                                        }
-
-                                        // Now proceed with payment
-                                        if (selectedPaymentMethod.value ==
-                                            'QR Payment') {
-                                          print('online payment selected');
-                                          await _startOnlinePayment(
-                                            enteredAmount,
-                                            selectedItemsList,
-                                            remarks: remarksController.text,
-                                          );
-                                        } else {
-                                          // Process Cash/Cheque/Bank Transfer
-                                          processPayments(
-                                              selectedItemsList, enteredAmount);
-                                          print(
-                                              'enetered amounttt first: $enteredAmount');
-                                          print(
-                                              'payment method: ${selectedPaymentMethod.value}');
-                                          Navigator.pop(context);
-                                          showCustomToastDisplay(
-                                              context,
-                                              "Payment submitted",
-                                              Colors.green,
-                                              Icons.check);
-                                        }
-                                      },
+                                      onPressed: handleFormSubmit,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.blue,
-                                        // primaryColor.withOpacity(0.2),
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(10.0)),
@@ -1075,14 +1322,12 @@ void paymentCollectionDialog(
                                       child: Obx(() => Text(
                                             selectedPaymentMethod.value ==
                                                     'QR Payment'
-                                                ? 'Pay'
-                                                : 'Submit',
-                                            style:
-                                                TextStyle(color: Colors.white),
+                                                ? 'Pay'.tr
+                                                : 'Submit'.tr,
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           )),
-                                    )
-                                    )
-                                    )
+                                    )))
                                   ],
                                 ),
                               ],

@@ -4796,7 +4796,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       customer,
                                                       customer
                                                           .orderData.payment,
-                                                      'Payment');
+                                                      'Paymentyy');
                                                 }
                                               },
                                               child: _buildDataCell(

@@ -1632,6 +1632,7 @@ class ApiWorker with ApiConstants {
         'pending_payment_${chartIndex}_${salesmanId ?? ''}_${paginationModel?.currentPage ?? ''}';
     final pendingPaymentBox = Hive.box('pendingPaymentBox');
     try {
+      print('pending payment api called');
       bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
         return localStorage.storedPendingPaymentData(

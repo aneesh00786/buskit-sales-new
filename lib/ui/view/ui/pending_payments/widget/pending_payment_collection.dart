@@ -321,9 +321,10 @@ void showOfflineInfoDialog(BuildContext context, String orderId) {
 }
 
 void pendingPaymentCollectionDialog(
-    BuildContext context, String customerId,{
-    String? customerEmail,
-    String? customerMobile,
+  BuildContext context,
+  String customerId, {
+  String? customerEmail,
+  String? customerMobile,
 }) async {
   final PendingPaymentController controller =
       Get.put(PendingPaymentController());
@@ -997,12 +998,13 @@ void pendingPaymentCollectionDialog(
                                 }
 
                                 await _createAndSharePaymentLink(
-                                    context, enteredAmount, selectedItemsList,
-                                    remarks: remarksController.text,
-                                    customerId: customerId,
-                                    customerEmail: customerEmail ?? "",   // Pass the email
-                                    customerMobile: customerMobile ?? "",
-                                    );
+                                  context, enteredAmount, selectedItemsList,
+                                  remarks: remarksController.text,
+                                  customerId: customerId,
+                                  customerEmail:
+                                      customerEmail ?? "", // Pass the email
+                                  customerMobile: customerMobile ?? "",
+                                );
                                 return;
                               }
 
@@ -1098,118 +1100,65 @@ void pendingPaymentCollectionDialog(
     },
   );
 }
+
 Future<void> _createAndSharePaymentLink(
-    BuildContext context,
-    double amount,
-    List<IndividualPendingData> selectedItemsList, {
-    required String remarks,
-    required String customerId,
-    required String customerEmail,  // --- NEW PARAMETER ---
-    required String customerMobile, // --- NEW PARAMETER ---
-  }) async {
-    if (amount <= 0 || selectedItemsList.isEmpty) return;
+  BuildContext context,
+  double amount,
+  List<IndividualPendingData> selectedItemsList, {
+  required String remarks,
+  required String customerId,
+  required String customerEmail,
+  required String customerMobile,
+}) async {
+  if (amount <= 0 || selectedItemsList.isEmpty) return;
 
-    final List<String> orderIds = selectedItemsList.map((e) => e.orderId.toString()).toList();
+  final List<String> orderIds =
+      selectedItemsList.map((e) => e.orderId.toString()).toList();
 
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const Center(child: CircularProgressIndicator()),
-      );
+  try {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
 
-      final response = await ApiWorker().createPaymentLink(
-        customerId: customerId,
-        orderIds: orderIds,
-        amount: amount.toString(), 
-        remarks: remarks,
-      );
+    final response = await ApiWorker().createPaymentLink(
+      customerId: customerId,
+      orderIds: orderIds,
+      amount: amount.toString(),
+      remarks: remarks,
+    );
 
-      Navigator.pop(context); // Close loading indicator
+    Navigator.pop(context);
 
-      if (response.status == true && response.url != null && response.token != null) {
-        
-        // --- USE DYNAMIC DATA HERE ---
-        _showSharePaymentLinkDialog(
-           context, 
-           response.url!, 
-           customerEmail, 
-           customerMobile,
-           response.token!
-        );
-        
-      } else {
-        showCustomToastDisplay(context, response.message ?? "Failed to generate link".tr, Colors.red, Icons.error);
-      }
-      
-    } catch (error) {
-      Navigator.pop(context); 
-      showCustomToastDisplay(context, "Error creating payment link".tr, Colors.red, Icons.close);
+    if (response.status == true &&
+        response.url != null &&
+        response.token != null) {
+      _showSharePaymentLinkDialog(context, response.url!, customerEmail,
+          customerMobile, response.token!);
+    } else {
+      showCustomToastDisplay(
+          context,
+          response.message ?? "Failed to generate link".tr,
+          Colors.red,
+          Icons.error);
     }
+  } catch (error) {
+    Navigator.pop(context);
+    showCustomToastDisplay(
+        context, "Error creating payment link".tr, Colors.red, Icons.close);
+  }
 }
 
-// Future<void> _createAndSharePaymentLink(
-//   BuildContext context, // <-- Add this parameter
-//   double amount,
-//   List<IndividualPendingData> selectedItemsList, {
-//   required String remarks,
-//   required String customerId,
-//   required String customerEmail,  // --- NEW PARAMETER ---
-//   required String customerMobile
-// }) async {
-//   if (amount <= 0 || selectedItemsList.isEmpty) return;
-
-//   final List<String> orderIds =
-//       selectedItemsList.map((e) => e.orderId.toString()).toList();
-
-//   try {
-//     // Show Loading Dialog
-//     showDialog(
-//       context: context, // Now uses the passed context
-//       barrierDismissible: false,
-//       builder: (_) => const Center(child: CircularProgressIndicator()),
-//     );
-
-//     // Call the API
-//     final response = await ApiWorker().createPaymentLink(
-//       customerId: customerId,
-//       orderIds: orderIds,
-//       amount: amount.toString(),
-//       remarks: remarks,
-//     );
-
-//     Navigator.pop(context); // Close loading indicator
-
-//     if (response.status == true && response.url != null) {
-//       String custEmail = "aneesh@jrboonsolutions.com";
-//       String custMobile = "8995566623";
-
-//       // Show the Share Dialog
-//       _showSharePaymentLinkDialog(
-//           context, response.url!, custEmail, custMobile);
-//     } else {
-//       showCustomToastDisplay(
-//           context,
-//           response.message ?? "Failed to generate link".tr,
-//           Colors.red,
-//           Icons.error);
-//     }
-//   } catch (error) {
-//     Navigator.pop(context);
-//     showCustomToastDisplay(
-//         context, "Error creating payment link".tr, Colors.red, Icons.close);
-//   }
-// }
-
-void _showSharePaymentLinkDialog(
-    BuildContext context, String url, String email, String mobile,String token) {
+void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
+    String mobile, String token) {
   bool isEmailSelected = true;
   bool isMobileSelected = true;
   bool isSending = false;
   TextEditingController emailController = TextEditingController(text: email);
   TextEditingController mobileController = TextEditingController(text: mobile);
   PendingPaymentController orderController =
-        Get.put(PendingPaymentController());
+      Get.put(PendingPaymentController());
   showDialog(
       context: context,
       builder: (context) {
@@ -1390,69 +1339,86 @@ void _showSharePaymentLinkDialog(
                                 borderRadius: BorderRadius.circular(8)),
                             elevation: 0,
                           ),
-                       onPressed: isSending ? null : () async {
-                        // 1. Validate Selection
-                        if (!isEmailSelected && !isMobileSelected) {
-                          showCustomToastDisplay(context, "Please select at least one method to share.".tr, Colors.red, Icons.warning);
-                          return;
-                        }
+                          onPressed: isSending
+                              ? null
+                              : () async {
+                                  if (!isEmailSelected && !isMobileSelected) {
+                                    showCustomToastDisplay(
+                                        context,
+                                        "Please select at least one method to share."
+                                            .tr,
+                                        Colors.red,
+                                        Icons.warning);
+                                    return;
+                                  }
 
-                        // 2. Start Loading State
-                        setState(() => isSending = true);
+                                  setState(() => isSending = true);
 
-                        bool allSuccessful = true;
+                                  bool allSuccessful = true;
 
-                        // 3. Process Email Call
-                        if (isEmailSelected && emailController.text.isNotEmpty) {
-                          bool emailSuccess = await ApiWorker().sendPaymentLink(
-                            token: token,
-                            type: 'email',
-                            email: emailController.text,
-                          );
-                          if (!emailSuccess) allSuccessful = false;
-                        }
+                                  if (isEmailSelected &&
+                                      emailController.text.isNotEmpty) {
+                                    bool emailSuccess =
+                                        await ApiWorker().sendPaymentLink(
+                                      token: token,
+                                      type: 'email',
+                                      email: emailController.text,
+                                    );
+                                    if (!emailSuccess) allSuccessful = false;
+                                  }
 
-                        // 4. Process Mobile Call
-                        if (isMobileSelected && mobileController.text.isNotEmpty) {
-                          bool mobileSuccess = await ApiWorker().sendPaymentLink(
-                            token: token,
-                            type: 'mobile', // Adjust this string if your backend expects 'sms' or 'whatsapp'
-                            mobile: mobileController.text,
-                          );
-                          if (!mobileSuccess) allSuccessful = false;
-                        }
+                                  // 4. Process Mobile Call
+                                  if (isMobileSelected &&
+                                      mobileController.text.isNotEmpty) {
+                                    bool mobileSuccess =
+                                        await ApiWorker().sendPaymentLink(
+                                      token: token,
+                                      type: 'mobile',
+                                      mobile: mobileController.text,
+                                    );
+                                    if (!mobileSuccess) allSuccessful = false;
+                                  }
 
-                        // 5. End Loading State
-                        setState(() => isSending = false);
+                                  setState(() => isSending = false);
 
-                        // 6. Handle Final UI Response
-                        if (allSuccessful) {
-                          if (!context.mounted) return;
-                         
-                          Navigator.pop(context); // Close Dialog
-                          showCustomToastDisplay(context, "Payment link shared successfully!".tr, Colors.green, Icons.check);
-                          await orderController.loadOrderData(
-                                      chartIndex: 0);
-                        } else {
-                          if (!context.mounted) return;
-                         
-                          Navigator.pop(context); // Close Dialog
-                          showCustomToastDisplay(context, "Payment link shared successfully!".tr, Colors.green, Icons.check);
-                          await orderController.loadOrderData(
-                                      chartIndex: 0);
-                          Get.back(closeOverlays: true); // Close Pending Payment Dialog
-                        }
-                      },
-                          child: isSending 
-                          ? const SizedBox(
-                              height: 20, 
-                              width: 20, 
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            )
-                          : const Text(
-                              "Send Payment Link", 
-                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)
-                            ),
+                                  if (allSuccessful) {
+                                    if (!context.mounted) return;
+
+                                    Navigator.pop(context);
+                                    showCustomToastDisplay(
+                                        context,
+                                        "Payment link shared successfully!".tr,
+                                        Colors.green,
+                                        Icons.check);
+                                    await orderController.loadOrderData(
+                                        chartIndex: 0);
+                                  } else {
+                                    if (!context.mounted) return;
+
+                                    Navigator.pop(context);
+                                    showCustomToastDisplay(
+                                        context,
+                                        "Payment link shared successfully!".tr,
+                                        Colors.green,
+                                        Icons.check);
+                                    await orderController.loadOrderData(
+                                        chartIndex: 0);
+                                    Get.back(
+                                        closeOverlays:
+                                            true); // Close Pending Payment Dialog
+                                  }
+                                },
+                          child: isSending
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2))
+                              : const Text("Send Payment Link",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600)),
                         ),
                       )
                     ],

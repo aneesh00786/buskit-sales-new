@@ -40,7 +40,8 @@ Widget buildHeader(
               width: 205,
               child: Column(
                 children: [
-                  Expanded(child: _buildHeaderText("Customer List".tr, fontSize)),
+                  Expanded(
+                      child: _buildHeaderText("Customer List".tr, fontSize)),
                   const SizedBox(
                     height: 8,
                   )
@@ -81,31 +82,33 @@ Widget buildHeader(
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child: _buildHeaderText("Date".tr, fontSize)),
+                                    child:
+                                        _buildHeaderText("Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Due Date".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Due Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 2,
-                                    child: _buildHeaderText("Days".tr, fontSize)),
+                                    child:
+                                        _buildHeaderText("Days".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Amount".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Amount".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Invoice".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Invoice".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 4,
-                                    child:
-                                        _buildHeaderText("Status".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Status".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
@@ -354,9 +357,6 @@ Widget _buildOrderCreatedDate(CustomerData customerData, BuildContext context) {
               format: 'dd-MM-yyyy',
             )
           : 'N/A',
-      // NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
-      //   customerData.orderCreatAt.toString(),
-      // )),
       context,
       maxLines: 1,
     ),
@@ -391,7 +391,6 @@ Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
     ),
   );
 }
-
 
 Widget _buildOrderDays(CustomerData customerData, BuildContext context) {
   DateTime orderCreatedDate = NKDateUtils.formatStringUTCDateTime(
@@ -446,8 +445,9 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                content:
-                    OrderHandlingClass.fromType(customerData.orderStatus).name.tr,
+                content: OrderHandlingClass.fromType(customerData.orderStatus)
+                    .name
+                    .tr,
                 textAlign: TextAlign.center,
                 fontSize: 10,
                 overflow: TextOverflow.ellipsis,
@@ -470,7 +470,6 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-               
               ]
             ],
           ),
@@ -479,6 +478,7 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
     ),
   );
 }
+
 Widget _buildPaymentCollectionButton(
     CustomerData customerData, BuildContext context) {
   final subscriptionController = Get.find<SubscriptionController>();
@@ -493,7 +493,7 @@ Widget _buildPaymentCollectionButton(
           onTap: () {
             if (subscriptionController.appPaymentCollection.value == "true") {
               pendingPaymentCollectionDialog(
-                context, 
+                context,
                 customerData.customerId,
                 customerEmail: customerData.email,
                 customerMobile: customerData.mobileno,
@@ -524,8 +524,7 @@ Widget _buildPaymentCollectionButton(
             ),
           ),
         ),
-        
-        // 2. ---> NEW: Conditionally show the text! <---
+
         if ((customerData.hasActiveLink ?? 0) != 0) ...[
           const SizedBox(height: 4),
           Container(
@@ -536,8 +535,7 @@ Widget _buildPaymentCollectionButton(
             ),
             child: Padding(
               padding: const EdgeInsets.all(3.0),
-              child: const 
-              Text(
+              child: const Text(
                 'Payment Link Sent',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -553,47 +551,6 @@ Widget _buildPaymentCollectionButton(
     ),
   );
 }
-
-// Widget _buildPaymentCollectionButton(
-//     CustomerData customerData, BuildContext context) {
-//   final subscriptionController = Get.find<SubscriptionController>();
-//   return Padding(
-//     padding: const EdgeInsets.symmetric(horizontal: 5),
-//     child: InkResponse(
-//       onTap: () {
-//         if (subscriptionController.appPaymentCollection.value == "true") {
-//           pendingPaymentCollectionDialog(context, customerData.customerId,
-//           customerEmail: customerData.email,
-//           customerMobile: customerData.mobileno,
-//           );
-//         } else {
-//           showUpgradePlanDialog(context);
-//         }
-//       },
-//       child: IntrinsicHeight(
-//         child: Container(
-//           padding: const EdgeInsets.all(8.0),
-//           decoration: BoxDecoration(
-//             color: const Color(0xff5bc0de),
-//             borderRadius: BorderRadius.circular(5),
-//           ),
-//           child:  Center(
-//             child: Text(
-//               'Collect Payment'.tr,
-//               textAlign: TextAlign.center,
-//               style: TextStyle(
-//                 fontSize: 10,
-//                 color: Colors.white,
-//                 fontFamily: 'Poppins_Regular',
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     ),
-//   );
-// }
 
 Widget _buildInvoiceNumber(CustomerData customerData, BuildContext context) {
   return Center(

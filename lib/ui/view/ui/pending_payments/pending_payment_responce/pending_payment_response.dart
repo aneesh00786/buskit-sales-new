@@ -244,9 +244,6 @@ class IndividualPendingData {
   num? receivableAmount;
   final num? amountEdited;
   num? pendingAmount;
-  // int? receivableAmount;
-  // final int? amountEdited;
-  // int? pendingAmount;
 
   IndividualPendingData({
     required this.paymentType,
@@ -279,7 +276,8 @@ class IndividualPendingData {
         orderStatus: json["order_status"] ?? 0,
         paymentStatus: json["payment_status"] ?? 0,
         customerId: json["customer_id"] ?? '',
-        receivableAmount: num.tryParse(json["receivable_amount"].toString()) ?? 0,
+        receivableAmount:
+            num.tryParse(json["receivable_amount"].toString()) ?? 0,
         amountEdited: num.tryParse(json['amount_edited'].toString()) ?? 0,
         pendingAmount: num.tryParse(json['pending_amount'].toString()) ?? 0,
         // receivableAmount: json["receivable_amount"] ?? 0,

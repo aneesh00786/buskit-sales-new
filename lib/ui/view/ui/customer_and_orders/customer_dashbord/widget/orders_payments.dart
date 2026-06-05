@@ -37,12 +37,12 @@ const double totalTableWidth = colDateWidth +
     colSelectWidth;
 
 MyCommnonContainer OrdersPayments(
-    BuildContext context,
-    List<RecentOrder> recentOrders,
-    SubscriptionController subscriptionController,
-    String customerEmail, 
-    String customerMobile,
-    ) {
+  BuildContext context,
+  List<RecentOrder> recentOrders,
+  SubscriptionController subscriptionController,
+  String customerEmail,
+  String customerMobile,
+) {
   return MyCommnonContainer(
     boxShadow: [
       BoxShadow(
@@ -105,9 +105,9 @@ MyCommnonContainer OrdersPayments(
                           paymentCollectionDialog(
                             context,
                             selectedOrders,
-                            currentCustId, 
-                            customerEmail: customerEmail,   // <--- ADD THIS
-                           customerMobile: customerMobile,
+                            currentCustId,
+                            customerEmail: customerEmail, // <--- ADD THIS
+                            customerMobile: customerMobile,
                             // Passes the required Customer ID
                           );
                           // paymentCollectionDialog(context, selectedOrders);
@@ -135,7 +135,8 @@ MyCommnonContainer OrdersPayments(
                   right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
               child: InkWell(
                 onTap: () {
-                  showCustomDialog(context, recentOrders,customerEmail, customerMobile);
+                  showCustomDialog(
+                      context, recentOrders, customerEmail, customerMobile);
                 },
                 child: Container(
                     decoration: BoxDecoration(
@@ -226,12 +227,48 @@ MyCommnonContainer OrdersPayments(
                                               showInvoicePreviewOnline(
                                                   context, order.orderId);
                                             },
-                                            child: MyRegularText(
-                                              color: primaryColor,
-                                              label: order.invoiceId,
-                                              fontSize: fontSize,
-                                              maxlines: 1,
-                                              fontWeight: FontWeight.w600,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                MyRegularText(
+                                                  color: primaryColor,
+                                                  label: order.invoiceId,
+                                                  fontSize: fontSize,
+                                                  maxlines: 1,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                if ((order.hasActiveLink ??
+                                                        0) !=
+                                                    0) ...[
+                                                  const SizedBox(height: 2),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              3),
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              1.0),
+                                                      child: const Text(
+                                                        'Payment Link Sent',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 8,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
                                             ),
                                           ),
                                         ),

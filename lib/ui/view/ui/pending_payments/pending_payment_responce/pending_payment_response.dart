@@ -244,6 +244,7 @@ class IndividualPendingData {
   num? receivableAmount;
   final num? amountEdited;
   num? pendingAmount;
+  int hasActiveLink;
 
   IndividualPendingData({
     required this.paymentType,
@@ -260,6 +261,7 @@ class IndividualPendingData {
     required this.amountEdited,
     required this.invoiceId,
     required this.pendingAmount,
+    this.hasActiveLink = 0,
   });
 
   factory IndividualPendingData.fromJson(Map<String, dynamic> json) =>
@@ -280,10 +282,9 @@ class IndividualPendingData {
             num.tryParse(json["receivable_amount"].toString()) ?? 0,
         amountEdited: num.tryParse(json['amount_edited'].toString()) ?? 0,
         pendingAmount: num.tryParse(json['pending_amount'].toString()) ?? 0,
-        // receivableAmount: json["receivable_amount"] ?? 0,
-        // amountEdited: json['amount_edited'] ?? 0,
-        // pendingAmount: json['pending_amount'] ?? 0,
         invoiceId: json['invoice_id'] ?? '',
+        hasActiveLink: json["has_active_link"] ?? 0,
+        
       );
 
   Map<String, dynamic> toJson() => {
@@ -301,5 +302,6 @@ class IndividualPendingData {
         "amount_edited": amountEdited,
         "pending_amount": pendingAmount,
         "invoice_id": invoiceId,
+        "has_active_link": hasActiveLink,
       };
 }

@@ -749,19 +749,75 @@ void pendingPaymentCollectionDialog(
                                   ),
                                 ),
                               ),
-                              // DataCell(Center(child: Text(getFormattedOrderCreatAt(payment.orderCreatAt)))),
                               DataCell(Center(
                                   child: InkWell(
-                                onTap: () => showInvoicePreviewOnline(
-                                    context, payment.orderId),
-                                child: Text(payment.invoiceId,
-                                    style: TextStyle(
+                                onTap: () async {
+                                  bool isOnline =
+                                      await ConnectivityService().isOnline();
+                                  payment.invoiceId != ""
+                                      ? {
+                                          if (isOnline)
+                                            {
+                                              showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (context) {
+                                                  return InvoicePreview(
+                                                      orderId: payment.orderId);
+                                                },
+                                              )
+                                            }
+                                          else
+                                            {
+                                              showCustomToastDisplay(
+                                                  context,
+                                                  "You are Offline!".tr,
+                                                  red,
+                                                  Icons.warning)
+                                            }
+                                        }
+                                      : null;
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      payment.invoiceId,
+                                      style: const TextStyle(
                                         color: primaryColor,
                                         fontFamily: 'Poppins_Regular',
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 10),
-                                    maxLines: 1),
+                                        fontSize: 10,
+                                      ),
+                                      maxLines: 1,
+                                    ),
+                                    if ((payment.hasActiveLink ?? 0) != 0) ...[
+                                      const SizedBox(height: 2),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius:
+                                              BorderRadius.circular(3),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(1.0),
+                                          child: const Text(
+                                            'Payment Link Sent',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 8,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ))),
+
                               DataCell(Center(
                                   child: Text(formatAmount(payment.orderTotal),
                                       maxLines: 1))),

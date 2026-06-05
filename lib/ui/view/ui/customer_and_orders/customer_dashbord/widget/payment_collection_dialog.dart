@@ -812,13 +812,50 @@ void paymentCollectionDialog(
                                               order.orderId,
                                             );
                                           },
-                                          child: Text(
-                                            order.invoiceId,
-                                            style: TextStyle(
-                                              color: primaryColor,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            maxLines: 1,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                order.invoiceId,
+                                                style: const TextStyle(
+                                                  color: primaryColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 11,
+                                                  
+                                                ),
+                                                maxLines: 1,
+                                              ),
+                                              if ((order.hasActiveLink ?? 0) !=
+                                                  0) ...[
+                                                const SizedBox(height: 2),
+                                                 Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              3),
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              1.0),
+                                                      child: const Text(
+                                                        'Payment Link Sent',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 7,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ],
                                           ),
                                         ))),
                                         DataCell(Center(

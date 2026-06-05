@@ -1741,10 +1741,11 @@ class ApiWorker with ApiConstants {
       
       if (type == 'email' && email != null) {
         requestData["email"] = email;
-      } else if (type == 'mobile' && mobile != null) {
+      } else if (type == 'mobile' || type == 'whatsapp') {
         // Adjust "mobile" key if your API expects something else (e.g., "phone")
-        requestData["mobile"] = mobile; 
+        requestData["mobile"] = mobile!; 
       }
+      print('Request data for sending payment link: $requestData');
 
       final response = await responsePostMethod(
         requestData: requestData,

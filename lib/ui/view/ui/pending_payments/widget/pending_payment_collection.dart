@@ -24,9 +24,6 @@ import 'package:intl/intl.dart'; // Required for DateFormat
 import 'package:path/path.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-// --- OFFLINE HELPER FUNCTIONS ---
-
-// Check if an order has a pending offline payment
 bool isOfflinePaymentPending(String orderId) {
   if (!Hive.isBoxOpen('offlineRequests')) return false;
   var box = Hive.box('offlineRequests');
@@ -39,18 +36,6 @@ bool isOfflinePaymentPending(String orderId) {
   });
 }
 
-// bool isOfflinePaymentPending(String orderId) {
-//   if (!Hive.isBoxOpen('offlineRequests')) return false;
-//   var box = Hive.box('offlineRequests');
-//   // Check if any request in the box matches this orderId
-//   return box.values.any((request) {
-//     if (request is Map) {
-//       final payload = request['payload'];
-//       return payload != null && payload['order_id'].toString() == orderId;
-//     }
-//     return false;
-//   });
-// }
 List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
   if (!Hive.isBoxOpen('offlineRequests')) return [];
   var box = Hive.box('offlineRequests');
@@ -61,12 +46,10 @@ List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
     if (element is Map) {
       final payload = element['payload'];
       if (payload != null && payload['order_id'].toString() == orderId) {
-        // Generate Unique ID for UI keys
         String uniqueId;
         if (payload['unique_id'] != null) {
           uniqueId = payload['unique_id'].toString();
         } else {
-          // Fallback for older records
           String timestamp =
               element['timestamp'] ?? DateTime.now().toIso8601String();
           String salesId = payload['sales_id'] ?? 'unknown';
@@ -78,7 +61,6 @@ List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
     }
   }
 
-  // Sort by timestamp descending (Newest first)
   payments.sort((a, b) {
     var tA = DateTime.parse(a['data']['timestamp']);
     var tB = DateTime.parse(b['data']['timestamp']);
@@ -88,7 +70,6 @@ List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
   return payments;
 }
 
-// Get details for the info dialog
 Map<String, dynamic>? getOfflinePaymentDetails(String orderId) {
   if (!Hive.isBoxOpen('offlineRequests')) return null;
   var box = Hive.box('offlineRequests');
@@ -113,13 +94,9 @@ void showOfflineInfoDialog(BuildContext context, String orderId) {
         builder: (context, setState) {
           final paymentList = getOfflinePaymentsList(orderId);
 
-          // Auto-close when last item is deleted
           if (paymentList.isEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(dialogContext).pop();
-              // Optional: refresh parent screen / controller
-              // Get.find<PendingPaymentController>()?.update();
-              // or Provider.of<SomeProvider>(context, listen: false).fetchData();
             });
             return const SizedBox.shrink();
           }
@@ -1210,11 +1187,18 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
     String mobile, String token) {
   bool isEmailSelected = true;
   bool isMobileSelected = true;
+  bool isWhatsappSelected = true; // <--- NEW: WhatsApp checkbox state
   bool isSending = false;
+
   TextEditingController emailController = TextEditingController(text: email);
   TextEditingController mobileController = TextEditingController(text: mobile);
+  // <--- NEW: WhatsApp controller (defaults to the mobile number for convenience)
+  TextEditingController whatsappController =
+      TextEditingController(text: mobile);
+
   PendingPaymentController orderController =
       Get.put(PendingPaymentController());
+
   showDialog(
       context: context,
       builder: (context) {
@@ -1232,7 +1216,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF335098), // Custom Blue from screenshot
+                    color: Color(0xFF335098),
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12)),
@@ -1383,7 +1367,72 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                           ],
                         ),
                       ),
+                      const SizedBox(height: 16),
+
+                      // --- NEW: WhatsApp Box ---
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Checkbox(
+                              value: isWhatsappSelected,
+                              activeColor: const Color(
+                                  0xFF335098), // Or a green color like Color(0xFF25D366) if you want it to look like WhatsApp!
+                              side: BorderSide(
+                                  color: Colors.grey.shade400, width: 1.5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4)),
+                              onChanged: (val) => setState(
+                                  () => isWhatsappSelected = val ?? true),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Customer WhatsApp",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF4A5568),
+                                        fontSize: 13),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  TextField(
+                                    controller: whatsappController,
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      filled: true,
+                                      fillColor: const Color(0xFFF7F8FA),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 12),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade300)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 24),
+
                       // Send Button
                       SizedBox(
                         width: double.infinity,
@@ -1398,7 +1447,9 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                           onPressed: isSending
                               ? null
                               : () async {
-                                  if (!isEmailSelected && !isMobileSelected) {
+                                  if (!isEmailSelected &&
+                                      !isMobileSelected &&
+                                      !isWhatsappSelected) {
                                     showCustomToastDisplay(
                                         context,
                                         "Please select at least one method to share."
@@ -1423,7 +1474,6 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                                     if (!emailSuccess) allSuccessful = false;
                                   }
 
-                                  // 4. Process Mobile Call
                                   if (isMobileSelected &&
                                       mobileController.text.isNotEmpty) {
                                     bool mobileSuccess =
@@ -1435,22 +1485,57 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                                     if (!mobileSuccess) allSuccessful = false;
                                   }
 
+                                  String formatWhatsappNumber(
+                                      String rawNumber) {
+                                    String clean = rawNumber.replaceAll(
+                                        RegExp(r'[^0-9]'), '');
+                                    if ((clean.startsWith('91') &&
+                                            clean.length == 12) ||
+                                        (clean.startsWith('61') &&
+                                            clean.length == 11)) {
+                                      return clean;
+                                    }
+                                    if (clean.startsWith('04') &&
+                                        clean.length == 10) {
+                                      return '61${clean.substring(1)}';
+                                    }
+                                    if (clean.length == 10) {
+                                      return '91$clean';
+                                    }
+                                    return clean;
+                                  }
+
+                                  if (isWhatsappSelected &&
+                                      whatsappController.text.isNotEmpty) {
+                                    String finalWaNumber = formatWhatsappNumber(
+                                        whatsappController.text);
+                                    bool waSuccess =
+                                        await ApiWorker().sendPaymentLink(
+                                      token: token,
+                                      type: 'whatsapp',
+                                      mobile: finalWaNumber,
+                                    );
+                                    if (!waSuccess) allSuccessful = false;
+                                  }
+
                                   setState(() => isSending = false);
 
                                   if (allSuccessful) {
                                     if (!context.mounted) return;
 
                                     Navigator.pop(context);
+                                    Navigator.pop(context);
+
                                     showCustomToastDisplay(
                                         context,
                                         "Payment link shared successfully!".tr,
                                         Colors.green,
                                         Icons.check);
+
                                     await orderController.loadOrderData(
                                         chartIndex: 0);
                                   } else {
                                     if (!context.mounted) return;
-
                                     Navigator.pop(context);
                                     showCustomToastDisplay(
                                         context,
@@ -1459,11 +1544,115 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                                         Icons.check);
                                     await orderController.loadOrderData(
                                         chartIndex: 0);
-                                    Get.back(
-                                        closeOverlays:
-                                            true); // Close Pending Payment Dialog
+                                    Get.back(closeOverlays: true);
                                   }
                                 },
+                          // onPressed: isSending
+                          //     ? null
+                          //     : () async {
+                          //         if (!isEmailSelected &&
+                          //             !isMobileSelected &&
+                          //             !isWhatsappSelected) {
+                          //           showCustomToastDisplay(
+                          //               context,
+                          //               "Please select at least one method to share."
+                          //                   .tr,
+                          //               Colors.red,
+                          //               Icons.warning);
+                          //           return;
+                          //         }
+
+                          //         setState(() => isSending = true);
+                          //         bool allSuccessful = true;
+
+                          //         if (isEmailSelected &&
+                          //             emailController.text.isNotEmpty) {
+                          //           bool emailSuccess =
+                          //               await ApiWorker().sendPaymentLink(
+                          //             token: token,
+                          //             type: 'email',
+                          //             email: emailController.text,
+                          //           );
+                          //           if (!emailSuccess) allSuccessful = false;
+                          //         }
+
+                          //         if (isMobileSelected &&
+                          //             mobileController.text.isNotEmpty) {
+                          //           bool mobileSuccess =
+                          //               await ApiWorker().sendPaymentLink(
+                          //             token: token,
+                          //             type: 'mobile',
+                          //             mobile: mobileController.text,
+                          //           );
+                          //           if (!mobileSuccess) allSuccessful = false;
+                          //         }
+
+                          //         String formatWhatsappNumber(
+                          //             String rawNumber) {
+                          //           String clean = rawNumber.replaceAll(
+                          //               RegExp(r'[^0-9]'), '');
+
+                          //           if ((clean.startsWith('91') &&
+                          //                   clean.length == 12) ||
+                          //               (clean.startsWith('61') &&
+                          //                   clean.length == 11)) {
+                          //             return clean;
+                          //           }
+
+                          //           if (clean.startsWith('04') &&
+                          //               clean.length == 10) {
+                          //             return '61${clean.substring(1)}';
+                          //           }
+
+                          //           if (clean.length == 10) {
+                          //             return '91$clean';
+                          //           }
+
+                          //           return clean;
+                          //         }
+
+                          //         if (isWhatsappSelected &&
+                          //             whatsappController.text.isNotEmpty) {
+                          //           String finalWaNumber = formatWhatsappNumber(
+                          //               whatsappController.text);
+                          //           print(
+                          //               "Sending WhatsApp to: $finalWaNumber"); // Helpful for debugging!
+
+                          //           bool waSuccess =
+                          //               await ApiWorker().sendPaymentLink(
+                          //             token: token,
+                          //             type: 'whatsapp',
+                          //             mobile: finalWaNumber,
+                          //           );
+                          //           if (!waSuccess) allSuccessful = false;
+                          //         }
+
+                          //         setState(() => isSending = false);
+
+                          //         if (allSuccessful) {
+                          //           if (!context.mounted) return;
+                          //           Navigator.pop(context);
+                          //           showCustomToastDisplay(
+                          //               context,
+                          //               "Payment link shared successfully!".tr,
+                          //               Colors.green,
+                          //               Icons.check);
+                          //           await orderController.loadOrderData(
+                          //               chartIndex: 0);
+                          //         } else {
+                          //           if (!context.mounted) return;
+                          //           Navigator.pop(context);
+                          //           showCustomToastDisplay(
+                          //               context,
+                          //               "Payment link shared successfully!".tr,
+                          //               Colors.green,
+                          //               Icons.check);
+                          //           await orderController.loadOrderData(
+                          //               chartIndex: 0);
+                          //           Get.back(closeOverlays: true);
+                          //         }
+                          //       },
+
                           child: isSending
                               ? const SizedBox(
                                   height: 20,
@@ -1486,3 +1675,283 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
         });
       });
 }
+
+// void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
+//     String mobile, String token) {
+//   bool isEmailSelected = true;
+//   bool isMobileSelected = true;
+//   bool isSending = false;
+//   TextEditingController emailController = TextEditingController(text: email);
+//   TextEditingController mobileController = TextEditingController(text: mobile);
+//   PendingPaymentController orderController =
+//       Get.put(PendingPaymentController());
+//   showDialog(
+//       context: context,
+//       builder: (context) {
+//         return StatefulBuilder(builder: (context, setState) {
+//           return Dialog(
+//             shape:
+//                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+//             backgroundColor: Colors.white,
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 // Header
+//                 Container(
+//                   padding:
+//                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+//                   decoration: const BoxDecoration(
+//                     color: Color(0xFF335098), // Custom Blue from screenshot
+//                     borderRadius: BorderRadius.only(
+//                         topLeft: Radius.circular(12),
+//                         topRight: Radius.circular(12)),
+//                   ),
+//                   child: Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       const Text(
+//                         "Share Payment Link",
+//                         style: TextStyle(
+//                             color: Colors.white,
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.w500),
+//                       ),
+//                       InkWell(
+//                         onTap: () => Navigator.pop(context),
+//                         child: const Icon(Icons.close,
+//                             color: Colors.white, size: 20),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 // Body
+//                 Padding(
+//                   padding: const EdgeInsets.all(20),
+//                   child: Column(
+//                     children: [
+//                       // Email Box
+//                       Container(
+//                         padding: const EdgeInsets.all(12),
+//                         decoration: BoxDecoration(
+//                           border: Border.all(color: Colors.grey.shade300),
+//                           borderRadius: BorderRadius.circular(10),
+//                         ),
+//                         child: Row(
+//                           crossAxisAlignment: CrossAxisAlignment.center,
+//                           children: [
+//                             Checkbox(
+//                               value: isEmailSelected,
+//                               activeColor: const Color(0xFF335098),
+//                               side: BorderSide(
+//                                   color: Colors.grey.shade400, width: 1.5),
+//                               shape: RoundedRectangleBorder(
+//                                   borderRadius: BorderRadius.circular(4)),
+//                               onChanged: (val) =>
+//                                   setState(() => isEmailSelected = val ?? true),
+//                             ),
+//                             const SizedBox(width: 8),
+//                             Expanded(
+//                               child: Column(
+//                                 crossAxisAlignment: CrossAxisAlignment.start,
+//                                 children: [
+//                                   const Text(
+//                                     "Customer Email",
+//                                     style: TextStyle(
+//                                         fontWeight: FontWeight.w700,
+//                                         color: Color(0xFF4A5568),
+//                                         fontSize: 13),
+//                                   ),
+//                                   const SizedBox(height: 6),
+//                                   TextField(
+//                                     controller: emailController,
+//                                     style: const TextStyle(fontSize: 14),
+//                                     decoration: InputDecoration(
+//                                       isDense: true,
+//                                       filled: true,
+//                                       fillColor: const Color(0xFFF7F8FA),
+//                                       contentPadding:
+//                                           const EdgeInsets.symmetric(
+//                                               horizontal: 12, vertical: 12),
+//                                       border: OutlineInputBorder(
+//                                           borderRadius:
+//                                               BorderRadius.circular(6),
+//                                           borderSide: BorderSide(
+//                                               color: Colors.grey.shade300)),
+//                                       enabledBorder: OutlineInputBorder(
+//                                           borderRadius:
+//                                               BorderRadius.circular(6),
+//                                           borderSide: BorderSide(
+//                                               color: Colors.grey.shade300)),
+//                                     ),
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       const SizedBox(height: 16),
+//                       // Mobile Box
+//                       Container(
+//                         padding: const EdgeInsets.all(12),
+//                         decoration: BoxDecoration(
+//                           border: Border.all(color: Colors.grey.shade300),
+//                           borderRadius: BorderRadius.circular(10),
+//                         ),
+//                         child: Row(
+//                           crossAxisAlignment: CrossAxisAlignment.center,
+//                           children: [
+//                             Checkbox(
+//                               value: isMobileSelected,
+//                               activeColor: const Color(0xFF335098),
+//                               side: BorderSide(
+//                                   color: Colors.grey.shade400, width: 1.5),
+//                               shape: RoundedRectangleBorder(
+//                                   borderRadius: BorderRadius.circular(4)),
+//                               onChanged: (val) => setState(
+//                                   () => isMobileSelected = val ?? true),
+//                             ),
+//                             const SizedBox(width: 8),
+//                             Expanded(
+//                               child: Column(
+//                                 crossAxisAlignment: CrossAxisAlignment.start,
+//                                 children: [
+//                                   const Text(
+//                                     "Customer Mobile",
+//                                     style: TextStyle(
+//                                         fontWeight: FontWeight.w700,
+//                                         color: Color(0xFF4A5568),
+//                                         fontSize: 13),
+//                                   ),
+//                                   const SizedBox(height: 6),
+//                                   TextField(
+//                                     controller: mobileController,
+//                                     style: const TextStyle(fontSize: 14),
+//                                     decoration: InputDecoration(
+//                                       isDense: true,
+//                                       filled: true,
+//                                       fillColor: const Color(0xFFF7F8FA),
+//                                       contentPadding:
+//                                           const EdgeInsets.symmetric(
+//                                               horizontal: 12, vertical: 12),
+//                                       border: OutlineInputBorder(
+//                                           borderRadius:
+//                                               BorderRadius.circular(6),
+//                                           borderSide: BorderSide(
+//                                               color: Colors.grey.shade300)),
+//                                       enabledBorder: OutlineInputBorder(
+//                                           borderRadius:
+//                                               BorderRadius.circular(6),
+//                                           borderSide: BorderSide(
+//                                               color: Colors.grey.shade300)),
+//                                     ),
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       const SizedBox(height: 24),
+//                       // Send Button
+//                       SizedBox(
+//                         width: double.infinity,
+//                         height: 48,
+//                         child: ElevatedButton(
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: const Color(0xFF335098),
+//                             shape: RoundedRectangleBorder(
+//                                 borderRadius: BorderRadius.circular(8)),
+//                             elevation: 0,
+//                           ),
+//                           onPressed: isSending
+//                               ? null
+//                               : () async {
+//                                   if (!isEmailSelected && !isMobileSelected) {
+//                                     showCustomToastDisplay(
+//                                         context,
+//                                         "Please select at least one method to share."
+//                                             .tr,
+//                                         Colors.red,
+//                                         Icons.warning);
+//                                     return;
+//                                   }
+
+//                                   setState(() => isSending = true);
+
+//                                   bool allSuccessful = true;
+
+//                                   if (isEmailSelected &&
+//                                       emailController.text.isNotEmpty) {
+//                                     bool emailSuccess =
+//                                         await ApiWorker().sendPaymentLink(
+//                                       token: token,
+//                                       type: 'email',
+//                                       email: emailController.text,
+//                                     );
+//                                     if (!emailSuccess) allSuccessful = false;
+//                                   }
+
+//                                   if (isMobileSelected &&
+//                                       mobileController.text.isNotEmpty) {
+//                                     bool mobileSuccess =
+//                                         await ApiWorker().sendPaymentLink(
+//                                       token: token,
+//                                       type: 'mobile',
+//                                       mobile: mobileController.text,
+//                                     );
+//                                     if (!mobileSuccess) allSuccessful = false;
+//                                   }
+
+//                                   setState(() => isSending = false);
+
+//                                   if (allSuccessful) {
+//                                     if (!context.mounted) return;
+
+//                                     Navigator.pop(context);
+//                                     showCustomToastDisplay(
+//                                         context,
+//                                         "Payment link shared successfully!".tr,
+//                                         Colors.green,
+//                                         Icons.check);
+//                                     await orderController.loadOrderData(
+//                                         chartIndex: 0);
+//                                   } else {
+//                                     if (!context.mounted) return;
+
+//                                     Navigator.pop(context);
+//                                     showCustomToastDisplay(
+//                                         context,
+//                                         "Payment link shared successfully!".tr,
+//                                         Colors.green,
+//                                         Icons.check);
+//                                     await orderController.loadOrderData(
+//                                         chartIndex: 0);
+//                                     Get.back(
+//                                         closeOverlays:
+//                                             true); // Close Pending Payment Dialog
+//                                   }
+//                                 },
+//                           child: isSending
+//                               ? const SizedBox(
+//                                   height: 20,
+//                                   width: 20,
+//                                   child: CircularProgressIndicator(
+//                                       color: Colors.white, strokeWidth: 2))
+//                               : const Text("Send Payment Link",
+//                                   style: TextStyle(
+//                                       color: Colors.white,
+//                                       fontSize: 15,
+//                                       fontWeight: FontWeight.w600)),
+//                         ),
+//                       )
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         });
+//       });
+// }

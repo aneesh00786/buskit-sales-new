@@ -314,11 +314,15 @@ void paymentCollectionDialog(
       {required List<IndividualPendingData> selectedOrders}) {
     bool isEmailSelected = true;
     bool isMobileSelected = true;
+    bool isWhatsappSelected = true; // <--- NEW: WhatsApp state
     bool isSending = false;
 
     TextEditingController emailController = TextEditingController(text: email);
     TextEditingController mobileController =
         TextEditingController(text: mobile);
+    TextEditingController whatsappController =
+        TextEditingController(text: mobile);
+    final pendingController = Get.put(PendingPaymentController());
 
     showDialog(
         context: context,
@@ -351,7 +355,6 @@ void paymentCollectionDialog(
                                 fontWeight: FontWeight.w500)),
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
                             Navigator.pop(context);
                           },
                           child: const Icon(Icons.close,
@@ -406,6 +409,7 @@ void paymentCollectionDialog(
                           ),
                         ),
                         const SizedBox(height: 16),
+
                         // --- MOBILE CHECKBOX ---
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -447,7 +451,51 @@ void paymentCollectionDialog(
                             ],
                           ),
                         ),
+                        const SizedBox(height: 16),
+
+                        // --- NEW: WHATSAPP CHECKBOX ---
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Checkbox(
+                                value: isWhatsappSelected,
+                                activeColor: const Color(0xFF335098),
+                                onChanged: (val) => setState(
+                                    () => isWhatsappSelected = val ?? true),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("Customer WhatsApp",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF4A5568),
+                                            fontSize: 13)),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                        controller: whatsappController,
+                                        decoration: InputDecoration(
+                                            isDense: true,
+                                            filled: true,
+                                            fillColor: const Color(0xFFF7F8FA),
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(6)))),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: 24),
+
                         // --- SUBMIT BUTTON ---
                         SizedBox(
                           width: double.infinity,
@@ -461,7 +509,9 @@ void paymentCollectionDialog(
                             onPressed: isSending
                                 ? null
                                 : () async {
-                                    if (!isEmailSelected && !isMobileSelected) {
+                                    if (!isEmailSelected &&
+                                        !isMobileSelected &&
+                                        !isWhatsappSelected) {
                                       showCustomToastDisplay(
                                           context,
                                           "Please select at least one method to share."
@@ -470,8 +520,10 @@ void paymentCollectionDialog(
                                           Icons.warning);
                                       return;
                                     }
+
                                     setState(() => isSending = true);
                                     bool allSuccessful = true;
+
                                     if (isEmailSelected &&
                                         emailController.text.isNotEmpty) {
                                       bool emailSuccess = await ApiWorker()
@@ -490,9 +542,48 @@ void paymentCollectionDialog(
                                               mobile: mobileController.text);
                                       if (!mobileSuccess) allSuccessful = false;
                                     }
+
+                                    // Smart Country Code Formatter
+                                    String formatWhatsappNumber(
+                                        String rawNumber) {
+                                      String clean = rawNumber.replaceAll(
+                                          RegExp(r'[^0-9]'), '');
+                                      if ((clean.startsWith('91') &&
+                                              clean.length == 12) ||
+                                          (clean.startsWith('61') &&
+                                              clean.length == 11)) {
+                                        return clean;
+                                      }
+                                      if (clean.startsWith('04') &&
+                                          clean.length == 10) {
+                                        return '61${clean.substring(1)}';
+                                      }
+                                      if (clean.length == 10) {
+                                        return '91$clean';
+                                      }
+                                      return clean;
+                                    }
+
+                                    if (isWhatsappSelected &&
+                                        whatsappController.text.isNotEmpty) {
+                                      String finalWaNumber =
+                                          formatWhatsappNumber(
+                                              whatsappController.text);
+                                      bool waSuccess =
+                                          await ApiWorker().sendPaymentLink(
+                                        token: token,
+                                        type: 'whatsapp',
+                                        mobile: finalWaNumber,
+                                      );
+                                      if (!waSuccess) allSuccessful = false;
+                                    }
+
                                     setState(() => isSending = false);
+
                                     if (allSuccessful) {
                                       if (!context.mounted) return;
+
+                                      final nav = Navigator.of(context);
 
                                       final customerProvider =
                                           Provider.of<CustomersProvider>(
@@ -501,8 +592,8 @@ void paymentCollectionDialog(
                                       final pendingController =
                                           Get.put(PendingPaymentController());
 
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
+                                      nav.pop();
+                                      nav.pop();
 
                                       showCustomToastDisplay(
                                           context,
@@ -567,6 +658,265 @@ void paymentCollectionDialog(
           });
         });
   }
+
+  // void _showSharePaymentLinkDialog(BuildContext context, String url,
+  //     String email, String mobile, String token, String customerId,
+  //     {required List<IndividualPendingData> selectedOrders}) {
+  //   bool isEmailSelected = true;
+  //   bool isMobileSelected = true;
+  //   bool isSending = false;
+
+  //   TextEditingController emailController = TextEditingController(text: email);
+  //   TextEditingController mobileController =
+  //       TextEditingController(text: mobile);
+
+  //   showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return StatefulBuilder(builder: (context, setState) {
+  //           return Dialog(
+  //             shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(12)),
+  //             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+  //             backgroundColor: Colors.white,
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 Container(
+  //                   padding: const EdgeInsets.symmetric(
+  //                       horizontal: 20, vertical: 16),
+  //                   decoration: const BoxDecoration(
+  //                     color: Color(0xFF335098),
+  //                     borderRadius: BorderRadius.only(
+  //                         topLeft: Radius.circular(12),
+  //                         topRight: Radius.circular(12)),
+  //                   ),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       const Text("Share Payment Link",
+  //                           style: TextStyle(
+  //                               color: Colors.white,
+  //                               fontSize: 18,
+  //                               fontWeight: FontWeight.w500)),
+  //                       InkWell(
+  //                         onTap: () {
+  //                           Navigator.pop(context);
+  //                           Navigator.pop(context);
+  //                         },
+  //                         child: const Icon(Icons.close,
+  //                             color: Colors.white, size: 20),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(20),
+  //                   child: Column(
+  //                     children: [
+  //                       // --- EMAIL CHECKBOX ---
+  //                       Container(
+  //                         padding: const EdgeInsets.all(12),
+  //                         decoration: BoxDecoration(
+  //                             border: Border.all(color: Colors.grey.shade300),
+  //                             borderRadius: BorderRadius.circular(10)),
+  //                         child: Row(
+  //                           crossAxisAlignment: CrossAxisAlignment.center,
+  //                           children: [
+  //                             Checkbox(
+  //                               value: isEmailSelected,
+  //                               activeColor: const Color(0xFF335098),
+  //                               onChanged: (val) => setState(
+  //                                   () => isEmailSelected = val ?? true),
+  //                             ),
+  //                             const SizedBox(width: 8),
+  //                             Expanded(
+  //                               child: Column(
+  //                                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                                 children: [
+  //                                   const Text("Customer Email",
+  //                                       style: TextStyle(
+  //                                           fontWeight: FontWeight.w700,
+  //                                           color: Color(0xFF4A5568),
+  //                                           fontSize: 13)),
+  //                                   const SizedBox(height: 6),
+  //                                   TextField(
+  //                                       controller: emailController,
+  //                                       decoration: InputDecoration(
+  //                                           isDense: true,
+  //                                           filled: true,
+  //                                           fillColor: const Color(0xFFF7F8FA),
+  //                                           border: OutlineInputBorder(
+  //                                               borderRadius:
+  //                                                   BorderRadius.circular(6)))),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 16),
+  //                       // --- MOBILE CHECKBOX ---
+  //                       Container(
+  //                         padding: const EdgeInsets.all(12),
+  //                         decoration: BoxDecoration(
+  //                             border: Border.all(color: Colors.grey.shade300),
+  //                             borderRadius: BorderRadius.circular(10)),
+  //                         child: Row(
+  //                           crossAxisAlignment: CrossAxisAlignment.center,
+  //                           children: [
+  //                             Checkbox(
+  //                               value: isMobileSelected,
+  //                               activeColor: const Color(0xFF335098),
+  //                               onChanged: (val) => setState(
+  //                                   () => isMobileSelected = val ?? true),
+  //                             ),
+  //                             const SizedBox(width: 8),
+  //                             Expanded(
+  //                               child: Column(
+  //                                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                                 children: [
+  //                                   const Text("Customer Mobile",
+  //                                       style: TextStyle(
+  //                                           fontWeight: FontWeight.w700,
+  //                                           color: Color(0xFF4A5568),
+  //                                           fontSize: 13)),
+  //                                   const SizedBox(height: 6),
+  //                                   TextField(
+  //                                       controller: mobileController,
+  //                                       decoration: InputDecoration(
+  //                                           isDense: true,
+  //                                           filled: true,
+  //                                           fillColor: const Color(0xFFF7F8FA),
+  //                                           border: OutlineInputBorder(
+  //                                               borderRadius:
+  //                                                   BorderRadius.circular(6)))),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 24),
+  //                       // --- SUBMIT BUTTON ---
+  //                       SizedBox(
+  //                         width: double.infinity,
+  //                         height: 48,
+  //                         child: ElevatedButton(
+  //                           style: ElevatedButton.styleFrom(
+  //                               backgroundColor: const Color(0xFF335098),
+  //                               shape: RoundedRectangleBorder(
+  //                                   borderRadius: BorderRadius.circular(8)),
+  //                               elevation: 0),
+  //                           onPressed: isSending
+  //                               ? null
+  //                               : () async {
+  //                                   if (!isEmailSelected && !isMobileSelected) {
+  //                                     showCustomToastDisplay(
+  //                                         context,
+  //                                         "Please select at least one method to share."
+  //                                             .tr,
+  //                                         Colors.red,
+  //                                         Icons.warning);
+  //                                     return;
+  //                                   }
+  //                                   setState(() => isSending = true);
+  //                                   bool allSuccessful = true;
+  //                                   if (isEmailSelected &&
+  //                                       emailController.text.isNotEmpty) {
+  //                                     bool emailSuccess = await ApiWorker()
+  //                                         .sendPaymentLink(
+  //                                             token: token,
+  //                                             type: 'email',
+  //                                             email: emailController.text);
+  //                                     if (!emailSuccess) allSuccessful = false;
+  //                                   }
+  //                                   if (isMobileSelected &&
+  //                                       mobileController.text.isNotEmpty) {
+  //                                     bool mobileSuccess = await ApiWorker()
+  //                                         .sendPaymentLink(
+  //                                             token: token,
+  //                                             type: 'mobile',
+  //                                             mobile: mobileController.text);
+  //                                     if (!mobileSuccess) allSuccessful = false;
+  //                                   }
+  //                                   setState(() => isSending = false);
+  //                                   if (allSuccessful) {
+  //                                     if (!context.mounted) return;
+
+  //                                     final customerProvider =
+  //                                         Provider.of<CustomersProvider>(
+  //                                             context,
+  //                                             listen: false);
+  //                                     final pendingController =
+  //                                         Get.put(PendingPaymentController());
+
+  //                                     Navigator.pop(context);
+  //                                     Navigator.pop(context);
+
+  //                                     showCustomToastDisplay(
+  //                                         context,
+  //                                         "Payment link shared successfully!"
+  //                                             .tr,
+  //                                         Colors.green,
+  //                                         Icons.check);
+
+  //                                     customerProvider
+  //                                         .fetchCustomerDashboardData(
+  //                                             customerId);
+  //                                     customerProvider
+  //                                         .fetchCustomerDashboardRevenueData(
+  //                                             customerId);
+  //                                     customerProvider
+  //                                         .fetchCustomerDashboardDataSalseData(
+  //                                             customerId);
+  //                                     customerProvider
+  //                                         .fetchCustomersDataDash(customerId);
+  //                                     customerProvider
+  //                                         .fetchCustomerDashboardCountData(
+  //                                             customerId);
+
+  //                                     pendingController.loadOrderData(
+  //                                         chartIndex: 0);
+  //                                   } else {
+  //                                     if (!context.mounted) return;
+
+  //                                     Navigator.pop(context);
+  //                                     showCustomToastDisplay(
+  //                                         context,
+  //                                         "Payment link shared successfully!"
+  //                                             .tr,
+  //                                         Colors.green,
+  //                                         Icons.check);
+  //                                     if (!context.mounted) return;
+  //                                     Navigator.pop(context);
+  //                                     Navigator.pop(context);
+
+  //                                     Get.back(closeOverlays: true);
+  //                                   }
+  //                                 },
+  //                           child: isSending
+  //                               ? const SizedBox(
+  //                                   height: 20,
+  //                                   width: 20,
+  //                                   child: CircularProgressIndicator(
+  //                                       color: Colors.white, strokeWidth: 2))
+  //                               : const Text("Send Payment Link",
+  //                                   style: TextStyle(
+  //                                       color: Colors.white,
+  //                                       fontSize: 15,
+  //                                       fontWeight: FontWeight.w600)),
+  //                         ),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         });
+  //       });
+  // }
 
   Future<void> createAndSharePaymentLink(
     BuildContext context,
@@ -823,37 +1173,36 @@ void paymentCollectionDialog(
                                                   color: primaryColor,
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 11,
-                                                  
                                                 ),
                                                 maxLines: 1,
                                               ),
                                               if ((order.hasActiveLink ?? 0) !=
                                                   0) ...[
                                                 const SizedBox(height: 2),
-                                                 Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.green,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              3),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              1.0),
-                                                      child: const Text(
-                                                        'Payment Link Sent',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: TextStyle(
-                                                          fontSize: 7,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                        ),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            3),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            1.0),
+                                                    child: const Text(
+                                                      'Payment Link Sent',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontSize: 7,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w700,
                                                       ),
                                                     ),
                                                   ),
+                                                ),
                                               ],
                                             ],
                                           ),

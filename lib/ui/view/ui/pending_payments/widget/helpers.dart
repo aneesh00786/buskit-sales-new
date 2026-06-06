@@ -40,7 +40,8 @@ Widget buildHeader(
               width: 205,
               child: Column(
                 children: [
-                  Expanded(child: _buildHeaderText("Customer List".tr, fontSize)),
+                  Expanded(
+                      child: _buildHeaderText("Customer List".tr, fontSize)),
                   const SizedBox(
                     height: 8,
                   )
@@ -81,31 +82,33 @@ Widget buildHeader(
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child: _buildHeaderText("Date".tr, fontSize)),
+                                    child:
+                                        _buildHeaderText("Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Due Date".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Due Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 2,
-                                    child: _buildHeaderText("Days".tr, fontSize)),
+                                    child:
+                                        _buildHeaderText("Days".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Amount".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Amount".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Invoice".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Invoice".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 4,
-                                    child:
-                                        _buildHeaderText("Status".tr, fontSize)),
+                                    child: _buildHeaderText(
+                                        "Status".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
@@ -354,9 +357,6 @@ Widget _buildOrderCreatedDate(CustomerData customerData, BuildContext context) {
               format: 'dd-MM-yyyy',
             )
           : 'N/A',
-      // NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
-      //   customerData.orderCreatAt.toString(),
-      // )),
       context,
       maxLines: 1,
     ),
@@ -391,26 +391,6 @@ Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
     ),
   );
 }
-
-// Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
-//   int? creditPeriod = customerData.creditPeriod;
-//   String? orderCreatAt = customerData.orderCreatAt.toString();
-//   String? dueDate;
-
-//   DateTime orderDate = DateTime.parse(orderCreatAt);
-
-//   DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
-
-//   dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
-
-//   return Center(
-//     child: _buildRegularText(
-//       dueDate.toString(),
-//       context,
-//       maxLines: 1,
-//     ),
-//   );
-// }
 
 Widget _buildOrderDays(CustomerData customerData, BuildContext context) {
   DateTime orderCreatedDate = NKDateUtils.formatStringUTCDateTime(
@@ -465,8 +445,9 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                content:
-                    OrderHandlingClass.fromType(customerData.orderStatus).name.tr,
+                content: OrderHandlingClass.fromType(customerData.orderStatus)
+                    .name
+                    .tr,
                 textAlign: TextAlign.center,
                 fontSize: 10,
                 overflow: TextOverflow.ellipsis,
@@ -489,17 +470,6 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                // Text(
-                //   NKDateUtils.commonFullDateTimeFormat(
-                //       NKDateUtils.formatStringUTCDateTime(
-                //           customerData.deliveryDate!.toIso8601String())),
-                //   textAlign: TextAlign.center,
-                //   maxLines: 2,
-                //   style: const TextStyle(
-                //     fontSize: 10.0,
-                //     fontWeight: FontWeight.w400,
-                //   ),
-                // ),
               ]
             ],
           ),
@@ -514,38 +484,70 @@ Widget _buildPaymentCollectionButton(
   final subscriptionController = Get.find<SubscriptionController>();
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 5),
-    child: InkResponse(
-      onTap: () {
-        if (subscriptionController.appPaymentCollection.value == "true") {
-          pendingPaymentCollectionDialog(context, customerData.customerId,
-          customerEmail: customerData.email,
-          customerMobile: customerData.mobileno,
-          );
-        } else {
-          showUpgradePlanDialog(context);
-        }
-      },
-      child: IntrinsicHeight(
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color: const Color(0xff5bc0de),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child:  Center(
-            child: Text(
-              'Collect Payment'.tr,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.white,
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.bold,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // 1. The Collect Payment Button
+        InkResponse(
+          onTap: () {
+            if (subscriptionController.appPaymentCollection.value == "true") {
+              pendingPaymentCollectionDialog(
+                context,
+                customerData.customerId,
+                customerEmail: customerData.email,
+                customerMobile: customerData.mobileno,
+              );
+            } else {
+              showUpgradePlanDialog(context);
+            }
+          },
+          child: IntrinsicHeight(
+            child: Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: const Color(0xff5bc0de),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Center(
+                child: Text(
+                  'Collect Payment'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.white,
+                    fontFamily: 'Poppins_Regular',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+
+        if ((customerData.hasActiveLink ?? 0) != 0) ...[
+          const SizedBox(height: 4),
+          Container(
+            // color: Colors.green,
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: const Text(
+                'Payment Link Sent',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
     ),
   );
 }

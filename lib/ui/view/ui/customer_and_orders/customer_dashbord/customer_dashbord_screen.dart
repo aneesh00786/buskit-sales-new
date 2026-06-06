@@ -1002,7 +1002,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                         child: OrdersPayments(
                                             context,
                                             recentOrders ?? [],
-                                            subscriptionController),
+                                            subscriptionController,
+                                            widget.cusEmail, 
+                                            widget.cusMobile,
+                                            ),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -1031,7 +1034,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                             child: OrdersPayments(
                                                 context,
                                                 recentOrders ?? [],
-                                                subscriptionController),
+                                                subscriptionController,
+                                                widget.cusEmail,  // <--- ADD THIS
+                                               widget.cusMobile,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -1226,7 +1232,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                         child: OrdersPayments(
                                             context,
                                             recentOrders ?? [],
-                                            subscriptionController),
+                                            subscriptionController,
+                                            widget.cusEmail,
+                                            widget.cusMobile),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -1255,7 +1263,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                             child: OrdersPayments(
                                                 context,
                                                 recentOrders ?? [],
-                                                subscriptionController),
+                                                subscriptionController,
+                                                widget.cusEmail,  // <--- ADD THIS
+                                               widget.cusMobile,
+                                                ),
                                           ),
                                         ],
                                       ),

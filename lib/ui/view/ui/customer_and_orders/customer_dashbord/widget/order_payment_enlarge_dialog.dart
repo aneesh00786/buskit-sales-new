@@ -16,7 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
+showCustomDialog(
+  BuildContext context,
+  List<RecentOrder> recentOrders,
+  String customerEmail, // <--- ADD THIS
+  String customerMobile,
+) {
   return showDialog(
     context: context,
     builder: (context) {
@@ -59,7 +64,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                           Expanded(
+                          Expanded(
                             child: Text(
                               "Order & Payments".tr,
                               style: TextStyle(
@@ -86,12 +91,20 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                   }
                                 }
                                 if (selectedOrders.isNotEmpty) {
+                                  String currentCustId =
+                                      selectedOrders.first.customerId ?? "";
                                   paymentCollectionDialog(
-                                      context, selectedOrders);
+                                    context,
+                                    selectedOrders,
+                                    currentCustId,
+                                    customerEmail: customerEmail,
+                                    customerMobile: customerMobile,
+                                  );
                                 } else {
                                   showCustomToastDisplay(
                                       context,
-                                      'Please select an order to change payment details'.tr,
+                                      'Please select an order to change payment details'
+                                          .tr,
                                       red,
                                       Icons.close);
                                 }
@@ -102,7 +115,7 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                   borderRadius: BorderRadius.circular(4.0),
                                 ),
                               ),
-                              child:  Text(
+                              child: Text(
                                 'Collection'.tr,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -169,8 +182,8 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                                 horizontal: 10, vertical: 2),
                                             child: Center(
                                               child: Text(
-                                                getStatusName(
-                                                    order.orderStatus).tr,
+                                                getStatusName(order.orderStatus)
+                                                    .tr,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
@@ -187,14 +200,15 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                       child: Center(
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           children: [
-                                            // Change Flexible to Expanded so it calculates available space for FittedBox
                                             Expanded(
                                               child: Tooltip(
-                                                message:  '${formatAmount(order.orderTotal.toStringAsFixed(2))} / '
-                                                      '${formatAmount((order.receivableAmount ?? order.orderTotal).toStringAsFixed(2))} / '
-                                                      '${formatAmount(order.receivedAmount.toStringAsFixed(2))}',
+                                                message:
+                                                    '${formatAmount(order.orderTotal.toStringAsFixed(2))} / '
+                                                    '${formatAmount((order.receivableAmount ?? order.orderTotal).toStringAsFixed(2))} / '
+                                                    '${formatAmount(order.receivedAmount.toStringAsFixed(2))}',
                                                 child: MyRegularText(
                                                   label:
                                                       '${formatAmount(order.orderTotal.toStringAsFixed(2))} / '
@@ -210,17 +224,11 @@ showCustomDialog(BuildContext context, List<RecentOrder> recentOrders) {
                                                 orderId: order.orderId,
                                                 iconSize: 11 + 2,
                                               )
-                                             
                                             ],
                                           ],
                                         ),
                                       ),
                                     ),
-
-                                    // Expanded(
-                                    //     child: Center(
-                                    //         child: Text(formatAmount(
-                                    //             order.orderTotal)))),
                                     Expanded(
                                       flex: 1,
                                       child: Center(

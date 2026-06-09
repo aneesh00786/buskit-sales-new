@@ -94,7 +94,7 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
-  int selectedYear = DateTime.now().year;
+  late int selectedYear;
   late TabController _tabController;
   late int _tabIndex;
   HomeController homeController = Get.put(HomeController());
@@ -112,9 +112,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     _fetchCredit();
     final customerProvider =
         Provider.of<CustomersProvider>(context, listen: false);
-    final currentYear = DateTime.now().year;
+    selectedYear = (widget.year != null && widget.year.toString().isNotEmpty)
+        ? int.tryParse(widget.year.toString()) ?? DateTime.now().year
+        : DateTime.now().year;
+    // final currentYear = DateTime.now().year;
 
-    customerProvider.updateDashboardYear(currentYear);
+    customerProvider.updateDashboardYear(selectedYear);
 
     // Fetch fresh data for current year
     _loadDashboardData(customerProvider);
@@ -212,7 +215,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
     }
 
     // 2. Show loading indicator if needed (optional)
-    showCustomToastDisplay(context, "Checking in...".tr, Colors.blue, Icons.info);
+    showCustomToastDisplay(
+        context, "Checking in...".tr, Colors.blue, Icons.info);
 
     try {
       // 3. Get Location
@@ -945,8 +949,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                               MyRegularText(
-                                  label: "Customer".tr, fontSize: 9),
+                              MyRegularText(label: "Customer".tr, fontSize: 9),
                             ],
                           ),
                         ),
@@ -1000,12 +1003,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       SizedBox(
                                         height: screenWidth * 0.7,
                                         child: OrdersPayments(
-                                            context,
-                                            recentOrders ?? [],
-                                            subscriptionController,
-                                            widget.cusEmail, 
-                                            widget.cusMobile,
-                                            ),
+                                          context,
+                                          recentOrders ?? [],
+                                          subscriptionController,
+                                          widget.cusEmail,
+                                          widget.cusMobile,
+                                        ),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
@@ -1032,12 +1035,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           const SizedBox(width: 4.7),
                                           Expanded(
                                             child: OrdersPayments(
-                                                context,
-                                                recentOrders ?? [],
-                                                subscriptionController,
-                                                widget.cusEmail,  // <--- ADD THIS
-                                               widget.cusMobile,
-                                                ),
+                                              context,
+                                              recentOrders ?? [],
+                                              subscriptionController,
+                                              widget.cusEmail, // <--- ADD THIS
+                                              widget.cusMobile,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -1100,6 +1103,9 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                         return; // 3. Stop execution here, do not fetch new data
                                       }
                                       if (context.mounted) {
+                                        setState(() {
+                                          selectedYear = year;
+                                        });
                                         final customerProvider =
                                             Provider.of<CustomersProvider>(
                                                 context,
@@ -1261,12 +1267,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           const SizedBox(width: 4.7),
                                           Expanded(
                                             child: OrdersPayments(
-                                                context,
-                                                recentOrders ?? [],
-                                                subscriptionController,
-                                                widget.cusEmail,  // <--- ADD THIS
-                                               widget.cusMobile,
-                                                ),
+                                              context,
+                                              recentOrders ?? [],
+                                              subscriptionController,
+                                              widget.cusEmail, // <--- ADD THIS
+                                              widget.cusMobile,
+                                            ),
                                           ),
                                         ],
                                       ),

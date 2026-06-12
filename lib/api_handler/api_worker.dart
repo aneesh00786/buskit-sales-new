@@ -702,50 +702,49 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch category Promo data: $error');
     }
   }
-
-  Future<List<ProductModel>> getTempProduct(String subCatId,
-      {required int companyid}) async {
+  Future<List<ProductModel>> getTempProduct(String subCatId, {required int companyid}) async {
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
       try {
-        print('api called correctlyyyyyy get temp product');
+        print('api called correctly get temp product (B2B)');
 
-        // 1. Construct the URL manually to match your required format
-        late String requestUrl =
-            "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
-
+     
+        String requestUrl = "${ApiConstants.baseUrl}fetch_product_b2b?company_id=$companyid";
+        
         print('Requesting URL: $requestUrl');
 
-        // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
         final response = await dio.getbycustom(requestUrl);
-        log('response of alll products get :${response.data}');
+
         if (response.statusCode == 200) {
           final responseData = response.data;
-          // log('category data from backend in order taking screen:${responseData}');
-
-          final productApiResponse = ProductApiResponse.fromJson(responseData);
-
           List<ProductModel> productsForSubCategory = [];
-          ScidProductGroup? targetScidGroup;
-
-          for (var scidGroup in productApiResponse.data) {
-            if (scidGroup.scid == subCatId) {
-              productsForSubCategory.addAll(scidGroup.products);
-              targetScidGroup = scidGroup;
-              break;
+ 
+          if (responseData['status'] == true && responseData['data'] != null) {
+            for (var scidGroup in responseData['data']) {
+              // Find the specific subcategory group we are looking for
+              if (scidGroup['scid'] == subCatId) {
+                if (scidGroup['product'] != null) {
+                  for (var prod in scidGroup['product']) {
+                    productsForSubCategory.add(ProductModel.fromJson(prod));
+                  }
+                }
+               
+                
+                break; 
+              }
             }
           }
 
-          if (targetScidGroup != null) {
-            await _cacheSingleScidGroup(targetScidGroup);
-          } else {}
+         
 
           return productsForSubCategory;
         } else {
           return [];
         }
-      } catch (e) {
+      } catch (e, stacktrace) {
+        print("CRASH REASON: $e");
+        print("STACKTRACE: $stacktrace");
         handleExceptionMessage(
           apiName: 'Get Temp Product',
           response: e is DioException ? e.response : null,
@@ -765,35 +764,33 @@ class ApiWorker with ApiConstants {
   //   if (isConnected) {
   //     try {
   //       print('api called correctlyyyyyy get temp product');
-  //       final queryParams = {
-  //         "company_id": companyid,
-  //         "sub_catid": subCatId,
-  //       };
-  //       print('query parametr:$queryParams');
 
-  //       final response = await dio.getbycustom(ApiConstants.fetchProduct,
-  //           queryParameters: queryParams);
+  //       // 1. Construct the URL manually to match your required format
+  //       late String requestUrl =
+  //           "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
 
+  //       print('Requesting URL: $requestUrl');
+
+  //       // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
+  //       final response = await dio.getbycustom(requestUrl);
+  //       log('response of alll products get :${response.data}');
   //       if (response.statusCode == 200) {
   //         final responseData = response.data;
-  //         // log('API Response Data: $responseData');
-  // log('category data from backend in order taking screen:${responseData}');
-  //         // Parse the new response structure
+  //         // log('category data from backend in order taking screen:${responseData}');
+
   //         final productApiResponse = ProductApiResponse.fromJson(responseData);
 
   //         List<ProductModel> productsForSubCategory = [];
   //         ScidProductGroup? targetScidGroup;
 
-  //         // Find products for the specific subcategory
   //         for (var scidGroup in productApiResponse.data) {
   //           if (scidGroup.scid == subCatId) {
   //             productsForSubCategory.addAll(scidGroup.products);
   //             targetScidGroup = scidGroup;
-  //             break; // Found the specific subcategory, no need to continue
+  //             break;
   //           }
   //         }
 
-  //         // Cache only the specific subcategory data, not all data
   //         if (targetScidGroup != null) {
   //           await _cacheSingleScidGroup(targetScidGroup);
   //         } else {}
@@ -810,13 +807,12 @@ class ApiWorker with ApiConstants {
   //       return [];
   //     }
   //   } else {
-  //     // Load from cached data when offline
   //     final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
   //     return cachedProducts;
   //   }
   // }
 
-  // Helper method to load cached products for a specific subcategory
+ 
   Future<List<ProductModel>> _loadCachedProductsBySubCategory(
       String subCatId) async {
     try {

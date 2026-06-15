@@ -840,10 +840,11 @@ class _OrderTakingState extends State<OrderTaking>
             padding: EdgeInsets.only(
               left: widget.productsController.selectedCustomerName.isEmpty ? 45 : 0,
               top: 10,
+              right: 20,
             ),
             child: Consumer<CustomersProvider>(
               builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
@@ -1143,10 +1144,11 @@ class _OrderTakingState extends State<OrderTaking>
             padding: EdgeInsets.only(
               left: widget.productsController.selectedCustomerName.isEmpty ? 40 : 0,
               top: 10,
+              right: 20,
             ),
             child: Consumer<CustomersProvider>(
               builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(

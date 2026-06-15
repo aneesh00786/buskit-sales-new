@@ -854,41 +854,43 @@ class ApiWorker with ApiConstants {
       return [];
     }
   }
-
-  Future<List<ProductModel>> getAllProducts() async {
-    final companyId = SessionHelper.loginSavedData?.company_id;
-
+  Future<List<ProductModel>> getAllProducts({required int companyId}) async {
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
       try {
-        print('get all product api called');
-        // print('get all product api called');
+        print('get all product api called (B2B)');
+        
         final queryParams = {"company_id": companyId};
-        // print('query paerametyer in the get all product:$queryParams');
 
-        final response = await dio.getbycustom(ApiConstants.fetchProduct,
-            queryParameters: queryParams);
+        final response = await dio.getbycustom(
+          ApiConstants.fetchProduct, // Make sure this is "fetch_product_b2b" in ApiConstants
+          queryParameters: queryParams,
+        );
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          // log('[getAllProducts] API Response Data: $responseData');
-// log('category data from backend in order taking screen get all producrt:${responseData}');
-          // Parse the new response structure
-          final productApiResponse = ProductApiResponse.fromJson(responseData);
-
           List<ProductModel> allProducts = [];
 
-          // Extract all products from all scid groups
-          for (var scidGroup in productApiResponse.data) {
-            allProducts.addAll(scidGroup.products);
+          // Parse the new JSON structure directly
+          if (responseData['status'] == true && responseData['data'] != null) {
+            for (var scidGroup in responseData['data']) {
+              // The backend now uses 'product' instead of 'products'
+              if (scidGroup['product'] != null) {
+                for (var prod in scidGroup['product']) {
+                  allProducts.add(ProductModel.fromJson(prod));
+                }
+              }
+            }
+
+            try {
+              // Pass the raw data to the cache function
+              await _cacheProductsByScid(responseData['data']);
+              await _verifyProductCache();
+            } catch (cacheError) {
+              print("Cache saving bypassed or failed: $cacheError");
+            }
           }
-
-          // Store products by scid for caching
-          await _cacheProductsByScid(productApiResponse.data);
-
-          // Verify cache was successful
-          await _verifyProductCache();
 
           return allProducts;
         } else {
@@ -911,21 +913,83 @@ class ApiWorker with ApiConstants {
         print('└───────────────────────────────');
 
         handleExceptionMessage(
-          apiName: 'Get All Product',
+          apiName: 'Get All Product B2B',
           response: e is DioException ? e.response : null,
         );
-        // handleExceptionMessage(
-        //   apiName: 'Get All Product',
-        //   response: e is DioException ? e.response : null,
-        // );
+        
         return [];
       }
     } else {
-      // Load from cached data when offline
       final cachedProducts = await _loadCachedProducts();
       return cachedProducts;
     }
   }
+
+  // Future<List<ProductModel>> getAllProducts() async {
+  //   final companyId = SessionHelper.loginSavedData?.company_id;
+
+  //   final isConnected = await ConnectivityService().isOnline();
+
+  //   if (isConnected) {
+  //     try {
+  //       print('get all product api called');
+        
+  //       final queryParams = {"company_id": companyId};
+       
+
+  //       final response = await dio.getbycustom(ApiConstants.fetchProduct,
+  //           queryParameters: queryParams);
+
+  //       if (response.statusCode == 200) {
+  //         final responseData = response.data;
+         
+  //         final productApiResponse = ProductApiResponse.fromJson(responseData);
+
+  //         List<ProductModel> allProducts = [];
+
+         
+  //         for (var scidGroup in productApiResponse.data) {
+  //           allProducts.addAll(scidGroup.products);
+  //         }
+
+        
+  //         await _cacheProductsByScid(productApiResponse.data);
+   
+  //         await _verifyProductCache();
+
+  //         return allProducts;
+  //       } else {
+  //         return [];
+  //       }
+  //     } catch (e, stackTrace) {
+  //       print('┌───────────────────────────────');
+  //       print('│ ERROR in getAllProducts()');
+  //       print('├───────────────────────────────');
+  //       print('│ Type:     ${e.runtimeType}');
+  //       print('│ Message:  $e');
+  //       if (e is DioException) {
+  //         print('│ Status:   ${e.response?.statusCode}');
+  //         print('│ Endpoint: ${e.requestOptions.path}');
+  //         print('│ Response: ${e.response?.data}');
+  //       }
+  //       print('│');
+  //       print('│ Stack trace (first few lines):');
+  //       print('│ ${stackTrace.toString().split('\n').take(6).join('\n│ ')}');
+  //       print('└───────────────────────────────');
+
+  //       handleExceptionMessage(
+  //         apiName: 'Get All Product',
+  //         response: e is DioException ? e.response : null,
+  //       );
+        
+  //       return [];
+  //     }
+  //   } else {
+     
+  //     final cachedProducts = await _loadCachedProducts();
+  //     return cachedProducts;
+  //   }
+  // }
 
   // Method to verify product cache status
   Future<void> _verifyProductCache() async {

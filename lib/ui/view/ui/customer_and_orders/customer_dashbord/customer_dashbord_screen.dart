@@ -1077,140 +1077,246 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     padding: const EdgeInsets.all(5.0),
                     child: Column(
                       children: [
-                        Row(
+                          Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // --- ITEM 1 (LEFT): The Dropdown ---
+                            SizedBox(
+                              width: 110,
+                              child: YearCustomerAndOrdersDropdown(
+                                onYearSelected: (int year) {
+                                  setState(() {
+                                    selectedYear = year;
+                                  });
+                                  final customerProvider =
+                                      Provider.of<CustomersProvider>(context,
+                                          listen: false);
+
+                                  customerProvider.updateDashboardYear(year);
+
+                                  customerProvider
+                                      .fetchCustomerDashboardData(widget.cusId);
+                                  customerProvider
+                                      .fetchCustomerDashboardRevenueData(
+                                          widget.cusId);
+                                  customerProvider
+                                      .fetchCustomerDashboardDataSalseData(
+                                          widget.cusId);
+                                  customerProvider
+                                      .fetchCustomersDataDash(widget.cusId);
+                                  customerProvider
+                                      .fetchCustomerDashboardCountData(
+                                          widget.cusId);
+                                },
+                              ),
+                            ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SizedBox(
-                                  width: 110, // Adjusted width
-                                  child: YearCustomerAndOrdersDropdown(
-                                    onYearSelected: (int year) async {
-                                      final isOnline =
-                                          await ConnectivityService()
-                                              .isOnline();
-                                      if (!isOnline) {
-                                        // 2. Show a popup message if offline
-                                        if (context.mounted) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            'No internet connection. Please connect to the internet to filter data.'
-                                                .tr,
-                                            Colors.orange,
-                                            Icons.wifi_off,
-                                          );
-                                        }
-                                        return; // 3. Stop execution here, do not fetch new data
-                                      }
-                                      if (context.mounted) {
-                                        setState(() {
-                                          selectedYear = year;
-                                        });
-                                        final customerProvider =
-                                            Provider.of<CustomersProvider>(
-                                                context,
-                                                listen: false);
-                                        customerProvider
-                                            .updateDashboardYear(year);
-                                        customerProvider
-                                            .fetchCustomerDashboardData(
-                                                widget.cusId);
-                                        customerProvider
-                                            .fetchCustomerDashboardRevenueData(
-                                                widget.cusId);
-                                        customerProvider
-                                            .fetchCustomerDashboardDataSalseData(
-                                                widget.cusId);
-                                        customerProvider.fetchCustomersDataDash(
-                                            widget.cusId);
-                                        customerProvider
-                                            .fetchCustomerDashboardCountData(
-                                                widget.cusId);
-                                      }
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 280,
-                                ),
-                                Row(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        print('customer id: ${widget.cusId}');
-                                        OrderIdSnackBar.show(
-                                            context,
-                                            widget.cusId.toString(),
-                                            salesmanInternalId!);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 38, 165, 42),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Sales Return'.tr,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            overflow: TextOverflow.ellipsis),
-                                      ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    print('customer id: ${widget.cusId}');
+                                    OrderIdSnackBar.show(
+                                        context,
+                                        widget.cusId.toString(),
+                                        salesmanInternalId!);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 38, 165, 42),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
                                     ),
-                                  ],
+                                  ),
+                                  child: Text(
+                                    'Sales Return'.tr,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
                                 const SizedBox(
-                                  width: 5,
+                                  width:
+                                      10, // Adds a small gap between the two buttons
                                 ),
-                                SizedBox(
-                                  width: 145,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      if (subscriptionController
-                                              .orderTakingFromDashboard.value !=
-                                          "true") {
-                                        showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (context) {
-                                            return const UpgradePlanScreen();
-                                          },
-                                        );
-                                      }
-                                      if (subscriptionController
-                                              .orderTakingFromDashboard.value ==
-                                          "true") {
-                                        _navigateToOrderTaking();
-                                      }
-                                      CartDatabaseManager().getCartItems(
-                                          productsController
-                                              .selectedCustomerId.value);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColor,
-                                      shadowColor: WidgetStateColor.transparent,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
-                                          side: const BorderSide(
-                                              color: primaryColor)),
-                                    ),
-                                    child: Text(
-                                      'Order Taking'.tr,
-                                      style: TextStyle(
-                                          color: white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.3,
-                                          fontFamily: fontFamilyName),
-                                    ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (subscriptionController
+                                            .orderTakingFromDashboard.value !=
+                                        "true") {
+                                      showDialog(
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (context) {
+                                          return const UpgradePlanScreen();
+                                        },
+                                      );
+                                    }
+                                    if (subscriptionController
+                                            .orderTakingFromDashboard.value ==
+                                        "true") {
+                                      _navigateToOrderTaking();
+                                    }
+                                    CartDatabaseManager().getCartItems(
+                                        productsController
+                                            .selectedCustomerId.value);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryColor,
+                                    shadowColor: WidgetStateColor.transparent,
+                                    minimumSize: const Size(145, 40),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                        side: const BorderSide(
+                                            color: primaryColor)),
                                   ),
-                                )
+                                  child: Text(
+                                    'Order Taking'.tr,
+                                    style: const TextStyle(
+                                        color: white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.3,
+                                        fontFamily: fontFamilyName,
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                ),
                               ],
-                            )
+                            ),
                           ],
                         ),
+                        // Row(
+                        //   children: [
+                        //     Row(
+                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //       children: [
+                        //         SizedBox(
+                        //           width: 110, // Adjusted width
+                        //           child: YearCustomerAndOrdersDropdown(
+                        //             onYearSelected: (int year) async {
+                        //               final isOnline =
+                        //                   await ConnectivityService()
+                        //                       .isOnline();
+                        //               if (!isOnline) {
+                        //                 // 2. Show a popup message if offline
+                        //                 if (context.mounted) {
+                        //                   showCustomToastDisplay(
+                        //                     context,
+                        //                     'No internet connection. Please connect to the internet to filter data.'
+                        //                         .tr,
+                        //                     Colors.orange,
+                        //                     Icons.wifi_off,
+                        //                   );
+                        //                 }
+                        //                 return; // 3. Stop execution here, do not fetch new data
+                        //               }
+                        //               if (context.mounted) {
+                        //                 setState(() {
+                        //                   selectedYear = year;
+                        //                 });
+                        //                 final customerProvider =
+                        //                     Provider.of<CustomersProvider>(
+                        //                         context,
+                        //                         listen: false);
+                        //                 customerProvider
+                        //                     .updateDashboardYear(year);
+                        //                 customerProvider
+                        //                     .fetchCustomerDashboardData(
+                        //                         widget.cusId);
+                        //                 customerProvider
+                        //                     .fetchCustomerDashboardRevenueData(
+                        //                         widget.cusId);
+                        //                 customerProvider
+                        //                     .fetchCustomerDashboardDataSalseData(
+                        //                         widget.cusId);
+                        //                 customerProvider.fetchCustomersDataDash(
+                        //                     widget.cusId);
+                        //                 customerProvider
+                        //                     .fetchCustomerDashboardCountData(
+                        //                         widget.cusId);
+                        //               }
+                        //             },
+                        //           ),
+                        //         ),
+                        //         SizedBox(
+                        //           width: 280,
+                        //         ),
+                        //         Row(
+                        //           children: [
+                        //             ElevatedButton(
+                        //               onPressed: () {
+                        //                 print('customer id: ${widget.cusId}');
+                        //                 OrderIdSnackBar.show(
+                        //                     context,
+                        //                     widget.cusId.toString(),
+                        //                     salesmanInternalId!);
+                        //               },
+                        //               style: ElevatedButton.styleFrom(
+                        //                 backgroundColor: const Color.fromARGB(
+                        //                     255, 38, 165, 42),
+                        //                 shape: RoundedRectangleBorder(
+                        //                   borderRadius:
+                        //                       BorderRadius.circular(4.0),
+                        //                 ),
+                        //               ),
+                        //               child: Text(
+                        //                 'Sales Return'.tr,
+                        //                 style: TextStyle(
+                        //                     color: Colors.white,
+                        //                     overflow: TextOverflow.ellipsis),
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //         const SizedBox(
+                        //           width: 5,
+                        //         ),
+                        //         SizedBox(
+                        //           width: 145,
+                        //           child: ElevatedButton(
+                        //             onPressed: () {
+                        //               if (subscriptionController
+                        //                       .orderTakingFromDashboard.value !=
+                        //                   "true") {
+                        //                 showDialog(
+                        //                   barrierDismissible: false,
+                        //                   context: context,
+                        //                   builder: (context) {
+                        //                     return const UpgradePlanScreen();
+                        //                   },
+                        //                 );
+                        //               }
+                        //               if (subscriptionController
+                        //                       .orderTakingFromDashboard.value ==
+                        //                   "true") {
+                        //                 _navigateToOrderTaking();
+                        //               }
+                        //               CartDatabaseManager().getCartItems(
+                        //                   productsController
+                        //                       .selectedCustomerId.value);
+                        //             },
+                        //             style: ElevatedButton.styleFrom(
+                        //               backgroundColor: primaryColor,
+                        //               shadowColor: WidgetStateColor.transparent,
+                        //               shape: RoundedRectangleBorder(
+                        //                   borderRadius:
+                        //                       BorderRadius.circular(4.0),
+                        //                   side: const BorderSide(
+                        //                       color: primaryColor)),
+                        //             ),
+                        //             child: Text(
+                        //               'Order Taking'.tr,
+                        //               style: TextStyle(
+                        //                   color: white,
+                        //                   fontSize: 12,
+                        //                   fontWeight: FontWeight.bold,
+                        //                   letterSpacing: 0.3,
+                        //                   fontFamily: fontFamilyName),
+                        //             ),
+                        //           ),
+                        //         )
+                        //       ],
+                        //     )
+                        //   ],
+                        // ),
                         OptionWidgetCustomerDash(
                           customerId: widget.cusId,
                           customType: "",

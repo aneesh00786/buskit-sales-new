@@ -677,7 +677,7 @@ class LoginController extends GetxController {
 
         // ApiWorker().getProductReturnDetails(orderId: orderId),
 
-        _apiWorker.getAllProducts(),
+        _apiWorker.getAllProducts(companyId: companyId),
         _apiWorker.getBulkVolumes(),
         
         calenderMapController.getRouteCredit(),

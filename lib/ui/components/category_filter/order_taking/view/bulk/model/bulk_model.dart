@@ -1,34 +1,39 @@
-
 class Bulk {
-    int? statusCode;
-    bool? status;
-    List<BulkData>? data;
+  int? statusCode;
+  bool? status;
+  List<BulkData>? data;
 
-    Bulk({
-        this.statusCode,
-        this.status,
-        this.data,
-    });
+  Bulk({
+    this.statusCode,
+    this.status,
+    this.data,
+  });
 
-    factory Bulk.fromJson(Map<String, dynamic> json) => Bulk(
-       statusCode: _parseInt(json["status_code"]),
+  factory Bulk.fromJson(Map<String, dynamic> json) => Bulk(
+        statusCode: _parseInt(json["status_code"]),
         status: json["status"],
-        data: json["data"] == null ? [] : List<BulkData>.from(json["data"]!.map((x) => BulkData.fromJson(x))),
-    );
+        data: json["data"] == null
+            ? []
+            : List<BulkData>.from(
+                json["data"]!.map((x) => BulkData.fromJson(x))),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "status_code": statusCode,
         "status": status,
-        "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
-    };
+        "data": data == null
+            ? []
+            : List<dynamic>.from(data!.map((x) => x.toJson())),
+      };
 }
 
- int? _parseInt(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value);
-    return null; // or throw if you prefer
-  }
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is String) return int.tryParse(value);
+  return null; // or throw if you prefer
+}
+
 class BulkData {
   int? id;
   String? volumeName;
@@ -51,6 +56,8 @@ class BulkData {
   String? inclTax;
   double? bulkTax;
   int? stock;
+  String? vName;
+  String? unitType;
 
   BulkData({
     this.id,
@@ -73,7 +80,9 @@ class BulkData {
     this.variationName,
     this.inclTax,
     this.bulkTax,
-    this.stock
+    this.stock,
+    this.vName,
+    this.unitType,
   });
 
   factory BulkData.fromJson(Map<String, dynamic> json) => BulkData(
@@ -89,7 +98,9 @@ class BulkData {
         categoryName: json["category_name"] as String?,
         subcategoryName: json["subcategory_name"] as String?,
         productName: json["product_name"] as String?,
-        createdAt: json["created_at"] == null ? null : DateTime.tryParse(json["created_at"]),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.tryParse(json["created_at"]),
         calculatedTotal: json["calculated_total"]?.toString(),
         discountPercentage: _parseDouble(json["discount_percentage"]),
         discountAmount: json["discount_amount"]?.toString(),
@@ -98,6 +109,8 @@ class BulkData {
         inclTax: json["incl_tax"],
         bulkTax: _parseDouble(json["cat_tax"]),
         stock: _parseInt(json["stock"]),
+        vName: json["v_name"] as String?,
+        unitType: json["unitType"] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -118,15 +131,14 @@ class BulkData {
         "discount_percentage": discountPercentage,
         "discount_amount": discountAmount,
         "bulk_id": bulkId,
-        "variation_name":variationName,
-        "incl_tax":inclTax,
+        "variation_name": variationName,
+        "incl_tax": inclTax,
         "cat_tax": bulkTax,
         "stock": stock,
+        "v_name": vName,
+        "unitType": unitType,
       };
 }
-
-// Add these helper functions at the bottom of the file
-
 
 double? _parseDouble(dynamic value) {
   if (value == null) return null;

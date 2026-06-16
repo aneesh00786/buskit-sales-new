@@ -112,7 +112,7 @@ mixin class ApiConstants {
   static const String showRoute = "show-route";
   static const String fetchCategories = "fetch_categories";
   static const String getPromoCategories = "get-promo-categories";
-  static const String fetchProduct = "fetch_product";
+  static const String fetchProduct = "fetch_product_b2b";
   static const String promotions = "webStore-promo";
   static const String getLeadForUpdating = "get_lead_for_updating";
   static const String customerPayment = "customer_payment";
@@ -124,7 +124,7 @@ mixin class ApiConstants {
   static const String imagePath = '/uploads/setting/1739620175980.jpg';
   static const String imageEndpoint = '$baseUrl$imagePath';
   static const String GetPendingReturnsForCart = '/get_pending_returns_for_cart';
-  static const String getVolumes = "get-volumes";
+  static const String getVolumes = "get-volumes_b2b";
   static const String fetchSalesmanOfCustomer = "fetch_salesman_of_customer";
   static const String getRecentOrdersData = "get_recent_orders";
   static const String orderAcceptDirect = "order_accept_direct";

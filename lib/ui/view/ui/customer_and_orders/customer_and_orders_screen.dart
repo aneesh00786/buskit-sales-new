@@ -200,510 +200,11 @@ class _TableeeState extends State<Tableee> {
             child: BottomTotalWidget(
                 scrollController: _scrollController2, provider: provider),
           ),
-          // Positioned.fill(
-          //   child: Consumer<CustomersProvider>(
-          //     builder: (context, custProvider, child) {
-          //       if (custProvider.isLoading) {
-          //         return Container(
-          //           color: Colors.white.withOpacity(0.4), // Dims the background
-          //           child: const Center(
-          //             child: CircularProgressIndicator(
-          //               color: Colors.blue,
-          //               strokeWidth: 3.0,
-          //             ),
-          //           ),
-          //         );
-          //       }
-          //       return const SizedBox.shrink(); // Shows nothing when not loading
-          //     },
-          //   ),
-          // ),
         ],
       ),
     );
   }
 
-  // Widget calender() {
-  //   return LayoutBuilder(
-  //     builder: (context, constraints) {
-  //       return Consumer<DashboardProvider>(
-  //         builder: (context, dashboardProvider, child) {
-  //           return Consumer<CustomersProvider>(
-  //             builder: (context, provider, child) {
-  //               /// --- Tablet / Landscape Layout
-  //               if (isTabletOrPhoneLandscape(context)) {
-  //                 return Row(
-  //                   mainAxisAlignment: MainAxisAlignment.start,
-  //                   crossAxisAlignment: CrossAxisAlignment.center,
-  //                   children: [
-  //                     Flexible(
-  //                       child: Row(
-  //                         children: [
-  //                           // const SizedBox(width: 5),
-  //                           buildFilterDropdown(provider, context),
-  //                           if (provider.selectedFilter ==
-  //                               FilterDateEnum.thisMonth) ...[
-  //                             const SizedBox(width: 5),
-  //                             MonthDropdown(
-  //                               onApplyTap: () => provider.fetchCustomerData(),
-  //                             ),
-  //                             // You can import and use MonthDropdown if needed, or keep existing behavior
-  //                             // For now, keeping existing range picker logic
-  //                           ],
-  //                           if (provider.selectedFilter ==
-  //                               FilterDateEnum.thisWeek) ...[
-  //                             const SizedBox(width: 5),
-  //                             WeekDropdown(
-  //                               onApplyTap: () {
-  //                                 provider
-  //                                     .fetchCustomerData(); // This triggers the API call
-  //                               },
-  //                             )
-  //                           ],
-  //                           if (provider.selectedFilter ==
-  //                               FilterDateEnum.thisYear) ...[
-  //                             const SizedBox(width: 5),
-  //                             YearDropdown(
-  //                               onApplyTap: () {
-  //                                 provider.fetchCustomerData();
-  //                               },
-  //                             )
-  //                           ],
-  //                           if (provider.selectedFilter ==
-  //                               FilterDateEnum.today) ...[
-  //                             const SizedBox(width: 5),
-  //                             DatePickerWidget(
-  //                               onApplyTap: () {
-  //                                 provider.fetchCustomerData();
-  //                               },
-  //                             )
-  //                           ],
-  //                           if (provider.selectedFilter ==
-  //                               FilterDateEnum.range) ...[
-  //                             const SizedBox(width: 5),
-  //                             Expanded(
-  //                               child: SingleChildScrollView(
-  //                                 scrollDirection: Axis.horizontal,
-  //                                 child: Row(
-  //                                   children: [
-  //                                     Padding(
-  //                                       padding: const EdgeInsets.symmetric(
-  //                                           horizontal: 4.0),
-  //                                       child: GestureDetector(
-  //                                         onTap: () => provider.selectDate(
-  //                                             context, true),
-  //                                         child: Container(
-  //                                           height: 50,
-  //                                           width: 125,
-  //                                           decoration: BoxDecoration(
-  //                                             gradient: LinearGradient(
-  //                                               colors: [
-  //                                                 Colors.white,
-  //                                                 Colors.white,
-  //                                               ],
-  //                                               begin: Alignment.topLeft,
-  //                                               end: Alignment.bottomRight,
-  //                                             ),
-  //                                             borderRadius:
-  //                                                 BorderRadius.circular(12),
-  //                                             border: Border.all(
-  //                                                 color:
-  //                                                     const Color(0xFFE1E5E9),
-  //                                                 width: 1),
-  //                                             boxShadow: [
-  //                                               BoxShadow(
-  //                                                 color: Colors.black
-  //                                                     .withOpacity(0.08),
-  //                                                 blurRadius: 8,
-  //                                                 offset: const Offset(0, 4),
-  //                                                 spreadRadius: 0,
-  //                                               ),
-  //                                               BoxShadow(
-  //                                                 color: Colors.white
-  //                                                     .withOpacity(0.8),
-  //                                                 blurRadius: 0,
-  //                                                 offset: const Offset(-2, -2),
-  //                                               ),
-  //                                             ],
-  //                                           ),
-  //                                           padding: const EdgeInsets.symmetric(
-  //                                               horizontal: 10, vertical: 6),
-  //                                           child: Row(
-  //                                             mainAxisAlignment:
-  //                                                 MainAxisAlignment
-  //                                                     .spaceBetween,
-  //                                             children: [
-  //                                               Expanded(
-  //                                                 child: Text(
-  //                                                   provider.selectedStartDate
-  //                                                           .isEmpty
-  //                                                       ? 'DD-MM-YYYY'
-  //                                                       : DateFormat(
-  //                                                               'dd-MM-yyyy')
-  //                                                           .format(DateTime
-  //                                                               .parse(provider
-  //                                                                   .selectedStartDate)),
-  //                                                   style: const TextStyle(
-  //                                                     fontSize: 13,
-  //                                                     fontWeight:
-  //                                                         FontWeight.w600,
-  //                                                     color: Colors.black87,
-  //                                                   ),
-  //                                                   overflow:
-  //                                                       TextOverflow.ellipsis,
-  //                                                 ),
-  //                                               ),
-  //                                               const Icon(Icons.calendar_today,
-  //                                                   size: 18,
-  //                                                   color: Colors.blue),
-  //                                             ],
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Padding(
-  //                                       padding: const EdgeInsets.symmetric(
-  //                                           horizontal: 4.0),
-  //                                       child: GestureDetector(
-  //                                         onTap: () => provider.selectDate(
-  //                                             context, false),
-  //                                         child: Container(
-  //                                           height: 50,
-  //                                           width: 125,
-  //                                           decoration: BoxDecoration(
-  //                                             gradient: LinearGradient(
-  //                                               colors: [
-  //                                                 Colors.white,
-  //                                                 Colors.white,
-  //                                               ],
-  //                                               begin: Alignment.topLeft,
-  //                                               end: Alignment.bottomRight,
-  //                                             ),
-  //                                             borderRadius:
-  //                                                 BorderRadius.circular(12),
-  //                                             border: Border.all(
-  //                                                 color:
-  //                                                     const Color(0xFFE1E5E9),
-  //                                                 width: 1),
-  //                                             boxShadow: [
-  //                                               BoxShadow(
-  //                                                 color: Colors.black
-  //                                                     .withOpacity(0.08),
-  //                                                 blurRadius: 8,
-  //                                                 offset: const Offset(0, 4),
-  //                                                 spreadRadius: 0,
-  //                                               ),
-  //                                               BoxShadow(
-  //                                                 color: Colors.white
-  //                                                     .withOpacity(0.8),
-  //                                                 blurRadius: 0,
-  //                                                 offset: const Offset(-2, -2),
-  //                                               ),
-  //                                             ],
-  //                                           ),
-  //                                           padding: const EdgeInsets.symmetric(
-  //                                               horizontal: 10, vertical: 6),
-  //                                           child: Row(
-  //                                             mainAxisAlignment:
-  //                                                 MainAxisAlignment
-  //                                                     .spaceBetween,
-  //                                             children: [
-  //                                               Expanded(
-  //                                                 child: Text(
-  //                                                   provider.selectedEndDate
-  //                                                           .isEmpty
-  //                                                       ? 'DD-MM-YYYY'
-  //                                                       : DateFormat(
-  //                                                               'dd-MM-yyyy')
-  //                                                           .format(DateTime
-  //                                                               .parse(provider
-  //                                                                   .selectedEndDate)),
-  //                                                   style: const TextStyle(
-  //                                                     fontSize: 13,
-  //                                                     fontWeight:
-  //                                                         FontWeight.w600,
-  //                                                     color: Colors.black87,
-  //                                                   ),
-  //                                                   overflow:
-  //                                                       TextOverflow.ellipsis,
-  //                                                 ),
-  //                                               ),
-  //                                               const Icon(Icons.calendar_today,
-  //                                                   size: 18,
-  //                                                   color: Colors.blue),
-  //                                             ],
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Padding(
-  //                                       padding: const EdgeInsets.symmetric(
-  //                                           horizontal: 4.0),
-  //                                       child: SizedBox(
-  //                                         height: 50,
-  //                                         width: 68,
-  //                                         child: ElevatedButton(
-  //                                           onPressed: () =>
-  //                                               provider.fetchCustomerData(),
-  //                                           style: ElevatedButton.styleFrom(
-  //                                             backgroundColor: primaryColor,
-  //                                             shape: RoundedRectangleBorder(
-  //                                                 borderRadius:
-  //                                                     BorderRadius.circular(
-  //                                                         12.0)),
-  //                                             elevation: 8,
-  //                                             shadowColor:
-  //                                                 Colors.black.withOpacity(0.2),
-  //                                             padding:
-  //                                                 const EdgeInsets.symmetric(
-  //                                                     horizontal: 16,
-  //                                                     vertical: 10),
-  //                                           ),
-  //                                           child:  Text('Go'.tr,
-  //                                               style: TextStyle(
-  //                                                   color: Colors.white,
-  //                                                   fontSize: 14,
-  //                                                   fontWeight:
-  //                                                       FontWeight.w600)),
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                   ],
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ],
-  //                       ),
-  //                     ),
-  //                     // const SizedBox(width: 10),
-  //                     // addCustomer(context),
-  //                     // const SizedBox(width: 20),
-  //                     // NotificationWidget(
-  //                     //   startDate: provider.selectedStartDate,
-  //                     //   endDate: provider.selectedEndDate,
-  //                     // ),
-  //                     //  SizedBox(width: 95, child: profiloe()),
-  //                   ],
-  //                 );
-  //               }
-
-  //               /// --- Phone / Portrait Layout
-  //               return Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   // Top row: Add Customer + Notification + Update
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.end,
-  //                     children: [
-  //                       addCustomer(context),
-  //                       const SizedBox(width: 10),
-  //                       NotificationWidget(
-  //                         startDate: provider.selectedStartDate,
-  //                         endDate: provider.selectedEndDate,
-  //                       ),
-  //                       const SizedBox(width: 10),
-  //                       SizedBox(width: 120, child: profiloe()),
-  //                     ],
-  //                   ),
-  //                   const SizedBox(height: 8),
-
-  //                   // Filter row - horizontally scrollable
-  //                   SingleChildScrollView(
-  //                     scrollDirection: Axis.horizontal,
-  //                     child: Row(
-  //                       children: [
-  //                         const SizedBox(width: 5),
-  //                         buildFilterDropdown(provider, context),
-  //                         if (provider.selectedFilter ==
-  //                             FilterDateEnum.range) ...[
-  //                           const SizedBox(width: 10),
-  //                           Row(
-  //                             children: [
-  //                               GestureDetector(
-  //                                 onTap: () =>
-  //                                     provider.selectDate(context, true),
-  //                                 child: dateBox(provider.selectedStartDate),
-  //                               ),
-  //                               const SizedBox(width: 8),
-  //                               GestureDetector(
-  //                                 onTap: () =>
-  //                                     provider.selectDate(context, false),
-  //                                 child: dateBox(provider.selectedEndDate),
-  //                               ),
-  //                               const SizedBox(width: 8),
-  //                               SizedBox(
-  //                                 height: 36.4,
-  //                                 width: 68,
-  //                                 child: ElevatedButton(
-  //                                   onPressed: () =>
-  //                                       provider.fetchCustomerData(),
-  //                                   style: ElevatedButton.styleFrom(
-  //                                     backgroundColor: primaryColor,
-  //                                     shape: RoundedRectangleBorder(
-  //                                         borderRadius:
-  //                                             BorderRadius.circular(4)),
-  //                                   ),
-  //                                   child:  Text('Go'.tr,
-  //                                       style: TextStyle(
-  //                                           color: Colors.white, fontSize: 12)),
-  //                                 ),
-  //                               ),
-  //                             ],
-  //                           ),
-  //                         ],
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 12),
-  //                 ],
-  //               );
-  //             },
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
-  //   return SizedBox(
-  //     height: 50,
-  //     width: 125,
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         gradient: LinearGradient(
-  //           colors: [
-  //             Colors.white,
-  //             Colors.white,
-  //           ],
-  //           begin: Alignment.topLeft,
-  //           end: Alignment.bottomRight,
-  //         ),
-  //         borderRadius: BorderRadius.circular(12),
-  //         border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: Colors.black.withOpacity(0.08),
-  //             blurRadius: 8,
-  //             offset: const Offset(0, 4),
-  //             spreadRadius: 0,
-  //           ),
-  //           BoxShadow(
-  //             color: Colors.white.withOpacity(0.8),
-  //             blurRadius: 0,
-  //             offset: const Offset(-2, -2),
-  //           ),
-  //         ],
-  //       ),
-  //       child: Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-  //         child: DropdownButton<FilterDateEnum>(
-  //           value: provider.selectedFilter,
-  //           onChanged: (newValue) async {
-  //             bool isOnline = await ConnectivityService().isOnline();
-  //             if (!isOnline) {
-  //               showCustomToastDisplay(
-  //                   context, "You are Offline!".tr, red, Icons.close);
-  //               return;
-  //             }
-  //             if (newValue != null) {
-  //               // This should ONLY update the variable `selectedFilter`
-  //               // and call notifyListeners(). Do not fetch API data here.
-  //               provider.updateFilterSelection(newValue);
-  //             }
-  //           },
-  //           // onChanged: (newValue) async {
-  //           //   bool isOnline = await ConnectivityService().isOnline();
-  //           //   if (!isOnline) {
-  //           //     showCustomToastDisplay(
-  //           //         context, "You are Offline!", red, Icons.close);
-  //           //     return;
-  //           //   }
-  //           //   if (newValue != null) {
-  //           //     provider.onFilterChanged(newValue);
-  //           //   }
-  //           // },
-  //           items:  [
-  //             DropdownMenuItem(
-  //               value: FilterDateEnum.thisMonth,
-  //               child: Row(
-  //                 children: [
-  //                   Icon(Icons.calendar_month, size: 16, color: primaryColor),
-  //                   SizedBox(width: 8),
-  //                   Text('Month'.tr,
-  //                       style: TextStyle(
-  //                           fontSize: 13, fontWeight: FontWeight.w600)),
-  //                 ],
-  //               ),
-  //             ),
-  //             DropdownMenuItem(
-  //               value: FilterDateEnum.thisWeek,
-  //               child: Row(
-  //                 children: [
-  //                   Icon(Icons.calendar_today, size: 16, color: primaryColor),
-  //                   SizedBox(width: 8),
-  //                   Text('Week'.tr,
-  //                       style: TextStyle(
-  //                           fontSize: 13, fontWeight: FontWeight.w600)),
-  //                 ],
-  //               ),
-  //             ),
-  //             DropdownMenuItem(
-  //               value: FilterDateEnum.today,
-  //               child: Row(
-  //                 children: [
-  //                   Icon(Icons.today, size: 16, color: primaryColor),
-  //                   SizedBox(width: 8),
-  //                   Text('Day'.tr,
-  //                       style: TextStyle(
-  //                           fontSize: 13, fontWeight: FontWeight.w600)),
-  //                 ],
-  //               ),
-  //             ),
-  //             DropdownMenuItem(
-  //               value: FilterDateEnum.thisYear,
-  //               child: Row(
-  //                 children: [
-  //                   Icon(Icons.calendar_view_month,
-  //                       size: 16, color: primaryColor),
-  //                   SizedBox(width: 8),
-  //                   Text('Year'.tr,
-  //                       style: TextStyle(
-  //                           fontSize: 13, fontWeight: FontWeight.w600)),
-  //                 ],
-  //               ),
-  //             ),
-  //             DropdownMenuItem(
-  //               value: FilterDateEnum.range,
-  //               child: Row(
-  //                 children: [
-  //                   Icon(Icons.date_range, size: 16, color: primaryColor),
-  //                   SizedBox(width: 8),
-  //                   Text('Range'.tr,
-  //                       style: TextStyle(
-  //                           fontSize: 13, fontWeight: FontWeight.w600)),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //           isExpanded: true,
-  //           borderRadius: BorderRadius.circular(12),
-  //           underline: Container(),
-  //           icon: Icon(Icons.keyboard_arrow_down,
-  //               size: 20, color: Colors.grey[600]),
-  //           dropdownColor: Colors.white,
-  //           elevation: 8,
-  //           style: TextStyle(
-  //             color: Colors.black87,
-  //             fontSize: 13,
-  //             fontWeight: FontWeight.w600,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
   Widget calender() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -721,30 +222,36 @@ class _TableeeState extends State<Tableee> {
                         child: Row(
                           children: [
                             const SizedBox(width: 5),
-                            
+
                             // 1. Conditional Standalone Year Dropdown
-                            if (provider.selectedFilter != FilterDateEnum.range) ...[
-                              buildYearDropdownWidget(context, dashboardProvider),
+                            if (provider.selectedFilter !=
+                                FilterDateEnum.range) ...[
+                              buildYearDropdownWidget(
+                                  context, dashboardProvider),
                               const SizedBox(width: 10),
                             ],
 
                             // 2. Main Filter Dropdown
                             buildFilterDropdown(provider, context),
-                            
+
                             // 3. Conditional Pickers (No internal Go buttons)
-                            if (provider.selectedFilter == FilterDateEnum.thisMonth) ...[
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.thisMonth) ...[
                               const SizedBox(width: 10),
                               const MonthDropdown(),
                             ],
-                            if (provider.selectedFilter == FilterDateEnum.thisWeek) ...[
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.thisWeek) ...[
                               const SizedBox(width: 10),
                               const WeekDropdown(),
                             ],
-                            if (provider.selectedFilter == FilterDateEnum.today) ...[
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.today) ...[
                               const SizedBox(width: 10),
                               const DatePickerWidget(),
                             ],
-                            if (provider.selectedFilter == FilterDateEnum.range) ...[
+                            if (provider.selectedFilter ==
+                                FilterDateEnum.range) ...[
                               const SizedBox(width: 10),
                               Row(
                                 children: [
@@ -760,16 +267,20 @@ class _TableeeState extends State<Tableee> {
                                           end: Alignment.bottomRight,
                                         ),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                                        border: Border.all(
+                                            color: const Color(0xFFE1E5E9),
+                                            width: 1),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.08),
+                                            color:
+                                                Colors.black.withOpacity(0.08),
                                             blurRadius: 8,
                                             offset: const Offset(0, 4),
                                             spreadRadius: 0,
                                           ),
                                           BoxShadow(
-                                            color: Colors.white.withOpacity(0.8),
+                                            color:
+                                                Colors.white.withOpacity(0.8),
                                             blurRadius: 0,
                                             offset: const Offset(-2, -2),
                                           ),
@@ -777,28 +288,47 @@ class _TableeeState extends State<Tableee> {
                                       ),
                                       child: InkWell(
                                         onTap: () async {
-                                          bool isOnline = await ConnectivityService().isOnline();
+                                          bool isOnline =
+                                              await ConnectivityService()
+                                                  .isOnline();
                                           if (!isOnline) {
-                                            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                                            showCustomToastDisplay(
+                                                context,
+                                                "You are Offline!".tr,
+                                                red,
+                                                Icons.close);
                                             return;
                                           }
                                           provider.selectDate(context, true);
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Expanded(
                                                 child: Text(
-                                                  provider.selectedStartDate.isNotEmpty
-                                                      ? DateFormat('dd-MM-yyyy').format(DateTime.parse(provider.selectedStartDate))
+                                                  provider.selectedStartDate
+                                                          .isNotEmpty
+                                                      ? DateFormat('dd-MM-yyyy')
+                                                          .format(DateTime
+                                                              .parse(provider
+                                                                  .selectedStartDate))
                                                       : "DD-MM-YYYY",
-                                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
-                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                              const Icon(Icons.calendar_today, size: 18, color: primaryColor),
+                                              const Icon(Icons.calendar_today,
+                                                  size: 18,
+                                                  color: primaryColor),
                                             ],
                                           ),
                                         ),
@@ -806,7 +336,7 @@ class _TableeeState extends State<Tableee> {
                                     ),
                                   ),
                                   const SizedBox(width: 5),
-                                  
+
                                   // End Date Picker
                                   SizedBox(
                                     height: 50,
@@ -819,16 +349,20 @@ class _TableeeState extends State<Tableee> {
                                           end: Alignment.bottomRight,
                                         ),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                                        border: Border.all(
+                                            color: const Color(0xFFE1E5E9),
+                                            width: 1),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.08),
+                                            color:
+                                                Colors.black.withOpacity(0.08),
                                             blurRadius: 8,
                                             offset: const Offset(0, 4),
                                             spreadRadius: 0,
                                           ),
                                           BoxShadow(
-                                            color: Colors.white.withOpacity(0.8),
+                                            color:
+                                                Colors.white.withOpacity(0.8),
                                             blurRadius: 0,
                                             offset: const Offset(-2, -2),
                                           ),
@@ -836,28 +370,47 @@ class _TableeeState extends State<Tableee> {
                                       ),
                                       child: InkWell(
                                         onTap: () async {
-                                          bool isOnline = await ConnectivityService().isOnline();
+                                          bool isOnline =
+                                              await ConnectivityService()
+                                                  .isOnline();
                                           if (!isOnline) {
-                                            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                                            showCustomToastDisplay(
+                                                context,
+                                                "You are Offline!".tr,
+                                                red,
+                                                Icons.close);
                                             return;
                                           }
                                           provider.selectDate(context, false);
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Expanded(
                                                 child: Text(
-                                                  provider.selectedEndDate.isNotEmpty
-                                                      ? DateFormat('dd-MM-yyyy').format(DateTime.parse(provider.selectedEndDate))
+                                                  provider.selectedEndDate
+                                                          .isNotEmpty
+                                                      ? DateFormat('dd-MM-yyyy')
+                                                          .format(DateTime
+                                                              .parse(provider
+                                                                  .selectedEndDate))
                                                       : "DD-MM-YYYY",
-                                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
-                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                              const Icon(Icons.calendar_today, size: 18, color: primaryColor),
+                                              const Icon(Icons.calendar_today,
+                                                  size: 18,
+                                                  color: primaryColor),
                                             ],
                                           ),
                                         ),
@@ -895,46 +448,52 @@ class _TableeeState extends State<Tableee> {
                       ],
                     ),
                     const SizedBox(height: 8),
-
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
                           const SizedBox(width: 5),
-                          
+
                           // 1. Conditional Standalone Year Dropdown
-                          if (provider.selectedFilter != FilterDateEnum.range) ...[
+                          if (provider.selectedFilter !=
+                              FilterDateEnum.range) ...[
                             buildYearDropdownWidget(context, dashboardProvider),
                             const SizedBox(width: 10),
                           ],
 
                           // 2. Main Filter Dropdown
                           buildFilterDropdown(provider, context),
-                          
+
                           // 3. Conditional Pickers
-                          if (provider.selectedFilter == FilterDateEnum.thisMonth) ...[
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.thisMonth) ...[
                             const SizedBox(width: 10),
                             const MonthDropdown()
                           ],
-                          if (provider.selectedFilter == FilterDateEnum.thisWeek) ...[
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.thisWeek) ...[
                             const SizedBox(width: 10),
                             const WeekDropdown()
                           ],
-                          if (provider.selectedFilter == FilterDateEnum.today) ...[
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.today) ...[
                             const SizedBox(width: 10),
                             const DatePickerWidget()
                           ],
-                          if (provider.selectedFilter == FilterDateEnum.range) ...[
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.range) ...[
                             const SizedBox(width: 10),
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () => provider.selectDate(context, true),
+                                  onTap: () =>
+                                      provider.selectDate(context, true),
                                   child: dateBox(provider.selectedStartDate),
                                 ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
-                                  onTap: () => provider.selectDate(context, false),
+                                  onTap: () =>
+                                      provider.selectDate(context, false),
                                   child: dateBox(provider.selectedEndDate),
                                 ),
                               ],
@@ -989,13 +548,14 @@ class _TableeeState extends State<Tableee> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<FilterDateEnum>(
               // Fallback to month if somehow stuck on thisYear
-              value: provider.selectedFilter == FilterDateEnum.thisYear 
-                  ? FilterDateEnum.thisMonth 
+              value: provider.selectedFilter == FilterDateEnum.thisYear
+                  ? FilterDateEnum.thisMonth
                   : provider.selectedFilter,
               onChanged: (newValue) async {
                 bool isOnline = await ConnectivityService().isOnline();
                 if (!isOnline) {
-                  showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                  showCustomToastDisplay(
+                      context, "You are Offline!".tr, red, Icons.close);
                   return;
                 }
                 if (newValue != null) {
@@ -1004,46 +564,57 @@ class _TableeeState extends State<Tableee> {
               },
               items: [
                 DropdownMenuItem(
-                    value: FilterDateEnum.thisMonth,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                        const SizedBox(width: 8),
-                        Text('Month'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
+                  value: FilterDateEnum.thisMonth,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_month,
+                          size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Month'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
                 DropdownMenuItem(
-                    value: FilterDateEnum.thisWeek,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                        const SizedBox(width: 8),
-                        Text('Week'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
+                  value: FilterDateEnum.thisWeek,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today,
+                          size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Week'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
                 DropdownMenuItem(
-                    value: FilterDateEnum.today,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.today, size: 16, color: primaryColor),
-                        const SizedBox(width: 8),
-                        Text('Day'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
+                  value: FilterDateEnum.today,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.today, size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Day'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
                 ),
                 // REMOVED FilterDateEnum.thisYear
                 DropdownMenuItem(
-                    value: FilterDateEnum.range,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.date_range, size: 16, color: primaryColor),
-                        const SizedBox(width: 8),
-                        Text('Range'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
+                  value: FilterDateEnum.range,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.date_range,
+                          size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Range'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
                   ),
+                ),
               ],
               isExpanded: true,
               borderRadius: BorderRadius.circular(12),
@@ -1053,8 +624,10 @@ class _TableeeState extends State<Tableee> {
       ),
     );
   }
+
   /// New Standalone Blue Year Dropdown Widget
-  Widget buildYearDropdownWidget(BuildContext context, DashboardProvider dashboardProvider) {
+  Widget buildYearDropdownWidget(
+      BuildContext context, DashboardProvider dashboardProvider) {
     final int startYear = 2024;
     final int currentYear = DateTime.now().year;
     final int endYear = currentYear;
@@ -1063,7 +636,9 @@ class _TableeeState extends State<Tableee> {
         ? List.generate(endYear - startYear + 1, (index) => (startYear + index))
         : [currentYear];
 
-    int displayYear = dashboardProvider.selectedYear != 0 ? dashboardProvider.selectedYear : currentYear;
+    int displayYear = dashboardProvider.selectedYear != 0
+        ? dashboardProvider.selectedYear
+        : currentYear;
 
     return SizedBox(
       height: 50,
@@ -1086,7 +661,8 @@ class _TableeeState extends State<Tableee> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               value: years.contains(displayYear) ? displayYear : years.last,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54, size: 20),
+              icon: const Icon(Icons.keyboard_arrow_down,
+                  color: Colors.black54, size: 20),
               dropdownColor: Colors.white,
               style: const TextStyle(
                 color: Colors.black87,
@@ -1096,7 +672,8 @@ class _TableeeState extends State<Tableee> {
               onChanged: (int? newValue) async {
                 bool isOnline = await ConnectivityService().isOnline();
                 if (!isOnline) {
-                  showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+                  showCustomToastDisplay(
+                      context, "You are Offline!".tr, red, Icons.close);
                   return;
                 }
                 if (newValue != null) {
@@ -1125,7 +702,8 @@ class _TableeeState extends State<Tableee> {
         onPressed: () async {
           bool isOnline = await ConnectivityService().isOnline();
           if (!isOnline) {
-            showCustomToastDisplay(context, "You are Offline!".tr, red, Icons.close);
+            showCustomToastDisplay(
+                context, "You are Offline!".tr, red, Icons.close);
             return;
           }
           provider.currentPage = 1;
@@ -1260,7 +838,7 @@ class _TableeeState extends State<Tableee> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                         Text(
+                                        Text(
                                           'Add Customer'.tr,
                                           style: TextStyle(
                                             color: Colors.white,
@@ -1276,8 +854,10 @@ class _TableeeState extends State<Tableee> {
                                     padding: const EdgeInsets.all(16.0),
                                     child: Column(
                                       children: [
-                                        buildInputField(bsNameController,
-                                            'Business Name'.tr, Assets.icBusiness),
+                                        buildInputField(
+                                            bsNameController,
+                                            'Business Name'.tr,
+                                            Assets.icBusiness),
                                         buildInputField(addressController,
                                             'Address'.tr, Assets.icLocation),
                                         Row(
@@ -1332,7 +912,7 @@ class _TableeeState extends State<Tableee> {
                                             ),
                                           ],
                                         ),
-                                         Padding(
+                                        Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 6.0),
                                           child: Align(
@@ -1369,7 +949,7 @@ class _TableeeState extends State<Tableee> {
                                               vertical: 6.0),
                                           child: Row(
                                             children: [
-                                               Text(
+                                              Text(
                                                 'Delivery Address    '.tr,
                                                 style: TextStyle(fontSize: 18),
                                               ),
@@ -1414,7 +994,7 @@ class _TableeeState extends State<Tableee> {
                                                 },
                                               ),
                                               const SizedBox(width: 5),
-                                               Text('Same as Above'.tr),
+                                              Text('Same as Above'.tr),
                                             ],
                                           ),
                                         ),
@@ -1452,14 +1032,15 @@ class _TableeeState extends State<Tableee> {
                                             'Delivery Contact Number'.tr,
                                             Assets.icPhone,
                                             length: 10),
-                                         SizedBox(
+                                        SizedBox(
                                           height: 30,
                                           child: Row(
                                             children: [
                                               Spacer(),
                                               SizedBox(width: 8.0),
                                               Expanded(
-                                                  child: Text("Company logo".tr))
+                                                  child:
+                                                      Text("Company logo".tr))
                                             ],
                                           ),
                                         ),
@@ -1612,8 +1193,10 @@ class _TableeeState extends State<Tableee> {
                                                           child: Text(
                                                             provider.imageFile ==
                                                                     null
-                                                                ? 'Pick an image from gallery'.tr
-                                                                : 'Image selected'.tr,
+                                                                ? 'Pick an image from gallery'
+                                                                    .tr
+                                                                : 'Image selected'
+                                                                    .tr,
                                                             style: TextStyle(
                                                               color: Colors.grey
                                                                   .shade700,
@@ -1676,7 +1259,6 @@ class _TableeeState extends State<Tableee> {
                                                     isAddingCustomer = true;
                                                   });
 
-                                                  
                                                   Future.delayed(
                                                       const Duration(
                                                           seconds: 1), () {
@@ -1703,7 +1285,6 @@ class _TableeeState extends State<Tableee> {
                                                     return;
                                                   }
 
-                                                 
                                                   final fields = {
                                                     'Business Name':
                                                         bsNameController,
@@ -1753,7 +1334,6 @@ class _TableeeState extends State<Tableee> {
                                                     }
                                                   }
 
-                                                 
                                                   final phoneFields = {
                                                     'Mobile Number':
                                                         phoneController,
@@ -1782,7 +1362,6 @@ class _TableeeState extends State<Tableee> {
                                                     }
                                                   }
 
-                                               
                                                   final email = emailController
                                                       .text
                                                       .trim();
@@ -1802,7 +1381,6 @@ class _TableeeState extends State<Tableee> {
                                                     return;
                                                   }
 
-                                               
                                                   if (provider.imageFile !=
                                                       null) {
                                                     bool isValid =
@@ -1824,7 +1402,7 @@ class _TableeeState extends State<Tableee> {
                                                   }
 
                                                   Map<String, dynamic> data = {
-                                                    "userid":  SessionHelper
+                                                    "userid": SessionHelper
                                                             .loginSavedData
                                                             ?.salesmanId ??
                                                         '',
@@ -1961,288 +1539,6 @@ class _TableeeState extends State<Tableee> {
                                                     });
                                                   }
                                                 },
-                                          // onPressed: isAddingCustomer
-                                          //     ? null
-                                          //     : () async {
-                                          //         setState(() {
-                                          //           isAddingCustomer = true;
-                                          //         });
-
-                                          //         bool isOnline =
-                                          //             await ConnectivityService()
-                                          //                 .isOnline();
-                                          //         if (!isOnline) {
-                                          //           setState(() {
-                                          //             isAddingCustomer = false;
-                                          //           });
-                                          //           showCustomToastDisplay(
-                                          //               context,
-                                          //               "You are Offline!",
-                                          //               red,
-                                          //               Icons.close);
-                                          //           return;
-                                          //         }
-
-                                          //         // Required fields (Remark and Image are removed)
-                                          //         final fields = {
-                                          //           'Business Name':
-                                          //               bsNameController,
-                                          //           'Address':
-                                          //               addressController,
-                                          //           'Town': townController,
-                                          //           'State': stateController,
-                                          //           'Zip Code':
-                                          //               zipcodeController,
-                                          //           'Mobile Number':
-                                          //               phoneController,
-                                          //           'Email': emailController,
-                                          //           'Telephone':
-                                          //               telephoneController,
-                                          //           'Contact Person':
-                                          //               contactPersonNameController,
-                                          //           'Contact Number':
-                                          //               contactNumController,
-                                          //           'Delivery Address':
-                                          //               deliveryAddressController,
-                                          //           'Delivery Contact Number':
-                                          //               deliveryContactNumController,
-                                          //           'Delivery Town':
-                                          //               deliveryTownController,
-                                          //           'Delivery State':
-                                          //               deliveryStateController,
-                                          //           'Delivery Zip Code':
-                                          //               deliveryZipcodeController,
-                                          //         };
-
-                                          //         // 1. Check for missing fields
-                                          //         for (var entry
-                                          //             in fields.entries) {
-                                          //           if (entry.value.text
-                                          //               .trim()
-                                          //               .isEmpty) {
-                                          //             setState(() {
-                                          //               isAddingCustomer =
-                                          //                   false;
-                                          //             });
-                                          //             showCustomToastDisplay(
-                                          //                 context,
-                                          //                 '${entry.key} is required',
-                                          //                 Colors.red,
-                                          //                 Icons.close);
-                                          //             return;
-                                          //           }
-                                          //         }
-
-                                          //         // 2. Validate phone numbers
-                                          //         final phoneFields = {
-                                          //           'Mobile Number':
-                                          //               phoneController,
-                                          //           'Contact Number':
-                                          //               contactNumController,
-                                          //           'Delivery Contact Number':
-                                          //               deliveryContactNumController,
-                                          //         };
-
-                                          //         for (var entry
-                                          //             in phoneFields.entries) {
-                                          //           final phone =
-                                          //               entry.value.text.trim();
-                                          //           if (!RegExp(r'^\d{10}$')
-                                          //               .hasMatch(phone)) {
-                                          //             setState(() {
-                                          //               isAddingCustomer =
-                                          //                   false;
-                                          //             });
-                                          //             showCustomToastDisplay(
-                                          //                 context,
-                                          //                 '${entry.key} must be 10 digits',
-                                          //                 Colors.red,
-                                          //                 Icons.close);
-                                          //             return;
-                                          //           }
-                                          //         }
-
-                                          //         // 3. Validate email
-                                          //         final email = emailController
-                                          //             .text
-                                          //             .trim();
-                                          //         final emailRegex = RegExp(
-                                          //             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-
-                                          //         if (!emailRegex
-                                          //             .hasMatch(email)) {
-                                          //           setState(() {
-                                          //             isAddingCustomer = false;
-                                          //           });
-                                          //           showCustomToastDisplay(
-                                          //               context,
-                                          //               'Invalid Email format',
-                                          //               Colors.red,
-                                          //               Icons.close);
-                                          //           return;
-                                          //         }
-
-                                          //         // 4. File Size limit
-                                          //         if (provider.imageFile !=
-                                          //             null) {
-                                          //           bool isValid =
-                                          //               await isFileSizeWithinLimit(
-                                          //                   provider
-                                          //                       .imageFile!);
-                                          //           if (!isValid) {
-                                          //             setState(() {
-                                          //               isAddingCustomer =
-                                          //                   false;
-                                          //             });
-                                          //             showCustomToastDisplay(
-                                          //                 context,
-                                          //                 'File exceeds 1MB.',
-                                          //                 red,
-                                          //                 Icons.close);
-                                          //             return;
-                                          //           }
-                                          //         }
-
-                                          //         Map<String, dynamic> data = {
-                                          //           "userid": "ADMIN",
-                                          //           "salesman_id": SessionHelper
-                                          //                   .loginSavedData
-                                          //                   ?.salesmanId ??
-                                          //               '',
-                                          //           "businessname":
-                                          //               bsNameController.text
-                                          //                   .trim(),
-                                          //           "address": addressController
-                                          //               .text
-                                          //               .trim(),
-                                          //           "town": townController.text
-                                          //               .trim(),
-                                          //           "state": stateController
-                                          //               .text
-                                          //               .trim(),
-                                          //           "zipcode": int.tryParse(
-                                          //                   zipcodeController
-                                          //                       .text
-                                          //                       .trim()) ??
-                                          //               0,
-                                          //           "mobileno": int.tryParse(
-                                          //                   phoneController.text
-                                          //                       .trim()) ??
-                                          //               0,
-                                          //           "email": emailController
-                                          //                   .text
-                                          //                   .trim()
-                                          //                   .isNotEmpty
-                                          //               ? emailController.text
-                                          //                   .trim()
-                                          //               : "N/A",
-                                          //           "tfn": int.tryParse(
-                                          //                   telephoneController
-                                          //                       .text
-                                          //                       .trim()) ??
-                                          //               0,
-                                          //           "fullname":
-                                          //               contactPersonNameController
-                                          //                   .text
-                                          //                   .trim(),
-                                          //           "businesscontact": int.tryParse(
-                                          //                   contactNumController
-                                          //                       .text
-                                          //                       .trim()) ??
-                                          //               0,
-                                          //           "delivery_address":
-                                          //               deliveryAddressController
-                                          //                   .text
-                                          //                   .trim(),
-                                          //           "delivery_contact":
-                                          //               int.tryParse(
-                                          //                       deliveryContactNumController
-                                          //                           .text
-                                          //                           .trim()) ??
-                                          //                   0,
-                                          //           "delivery_town":
-                                          //               deliveryTownController
-                                          //                   .text
-                                          //                   .trim(),
-                                          //           "delivery_state":
-                                          //               deliveryStateController
-                                          //                   .text
-                                          //                   .trim(),
-                                          //           "delivery_zipcode":
-                                          //               int.tryParse(
-                                          //                       deliveryZipcodeController
-                                          //                           .text
-                                          //                           .trim()) ??
-                                          //                   0,
-                                          //           "remark": remarkController
-                                          //               .text
-                                          //               .trim(),
-                                          //           "status_type": 3,
-                                          //           "company_id": SessionHelper
-                                          //                   .loginSavedData
-                                          //                   ?.company_id ??
-                                          //               0,
-                                          //         };
-                                          //         try {
-                                          //           await provider.addCustomer(
-                                          //             admin: data,
-                                          //             salsmanId: '',
-                                          //           );
-
-                                          //           // If the code reaches this line, the API call was successful!
-                                          //           provider
-                                          //               .handlePaginationClick(
-                                          //                   1);
-                                          //           fetchAllCustomerPages(
-                                          //               context);
-                                          //           if (context.mounted) {
-                                          //             Navigator.of(context)
-                                          //                 .pop();
-                                          //           }
-                                          //         } catch (error) {
-                                          //           // If the API throws an error, we catch it and extract the message here
-                                          //           if (context.mounted) {
-                                          //             String errMsg =
-                                          //                 error.toString();
-
-                                          //             // Try to extract a clean message if the error comes back as a JSON string
-                                          //             final regex = RegExp(
-                                          //                 r'"message"\s*:\s*"([^"]+)"');
-                                          //             final match = regex
-                                          //                 .firstMatch(errMsg);
-                                          //             if (match != null &&
-                                          //                 match.groupCount >=
-                                          //                     1) {
-                                          //               errMsg =
-                                          //                   match.group(1)!;
-                                          //             } else {
-                                          //               // Clean up standard exceptions
-                                          //               errMsg = errMsg
-                                          //                   .replaceAll(
-                                          //                       "Exception: Failed to update admin: ",
-                                          //                       "")
-                                          //                   .trim();
-                                          //               errMsg = errMsg
-                                          //                   .replaceAll(
-                                          //                       "Exception: ",
-                                          //                       "")
-                                          //                   .trim();
-                                          //             }
-
-                                          //             showCustomToastDisplay(
-                                          //                 context,
-                                          //                 errMsg,
-                                          //                 Colors.red,
-                                          //                 Icons.error);
-                                          //           }
-                                          //         } finally {
-                                          //           // Always stop the loading spinner, success or fail
-                                          //           setState(() {
-                                          //             isAddingCustomer = false;
-                                          //           });
-                                          //         }
-
-                                          //       },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: primaryColor,
                                             shape: RoundedRectangleBorder(
@@ -2263,7 +1559,7 @@ class _TableeeState extends State<Tableee> {
                                                             Colors.white),
                                                   ),
                                                 )
-                                              :  Text(
+                                              : Text(
                                                   'Add Customer'.tr,
                                                   style: TextStyle(
                                                       color: Colors.white),
@@ -2289,775 +1585,6 @@ class _TableeeState extends State<Tableee> {
       );
     });
   }
-
-  // Consumer<CustomersProvider> addCustomer(BuildContext context) {
-  //   ResponsiveInfo.isMobileDimension(context);
-  //   return Consumer<CustomersProvider>(builder: (context, provider, child) {
-  //     return FutureBuilder<CustomerResponse>(
-  //       future: provider.customerResponse,
-  //       builder: (context, snapshot) {
-  //         TextEditingController phoneController = TextEditingController();
-  //         TextEditingController emailController = TextEditingController();
-  //         TextEditingController telephoneController = TextEditingController();
-  //         TextEditingController townController = TextEditingController();
-  //         TextEditingController stateController = TextEditingController();
-  //         TextEditingController zipcodeController = TextEditingController();
-  //         TextEditingController addressController = TextEditingController();
-
-  //         TextEditingController bsNameController = TextEditingController();
-
-  //         TextEditingController contactPersonNameController =
-  //             TextEditingController();
-  //         TextEditingController contactNumController = TextEditingController();
-
-  //         TextEditingController deliveryAddressController =
-  //             TextEditingController();
-  //         TextEditingController deliveryTownController =
-  //             TextEditingController();
-  //         TextEditingController deliveryStateController =
-  //             TextEditingController();
-  //         TextEditingController deliveryZipcodeController =
-  //             TextEditingController();
-
-  //         TextEditingController remarkController = TextEditingController();
-
-  //         bool sameAsAbove = false;
-  //         bool isAddingCustomer = false;
-
-  //         return SizedBox(
-  //           height: 38,
-  //           width: 98,
-  //           child: CustomButton(
-  //             onPressed: () {
-  //               showDialog(
-  //                 barrierDismissible: false,
-  //                 context: context,
-  //                 builder: (BuildContext context) {
-  //                   return StatefulBuilder(
-  //                     builder: (context, setState) {
-  //                       return Padding(
-  //                         padding: const EdgeInsets.all(8.0),
-  //                         child: Dialog(
-  //                           insetPadding: EdgeInsets.zero,
-  //                           backgroundColor: white,
-  //                           shape: const RoundedRectangleBorder(
-  //                             borderRadius:
-  //                                 BorderRadius.all(Radius.circular(10.0)),
-  //                             side: BorderSide.none,
-  //                           ),
-  //                           elevation: 24.0,
-  //                           child: SingleChildScrollView(
-  //                             child: Column(
-  //                               mainAxisSize: MainAxisSize.min,
-  //                               crossAxisAlignment: CrossAxisAlignment.stretch,
-  //                               children: [
-  //                                 Container(
-  //                                   decoration: const BoxDecoration(
-  //                                     borderRadius: BorderRadius.only(
-  //                                       topLeft: Radius.circular(10),
-  //                                       topRight: Radius.circular(10),
-  //                                     ),
-  //                                     color: Color(0xFF7578EA),
-  //                                   ),
-  //                                   padding: const EdgeInsets.symmetric(
-  //                                       horizontal: 16, vertical: 10),
-  //                                   child: Row(
-  //                                     mainAxisAlignment:
-  //                                         MainAxisAlignment.spaceBetween,
-  //                                     children: [
-  //                                       const Text(
-  //                                         'Add Customer',
-  //                                         style: TextStyle(
-  //                                           color: Colors.white,
-  //                                           fontSize: 20,
-  //                                           fontWeight: FontWeight.bold,
-  //                                         ),
-  //                                       ),
-  //                                       dialogCloseButton1(context, red),
-  //                                     ],
-  //                                   ),
-  //                                 ),
-  //                                 // const SizedBox(height: 16.0),
-  //                                 Padding(
-  //                                   padding: const EdgeInsets.all(16.0),
-  //                                   child: Column(
-  //                                     children: [
-  //                                       buildInputField(bsNameController,
-  //                                           'Business Name', Assets.icBusiness),
-  //                                       buildInputField(addressController,
-  //                                           'Address', Assets.icLocation),
-  //                                       Row(
-  //                                         children: [
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 townController,
-  //                                                 'City or Suburb',
-  //                                                 Assets.icCity),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 stateController,
-  //                                                 'State',
-  //                                                 Assets.icState),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 zipcodeController,
-  //                                                 'Zip/Post/Pin Code',
-  //                                                 Assets.icZipcode),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       Row(
-  //                                         crossAxisAlignment:
-  //                                             CrossAxisAlignment.start,
-  //                                         children: [
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                               phoneController,
-  //                                               'Mobile Number',
-  //                                               Assets.icMobile,
-  //                                               length: 10,
-  //                                             ),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 emailController,
-  //                                                 'Email',
-  //                                                 Assets.icEmail),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 telephoneController,
-  //                                                 'Business Reg.No',
-  //                                                 Assets.icBusinessReg),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       const Padding(
-  //                                         padding: EdgeInsets.symmetric(
-  //                                             vertical: 6.0),
-  //                                         child: Align(
-  //                                           alignment: Alignment.centerLeft,
-  //                                           child: Text(
-  //                                             'Contact Details',
-  //                                             style: TextStyle(fontSize: 18),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                       Row(
-  //                                         crossAxisAlignment:
-  //                                             CrossAxisAlignment.start,
-  //                                         children: [
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 contactPersonNameController,
-  //                                                 'Contact Person',
-  //                                                 Assets.icUser),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                               contactNumController,
-  //                                               'Contact Number',
-  //                                               Assets.icPhone,
-  //                                               length: 10,
-  //                                             ),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.symmetric(
-  //                                             vertical: 6.0),
-  //                                         child: Row(
-  //                                           children: [
-  //                                             const Text(
-  //                                               'Delivery Address    ',
-  //                                               style: TextStyle(fontSize: 18),
-  //                                             ),
-  //                                             Checkbox(
-  //                                               value: sameAsAbove,
-  //                                               onChanged: (bool? value) {
-  //                                                 setState(() {
-  //                                                   sameAsAbove =
-  //                                                       value ?? false;
-  //                                                   if (sameAsAbove) {
-  //                                                     deliveryAddressController
-  //                                                             .text =
-  //                                                         addressController
-  //                                                             .text;
-  //                                                     deliveryTownController
-  //                                                             .text =
-  //                                                         townController.text;
-  //                                                     deliveryStateController
-  //                                                             .text =
-  //                                                         stateController.text;
-  //                                                     deliveryZipcodeController
-  //                                                             .text =
-  //                                                         zipcodeController
-  //                                                             .text;
-  //                                                   } else {
-  //                                                     deliveryAddressController
-  //                                                         .clear();
-  //                                                     deliveryTownController
-  //                                                         .clear();
-  //                                                     deliveryStateController
-  //                                                         .clear();
-  //                                                     deliveryZipcodeController
-  //                                                         .clear();
-  //                                                   }
-  //                                                 });
-  //                                               },
-  //                                             ),
-  //                                             const SizedBox(width: 5),
-  //                                             const Text('Same as Above'),
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                       buildInputField(
-  //                                           deliveryAddressController,
-  //                                           'Address',
-  //                                           Assets.icLocation),
-  //                                       Row(
-  //                                         children: [
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 deliveryTownController,
-  //                                                 'City or Suburb',
-  //                                                 Assets.icCity),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 deliveryStateController,
-  //                                                 'State',
-  //                                                 Assets.icState),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-  //                                           Expanded(
-  //                                             child: buildInputField(
-  //                                                 deliveryZipcodeController,
-  //                                                 'Zip/Post/Pin Code',
-  //                                                 Assets.icZipcode),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       const SizedBox(
-  //                                         height: 30,
-  //                                         child: Row(
-  //                                           children: [
-  //                                             Spacer(),
-  //                                             SizedBox(width: 8.0),
-  //                                             Expanded(
-  //                                                 child: Text("Company logo"))
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                       Row(
-  //                                         children: [
-  //                                           // Remark Input Field
-  //                                           Expanded(
-  //                                             child: Container(
-  //                                               decoration: BoxDecoration(
-  //                                                 color: Colors.grey
-  //                                                     .shade100, // Subtle background color
-  //                                                 borderRadius:
-  //                                                     BorderRadius.circular(
-  //                                                         8.0),
-  //                                                 boxShadow: [
-  //                                                   BoxShadow(
-  //                                                     color: Colors.grey
-  //                                                         .shade300, // Light shadow
-  //                                                     blurRadius: 6.0,
-  //                                                     offset:
-  //                                                         const Offset(0, 2),
-  //                                                   ),
-  //                                                 ],
-  //                                               ),
-  //                                               child: TextField(
-  //                                                 controller: remarkController,
-  //                                                 decoration: InputDecoration(
-  //                                                   contentPadding:
-  //                                                       const EdgeInsets
-  //                                                           .symmetric(
-  //                                                           horizontal: 16.0,
-  //                                                           vertical: 18.0),
-  //                                                   labelText: 'Remark',
-  //                                                   labelStyle: TextStyle(
-  //                                                       color: Colors
-  //                                                           .grey.shade600),
-  //                                                   prefixIcon: filledIcon(
-  //                                                       Assets.icRemark),
-  //                                                   focusedBorder:
-  //                                                       OutlineInputBorder(
-  //                                                     borderRadius:
-  //                                                         BorderRadius.circular(
-  //                                                             8.0),
-  //                                                     borderSide:
-  //                                                         const BorderSide(
-  //                                                             color:
-  //                                                                 Colors.blue,
-  //                                                             width: 1.5),
-  //                                                   ),
-  //                                                   enabledBorder:
-  //                                                       OutlineInputBorder(
-  //                                                     borderRadius:
-  //                                                         BorderRadius.circular(
-  //                                                             8.0),
-  //                                                     borderSide: BorderSide(
-  //                                                         color: Colors
-  //                                                             .grey.shade400,
-  //                                                         width: 1.0),
-  //                                                   ),
-  //                                                   filled: true,
-  //                                                   fillColor: Colors.white,
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                           const SizedBox(width: 8.0),
-
-  //                                           // Image Picker
-  //                                           Expanded(
-  //                                             child: GestureDetector(
-  //                                               // onTap: provider.pickImage,
-  //                                               onTap: () {
-  //                                                 showDialog(
-  //                                                   barrierDismissible: false,
-  //                                                   context: context,
-  //                                                   builder:
-  //                                                       (BuildContext context) {
-  //                                                     return AlertDialog(
-  //                                                       title: const Text(
-  //                                                           'Select Method'),
-  //                                                       actions: [
-  //                                                         IconButton(
-  //                                                           onPressed:
-  //                                                               () async {
-  //                                                             await provider
-  //                                                                 .pickImage(
-  //                                                                     ImageSource
-  //                                                                         .camera);
-  //                                                             setState(() {});
-  //                                                             Navigator.of(
-  //                                                                     context)
-  //                                                                 .pop();
-  //                                                           },
-  //                                                           icon: const Icon(
-  //                                                               EneftyIcons
-  //                                                                   .camera_outline),
-  //                                                         ),
-  //                                                         IconButton(
-  //                                                           onPressed:
-  //                                                               () async {
-  //                                                             await provider
-  //                                                                 .pickImage(
-  //                                                                     ImageSource
-  //                                                                         .gallery);
-  //                                                             setState(() {});
-  //                                                             Navigator.of(
-  //                                                                     context)
-  //                                                                 .pop();
-  //                                                           },
-  //                                                           icon: const Icon(
-  //                                                               EneftyIcons
-  //                                                                   .gallery_bold),
-  //                                                         ),
-  //                                                       ],
-  //                                                     );
-  //                                                   },
-  //                                                 );
-  //                                               },
-  //                                               child: Container(
-  //                                                 decoration: BoxDecoration(
-  //                                                   color: Colors.grey.shade100,
-  //                                                   borderRadius:
-  //                                                       BorderRadius.circular(
-  //                                                           8.0),
-  //                                                   boxShadow: [
-  //                                                     BoxShadow(
-  //                                                       color: Colors
-  //                                                           .grey.shade300,
-  //                                                       blurRadius: 6.0,
-  //                                                       offset:
-  //                                                           const Offset(0, 2),
-  //                                                     ),
-  //                                                   ],
-  //                                                 ),
-  //                                                 child: Padding(
-  //                                                   padding: const EdgeInsets
-  //                                                       .symmetric(
-  //                                                     horizontal: 16.0,
-  //                                                     vertical: 18.0,
-  //                                                   ),
-  //                                                   child: Row(
-  //                                                     children: [
-  //                                                       Icon(
-  //                                                         Icons.image,
-  //                                                         color: Colors
-  //                                                             .grey.shade600,
-  //                                                         size: 28.0,
-  //                                                       ),
-  //                                                       const SizedBox(
-  //                                                           width: 12.0),
-  //                                                       Expanded(
-  //                                                         child: Text(
-  //                                                           provider.imageFile ==
-  //                                                                   null
-  //                                                               ? 'Pick an image from gallery'
-  //                                                               : 'Image selected',
-  //                                                           style: TextStyle(
-  //                                                             color: Colors.grey
-  //                                                                 .shade700,
-  //                                                             fontSize: 16.0,
-  //                                                             fontWeight:
-  //                                                                 FontWeight
-  //                                                                     .w500,
-  //                                                           ),
-  //                                                           overflow:
-  //                                                               TextOverflow
-  //                                                                   .ellipsis,
-  //                                                         ),
-  //                                                       ),
-  //                                                       if (provider
-  //                                                               .imageFile !=
-  //                                                           null)
-  //                                                         SizedBox(
-  //                                                           height: 100,
-  //                                                           child: ClipRRect(
-  //                                                             borderRadius:
-  //                                                                 BorderRadius.circular(
-  //                                                                     NkGeneralSize
-  //                                                                         .nkCommonBorderRadius()),
-  //                                                             child: provider
-  //                                                                         .imageFile !=
-  //                                                                     null
-  //                                                                 ? Image.file(
-  //                                                                     provider
-  //                                                                         .imageFile!,
-  //                                                                     height: AppDimensions
-  //                                                                             .instance
-  //                                                                             .height *
-  //                                                                         0.2,
-  //                                                                   )
-  //                                                                 : nkSmallSizeBox(),
-  //                                                           ),
-  //                                                         )
-  //                                                     ],
-  //                                                   ),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ),
-  //                                         ],
-  //                                       )
-  //                                     ],
-  //                                   ),
-  //                                 ),
-  //                                 Padding(
-  //                                   padding: const EdgeInsets.all(8.0),
-  //                                   child: Row(
-  //                                     mainAxisAlignment:
-  //                                         MainAxisAlignment.center,
-  //                                     children: [
-  //                                       ElevatedButton(
-  //                                         onPressed: isAddingCustomer
-  //                                             ? null
-  //                                             : () async {
-  //                                                 setState(() {
-  //                                                   isAddingCustomer = true;
-  //                                                 });
-
-  //                                                 bool isOnline =
-  //                                                     await ConnectivityService()
-  //                                                         .isOnline();
-  //                                                 if (!isOnline) {
-  //                                                   setState(() {
-  //                                                     isAddingCustomer = false;
-  //                                                   });
-  //                                                   showCustomToastDisplay(
-  //                                                       context,
-  //                                                       "You are Offline!",
-  //                                                       red,
-  //                                                       Icons.close);
-  //                                                   return;
-  //                                                 }
-
-  //                                                 // Required fields
-  //                                                 final fields = {
-  //                                                   'Business Name':
-  //                                                       bsNameController,
-  //                                                   'Address':
-  //                                                       addressController,
-  //                                                   'Town': townController,
-  //                                                   'State': stateController,
-  //                                                   'Zip Code':
-  //                                                       zipcodeController,
-  //                                                   'Mobile Number':
-  //                                                       phoneController,
-  //                                                   'Email': emailController,
-  //                                                   'Telephone':
-  //                                                       telephoneController,
-  //                                                   'Contact Person':
-  //                                                       contactPersonNameController,
-  //                                                   'Contact Number':
-  //                                                       contactNumController,
-  //                                                   'Delivery Address':
-  //                                                       deliveryAddressController,
-  //                                                   'Delivery Town':
-  //                                                       deliveryTownController,
-  //                                                   'Delivery State':
-  //                                                       deliveryStateController,
-  //                                                   'Delivery Zip Code':
-  //                                                       deliveryZipcodeController,
-  //                                                   'Remark': remarkController,
-  //                                                 };
-
-  //                                                 // 1. Check for missing fields
-  //                                                 for (var entry
-  //                                                     in fields.entries) {
-  //                                                   if (entry.value.text
-  //                                                       .trim()
-  //                                                       .isEmpty) {
-  //                                                     setState(() {
-  //                                                       isAddingCustomer =
-  //                                                           false;
-  //                                                     });
-  //                                                     showCustomToastDisplay(
-  //                                                       context,
-  //                                                       '${entry.key} is required',
-  //                                                       Colors.red,
-  //                                                       Icons.close,
-  //                                                     );
-  //                                                     return;
-  //                                                   }
-  //                                                 }
-
-  //                                                 // 2. Validate phone numbers
-  //                                                 final phoneFields = {
-  //                                                   'Mobile Number':
-  //                                                       phoneController,
-  //                                                   'Contact Number':
-  //                                                       contactNumController,
-  //                                                 };
-
-  //                                                 for (var entry
-  //                                                     in phoneFields.entries) {
-  //                                                   final phone =
-  //                                                       entry.value.text.trim();
-  //                                                   if (!RegExp(r'^\d{10}$')
-  //                                                       .hasMatch(phone)) {
-  //                                                     setState(() {
-  //                                                       isAddingCustomer =
-  //                                                           false;
-  //                                                     });
-  //                                                     showCustomToastDisplay(
-  //                                                       context,
-  //                                                       '${entry.key} must be 10 digits',
-  //                                                       Colors.red,
-  //                                                       Icons.close,
-  //                                                     );
-  //                                                     return;
-  //                                                   }
-  //                                                 }
-
-  //                                                 // 3. Validate email
-  //                                                 final email = emailController
-  //                                                     .text
-  //                                                     .trim();
-  //                                                 final emailRegex = RegExp(
-  //                                                     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-
-  //                                                 if (!emailRegex
-  //                                                     .hasMatch(email)) {
-  //                                                   setState(() {
-  //                                                     isAddingCustomer = false;
-  //                                                   });
-  //                                                   showCustomToastDisplay(
-  //                                                     context,
-  //                                                     'Invalid Email format',
-  //                                                     Colors.red,
-  //                                                     Icons.close,
-  //                                                   );
-  //                                                   return;
-  //                                                 }
-
-  //                                                 // 4. Check if image was picked
-  //                                                 if (provider.imageFile ==
-  //                                                     null) {
-  //                                                   setState(() {
-  //                                                     isAddingCustomer = false;
-  //                                                   });
-  //                                                   showCustomToastDisplay(
-  //                                                     context,
-  //                                                     'Image is required',
-  //                                                     Colors.red,
-  //                                                     Icons.close,
-  //                                                   );
-  //                                                   return;
-  //                                                 }
-  //                                                 if (provider.imageFile !=
-  //                                                     null) {
-  //                                                   bool isValid =
-  //                                                       await isFileSizeWithinLimit(
-  //                                                           provider
-  //                                                               .imageFile!);
-  //                                                   if (!isValid) {
-  //                                                     setState(() {
-  //                                                       isAddingCustomer =
-  //                                                           false;
-  //                                                     });
-  //                                                     showCustomToastDisplay(
-  //                                                         context,
-  //                                                         'File exceeds 1MB.',
-  //                                                         red,
-  //                                                         Icons.close);
-  //                                                     return;
-  //                                                   }
-  //                                                 }
-
-  //                                                 Map<String, dynamic> data = {
-  //                                                   "userid": "ADMIN",
-  //                                                   "salesman_id": SessionHelper
-  //                                                           .loginSavedData
-  //                                                           ?.salesmanId ??
-  //                                                       '',
-  //                                                   "businessname":
-  //                                                       bsNameController.text
-  //                                                           .trim(),
-  //                                                   "address": addressController
-  //                                                       .text
-  //                                                       .trim(),
-  //                                                   "town": townController.text
-  //                                                       .trim(),
-  //                                                   "state": stateController
-  //                                                       .text
-  //                                                       .trim(),
-  //                                                   "zipcode": int.tryParse(
-  //                                                           zipcodeController
-  //                                                               .text
-  //                                                               .trim()) ??
-  //                                                       0,
-  //                                                   "mobileno": int.tryParse(
-  //                                                           phoneController.text
-  //                                                               .trim()) ??
-  //                                                       0,
-  //                                                   "email": emailController
-  //                                                           .text
-  //                                                           .trim()
-  //                                                           .isNotEmpty
-  //                                                       ? emailController.text
-  //                                                           .trim()
-  //                                                       : "N/A",
-  //                                                   "tfn": int.tryParse(
-  //                                                           telephoneController
-  //                                                               .text
-  //                                                               .trim()) ??
-  //                                                       0,
-  //                                                   "fullname":
-  //                                                       contactPersonNameController
-  //                                                           .text
-  //                                                           .trim(),
-  //                                                   "businesscontact": int.tryParse(
-  //                                                           contactNumController
-  //                                                               .text
-  //                                                               .trim()) ??
-  //                                                       0,
-  //                                                   "delivery_address":
-  //                                                       deliveryAddressController
-  //                                                           .text
-  //                                                           .trim(),
-  //                                                   "delivery_town":
-  //                                                       deliveryTownController
-  //                                                           .text
-  //                                                           .trim(),
-  //                                                   "delivery_state":
-  //                                                       deliveryStateController
-  //                                                           .text
-  //                                                           .trim(),
-  //                                                   "delivery_zipcode":
-  //                                                       int.tryParse(
-  //                                                               deliveryZipcodeController
-  //                                                                   .text
-  //                                                                   .trim()) ??
-  //                                                           0,
-  //                                                   "remark": remarkController
-  //                                                       .text
-  //                                                       .trim(),
-  //                                                   "status_type": 3,
-  //                                                   "company_id": SessionHelper
-  //                                                           .loginSavedData
-  //                                                           ?.company_id ??
-  //                                                       0,
-  //                                                 };
-
-  //                                                 try {
-  //                                                   await provider.addCustomer(
-  //                                                     admin: data,
-  //                                                     salsmanId: '',
-  //                                                   );
-  //                                                   provider
-  //                                                       .handlePaginationClick(
-  //                                                           1);
-  //                                                   fetchAllCustomerPages(
-  //                                                       context);
-  //                                                   Navigator.of(context).pop();
-  //                                                 } catch (error) {
-  //                                                   setState(() {
-  //                                                     isAddingCustomer = false;
-  //                                                   });
-  //                                                 }
-  //                                               },
-  //                                         style: ElevatedButton.styleFrom(
-  //                                           backgroundColor: primaryColor,
-  //                                           shape: RoundedRectangleBorder(
-  //                                             borderRadius:
-  //                                                 BorderRadius.circular(4.0),
-  //                                           ),
-  //                                         ),
-  //                                         child: isAddingCustomer
-  //                                             ? const SizedBox(
-  //                                                 width: 20,
-  //                                                 height: 20,
-  //                                                 child:
-  //                                                     CircularProgressIndicator(
-  //                                                   strokeWidth: 2,
-  //                                                   valueColor:
-  //                                                       AlwaysStoppedAnimation<
-  //                                                               Color>(
-  //                                                           Colors.white),
-  //                                                 ),
-  //                                               )
-  //                                             : const Text(
-  //                                                 'Add Customer',
-  //                                                 style: TextStyle(
-  //                                                     color: Colors.white),
-  //                                               ),
-  //                                       )
-  //                                     ],
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       );
-  //                     },
-  //                   );
-  //                 },
-  //               );
-  //             },
-  //             text: 'Customer',
-  //           ),
-  //         );
-  //       },
-  //     );
-  //   });
-  // }
 
   Widget buildInputField(
       TextEditingController controller, String labelText, String icon,
@@ -3169,217 +1696,10 @@ class _TableeeState extends State<Tableee> {
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);
       provider.setYearList(allYearsList);
-      // Build unique customerId list from all pages
-      // final allCustomerIds = allCustomers
-      //     .map((c) => c.customerId)
-      //     .where((id) => id.isNotEmpty)
-      //     .toSet()
-      //     .toList();
-      // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
     } catch (e) {
       rethrow;
     }
   }
-  // Future<void> fetchAllCustomerPages(BuildContext context) async {
-  //   final provider = Provider.of<CustomersProvider>(context, listen: false);
-  //   final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-  //   final apiService = ApiService();
-    
-  //   List<CustomerModelxx> allCustomers = [];
-  //   List<OrderTotalxx> allOrderTotals = [];
-  //   List<YearsListOfAll> allYearsList = [];
-  //   int totalPages = 1;
-  //   int page = 1;
-
-  //   try {
-  //     // -------------------------------------------------------------
-  //     // 1. DYNAMICALLY CALCULATE DATES & PAYLOAD (Matches Web App)
-  //     // -------------------------------------------------------------
-  //     int selectedYear = dashboardProvider.selectedYear != 0 ? dashboardProvider.selectedYear : DateTime.now().year;
-
-  //     String apiValueFromDw = "All";
-  //     List<String> apiSelectedRange = [];
-  //     String apiStartDate = "";
-  //     String apiEndDate = "";
-
-  //     final List<String> monthNames = [
-  //       "January", "February", "March", "April", "May", "June",
-  //       "July", "August", "September", "October", "November", "December"
-  //     ];
-
-  //     switch (provider.selectedFilter) {
-  //       case FilterDateEnum.thisMonth:
-  //         apiValueFromDw = "Month";
-  //         apiSelectedRange = dashboardProvider.selectedFilterMonths;
-  //         String selectedMonth = apiSelectedRange.isNotEmpty ? apiSelectedRange.first : "";
-  //         int monthIndex = monthNames.indexOf(selectedMonth) + 1;
-  //         if (monthIndex > 0) {
-  //           apiStartDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, monthIndex, 1));
-  //           apiEndDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, monthIndex + 1, 0));
-  //         }
-  //         break;
-
-  //       case FilterDateEnum.thisWeek:
-  //         apiValueFromDw = "Week";
-  //         apiSelectedRange = dashboardProvider.selectedFilterWeeks;
-  //         apiStartDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 1, 1));
-  //         apiEndDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 12, 31));
-  //         break;
-
-  //       case FilterDateEnum.thisYear:
-  //         apiValueFromDw = "Year";
-  //         apiSelectedRange = [selectedYear.toString()];
-  //         apiStartDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 1, 1));
-  //         apiEndDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedYear, 12, 31));
-  //         break;
-
-  //       case FilterDateEnum.range:
-  //         apiValueFromDw = "Range";
-  //         apiSelectedRange = [provider.selectedStartDate, provider.selectedEndDate];
-  //         apiStartDate = provider.selectedStartDate;
-  //         apiEndDate = provider.selectedEndDate;
-  //         break;
-
-  //       case FilterDateEnum.today:
-  //         apiValueFromDw = "Day";
-  //         apiSelectedRange = [dashboardProvider.selectedDate];
-  //         apiStartDate = dashboardProvider.selectedDate;
-  //         apiEndDate = dashboardProvider.selectedDate;
-  //         break;
-
-  //       default:
-  //         apiValueFromDw = "All";
-  //     }
-
-  //     // -------------------------------------------------------------
-  //     // 2. FETCH FIRST PAGE
-  //     // -------------------------------------------------------------
-  //     final firstResponse = await apiService.fetchCustomer(
-  //       salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-  //       customerName: provider.searchCustomerName,
-  //       limit: 10,
-  //       page: 1,
-  //       valueFromDw: apiValueFromDw,
-  //       selectedRange: apiSelectedRange,
-  //       startDate: apiStartDate,  // Now passes "2025-01-01"
-  //       endDate: apiEndDate,      // Now passes "2025-01-31"
-  //       year: selectedYear,       // Now passes 2025 to previous_year_of_sales
-  //     );
-      
-  //     allCustomers.addAll(firstResponse.data);
-  //     allOrderTotals.addAll(firstResponse.orderTotal);
-  //     allYearsList.addAll(firstResponse.yearsListOfAll);
-  //     totalPages = firstResponse.pagination.totalPages;
-      
-  //     final customerBox = Hive.box('customerBox');
-  //     final cacheKeyFirst = '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
-  //     await customerBox.put(cacheKeyFirst, firstResponse.toJson());
-      
-  //     // -------------------------------------------------------------
-  //     // 3. FETCH REMAINING PAGES
-  //     // -------------------------------------------------------------
-  //     for (page = 2; page <= totalPages; page++) {
-  //       final response = await apiService.fetchCustomer(
-  //         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-  //         customerName: provider.searchCustomerName,
-  //         limit: 10,
-  //         page: page,
-  //         valueFromDw: apiValueFromDw,
-  //         selectedRange: apiSelectedRange,
-  //         startDate: apiStartDate,
-  //         endDate: apiEndDate,
-  //         year: selectedYear,
-  //       );
-  //       allCustomers.addAll(response.data);
-  //       allOrderTotals.addAll(response.orderTotal);
-  //       allYearsList.addAll(response.yearsListOfAll);
-        
-  //       final cacheKey = '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
-  //       await customerBox.put(cacheKey, response.toJson());
-  //     }
-      
-  //     provider.setCustomers(allCustomers, totalPages);
-  //     provider.setOrderTotal(allOrderTotals);
-  //     provider.setYearList(allYearsList);
-
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
-  // Future<void> fetchAllCustomerPages(BuildContext context) async {
-  //   final provider = Provider.of<CustomersProvider>(context, listen: false);
-  //   final apiService = ApiService();
-  //   List<CustomerModelxx> allCustomers = [];
-  //   List<OrderTotalxx> allOrderTotals = [];
-  //   List<YearsListOfAll> allYearsList = [];
-  //   int totalPages = 1;
-  //   int page = 1;
-  //   try {
-  //     // Fetch first page to get totalPages
-  //     final firstResponse = await apiService.fetchCustomer(
-  //       salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-  //       customerName: provider.searchCustomerName,
-  //       startDate: '',
-  //       endDate: '',
-  //       limit: 10,
-  //       page: 1,
-  //       valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-  //               ? [
-  //                   provider.selectedFilter.name,
-  //                   provider.selectedStartDate,
-  //                   provider.selectedEndDate
-  //                 ]
-  //               : provider.selectedFilter.name)
-  //           .toString(),
-  //     );
-  //     allCustomers.addAll(firstResponse.data);
-  //     allOrderTotals.addAll(firstResponse.orderTotal);
-  //     allYearsList.addAll(firstResponse.yearsListOfAll);
-  //     totalPages = firstResponse.pagination.totalPages;
-  //     // Save first page to Hive with cacheKey
-  //     final customerBox = Hive.box('customerBox');
-  //     final cacheKeyFirst =
-  //         '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_1';
-  //     await customerBox.put(cacheKeyFirst, firstResponse.toJson());
-  //     // Fetch remaining pages if any
-  //     for (page = 2; page <= totalPages; page++) {
-  //       final response = await apiService.fetchCustomer(
-  //         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-  //         customerName: provider.searchCustomerName,
-  //         startDate: '',
-  //         endDate: '',
-  //         limit: 10,
-  //         page: page,
-  //         valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-  //                 ? [
-  //                     provider.selectedFilter.name,
-  //                     provider.selectedStartDate,
-  //                     provider.selectedEndDate
-  //                   ]
-  //                 : provider.selectedFilter.name)
-  //             .toString(),
-  //       );
-  //       allCustomers.addAll(response.data);
-  //       allOrderTotals.addAll(response.orderTotal);
-  //       allYearsList.addAll(response.yearsListOfAll);
-  //       final cacheKey =
-  //           '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
-  //       await customerBox.put(cacheKey, response.toJson());
-  //     }
-  //     provider.setCustomers(allCustomers, totalPages);
-  //     provider.setOrderTotal(allOrderTotals);
-  //     provider.setYearList(allYearsList);
-  //     // Build unique customerId list from all pages
-  //     // final allCustomerIds = allCustomers
-  //     //     .map((c) => c.customerId)
-  //     //     .where((id) => id.isNotEmpty)
-  //     //     .toSet()
-  //     //     .toList();
-  //     // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
 }
 
 class TopTotalWidget extends StatelessWidget {
@@ -3447,7 +1767,7 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Row(
                         children: [
-                           Padding(
+                          Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
                               'Sales'.tr,
@@ -3555,7 +1875,7 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Sales'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3569,7 +1889,7 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Deliveries'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3583,7 +1903,7 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Payments'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3597,7 +1917,7 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Bookings'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3611,7 +1931,7 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Estimates'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3625,7 +1945,7 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Drafts'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3639,7 +1959,7 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Cancelled'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3653,7 +1973,7 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                       Text(
+                      Text(
                         'Visit'.tr,
                         style: TextStyle(
                           fontSize: 12,
@@ -3982,7 +2302,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                         const SizedBox(width: 10),
                         Container(
                           color: Colors.grey[200],
-                          child:  Column(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('Total'.tr,
@@ -4542,26 +2862,57 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           const Duration(
                                                               milliseconds:
                                                                   100));
+                                                      final dashProvider = Provider
+                                                          .of<DashboardProvider>(
+                                                              context,
+                                                              listen: false);
 
-                                                      final now =
-                                                          DateTime.now();
+                                                      int globalSelectedYear =
+                                                          dashProvider.selectedYear !=
+                                                                  0
+                                                              ? dashProvider
+                                                                  .selectedYear
+                                                              : DateTime.now()
+                                                                  .year;
+
+                                                      if (customerAndOrderController
+                                                              .selectedYear
+                                                              .value
+                                                              .isNotEmpty &&
+                                                          customerAndOrderController
+                                                                  .selectedYear
+                                                                  .value !=
+                                                              DateTime.now()
+                                                                  .year
+                                                                  .toString()) {
+                                                        globalSelectedYear = int.tryParse(
+                                                                customerAndOrderController
+                                                                    .selectedYear
+                                                                    .value) ??
+                                                            globalSelectedYear;
+                                                      }
+
                                                       final dateFormat =
                                                           DateFormat(
                                                               'yyyy-MM-dd');
-
                                                       final firstDayOfYear =
                                                           DateTime(
-                                                              now.year, 1, 1);
+                                                              globalSelectedYear,
+                                                              1,
+                                                              1);
                                                       final lastDayOfYear =
                                                           DateTime(
-                                                              now.year, 12, 31);
+                                                              globalSelectedYear,
+                                                              12,
+                                                              31);
 
                                                       Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               CustomerDachScreen(
-                                                            year: 2024,
+                                                            year:
+                                                                globalSelectedYear, // <-- This will correctly pass 2025!
                                                             startDate: dateFormat
                                                                 .format(
                                                                     firstDayOfYear),
@@ -4585,11 +2936,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         ),
                                                       );
                                                     }
-                                                    // showCustomToastDisplay(
-                                                    //     context,
-                                                    //     "NEW TEST 44",
-                                                    //     Colors.deepOrange,
-                                                    //     Icons.warning);
                                                   } else {
                                                     showUpgradePlanDialog(
                                                         context);
@@ -5063,7 +3409,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title:  Text('Customer Check-Out'.tr),
+              title: Text('Customer Check-Out'.tr),
               content: Text(
                   '$customerName is already checked In. Do you want to Check-out?'),
               actions: [
@@ -5287,8 +3633,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       rows: filteredOrders.isEmpty
                                           ? [
                                               const DataRow(cells: [
-                                                DataCell(
-                                                    Text('Record Not Found.tr')),
+                                                DataCell(Text(
+                                                    'Record Not Found.tr')),
                                                 DataCell(Text('')),
                                                 DataCell(Text('')),
                                                 DataCell(Text('')),
@@ -5468,22 +3814,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   TextOverflow
                                                                       .ellipsis,
                                                             ),
-                                                            // Text(
-                                                            //   order.orderCreatAt !=
-                                                            //           null
-                                                            //       ? getFormattedOrderCreatAt(order
-                                                            //           .orderCreatAt
-                                                            //           .toString())
-                                                            //       : 'N/A',
-                                                            //   style: TextStyle(
-                                                            //     fontSize:
-                                                            //         fontSize,
-                                                            //   ),
-                                                            //   maxLines: 1,
-                                                            //   overflow:
-                                                            //       TextOverflow
-                                                            //           .ellipsis,
-                                                            // ),
                                                             Text(
                                                               order.orderCreatAt !=
                                                                       null
@@ -5504,23 +3834,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                   TextOverflow
                                                                       .ellipsis,
                                                             ),
-                                                            // Text(
-                                                            //   order.orderCreatAt !=
-                                                            //           null
-                                                            //       ? NKDateUtils
-                                                            //           .commonTimeOnlyFormat(order
-                                                            //               .orderCreatAt
-                                                            //               .toLocal())
-                                                            //       : 'N/A',
-                                                            //   style: TextStyle(
-                                                            //     fontSize:
-                                                            //         fontSize,
-                                                            //   ),
-                                                            //   maxLines: 1,
-                                                            //   overflow:
-                                                            //       TextOverflow
-                                                            //           .ellipsis,
-                                                            // ),
                                                           ],
                                                         ),
                                                       ),
@@ -5731,8 +4044,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                           12.0),
                                                                   child: Text(
                                                                     getStatusName(
-                                                                        order
-                                                                            .orderStatus).tr,
+                                                                            order.orderStatus)
+                                                                        .tr,
                                                                     style: TextStyle(
                                                                         fontSize:
                                                                             fontSize,
@@ -5806,7 +4119,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                       Expanded(
                                                                         child: Container(
                                                                             color: Colors.blue,
-                                                                            child:  Center(
+                                                                            child: Center(
                                                                               child: Text(
                                                                                 'Quick Sale'.tr,
                                                                                 style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
@@ -5888,7 +4201,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
-                                                child:  Center(
+                                                child: Center(
                                                   child: Text(
                                                     'Total'.tr,
                                                     maxLines: 2,
@@ -6061,7 +4374,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Customer List'.tr,
                                                   maxLines: 2,
@@ -6079,7 +4392,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Order No.'.tr,
                                                   maxLines: 2,
@@ -6096,7 +4409,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Created'.tr,
                                                   maxLines: 2,
@@ -6113,7 +4426,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Created By'.tr,
                                                   maxLines: 2,
@@ -6130,7 +4443,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Amount'.tr,
                                                   maxLines: 2,
@@ -6147,7 +4460,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Invoice'.tr,
                                                   maxLines: 2,
@@ -6164,7 +4477,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Payment Status'.tr,
                                                   maxLines: 2,
@@ -6181,7 +4494,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child:  Center(
+                                              child: Center(
                                                 child: Text(
                                                   'Status'.tr,
                                                   maxLines: 2,

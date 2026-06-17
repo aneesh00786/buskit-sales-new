@@ -929,6 +929,13 @@ Future<void> fetchChartCategoryPerformance(
           case FilterDateEnum.thisMonth:
             apiValueFromDw = "Month";
             apiSelectedRange = dashboardProvider.selectedFilterMonths;
+            if (apiSelectedRange.isEmpty) {
+              final List<String> monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+              ];
+              apiSelectedRange = [monthNames[DateTime.now().month - 1]];
+            }
             break;
 
           case FilterDateEnum.thisWeek:

@@ -323,21 +323,42 @@ class LoginController extends GetxController {
         );
 
         requiredDataFuture.then((_) async {
-          if (settings != null) {
-            await SessionHelper().setSettingsData(settings);
-            await SessionHelper().getSettingsData();
+          try {
+            if (settings != null) {
+              await SessionHelper().setSettingsData(settings);
+              await SessionHelper().getSettingsData();
+            }
+            if (syncInBackground) {
+              if (!navigationCompleter.isCompleted) {
+                navigationCompleter.complete();
+              }
+              await customerSyncFuture;
+              ApiWorker().cacheSyncImages(companyId);
+            } else {
+              await customerSyncFuture;
+              ApiWorker().cacheSyncImages(companyId);
+              if (!navigationCompleter.isCompleted) {
+                navigationCompleter.complete();
+              }
+            }
+          } catch (e, s) {
+            print("ERROR IN LOGIN DATA RECOVERY/SYNC: $e\n$s");
+            Get.snackbar(
+              "Sync Error",
+              "Sync failed: $e",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red.withOpacity(0.8),
+              colorText: Colors.white,
+              duration: const Duration(seconds: 7),
+            );
+            if (!navigationCompleter.isCompleted) {
+              navigationCompleter.complete();
+            }
           }
-          // If sync in background was pressed, navigate to home immediately
-          if (syncInBackground) {
-            if (!navigationCompleter.isCompleted) {
-              navigationCompleter.complete();
-            } else {}
-          } else {
-            // Otherwise, wait for customer sync to finish before navigating
-            await customerSyncFuture;
-            if (!navigationCompleter.isCompleted) {
-              navigationCompleter.complete();
-            } else {}
+        }).catchError((error) {
+          print("CRITICAL ERROR IN requiredDataFuture: $error");
+          if (!navigationCompleter.isCompleted) {
+            navigationCompleter.complete();
           }
         });
 
@@ -467,18 +488,13 @@ class LoginController extends GetxController {
       // Fetch first page to get totalPages
       final firstResponse = await apiService.fetchCustomer(
         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-        customerName: provider.searchCustomerName,
+        customerName: '',
         startDate: '',
         endDate: '',
         limit: 10,
         page: 1,
-        valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-            ? [
-                provider.selectedFilter.name,
-                provider.selectedStartDate,
-                provider.selectedEndDate
-              ]
-            : provider.selectedFilter.name).toString(),
+        valueFromDw: "Month",
+        selectedRange: [DateFormat('MMMM').format(DateTime.now())],
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
@@ -493,18 +509,13 @@ class LoginController extends GetxController {
       for (page = 2; page <= totalPages; page++) {
         final response = await apiService.fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          customerName: provider.searchCustomerName,
+          customerName: '',
           startDate: '',
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-              ? [
-                  provider.selectedFilter.name,
-                  provider.selectedStartDate,
-                  provider.selectedEndDate
-                ]
-              : provider.selectedFilter.name).toString(),
+          valueFromDw: "Month",
+          selectedRange: [DateFormat('MMMM').format(DateTime.now())],
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);
@@ -524,7 +535,8 @@ class LoginController extends GetxController {
           .toList();
       await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
     } catch (e) {
-      rethrow;
+      print("Error fetching customer pages: $e. Falling back to local cache.");
+      await loadAllCachedCustomerPages(context);
     }
   }
 
@@ -603,6 +615,9 @@ class LoginController extends GetxController {
       } catch (e) {
         //
       }
+      try {
+        await ApiWorker().fetchAllCustomerDiscounts(customerId);
+      } catch (e) {}
     }
   }
 
@@ -679,6 +694,8 @@ class LoginController extends GetxController {
 
         _apiWorker.getAllProducts(companyId: companyId),
         _apiWorker.getBulkVolumes(),
+        _apiWorker.getStaffDiscount(),
+        _apiWorker.getPromotions(),
         
         calenderMapController.getRouteCredit(),
         _apiWorker.getCalendarEvents({

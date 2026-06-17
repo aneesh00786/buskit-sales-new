@@ -2,10 +2,12 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -67,6 +69,182 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
+
+  String getFullImageUrl(String? path) {
+    if (path == null || path.isEmpty) return "";
+    if (path.startsWith("http")) return path;
+
+    // Remove leading slash if any
+    String cleanedPath = path.startsWith("/") ? path.substring(1) : path;
+
+    // Make sure imageBaseUrl ends with a single slash
+    String base = ApiConstants.imageBaseUrl;
+    if (!base.endsWith("/")) {
+      base = "$base/";
+    }
+    return base + cleanedPath;
+  }
+
+  void cacheSyncImages(int companyId) {
+    print("cacheSyncImages triggered for companyId: $companyId");
+    Future.microtask(() async {
+      try {
+        print("Starting background image caching...");
+        final isConnected = await ConnectivityService().isOnline();
+        if (!isConnected) {
+          print("Offline. Skipping background image caching.");
+          return;
+        }
+
+        final List<String> imageUrls = [];
+
+        // 1. Collect Customer Image URLs
+        final customerBox = Hive.box('customerBox');
+        int page = 1;
+        while (true) {
+          final cacheKey = '${companyId}_customer_list_$page';
+          final cachedData = customerBox.get(cacheKey);
+          if (cachedData == null) break;
+          try {
+            final response = CustomerResponseModelxx.fromJson(ApiService().ensureStringKeyedMap(cachedData));
+            for (var customer in response.data) {
+              if (customer.imageUrl.isNotEmpty) {
+                imageUrls.add(customer.imageUrl);
+              }
+            }
+          } catch (e) {
+            print("Error parsing customer list page $page for image caching: $e");
+          }
+          page++;
+        }
+
+        // 2. Collect Product Image URLs
+        final products = await _loadCachedProducts();
+        for (var product in products) {
+          if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
+            imageUrls.add(product.imageUrl!);
+          }
+          if (product.detail != null) {
+            for (var detail in product.detail!) {
+              if (detail.imageUrl != null && detail.imageUrl!.isNotEmpty) {
+                imageUrls.add(detail.imageUrl!);
+              }
+            }
+          }
+        }
+
+        // 3. De-duplicate URLs
+        final uniqueUrls = imageUrls.toSet().toList();
+        print("Found ${uniqueUrls.length} unique images to cache.");
+
+        // 4. Download and Cache each image in background under multiple format constructions
+        // to match varying string interpolations in the UI templates.
+        final cacheManager = DefaultCacheManager();
+        int successCount = 0;
+        for (final relativeUrl in uniqueUrls) {
+          if (relativeUrl.isEmpty) continue;
+
+          final List<String> urlsToCache = [];
+
+          // Format A: Exact UI construction: base + "/" + relativeUrl
+          urlsToCache.add("${ApiConstants.imageBaseUrl}/$relativeUrl");
+
+          // Format B: Direct concat: base + relativeUrl
+          urlsToCache.add("${ApiConstants.imageBaseUrl}$relativeUrl");
+
+          // Format C: Clean double slash
+          final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
+          urlsToCache.add("${ApiConstants.imageBaseUrl}/$cleanedRelative");
+
+          // Format D: Normalized single slash
+          urlsToCache.add(getFullImageUrl(relativeUrl));
+
+          final uniqueUrlsToCache = urlsToCache.toSet().toList();
+          bool cachedAtLeastOne = false;
+
+          for (final url in uniqueUrlsToCache) {
+            try {
+              await cacheManager.getSingleFile(url);
+              cachedAtLeastOne = true;
+            } catch (e) {
+              // Ignore failure for individual formats
+            }
+          }
+
+          if (cachedAtLeastOne) {
+            successCount++;
+          } else {
+            print("Failed to cache image in all formats: $relativeUrl");
+          }
+        }
+        print("Completed background image caching. Successfully cached $successCount / ${uniqueUrls.length} image resources.");
+      } catch (e) {
+        print("Error in background image caching: $e");
+      }
+    });
+  }
+
+  Future<List<CustomerCategoryDiscountData>> fetchAllCustomerDiscounts(
+      String customerId) async {
+    final cacheKey = "${customerId}_category_discounts";
+    try {
+      final isConnected = await ConnectivityService().isOnline();
+      final box = await Hive.openBox('customerBox');
+
+      if (isConnected) {
+        final request = {
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+          "customer_id": customerId,
+        };
+
+        final response = await responsePostMethod(
+          endPoint: ApiConstants.fetchCustomerDiscount,
+          requestData: request,
+        );
+
+        if (response.data != null && response.data['status'] == true) {
+          List<dynamic> dataList = response.data['data'];
+          await box.put(cacheKey, response.data);
+          return dataList
+              .map((e) => CustomerCategoryDiscountData.fromJson(e))
+              .toList();
+        } else {
+          throw Exception('Invalid response structure');
+        }
+      } else {
+        final cachedData = box.get(cacheKey);
+        if (cachedData != null) {
+          final jsonString = json.encode(cachedData);
+          final Map<String, dynamic> cleanJson = json.decode(jsonString);
+          if (cleanJson['data'] != null && cleanJson['data'] is List) {
+            List<dynamic> dataList = cleanJson['data'];
+            return dataList
+                .map((e) => CustomerCategoryDiscountData.fromJson(e))
+                .toList();
+          }
+        }
+        return [];
+      }
+    } catch (error) {
+      // Fallback fallback on error
+      try {
+        final box = await Hive.openBox('customerBox');
+        final cachedData = box.get(cacheKey);
+        if (cachedData != null) {
+          final jsonString = json.encode(cachedData);
+          final Map<String, dynamic> cleanJson = json.decode(jsonString);
+          if (cleanJson['data'] != null && cleanJson['data'] is List) {
+            List<dynamic> dataList = cleanJson['data'];
+            return dataList
+                .map((e) => CustomerCategoryDiscountData.fromJson(e))
+                .toList();
+          }
+        }
+      } catch (_) {}
+      return [];
+    }
+  }
+
   final targetType = SessionHelper.settingsData
           ?.firstWhere(
             (setting) => setting.key == 'targetType',
@@ -721,6 +899,11 @@ class ApiWorker with ApiConstants {
           List<ProductModel> productsForSubCategory = [];
  
           if (responseData['status'] == true && responseData['data'] != null) {
+            try {
+              await _cacheProductsByScid(responseData['data']);
+            } catch (cacheError) {
+              print("Cache saving failed in getTempProduct: $cacheError");
+            }
             for (var scidGroup in responseData['data']) {
               // Find the specific subcategory group we are looking for
               if (scidGroup['scid'] == subCatId) {
@@ -887,6 +1070,8 @@ class ApiWorker with ApiConstants {
               // Pass the raw data to the cache function
               await _cacheProductsByScid(responseData['data']);
               await _verifyProductCache();
+              print("Products cached in Hive. Triggering background image caching.");
+              cacheSyncImages(companyId);
             } catch (cacheError) {
               print("Cache saving bypassed or failed: $cacheError");
             }
@@ -1058,7 +1243,7 @@ class ApiWorker with ApiConstants {
   }
 
   // Helper method to cache products by scid
-  Future<void> _cacheProductsByScid(List<ScidProductGroup> scidGroups) async {
+  Future<void> _cacheProductsByScid(List<dynamic> rawData) async {
     try {
       // Open or create boxes for caching
       late Box<ScidProductGroup> scidGroupBox;
@@ -1075,6 +1260,19 @@ class ApiWorker with ApiConstants {
         productBox = Hive.box<ProductModel>('products');
       } else {
         productBox = await Hive.openBox<ProductModel>('products');
+      }
+
+      List<ScidProductGroup> scidGroups = [];
+      for (var rawGroup in rawData) {
+        try {
+          if (rawGroup is Map<String, dynamic>) {
+            scidGroups.add(ScidProductGroup.fromJson(rawGroup));
+          } else if (rawGroup is Map) {
+            scidGroups.add(ScidProductGroup.fromJson(Map<String, dynamic>.from(rawGroup)));
+          }
+        } catch (e) {
+          print("Error parsing raw group: $e");
+        }
       }
 
       // Store scid groups with their scid as key (don't clear existing data)
@@ -1103,7 +1301,7 @@ class ApiWorker with ApiConstants {
       // Add new products without deduplication (let the API handle it)
       await productBox.addAll(newProducts);
     } catch (e) {
-      //
+      print("Error in _cacheProductsByScid: $e");
     }
   }
 
@@ -3452,15 +3650,13 @@ class ApiWorker with ApiConstants {
       final box = await Hive.openBox('promotionsBox');
 
       if (!isConnected) {
-        final savedPromotions = box.get(cacheKey) as List?;
-        if (savedPromotions != null) {
-          return List<PromotionReponse>.from(
-            savedPromotions.map(
-              (x) => PromotionReponse.fromJson(
-                ApiService().castToStringDynamic(x),
-              ),
-            ),
-          );
+        final savedPromotions = box.get(cacheKey);
+        if (savedPromotions != null && savedPromotions is List) {
+          final jsonString = json.encode(savedPromotions);
+          final List<dynamic> cleanList = json.decode(jsonString);
+          return cleanList
+              .map((x) => PromotionReponse.fromJson(x as Map<String, dynamic>))
+              .toList();
         } else {
           throw Exception('No data available offline');
         }
@@ -4486,9 +4682,9 @@ class ApiWorker with ApiConstants {
         final cachedData = box.get(cacheKey);
 
         if (cachedData != null) {
-          return StaffDiscount.fromJson(cachedData
-              // ApiService().castToStringDynamic(cachedData),
-              );
+          final jsonString = json.encode(cachedData);
+          final Map<String, dynamic> cleanJson = json.decode(jsonString);
+          return StaffDiscount.fromJson(cleanJson);
         } else {
           throw Exception('No staff discount data available offline');
         }

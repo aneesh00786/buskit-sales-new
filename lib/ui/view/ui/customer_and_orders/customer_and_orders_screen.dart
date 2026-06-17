@@ -26,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart';
@@ -1644,20 +1645,14 @@ class _TableeeState extends State<Tableee> {
     try {
       // Fetch first page to get totalPages
       final firstResponse = await apiService.fetchCustomer(
-        salesmanId: '',
-        customerName: provider.searchCustomerName,
+        salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+        customerName: '',
         startDate: '',
         endDate: '',
         limit: 10,
         page: 1,
-        valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-                ? [
-                    provider.selectedFilter.name,
-                    provider.selectedStartDate,
-                    provider.selectedEndDate
-                  ]
-                : provider.selectedFilter.name)
-            .toString(),
+        valueFromDw: "Month",
+        selectedRange: [DateFormat('MMMM').format(DateTime.now())],
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
@@ -1671,20 +1666,14 @@ class _TableeeState extends State<Tableee> {
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
         final response = await ApiService().fetchCustomer(
-          salesmanId: '',
-          customerName: provider.searchCustomerName,
+          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+          customerName: '',
           startDate: '',
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-                  ? [
-                      provider.selectedFilter.name,
-                      provider.selectedStartDate,
-                      provider.selectedEndDate
-                    ]
-                  : provider.selectedFilter.name)
-              .toString(),
+          valueFromDw: "Month",
+          selectedRange: [DateFormat('MMMM').format(DateTime.now())],
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);
@@ -1696,8 +1685,15 @@ class _TableeeState extends State<Tableee> {
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);
       provider.setYearList(allYearsList);
+
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      ApiWorker().cacheSyncImages(companyId);
     } catch (e) {
-      rethrow;
+      print("Error fetching customer pages: $e. Falling back to local cache.");
+      try {
+        final loginController = Get.find<LoginController>();
+        await loginController.loadAllCachedCustomerPages(context);
+      } catch (_) {}
     }
   }
 }

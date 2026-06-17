@@ -1411,7 +1411,7 @@ final int yearToSend = (year != null && year != 0)
           yearsListOfAll: [],
         );
       } else {
-        throw Exception('No cached data available');
+        throw Exception('No cached data available. Original error: $e');
       }
     }
   }

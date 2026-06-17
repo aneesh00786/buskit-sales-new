@@ -285,3 +285,38 @@ class AddEvent {
         "message": message,
     };
 }
+
+class CustomerCategoryDiscountData {
+  int? cid;
+  String? category;
+  int? id;
+  int? companyId;
+  String? customerId;
+  String? categoriesId;
+  String? value;
+  String? discount;
+
+  CustomerCategoryDiscountData({
+    this.cid,
+    this.category,
+    this.id,
+    this.companyId,
+    this.customerId,
+    this.categoriesId,
+    this.value,
+    this.discount,
+  });
+
+  factory CustomerCategoryDiscountData.fromJson(Map<String, dynamic> json) {
+    return CustomerCategoryDiscountData(
+      cid: json['cid'],
+      category: json['category'],
+      id: json['id'],
+      companyId: json['company_id'],
+      customerId: json['customer_id'],
+      categoriesId: json['categories_id'],
+      value: json['value']?.toString() ?? '', 
+      discount: json['discount']?.toString() ?? '',
+    );
+  }
+}

@@ -56,6 +56,7 @@ class SyncController extends GetxController {
       await Future.delayed(const Duration(seconds: 2));
       await CartDatabaseManager().getDraftItems();
       await ApiWorker().fetchDiscounts(companyId, salesmanId);
+      ApiWorker().cacheSyncImages(companyId);
 
       await _updateLastSyncTime();
     } catch (e) {
@@ -119,6 +120,8 @@ class SyncController extends GetxController {
 
         ApiWorker().getAllProducts(companyId: companyId),
         ApiWorker().getBulkVolumes(),
+        ApiWorker().getStaffDiscount(),
+        ApiWorker().getPromotions(),
         calenderMapController.getRouteCredit(),
         ApiWorker().getCalendarEvents({
           'companyId': companyId,

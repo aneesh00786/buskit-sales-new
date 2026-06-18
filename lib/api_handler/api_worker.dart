@@ -90,7 +90,7 @@ class ApiWorker with ApiConstants {
     Future.microtask(() async {
       try {
         print("Starting background image caching...");
-        final isConnected = await ConnectivityService().isOnline();
+        final isConnected = await ConnectivityService().isConnected();
         if (!isConnected) {
           print("Offline. Skipping background image caching.");
           return;
@@ -145,10 +145,49 @@ class ApiWorker with ApiConstants {
           final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
 
           try {
+            // Check connectivity before starting request (fast local check)
+            final isStillConnected = await ConnectivityService().isConnected();
+            if (!isStillConnected) {
+              print("Device went offline. Aborting background image caching.");
+              break;
+            }
+
             await cacheManager.getSingleFile(singleSlashUrl);
             await cacheManager.getSingleFile(doubleSlashUrl);
             successCount++;
           } catch (e) {
+            final errStr = e.toString();
+            final isNetworkError = errStr.contains("Failed host lookup") ||
+                errStr.contains("SocketException") ||
+                errStr.contains("Network is unreachable") ||
+                errStr.contains("connection abort") ||
+                errStr.contains("Connection failed") ||
+                errStr.contains("HandshakeException");
+
+            if (isNetworkError) {
+              final isConnected = await ConnectivityService().isConnected();
+              if (!isConnected) {
+                print("Network disconnected during cache loop. Aborting background image caching.");
+                break;
+              }
+
+              // Verify if the specific image host is reachable (resolvable)
+              try {
+                final uri = Uri.parse(singleSlashUrl);
+                final host = uri.host;
+                if (host.isNotEmpty) {
+                  final lookup = await InternetAddress.lookup(host)
+                      .timeout(const Duration(milliseconds: 1500));
+                  if (lookup.isEmpty || lookup[0].rawAddress.isEmpty) {
+                    print("Host $host is unreachable. Aborting background image caching.");
+                    break;
+                  }
+                }
+              } catch (_) {
+                print("Host lookup failed. Aborting background image caching.");
+                break;
+              }
+            }
             print("Failed to cache image: $relativeUrl, error: $e");
           }
         }

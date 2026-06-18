@@ -159,16 +159,25 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
 
                               num lowstockItem = 0;
                               num outOfStockItem = 0;
-
                               product.detail?.forEach((detail) {
                                 num stock = detail.stock ?? 0;
                                 num lowstock = detail.lowstock ?? 0;
                                 if (stock == 0) {
                                   outOfStockItem++;
-                                } else if (stock < lowstock) {
+                                } else if (stock <= lowstock) { // <-- Changed to <=
                                   lowstockItem++;
                                 }
                               });
+
+                              // product.detail?.forEach((detail) {
+                              //   num stock = detail.stock ?? 0;
+                              //   num lowstock = detail.lowstock ?? 0;
+                              //   if (stock == 0) {
+                              //     outOfStockItem++;
+                              //   } else if (stock < lowstock) {
+                              //     lowstockItem++;
+                              //   }
+                              // });
 
                               final colorCodeString = productFrequencyCustomer
                                       .firstWhere(
@@ -261,6 +270,7 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
                                                         .productAvailabilityStatus
                                                         .value ==
                                                     "true") ...[
+                                                      if (lowstockItem > 0)
                                                   Container(
                                                     padding: const EdgeInsets
                                                         .symmetric(
@@ -273,7 +283,7 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
                                                       color: Colors.yellow[700],
                                                     ),
                                                     child: Text(
-                                                      '$lowstockItem Low',
+                                                      ' Low',
                                                       style:
                                                           GoogleFonts.poppins(
                                                         fontSize: 7,
@@ -282,7 +292,9 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
                                                       ),
                                                     ),
                                                   ),
+                                                  if (lowstockItem > 0 && outOfStockItem > 0)
                                                   const SizedBox(width: 6),
+                                                  if (outOfStockItem > 0)
                                                   Container(
                                                     padding: const EdgeInsets
                                                         .symmetric(
@@ -296,7 +308,7 @@ class _ProductGridPromoByBrandState extends State<ProductGridPromoByBrand> {
                                                           Colors.red.shade800,
                                                     ),
                                                     child: Text(
-                                                      '$outOfStockItem Nil',
+                                                      'Nil',
                                                       style:
                                                           GoogleFonts.poppins(
                                                         fontSize: 7,

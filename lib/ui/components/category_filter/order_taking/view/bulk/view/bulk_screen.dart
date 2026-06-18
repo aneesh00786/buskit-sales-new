@@ -159,7 +159,8 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomText(
-                              content: data.productName ?? "N/A",
+                                   content:
+    '${data.variationName ?? "N/A"} ${data.unitType ?? ""} - ${data.productName ?? "N/A"}',
                               overflow: TextOverflow.ellipsis,
                               fontWeight: FontWeight.bold, fontSize: 16,
                             ),

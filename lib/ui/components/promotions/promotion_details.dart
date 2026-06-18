@@ -5074,8 +5074,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                       ),
                     ),
                     // const Icon(Icons.shopping_bag, size: 40),
-                    title: Text(variant.productName ?? "-"),
-                    subtitle: Text(variant.variationName ?? "-"),
+                    title: Text(
+  '${variant.variationName ?? ""}${variant.unitType != null ? " ${variant.unitType}" : ""} - ${variant.productName ?? "-"}',
+),
+                    // subtitle: Text(variant.variationName ?? "-"),
                   );
                 }).toList(),
               );

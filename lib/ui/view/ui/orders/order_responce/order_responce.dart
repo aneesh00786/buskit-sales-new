@@ -110,37 +110,7 @@ class OrderData {
     } else {
       invoice = [];
     }
-    // invoice = (json['invoice'] as List?)
-    // ?.map((dynamic e) => OrderInvoice.fromJson(e as Map<String, dynamic>))
-    // .toList() ?? [];
-    //  invoice = json['invoice'] != null
-    //     ? [
-    //         OrderInvoice.fromJson(
-    //           ensureStringKeyedMap(json['invoice']),
-    //         )
-    //       ]
-    //     : [];
-    // cart = (json['cart'] as List?)
-    //     ?.map((dynamic e) => CustomerCart.fromJson(e as Map<String, dynamic>,
-    //         setOptionOrderData: OptionOrderData(
-    //           customerId: json['customer_id'] as String?,
-    //           salesmanId: json['salesman_id'] as String?,
-    //           cartId: json['cart_id'] as String?,
-    //           orderTotal: json['order_total'] as num?,
-    //           orderStatus: json['order_status'] as int?,
-    //           orderCreatAt: json['order_creat_at'] as String?,
-    //           deliveryDatetime: json['delivery_datetime'] as String?,
-    //           generatedDate: json['generated_date'] as String?,
-    //           paymentStatus: json['payment_status'] as int?,
-    //           orderId: json['order_id'] as String?,
-    //           id: json['id'] as int?,
-    //         ),
-    //         setCustomerDetails: (json['customer'] as List?)
-    //             ?.map((dynamic e) =>
-    //                 CustomerDetails.fromJson(e as Map<String, dynamic>))
-    //             .toList()
-    //             .first))
-    //     .toList();
+   
       if (json['salesman'] is List) {
       salesman = (json['salesman'] as List).map((e) => CustomerAssignedSalesman.fromJson(ensureStringKeyedMap(e))).toList();
     } else if (json['salesman'] is Map) {
@@ -148,10 +118,7 @@ class OrderData {
     } else {
       salesman = [];
     }
-    // salesman = (json['salesman'] as List?)
-    //     ?.map((dynamic e) =>
-    //         CustomerAssignedSalesman.fromJson(e as Map<String, dynamic>))
-    //     .toList();
+ 
       if (json['customer'] is List) {
       customer = (json['customer'] as List).map((e) => CustomerDetails.fromJson(ensureStringKeyedMap(e))).toList();
     } else if (json['customer'] is Map) {
@@ -159,10 +126,7 @@ class OrderData {
     } else {
       customer = [];
     }
-    // customer = (json['customer'] as List?)
-    //     ?.map(
-    //         (dynamic e) => CustomerDetails.fromJson(e as Map<String, dynamic>))
-    //     .toList();
+    
         orderSource = json['order_source'] as String?;
     rejectedDate = json['rejected_date'] as String?;
     OptionOrderData optionData = OptionOrderData(

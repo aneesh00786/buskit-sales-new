@@ -2,11 +2,13 @@
 
 import 'dart:async';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_network_image.dart';
@@ -30,6 +32,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +60,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   bool _isLoading = true;
   bool _hasAlwaysPermission = false;
   bool _pendingSettingsReturn = false;
+   Timer? _foregroundTimer;
   StaffController staffController = Get.put(StaffController());
   LeadsController leadsController = Get.put(LeadsController());
   CustomersController leadsCustomerController = Get.put(CustomersController());
@@ -142,6 +146,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   void dispose() {
     _checkingInWorker?.dispose();
     WidgetsBinding.instance.removeObserver(this);
+      _stopForegroundTracking();
     super.dispose();
   }
 
@@ -626,35 +631,115 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
         
         // The CheckInService will handle permission status updates
         // and the sidebar listener will automatically update the permission status
-      } else {
-        // Handle check-out logic
-        // Reset permission status on check out
+      } 
+      else {
+        // === CHECK OUT LOGIC ===
         setState(() {
           _hasAlwaysPermission = false;
         });
-        
-        // === CHECK OUT LOGIC ===
+
+        // Stop background service if running
+        final service = FlutterBackgroundService();
+        if (await service.isRunning()) {
+          service.invoke('stopService');
+        }
+
+        // Stop any CheckInService tracking
         CheckInService().stopTracking();
 
-        // Send API for check-out
-        final response = await ApiWorker().updateAdminCheckInOut(
-          date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-          time: DateFormat('HH:mm').format(DateTime.now()),
-          direction: "out",
-          lat: "0.0", // No position needed for check-out
-          long: "0.0",
-        );
+        // Stop foreground tracking if used
+        _stopForegroundTracking();
 
-        if (response.statusCode == 200) {
+        // --- NEW OFFLINE LOGIC ---
+        final connectivityService = ConnectivityService();
+        final isOnline = await connectivityService.isOnline();
+
+        final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+        final time = DateFormat('HH:mm').format(DateTime.now());
+
+        if (!isOnline) {
+          // OFFLINE: Save checkout request to Hive
+          final box = await Hive.openBox('offlineRequests');
+          final payload = {
+            "companyId": widget.userDetails.company_id ?? 0,
+            "date": date,
+            "sales_id": widget.userDetails.salesmanId ?? '',
+            "time": time,
+            "direction": "out",
+            "latitude": "0.0",
+            "longitude": "0.0",
+          };
+
+          await box.add({
+            'url': ApiConstants.baseUrl + ApiConstants.updateCheckinOut,
+            'payload': payload,
+          });
+
+          // Update local state to successfully check out visually
           await ApiWorker().saveSwitchState(false);
+          
           if (mounted) {
             setState(() {
               _onSwitchSelected = false;
             });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.orange,
+                content: Text('Offline: Admin Check-out saved locally and will sync when online.'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+        } else {
+          // ONLINE: Send API for check-out
+          final response = await ApiWorker().updateAdminCheckInOut(
+            date: date,
+            time: time,
+            direction: "out",
+            lat: "0.0",
+            long: "0.0",
+          );
+
+          if (response.statusCode == 200) {
+            await ApiWorker().saveSwitchState(false);
+            if (mounted) {
+              setState(() {
+                _onSwitchSelected = false;
+              });
+            }
           }
         }
       }
-    } catch (e) {
+      // else {
+      //   // Handle check-out logic
+      //   // Reset permission status on check out
+      //   setState(() {
+      //     _hasAlwaysPermission = false;
+      //   });
+        
+      //   // === CHECK OUT LOGIC ===
+      //   CheckInService().stopTracking();
+
+      //   // Send API for check-out
+      //   final response = await ApiWorker().updateAdminCheckInOut(
+      //     date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+      //     time: DateFormat('HH:mm').format(DateTime.now()),
+      //     direction: "out",
+      //     lat: "0.0", // No position needed for check-out
+      //     long: "0.0",
+      //   );
+
+      //   if (response.statusCode == 200) {
+      //     await ApiWorker().saveSwitchState(false);
+      //     if (mounted) {
+      //       setState(() {
+      //         _onSwitchSelected = false;
+      //       });
+      //     }
+      //   }
+      // }
+    } 
+    catch (e) {
       print("Error: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -727,7 +812,16 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   //     }
   //   }
   // }
+   void _stopForegroundTracking() {
+    if (_foregroundTimer != null) {
+      _foregroundTimer!.cancel();
+      _foregroundTimer = null;
+      print("Stopped foreground tracking.");
+    }
+  }
 }
+
+
 
 Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
   return await showDialog(

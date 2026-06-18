@@ -517,54 +517,7 @@ print('dashboard list body:$requestBody');
     throw Exception('Failed to fetch data: $e');
   }
 }
-
-
-  // Future<ResponseModelCp> fetchDashboardValuePerformanceData({
-  //   required String catId,
-  //   String? fetchType,
-  //   String? startDate,
-  //   String? endDate,
-  //   String? selectedDay,
-  //   List<String>? selectedMonths,
-  //   List<String>? selectedWeeks,
-  //   int? year,
-  // }) async {
-  //   final requestBody = {
-  //     "month": catId,
-  //     "time_range": "Month",
-  //     "year": DateTime.now().year,
-  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //   };
-  //   try {
-  //     final response = await responsePostMethod(
-  //         requestData: requestBody,
-  //         endPoint: ApiConstants.fetchValuePerformance,
-  //         options: Options(
-  //           headers: {'Content-Type': 'application/json'},
-  //         ));
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = response.data;
-  //       var allCategoryList = jsonResponse['data'] as List;
-  //       List<Salesmanvn> allCategory =
-  //           allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-  //       return ResponseModelCp(
-  //           statusCode: jsonResponse['status_code'] ?? 0,
-  //           status: jsonResponse['status'] ?? false,
-  //           message: jsonResponse['message'] ?? '',
-  //           data: allCategory);
-  //     } else {
-  //       handleExceptionMessage(
-  //           response: response, apiName: "value perfromance");
-  //       throw Exception('Failed to load data');
-  //     }
-  //   } on DioException catch (error) {
-  //     handleExceptionMessage(
-  //         response: error.response, apiName: "value perfromance", error: error);
-  //     throw Exception('Failed to fetch data: $error');
-  //   }
-  // }
-  Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
+Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
     required dynamic catId,
     String? salesmanId,
     String? fetchType,
@@ -577,40 +530,46 @@ print('dashboard list body:$requestBody');
   }) async {
     Object? sendData;
     
-    // 1. Updated Logic: Year is a single value, others are lists
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths; // List
+    // Normalize string to avoid case-sensitive fall-throughs
+    final String type = fetchType?.toLowerCase() ?? '';
+
+    switch (type) {
+      case "month":
+        sendData = selectedMonths; // Ensure these are names like ["June"]
         break;
-      case "Week":
-        sendData = selectedWeeks; // List
+      case "week":
+        sendData = selectedWeeks; 
         break;
-      case "Day":
-        sendData = selectedDay != null ? [selectedDay] : null; // List
+      case "day":
+        sendData = selectedDay != null ? [selectedDay] : null; 
         break;
-      case "Year":
       case "year":
-        // ✅ CHANGE: Send as single value (String), not inside a list
+        // Sent as single value (String) as per your logic
         sendData = year?.toString(); 
         break;
-      case "Range":
+      case "range":
         sendData = (startDate != null && endDate != null) 
-            ? [startDate, endDate] // List
+            ? [startDate, endDate] 
             : null;
         break;
       default:
         sendData = selectedMonths;
     }
 
+    // Safely parse catId to ensure backend receives an integer
+    int? parsedCatId;
+    if (catId != null && catId.toString().isNotEmpty) {
+      parsedCatId = int.tryParse(catId.toString());
+    }
+
     final requestBody = {
-      "categories_id": catId,
+      "categories_id": parsedCatId ?? 0, // Fallback to 0, not empty string
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": "",
-      // Use parameter salesmanId if provided, otherwise session
       "salesman_id": salesmanId ?? SessionHelper.loginSavedData?.salesmanId ?? '',
-      "bar_type": fetchType,
-      "range_type": fetchType,
-      "selected_range": sendData, // String for Year, List for others
+      "bar_type": fetchType, // e.g. "Month"
+      "range_type": fetchType, 
+      "selected_range": sendData, 
       "year": year?.toString() ?? DateTime.now().year.toString(),
       "limit": 1000,
       "page": 1
@@ -623,7 +582,8 @@ print('dashboard list body:$requestBody');
           options: Options(
             headers: {'Content-Type': 'application/json'},
           ));
-        
+          print("API PAYLOAD: $requestBody");
+        log('response of the fetchOrderByRange: ${response.data}');
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
         var returnResponse = jsonResponse['data'] as List;
@@ -658,37 +618,46 @@ print('dashboard list body:$requestBody');
   //   int? year,
   // }) async {
   //   Object? sendData;
+    
+  //   // 1. Updated Logic: Year is a single value, others are lists
   //   switch (fetchType) {
   //     case "Month":
-  //       sendData = selectedMonths;
+  //       sendData = selectedMonths; // List
   //       break;
   //     case "Week":
-  //       sendData = selectedWeeks;
+  //       sendData = selectedWeeks; // List
   //       break;
   //     case "Day":
-  //       sendData = [selectedDay];
+  //       sendData = selectedDay != null ? [selectedDay] : null; // List
   //       break;
   //     case "Year":
-  //       sendData = year;
+  //     case "year":
+  //       // ✅ CHANGE: Send as single value (String), not inside a list
+  //       sendData = year?.toString(); 
   //       break;
   //     case "Range":
-  //       sendData = [startDate, endDate];
+  //       sendData = (startDate != null && endDate != null) 
+  //           ? [startDate, endDate] // List
+  //           : null;
   //       break;
   //     default:
   //       sendData = selectedMonths;
   //   }
+
   //   final requestBody = {
   //     "categories_id": catId,
   //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
   //     "customer_id": "",
-  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     // Use parameter salesmanId if provided, otherwise session
+  //     "salesman_id": salesmanId ?? SessionHelper.loginSavedData?.salesmanId ?? '',
   //     "bar_type": fetchType,
   //     "range_type": fetchType,
-  //     "selected_range": sendData,
-  //     "year": fetchType == "Year" ? year : DateTime.now().year.toString(),
+  //     "selected_range": sendData, // String for Year, List for others
+  //     "year": year?.toString() ?? DateTime.now().year.toString(),
   //     "limit": 1000,
   //     "page": 1
   //   };
+    
   //   try {
   //     final response = await responsePostMethod(
   //         requestData: requestBody,
@@ -696,6 +665,8 @@ print('dashboard list body:$requestBody');
   //         options: Options(
   //           headers: {'Content-Type': 'application/json'},
   //         ));
+  //         log('response of fetchOrderByRange:${response.data}');
+        
   //     if (response.statusCode == 200) {
   //       var jsonResponse = response.data;
   //       var returnResponse = jsonResponse['data'] as List;
@@ -717,6 +688,7 @@ print('dashboard list body:$requestBody');
   //     throw Exception('Failed to fetch data: $error');
   //   }
   // }
+
   Future<List<TargetDatum>> fetchSalesmanTargetByCategory({
   required int catId,
   String? salesmanId,

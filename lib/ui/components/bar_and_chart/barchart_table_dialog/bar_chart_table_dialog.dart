@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -232,74 +234,16 @@ showBarchartDialog(
                                           ),
                                         ],
                                       ],
-//                                       Expanded(
-//   child: Center(
-//     // 1. Use a Builder to create a scope for a local variable (notifier)
-//     child: Builder(
-//       builder: (context) {
-//         // 2. Create a notifier to track loading state for THIS specific item
-//         final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
-
-//         // 3. Listen to the notifier to rebuild only when loading changes
-//         return ValueListenableBuilder<bool>(
-//           valueListenable: isLoadingNotifier,
-//           builder: (context, isLoading, child) {
-//             return InkWell(
-//               onTap: () async {
-//                 // Start Loading
-//                 isLoadingNotifier.value = true;
-
-//                 await dashboardProvider.fetchChartOrderData(
-//                   category.salesmanId,
-//                   targetType == '0' ? '' : catId,
-//                 );
-
-//                 // Stop Loading
-//                 isLoadingNotifier.value = false;
-
-//                 Get.dialog(StaffOrdersDialog(
-//                   heading: 'orders',
-//                   orderData: dashboardProvider.chartOrderData,
-//                 ));
-//               },
-//               // 4. Show Indicator if loading, otherwise show Text
-//               child: isLoading
-//                   ? const SizedBox(
-//                       height: 14,
-//                       width: 14,
-//                       child: CircularProgressIndicator(
-//                         strokeWidth: 2,
-//                         // Match the color to your app theme
-//                         valueColor: AlwaysStoppedAnimation<Color>(primaryButtonColor),
-//                       ),
-//                     )
-//                   : Text(
-//                       formatAmount(category.orderTotal),
-//                       style: TextStyle(
-//                         fontSize: 13,
-//                         color: formatAmount(category.orderTotal) == formatAmount(0)
-//                             ? secondaryTextColor
-//                             : primaryButtonColor,
-//                       ),
-//                     ),
-//             );
-//           },
-//         );
-//       },
-//     ),
-//   ),
-// ),
+//                                    
                                       Expanded(
                                         child: Center(
                                           child: InkWell(
                                             onTap: () async {
-                                              
+                                             
                                               await dashboardProvider
                                                   .fetchChartOrderData(
                                                       category.salesmanId,
-                                                      targetType == '0'
-                                                          ? ''
-                                                          : catId);
+                                                     targetType == '0' ? 0 : catId,);
                                               Get.dialog(StaffOrdersDialog(
                                                 heading: 'orders',
                                                 orderData: dashboardProvider

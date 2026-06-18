@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -122,21 +123,23 @@ void onStart(ServiceInstance service) async {
 }
 Future<void> updateServer(Position position) async {
   try {
-    // print('starting update to server');
+    // 1. ADD CONNECTIVITY CHECK HERE
+    final connectivityService = ConnectivityService();
+    final isOnline = await connectivityService.isOnline();
 
-    // Create a Dio instance (you can make this a singleton elsewhere for reuse)
+    if (!isOnline) {
+      print("Offline: Skipping live location update. (Consider saving to Hive for later sync)");
+      // Optional: Save coordinates to a local Hive box here to sync route history later
+      return; 
+    }
+
     final Dio dio = Dio();
-
-    // Optional: Set default timeouts (in milliseconds)
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.receiveTimeout = const Duration(seconds: 10);
-      final url = '${ApiConstants.baseUrl1}/update-salesman-location';
 
-    // final url = 'https://test.thrivewoo.com/update-salesman-location';
+    final url = '${ApiConstants.baseUrl}update-salesman-location';
     
-
     String? loginJsonString = await SessionManager.getStringValue(SpString.spLogin);
-
     int companyId = 0;
     String salesmanId = '0';
 
@@ -144,49 +147,98 @@ Future<void> updateServer(Position position) async {
       try {
         final Map<String, dynamic> loginMap = jsonDecode(loginJsonString);
         final LoginData loginData = LoginData.fromJson(loginMap);
-
         companyId = loginData.company_id ?? 0;
         salesmanId = loginData.salesmanId ?? '0';
       } catch (e) {
         print("Error parsing login data in background service: $e");
       }
     } else {
-      print("No login data found in SharedPreferences - user probably logged out");
-      // Optionally stop the service or skip sending
       return;
     }
-  print('companyId: $companyId');
-  print('salesmanId: $salesmanId');
-    // Your specific payload (Dio will automatically jsonEncode Maps)
+
     final Map<String, dynamic> body = {
-     "companyId": companyId,
+      "companyId": companyId,
       "salesmanId": salesmanId,
       "latitude": position.latitude,
       "longitude": position.longitude,
     };
 
-    // Make the POST requesttt
-    final Response response = await dio.post(
-      url,
-      data: body,  // Dio automatically sets Content-Type to application/json and encodes the body
-    );
-
+    final Response response = await dio.post(url, data: body);
     print("Sent Location: ${position.latitude}, ${position.longitude}");
-    print("Response Status: ${response.statusCode}");
-    print("Response Body: ${response.data}");  // response.data is already parsed if JSON
 
   } on DioException catch (e) {
-    // Better error handling with DioException
     print("Error sending location: ${e.message}");
-    if (e.response != null) {
-      // Server responded with error status (e.g., 4xx, 5xx)
-      print("Error Response Status: ${e.response?.statusCode}");
-      print("Error Response Body: ${e.response?.data}");
-    } else {
-      // Something else happened (timeout, no connection, etc.)
-      print("Request failed: $e");
-    }
   } catch (e) {
     print("Unexpected error sending location: $e");
   }
 }
+// Future<void> updateServer(Position position) async {
+//   try {
+//     // print('starting update to server');
+
+//     // Create a Dio instance (you can make this a singleton elsewhere for reuse)
+//     final Dio dio = Dio();
+
+//     // Optional: Set default timeouts (in milliseconds)
+//     dio.options.connectTimeout = const Duration(seconds: 10);
+//     dio.options.receiveTimeout = const Duration(seconds: 10);
+//       final url = '${ApiConstants.baseUrl1}/update-salesman-location';
+
+//     // final url = 'https://test.thrivewoo.com/update-salesman-location';
+    
+
+//     String? loginJsonString = await SessionManager.getStringValue(SpString.spLogin);
+
+//     int companyId = 0;
+//     String salesmanId = '0';
+
+//     if (loginJsonString != null && loginJsonString.isNotEmpty) {
+//       try {
+//         final Map<String, dynamic> loginMap = jsonDecode(loginJsonString);
+//         final LoginData loginData = LoginData.fromJson(loginMap);
+
+//         companyId = loginData.company_id ?? 0;
+//         salesmanId = loginData.salesmanId ?? '0';
+//       } catch (e) {
+//         print("Error parsing login data in background service: $e");
+//       }
+//     } else {
+//       print("No login data found in SharedPreferences - user probably logged out");
+//       // Optionally stop the service or skip sending
+//       return;
+//     }
+//   print('companyId: $companyId');
+//   print('salesmanId: $salesmanId');
+//     // Your specific payload (Dio will automatically jsonEncode Maps)
+//     final Map<String, dynamic> body = {
+//      "companyId": companyId,
+//       "salesmanId": salesmanId,
+//       "latitude": position.latitude,
+//       "longitude": position.longitude,
+//     };
+
+//     // Make the POST requesttt
+//     final Response response = await dio.post(
+//       url,
+//       data: body,  // Dio automatically sets Content-Type to application/json and encodes the body
+//     );
+
+//     print("Sent Location: ${position.latitude}, ${position.longitude}");
+//     print("Response Status: ${response.statusCode}");
+//     print("Response Body: ${response.data}");  // response.data is already parsed if JSON
+
+//   } on DioException catch (e) {
+//     // Better error handling with DioException
+//     print("Error sending location: ${e.message}");
+//     if (e.response != null) {
+//       // Server responded with error status (e.g., 4xx, 5xx)
+//       print("Error Response Status: ${e.response?.statusCode}");
+//       print("Error Response Body: ${e.response?.data}");
+//     } else {
+//       // Something else happened (timeout, no connection, etc.)
+//       print("Request failed: $e");
+//     }
+//   } catch (e) {
+//     print("Unexpected error sending location: $e");
+//   }
+// }

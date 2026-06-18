@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -106,132 +109,53 @@ class CheckInService {
     final permissionService = PermissionStatusService();
     await permissionService.updatePermissionStatus();
   }
-
   Future<void> _completeCheckIn(BuildContext context, Position position) async {
+  final connectivityService = ConnectivityService();
+  final isOnline = await connectivityService.isOnline();
+  
+  final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  final time = DateFormat('HH:mm').format(DateTime.now());
+  final lat = position.latitude.toString();
+  final long = position.longitude.toString();
+
+  if (!isOnline) {
+    // 1. OFFLINE LOGIC: Save Admin Check-in to Hive
+    final box = await Hive.openBox('offlineRequests');
+    final payload = {
+      // Add necessary fields for admin check-in based on your API requirements
+      "date": date,
+      "time": time,
+      "direction": "in",
+      "latitude": lat,
+      "longitude": long,
+    };
+    
+    await box.add({
+      'url': ApiConstants.baseUrl + 'update-admin-check-in-endpoint', // Replace with exact endpoint
+      'payload': payload,
+    });
+    
+    // Treat as successfully checked in locally so the UI updates
+    await ApiWorker().saveSwitchState(true);
+    
+  } else {
+    // 2. ONLINE LOGIC: Hit API
     final response = await ApiWorker().updateAdminCheckInOut(
-      date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-      time: DateFormat('HH:mm').format(DateTime.now()),
+      date: date,
+      time: time,
       direction: "in",
-      lat: position.latitude.toString(),
-      long: position.longitude.toString(),
+      lat: lat,
+      long: long,
     );
 
     if (response.statusCode == 200) {
       await ApiWorker().saveSwitchState(true);
     }
-
-    final permissionService = PermissionStatusService();
-    await permissionService.updatePermissionStatus();
   }
-// class CheckInService {
-//   static final CheckInService _instance = CheckInService._internal();
 
-//   factory CheckInService() => _instance;
-
-//   CheckInService._internal();
-
-//   // Shared check-in function that can be called from anywhere
-//   Future<void> performCheckIn(BuildContext context) async {
-//     try {
-//       // Basic Check
-//       if (!await _handleLocationPermission()) {
-//         return;
-//       }
-
-//       // Get Position for API
-//       Position position = await Geolocator.getCurrentPosition(
-//         desiredAccuracy: LocationAccuracy.high,
-//       );
-
-//       // Check current permission status
-//       var alwaysStatus = await Permission.locationAlways.status;
-
-//       // If NOT granted, show explanation dialog FIRST, then request
-//       if (!alwaysStatus.isGranted) {
-        
-//         // Use root navigator context to show dialog
-//         bool proceed = await _showAlwaysPermissionDialog(context);
-        
-//         if (!proceed) {
-//           // User chose "Use Foreground Only" - proceed with fallback
-//           _startForegroundTracking();
-//         } else {
-//           // User clicked "Request Always" - Try popup first
-//           await Permission.locationAlways.request();
-          
-//           // Wait a moment for iOS/Android to update the permission status
-//           await Future.delayed(const Duration(milliseconds: 1500));
-          
-//           // Re-evaluate both statuses after returning from settings
-//           var newAlwaysStatus = await Permission.locationAlways.status;
-//           var newWhenInUseStatus = await Permission.locationWhenInUse.status;
-          
-//           if (newAlwaysStatus.isGranted) {
-//             // Permission granted for Always! 
-//             await initializeService();
-//             final service = FlutterBackgroundService();
-//             if (!await service.isRunning()) service.startService();
-            
-//             final permissionService = PermissionStatusService();
-//             await permissionService.updatePermissionStatus();
-            
-//           } else if (newWhenInUseStatus.isGranted) {
-//             // THE FIX: They selected "Only while using" in settings.
-//             // We start foreground tracking, but crucially, WE DO NOT RETURN.
-//             // This allows the execution to continue to the API call below.
-//             _startForegroundTracking();
-//             final permissionService = PermissionStatusService();
-//             await permissionService.updatePermissionStatus();
-            
-//           } else {
-//             // They completely denied location in settings. 
-//             // We must abort because we have no location access.
-//             if (context.mounted) {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(
-//                   content: Text('Location permission is required to check in.'),
-//                   duration: Duration(seconds: 4),
-//                 ),
-//               );
-//             }
-//             return; // Abort API call only on complete denial
-//           }
-//         }
-//       } else {
-//         // Already has Always permission - start background service
-//         await initializeService();
-//         final service = FlutterBackgroundService();
-//         if (!await service.isRunning()) service.startService();
-        
-//         final permissionService = PermissionStatusService();
-//         await permissionService.updatePermissionStatus();
-//       }
-
-//       // --- Send API Call ---
-//       // This will now be reached successfully as long as the user granted 
-//       // *some* form of location permission.
-//       final response = await ApiWorker().updateAdminCheckInOut(
-//         date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-//         time: DateFormat('HH:mm').format(DateTime.now()),
-//         direction: "in",
-//         lat: position.latitude.toString(),
-//         long: position.longitude.toString(),
-//       );
-
-//       if (response.statusCode == 200) {
-//         await ApiWorker().saveSwitchState(true);
-//       }
-
-//       // Update permission status service to notify listeners
-//       final permissionService = PermissionStatusService();
-//       await permissionService.updatePermissionStatus();
-      
-//     } catch (e) {
-//       if (context.mounted) {
-//         NkCommonFunction.showErrorSnakBar("Error: $e");
-//       }
-//     }
-//   }
+  final permissionService = PermissionStatusService();
+  await permissionService.updatePermissionStatus();
+}
 
   Future<bool> _showAlwaysPermissionDialog(BuildContext context, bool isPermanentlyDenied) async {
     final globalContext = Get.key.currentContext;

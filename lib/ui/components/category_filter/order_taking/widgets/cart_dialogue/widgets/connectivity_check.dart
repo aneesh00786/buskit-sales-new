@@ -1,5 +1,4 @@
-//Connectivity Plus
-
+import 'dart:async';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -18,18 +17,77 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart' as getx;
 
 class ConnectivityService {
+  static final ConnectivityService _instance = ConnectivityService._internal();
+  factory ConnectivityService() => _instance;
+
   final Connectivity _connectivity = Connectivity();
   bool _isSyncing = false;
+  dio.Dio dio1 = dio.Dio();
+
+  bool? _cachedIsOnline;
+  DateTime? _lastCheckTime;
+  Future<bool>? _currentCheckFuture;
+
+  // Broadcast stream for real internet status changes
+  final StreamController<bool> _onlineStatusController = StreamController<bool>.broadcast();
+  Stream<bool> get onOnlineStatusChanged => _onlineStatusController.stream;
+
+  // Track last emitted status to avoid duplicate notifications
+  bool? _lastEmittedStatus;
+
+  ConnectivityService._internal() {
+    _connectivity.onConnectivityChanged.listen((results) {
+      _checkAndUpdateOnlineStatus();
+    });
+  }
+
   Stream<List<ConnectivityResult>> get connectivityStream =>
       _connectivity.onConnectivityChanged;
+
+  void _notifyStatusChange(bool status) {
+    if (_lastEmittedStatus != status) {
+      _lastEmittedStatus = status;
+      _onlineStatusController.add(status);
+    }
+  }
+
+  Future<void> _checkAndUpdateOnlineStatus() async {
+    if (_currentCheckFuture != null) return;
+    _currentCheckFuture = () async {
+      try {
+        final result = await _connectivity.checkConnectivity();
+        if (result.isEmpty || result.contains(ConnectivityResult.none)) {
+          _cachedIsOnline = false;
+          _lastCheckTime = DateTime.now();
+          _notifyStatusChange(false);
+          return false;
+        }
+        final lookup = await InternetAddress.lookup('google.com')
+            .timeout(const Duration(milliseconds: 1500));
+        final isOnline = lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
+        _cachedIsOnline = isOnline;
+        _notifyStatusChange(isOnline);
+      } catch (_) {
+        _cachedIsOnline = false;
+        _notifyStatusChange(false);
+      } finally {
+        _lastCheckTime = DateTime.now();
+        _currentCheckFuture = null;
+      }
+      return _cachedIsOnline ?? false;
+    }();
+    await _currentCheckFuture;
+  }
+
   Future<bool> isConnected() async {
     var result = await _connectivity.checkConnectivity();
-    return result != ConnectivityResult.none;
+    return result.isNotEmpty && !result.contains(ConnectivityResult.none);
   }
 
   Future<bool> hasInternet() async {
     try {
-      final result = await InternetAddress.lookup('google.com');
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(milliseconds: 1500));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } catch (e) {
       return false;
@@ -37,18 +95,49 @@ class ConnectivityService {
   }
 
   Future<bool> isOnline() async {
-    bool hasNetwork = await isConnected();
-    if (!hasNetwork) {
-      return false;
+    final now = DateTime.now();
+    if (_cachedIsOnline != null &&
+        _lastCheckTime != null &&
+        now.difference(_lastCheckTime!).inSeconds < 5) {
+      _notifyStatusChange(_cachedIsOnline!);
+      return _cachedIsOnline!;
     }
 
-    bool hasInternetAccess = await hasInternet();
-    return hasInternetAccess;
+    if (_currentCheckFuture != null) {
+      return _currentCheckFuture!;
+    }
+
+    _currentCheckFuture = () async {
+      try {
+        bool hasNetwork = await isConnected();
+        if (!hasNetwork) {
+          _cachedIsOnline = false;
+          _lastCheckTime = DateTime.now();
+          _notifyStatusChange(false);
+          return false;
+        }
+
+        bool hasInternetAccess = await hasInternet();
+        _cachedIsOnline = hasInternetAccess;
+        _lastCheckTime = DateTime.now();
+        _notifyStatusChange(hasInternetAccess);
+        return hasInternetAccess;
+      } catch (_) {
+        _cachedIsOnline = false;
+        _lastCheckTime = DateTime.now();
+        _notifyStatusChange(false);
+        return false;
+      } finally {
+        _currentCheckFuture = null;
+      }
+    }();
+
+    return _currentCheckFuture!;
   }
 
   Future<bool> isConnectedToNetwork() async {
     final result = await _connectivity.checkConnectivity();
-    return result != ConnectivityResult.none;
+    return result.isNotEmpty && !result.contains(ConnectivityResult.none);
   }
 
   void startListening(

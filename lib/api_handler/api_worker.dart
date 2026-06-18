@@ -124,57 +124,32 @@ class ApiWorker with ApiConstants {
           if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
             imageUrls.add(product.imageUrl!);
           }
-          if (product.detail != null) {
-            for (var detail in product.detail!) {
-              if (detail.imageUrl != null && detail.imageUrl!.isNotEmpty) {
-                imageUrls.add(detail.imageUrl!);
-              }
-            }
-          }
         }
 
         // 3. De-duplicate URLs
         final uniqueUrls = imageUrls.toSet().toList();
         print("Found ${uniqueUrls.length} unique images to cache.");
 
-        // 4. Download and Cache each image in background under multiple format constructions
-        // to match varying string interpolations in the UI templates.
+        // 4. Download and Cache each image in background under both single-slash and double-slash formats
         final cacheManager = DefaultCacheManager();
         int successCount = 0;
         for (final relativeUrl in uniqueUrls) {
           if (relativeUrl.isEmpty) continue;
 
-          final List<String> urlsToCache = [];
+          final singleSlashUrl = getFullImageUrl(relativeUrl);
 
-          // Format A: Exact UI construction: base + "/" + relativeUrl
-          urlsToCache.add("${ApiConstants.imageBaseUrl}/$relativeUrl");
-
-          // Format B: Direct concat: base + relativeUrl
-          urlsToCache.add("${ApiConstants.imageBaseUrl}$relativeUrl");
-
-          // Format C: Clean double slash
+          // UI components use a mix of '${ApiConstants.imageBaseUrl}${path}' (single-slash)
+          // and '${ApiConstants.imageBaseUrl}/${path}' (double-slash: e.g. 'uploads//product/...').
+          // We cache both to ensure CacheManager matches the keys correctly offline.
           final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
-          urlsToCache.add("${ApiConstants.imageBaseUrl}/$cleanedRelative");
+          final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
 
-          // Format D: Normalized single slash
-          urlsToCache.add(getFullImageUrl(relativeUrl));
-
-          final uniqueUrlsToCache = urlsToCache.toSet().toList();
-          bool cachedAtLeastOne = false;
-
-          for (final url in uniqueUrlsToCache) {
-            try {
-              await cacheManager.getSingleFile(url);
-              cachedAtLeastOne = true;
-            } catch (e) {
-              // Ignore failure for individual formats
-            }
-          }
-
-          if (cachedAtLeastOne) {
+          try {
+            await cacheManager.getSingleFile(singleSlashUrl);
+            await cacheManager.getSingleFile(doubleSlashUrl);
             successCount++;
-          } else {
-            print("Failed to cache image in all formats: $relativeUrl");
+          } catch (e) {
+            print("Failed to cache image: $relativeUrl, error: $e");
           }
         }
         print("Completed background image caching. Successfully cached $successCount / ${uniqueUrls.length} image resources.");

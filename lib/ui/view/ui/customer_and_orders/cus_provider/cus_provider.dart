@@ -941,6 +941,14 @@ Future<void> fetchChartCategoryPerformance(
           case FilterDateEnum.thisWeek:
             apiValueFromDw = "Week";
             apiSelectedRange = dashboardProvider.selectedFilterWeeks;
+            if (apiSelectedRange.isEmpty) {
+              // Fallback: calculate the current week number
+              final now = DateTime.now();
+              final startOfYear = DateTime(now.year, 1, 1);
+              final dayOfYear = now.difference(startOfYear).inDays + 1;
+              final weekNumber = ((dayOfYear - 1) ~/ 7) + 1;
+              apiSelectedRange = ["Week $weekNumber"];
+            }
             break;
 
           case FilterDateEnum.thisYear:
@@ -957,7 +965,10 @@ Future<void> fetchChartCategoryPerformance(
 
           case FilterDateEnum.today:
             apiValueFromDw = "Day";
-            apiSelectedRange = [dashboardProvider.selectedDate];
+            final selectedDay = dashboardProvider.selectedDate;
+            apiSelectedRange = [selectedDay.isNotEmpty
+              ? selectedDay
+              : DateFormat('yyyy-MM-dd').format(DateTime.now())];
             break;
 
           default:
@@ -974,6 +985,9 @@ Future<void> fetchChartCategoryPerformance(
           selectedRange: apiSelectedRange,
           startDate: apiStartDate,
           endDate: apiEndDate,
+          year: dashboardProvider.selectedYear != 0
+              ? dashboardProvider.selectedYear
+              : DateTime.now().year,
         );
 
         final value = await _customersFuture!;

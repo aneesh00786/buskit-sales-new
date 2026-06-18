@@ -86,8 +86,17 @@ class ConnectivityService {
 
   Future<bool> hasInternet() async {
     try {
+      final stopwatch = Stopwatch()..start();
       final result = await InternetAddress.lookup('google.com')
           .timeout(const Duration(milliseconds: 1500));
+      stopwatch.stop();
+
+      // If connection is extremely slow (latency exceeds 1200ms), treat as offline for faster cache fallback
+      if (stopwatch.elapsedMilliseconds > 1200) {
+        debugPrint("ConnectivityService: Low connectivity detected (${stopwatch.elapsedMilliseconds}ms). Treating as offline.");
+        return false;
+      }
+
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } catch (e) {
       return false;

@@ -3784,7 +3784,21 @@ class CartDialogueState extends State<CartDialogue> {
       'paymentType': paymentType,
       'order_status': status,
       'cart_list': processedItems
-          .map((e) => {
+          .map((e)  {
+             final double combinedDiscount = (e.totalDiscountAmount ?? 0).toDouble() +
+            (e.flatDiscount ?? 0).toDouble() +
+            (e.bogoDiscount ?? 0).toDouble();
+
+        final num combinedPromoDiscount = (e.tieredDiscount ?? 0) +
+            (e.flatDiscount ?? 0) +
+            (e.bogoDiscount ?? 0);
+
+        bool isBundle = e.promoMsg != null && e.promoMsg!.startsWith("Bundle");
+        
+        bool isBulkItem = (e.detail.bulkId != null && e.detail.bulkId!.isNotEmpty) ||
+            (e.detail.variationName?.contains('[BULK_ID:') == true);
+
+        return {
                 'product_id': e.detail.productId,
                 'product_name': e.productName,
                 'variant_id': e.detail.variationId,
@@ -3819,7 +3833,18 @@ class CartDialogueState extends State<CartDialogue> {
                             : e.detail.count.toDouble())),
                 'totalPrice': e.detail.totalPrice,
                 'isPack': e.isPack,
-              })
+                  'unitPrice': e.detail.sellPrice.toString(),
+          'maxDiscount': e.detail.maxDiscount?.toInt(),
+          'isPromo': e.isPromo ?? false,
+          'isBundle': isBundle,
+          'promoCode': e.promoCode ?? '',
+          'promoMsg': isBundle ? "Bundle: ${e.detail.variationName}" : (e.promoMsg ?? ''),
+          'bundleDetails': isBundle ? "Bundle: ${e.detail.variationName}" : '',
+          'customerDiscount': e.CustomerDiscount ?? 0.0,
+          'promoDiscount': combinedPromoDiscount,
+          'isBulk': isBulkItem,
+          'bulkId': e.detail.bulkId ?? '',
+     }; })
           .toList(),
       if (isQuickSale) ...{
         'paymentDetail': remarkController.text.trim(),

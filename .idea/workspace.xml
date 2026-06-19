@@ -5,18 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5660bd51-f1b0-4dde-9ee0-3a91c66f24cb" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api_handler/api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api_handler/api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/location_services/location_services.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/location_services/location_services.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/barchart_table_dialog/bar_chart_table_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/barchart_table_dialog/bar_chart_table_dialog.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/custom_barchart/custom_bar_chart.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/components/bar_and_chart/custom_barchart/custom_bar_chart.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/components/side_bar/nk_sidebarx.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/components/side_bar/nk_sidebarx.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/services/checkin_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/services/checkin_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/dashboard1/provider/dash_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/dashboard1/provider/dash_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/ui/view/ui/orders/order_responce/order_responce.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/view/ui/orders/order_responce/order_responce.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -214,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             child: idAndImagePicWidget(
                                               file: photoId,
                                               imageUrl:
-                                                  '${ApiConstants.imageBaseUrlss}${_adminData?.imagePath ?? ''}',
+                                                  NkCommonFunction.getFullSalesmanImageUrl(_adminData?.imagePath),
                                               text: 'Profile Image'.tr,
                                             ),
                                           ),
@@ -223,7 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             child: idAndImagePicWidget(
                                               file: photoId,
                                               imageUrl:
-                                                  '${ApiConstants.imageBaseUrlss}${_adminData?.idImagePath ?? ''}',
+                                                  NkCommonFunction.getFullSalesmanImageUrl(_adminData?.idImagePath),
                                               text: 'ID Card Image'.tr,
                                             ),
                                           ),
@@ -1281,6 +1281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget idAndImagePicWidget(
       {String? lable, String? imageUrl, File? file, String? text}) {
+    debugPrint("idAndImagePicWidget - text: $text, imageUrl: $imageUrl");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

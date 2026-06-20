@@ -85,18 +85,18 @@ class ApiWorker with ApiConstants {
     return base + cleanedPath;
   }
 
+  void _logSync(String message) {
+    debugPrint("[Product Image Sync] $message");
+  }
+
   void cacheSyncImages(int companyId) {
-    print("cacheSyncImages triggered for companyId: $companyId");
     Future.microtask(() async {
       try {
-        print("Starting background image caching...");
         final isConnected = await ConnectivityService().isConnected();
-        if (!isConnected) {
-          print("Offline. Skipping background image caching.");
-          return;
-        }
+        if (!isConnected) return;
 
-        final List<String> imageUrls = [];
+        final List<String> customerUrls = [];
+        final List<String> productUrls = [];
 
         // 1. Collect Customer Image URLs
         final customerBox = Hive.box('customerBox');
@@ -109,11 +109,11 @@ class ApiWorker with ApiConstants {
             final response = CustomerResponseModelxx.fromJson(ApiService().ensureStringKeyedMap(cachedData));
             for (var customer in response.data) {
               if (customer.imageUrl.isNotEmpty) {
-                imageUrls.add(customer.imageUrl);
+                customerUrls.add(customer.imageUrl);
               }
             }
           } catch (e) {
-            print("Error parsing customer list page $page for image caching: $e");
+            // Keep parsing errors silent
           }
           page++;
         }
@@ -122,78 +122,56 @@ class ApiWorker with ApiConstants {
         final products = await _loadCachedProducts();
         for (var product in products) {
           if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
-            imageUrls.add(product.imageUrl!);
+            productUrls.add(product.imageUrl!);
           }
         }
 
-        // 3. De-duplicate URLs
-        final uniqueUrls = imageUrls.toSet().toList();
-        print("Found ${uniqueUrls.length} unique images to cache.");
+        // De-duplicate URLs
+        final uniqueCustomerUrls = customerUrls.toSet().toList();
+        final uniqueProductUrls = productUrls.toSet().toList();
 
-        // 4. Download and Cache each image in background under both single-slash and double-slash formats
         final cacheManager = DefaultCacheManager();
-        int successCount = 0;
-        for (final relativeUrl in uniqueUrls) {
+
+        // 3. Cache Customer Images asynchronously (Quietly)
+        for (final relativeUrl in uniqueCustomerUrls) {
           if (relativeUrl.isEmpty) continue;
-
           final singleSlashUrl = getFullImageUrl(relativeUrl);
-
-          // UI components use a mix of '${ApiConstants.imageBaseUrl}${path}' (single-slash)
-          // and '${ApiConstants.imageBaseUrl}/${path}' (double-slash: e.g. 'uploads//product/...').
-          // We cache both to ensure CacheManager matches the keys correctly offline.
           final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
           final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
 
-          try {
-            // Check connectivity before starting request (fast local check)
-            final isStillConnected = await ConnectivityService().isConnected();
-            if (!isStillConnected) {
-              print("Device went offline. Aborting background image caching.");
-              break;
-            }
-
-            await cacheManager.getSingleFile(singleSlashUrl);
-            await cacheManager.getSingleFile(doubleSlashUrl);
-            successCount++;
-          } catch (e) {
-            final errStr = e.toString();
-            final isNetworkError = errStr.contains("Failed host lookup") ||
-                errStr.contains("SocketException") ||
-                errStr.contains("Network is unreachable") ||
-                errStr.contains("connection abort") ||
-                errStr.contains("Connection failed") ||
-                errStr.contains("HandshakeException");
-
-            if (isNetworkError) {
-              final isConnected = await ConnectivityService().isConnected();
-              if (!isConnected) {
-                print("Network disconnected during cache loop. Aborting background image caching.");
-                break;
+          Future(() async {
+            try {
+              final isStillConnected = await ConnectivityService().isConnected();
+              if (isStillConnected) {
+                await cacheManager.getSingleFile(singleSlashUrl);
+                await cacheManager.getSingleFile(doubleSlashUrl);
               }
-
-              // Verify if the specific image host is reachable (resolvable)
-              try {
-                final uri = Uri.parse(singleSlashUrl);
-                final host = uri.host;
-                if (host.isNotEmpty) {
-                  final lookup = await InternetAddress.lookup(host)
-                      .timeout(const Duration(milliseconds: 1500));
-                  if (lookup.isEmpty || lookup[0].rawAddress.isEmpty) {
-                    print("Host $host is unreachable. Aborting background image caching.");
-                    break;
-                  }
-                }
-              } catch (_) {
-                print("Host lookup failed. Aborting background image caching.");
-                break;
-              }
-            }
-            print("Failed to cache image: $relativeUrl, error: $e");
-          }
+            } catch (_) {}
+          });
         }
-        print("Completed background image caching. Successfully cached $successCount / ${uniqueUrls.length} image resources.");
+
+        // 4. Cache Product Images asynchronously (Log full URLs immediately)
+        for (final relativeUrl in uniqueProductUrls) {
+          if (relativeUrl.isEmpty) continue;
+          final singleSlashUrl = getFullImageUrl(relativeUrl);
+          final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
+          final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
+
+          _logSync("Caching Product Image URL 1: $singleSlashUrl");
+          _logSync("Caching Product Image URL 2: $doubleSlashUrl");
+
+          Future(() async {
+            try {
+              final isStillConnected = await ConnectivityService().isConnected();
+              if (isStillConnected) {
+                await cacheManager.getSingleFile(singleSlashUrl);
+                await cacheManager.getSingleFile(doubleSlashUrl);
+              }
+            } catch (_) {}
+          });
+        }
       } catch (e) {
-        print("Error in background image caching: $e");
+        // Keep errors silent
       }
     });
   }

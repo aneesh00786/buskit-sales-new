@@ -773,6 +773,7 @@ class _TableeeState extends State<Tableee> {
           TextEditingController stateController = TextEditingController();
           TextEditingController zipcodeController = TextEditingController();
           TextEditingController addressController = TextEditingController();
+          TextEditingController countryController = TextEditingController();
 
           TextEditingController bsNameController = TextEditingController();
 
@@ -787,6 +788,8 @@ class _TableeeState extends State<Tableee> {
           TextEditingController deliveryStateController =
               TextEditingController();
           TextEditingController deliveryZipcodeController =
+              TextEditingController();
+          TextEditingController deliveryCountryController =
               TextEditingController();
 
           // NEW: Delivery Contact Number Controller
@@ -859,17 +862,27 @@ class _TableeeState extends State<Tableee> {
                                             bsNameController,
                                             'Business Name'.tr,
                                             Assets.icBusiness),
-                                        buildInputField(addressController,
-                                            'Address'.tr, Assets.icLocation),
                                         Row(
                                           children: [
                                             Expanded(
+                                              flex: 2,
+                                              child: buildInputField(
+                                                  addressController,
+                                                  'Address'.tr,
+                                                  Assets.icLocation),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              flex: 1,
                                               child: buildInputField(
                                                   townController,
                                                   'City or Suburb'.tr,
                                                   Assets.icCity),
                                             ),
-                                            const SizedBox(width: 8.0),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
                                             Expanded(
                                               child: buildInputField(
                                                   stateController,
@@ -882,6 +895,13 @@ class _TableeeState extends State<Tableee> {
                                                   zipcodeController,
                                                   'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  countryController,
+                                                  'Country'.tr,
+                                                  Assets.icLocation),
                                             ),
                                           ],
                                         ),
@@ -977,7 +997,11 @@ class _TableeeState extends State<Tableee> {
                                                           stateController.text;
                                                       deliveryZipcodeController
                                                               .text =
-                                                          zipcodeController
+                                                           zipcodeController
+                                                              .text;
+                                                      deliveryCountryController
+                                                              .text =
+                                                           countryController
                                                               .text;
                                                     } else {
                                                       deliveryAddressController
@@ -990,6 +1014,8 @@ class _TableeeState extends State<Tableee> {
                                                           .clear();
                                                       deliveryZipcodeController
                                                           .clear();
+                                                      deliveryCountryController
+                                                          .clear();
                                                     }
                                                   });
                                                 },
@@ -999,19 +1025,27 @@ class _TableeeState extends State<Tableee> {
                                             ],
                                           ),
                                         ),
-                                        buildInputField(
-                                            deliveryAddressController,
-                                            'Address'.tr,
-                                            Assets.icLocation),
                                         Row(
                                           children: [
                                             Expanded(
+                                              flex: 2,
+                                              child: buildInputField(
+                                                  deliveryAddressController,
+                                                  'Address'.tr,
+                                                  Assets.icLocation),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              flex: 1,
                                               child: buildInputField(
                                                   deliveryTownController,
                                                   'City or Suburb'.tr,
                                                   Assets.icCity),
                                             ),
-                                            const SizedBox(width: 8.0),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryStateController,
@@ -1024,6 +1058,13 @@ class _TableeeState extends State<Tableee> {
                                                   deliveryZipcodeController,
                                                   'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryCountryController,
+                                                  'Country'.tr,
+                                                  Assets.icLocation),
                                             ),
                                           ],
                                         ),
@@ -1295,6 +1336,8 @@ class _TableeeState extends State<Tableee> {
                                                     'State': stateController,
                                                     'Zip Code':
                                                         zipcodeController,
+                                                    'Country':
+                                                        countryController,
                                                     'Mobile Number':
                                                         phoneController,
                                                     'Email': emailController,
@@ -1314,6 +1357,8 @@ class _TableeeState extends State<Tableee> {
                                                         deliveryStateController,
                                                     'Delivery Zip Code':
                                                         deliveryZipcodeController,
+                                                    'Delivery Country':
+                                                        deliveryCountryController,
                                                   };
 
                                                   // 1. Check for missing fields
@@ -1427,6 +1472,7 @@ class _TableeeState extends State<Tableee> {
                                                                 .text
                                                                 .trim()) ??
                                                         0,
+                                                    "country": countryController.text.trim(),
                                                     "mobileno": int.tryParse(
                                                             phoneController.text
                                                                 .trim()) ??
@@ -1476,6 +1522,7 @@ class _TableeeState extends State<Tableee> {
                                                                     .text
                                                                     .trim()) ??
                                                             0,
+                                                    "deliverycountry": deliveryCountryController.text.trim(),
                                                     "remark": remarkController
                                                         .text
                                                         .trim(),

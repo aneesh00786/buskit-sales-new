@@ -364,28 +364,36 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            content:
-                                widget.userDetails.fullname?.toUpperCase() ??
-                                    'No Data',
-                            fontSize: ResponsiveInfo.isMobile() ? 15 : 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          CustomText(
-                            content: widget.userDetails.email ?? 'No Data',
-                            fontSize: ResponsiveInfo.isMobile() ? 8 : 12,
-                            color: Colors.white,
-                          ),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              content:
+                                  widget.userDetails.fullname?.toUpperCase() ??
+                                      'No Data',
+                              fontSize: ResponsiveInfo.isMobile() ? 15 : 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              maxLine: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            CustomText(
+                              content: widget.userDetails.email ?? 'No Data',
+                              fontSize: ResponsiveInfo.isMobile() ? 8 : 12,
+                              color: Colors.white,
+                              maxLine: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       SizedBox(
                         height: 35,
                         child: Obx(() {
-                          bool isLoading = _isLoading || CheckInService.isCheckingIn.value;
+                          final isChecking = CheckInService.isCheckingIn.value;
+                          bool isLoading = _isLoading || isChecking;
                           return isLoading
                               ? const CircularProgressIndicator(color: white)
                               : GestureDetector(

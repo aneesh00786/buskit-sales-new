@@ -28,11 +28,15 @@ class LeadTopScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CustomText(content: 'Leads'.tr,fontWeight: FontWeight.bold,),
-            SizedBox(width: 10,),
-         
+            CustomText(
+              content: 'Leads'.tr,
+              fontWeight: FontWeight.bold,
+            ),
+            SizedBox(
+              width: 10,
+            ),
             const Spacer(),
-               AddLeadsScreen(
+            AddLeadsScreen(
               leadsController: leadsController,
             ),
             const NotificationWidget(
@@ -65,7 +69,8 @@ Widget profiloe() {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (snapshot.hasData) {
           final admin = snapshot.data!.data.first;
-          print('image URL: ${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
+          print(
+              'image URL: ${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
           return SizedBox(
             width: 130,
             child: SizedBox(
@@ -76,7 +81,6 @@ Widget profiloe() {
                 child: Row(
                   children: [
                     SizedBox(width: 5),
-                    
                     CircleAvatar(
                       backgroundColor: const Color(0xffe6ecff),
                       radius: 15,
@@ -116,8 +120,8 @@ Widget profiloe() {
                             ),
                           ),
                           Expanded(
-                            child:  MyRegularText(
-                              label: "Salesman".tr,
+                            child: MyRegularText(
+                              label: homeController.userDetails?.designation ?? "",
                               fontSize: 8.5,
                               color: Colors.grey,
                               fontWeight: FontWeight.bold,

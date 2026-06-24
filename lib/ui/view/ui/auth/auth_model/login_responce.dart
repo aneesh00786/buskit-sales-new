@@ -55,6 +55,7 @@ class LoginData {
   String? usertype;
   int? status;
   String? createdToken;
+  String? designation;
 
   LoginData({
     this.id,
@@ -86,6 +87,7 @@ class LoginData {
     this.usertype,
     this.status,
     this.createdToken,
+    this.designation,
   });
 
   LoginData.fromJson(Map<String, dynamic> json) {
@@ -118,6 +120,7 @@ class LoginData {
     usertype = json['usertype'];
     status = json['status'];
     createdToken = json['createdToken'];
+    designation = json['designation'];
   }
 
   Map<String, dynamic> toJson() {
@@ -151,6 +154,7 @@ class LoginData {
     json['usertype'] = usertype;
     json['status'] = status;
     json['createdToken'] = createdToken;
+    json['designation'] = designation;
     return json;
   }
 }

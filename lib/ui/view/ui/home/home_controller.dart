@@ -8,6 +8,8 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart' hide SalesReturn;
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
@@ -516,6 +518,14 @@ class HomeController extends GetxController {
   }
 
   Future<void> handleLogoutOnConfirmation(BuildContext context) async {
+    // Stop location tracking (both background service and foreground timer)
+    try {
+      CheckInService().stopTracking();
+      ConnectivityService().reset();
+    } catch (e) {
+      print("Error stopping location tracking or resetting connectivity on logout: $e");
+    }
+
     // Create backup of current login data before clearing
     SessionHelper().createLoginDataBackup();
 

@@ -10,6 +10,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -17,6 +19,13 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> handleLogout(BuildContext context) async {
+  try {
+    CheckInService().stopTracking();
+    ConnectivityService().reset();
+  } catch (e) {
+    debugPrint("Error stopping tracking or resetting connectivity in handleLogout: $e");
+  }
+
   showCustomToastDisplay(
       context, "Clearing Cache", primaryColor, Icons.clear_all);
 final prefs = await SharedPreferences.getInstance();

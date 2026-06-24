@@ -63,7 +63,7 @@ class ConnectivityService {
           return false;
         }
         final lookup = await InternetAddress.lookup('google.com')
-            .timeout(const Duration(milliseconds: 1500));
+            .timeout(const Duration(milliseconds: 3000));
         final isOnline = lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
         _cachedIsOnline = isOnline;
         _notifyStatusChange(isOnline);
@@ -86,17 +86,8 @@ class ConnectivityService {
 
   Future<bool> hasInternet() async {
     try {
-      final stopwatch = Stopwatch()..start();
       final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(milliseconds: 1500));
-      stopwatch.stop();
-
-      // If connection is extremely slow (latency exceeds 1200ms), treat as offline for faster cache fallback
-      if (stopwatch.elapsedMilliseconds > 1200) {
-        debugPrint("ConnectivityService: Low connectivity detected (${stopwatch.elapsedMilliseconds}ms). Treating as offline.");
-        return false;
-      }
-
+          .timeout(const Duration(milliseconds: 3000));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } catch (e) {
       return false;
@@ -107,7 +98,7 @@ class ConnectivityService {
     final now = DateTime.now();
     if (_cachedIsOnline != null &&
         _lastCheckTime != null &&
-        now.difference(_lastCheckTime!).inSeconds < 5) {
+        now.difference(_lastCheckTime!).inSeconds < 30) {
       _notifyStatusChange(_cachedIsOnline!);
       return _cachedIsOnline!;
     }
@@ -142,6 +133,13 @@ class ConnectivityService {
     }();
 
     return _currentCheckFuture!;
+  }
+
+  void reset() {
+    _cachedIsOnline = null;
+    _lastCheckTime = null;
+    _currentCheckFuture = null;
+    _lastEmittedStatus = null;
   }
 
   Future<bool> isConnectedToNetwork() async {

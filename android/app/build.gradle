@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.buskit_sales"
+    namespace = "com.jrb.buskitSales"
     ndkVersion = "26.1.10909125"
     flavorDimensions "default"
     compileOptions {
@@ -35,11 +35,19 @@ android {
 
     compileSdkVersion 35
     defaultConfig {
-        applicationId "com.example.buskit_sales"
+        applicationId "com.jrb.buskitSales"
         minSdkVersion 23
         targetSdkVersion 35
         versionCode 1
         versionName "1.0"
+    }
+    signingConfigs {
+        release {
+            storeFile = file("../../busskit-sales-release.jks") // adjust path
+            storePassword = "buskit123"
+            keyAlias = "busskit-sales-key"
+            keyPassword = "buskit123"
+        }
     }
     kotlinOptions {
         jvmTarget = "17"

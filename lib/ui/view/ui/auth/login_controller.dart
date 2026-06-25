@@ -696,7 +696,6 @@ class LoginController extends GetxController {
         _apiWorker.getBulkVolumes(),
         _apiWorker.getStaffDiscount(),
         _apiWorker.getPromotions(),
-        
         calenderMapController.getRouteCredit(),
         _apiWorker.getCalendarEvents({
           'companyId': companyId,
@@ -704,9 +703,6 @@ class LoginController extends GetxController {
               .toIso8601String(),
         }),
         _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
-
-        connectivityService.syncOfflineDrafts(),
-
         ApiService().fetchAllOrders(
             isLogin: true,
             orderType: '',

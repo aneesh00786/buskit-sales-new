@@ -161,22 +161,20 @@ Widget buildOrderList(
         children: [
           SizedBox(
             width: 210,
-            child: Scrollbar(
-              thumbVisibility: true,
-              child: ListView.builder(
-                itemCount: orderController.orderDataList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < orderController.orderDataList.length) {
-                    final customerData = orderController.orderDataList[index];
-                    return _buildCustomerDetails(customerData, context, index);
-                  } else {
-                    return Container(
-                      height: 58,
-                      color: Colors.grey[200],
-                    );
-                  }
-                },
-              ),
+            child: ListView.builder(
+              primary: false,
+              itemCount: orderController.orderDataList.length + 1,
+              itemBuilder: (context, index) {
+                if (index < orderController.orderDataList.length) {
+                  final customerData = orderController.orderDataList[index];
+                  return _buildCustomerDetails(customerData, context, index);
+                } else {
+                  return Container(
+                    height: 58,
+                    color: Colors.grey[200],
+                  );
+                }
+              },
             ),
           ),
           Expanded(
@@ -207,6 +205,7 @@ Widget buildOrderList(
                                 : fullScreenWidth(context) * 1.2
                         : fullScreenWidth(context) * 2,
                     child: ListView.builder(
+                      primary: false,
                       itemCount: orderController.orderDataList.length + 1,
                       itemBuilder: (context, index) {
                         if (index < orderController.orderDataList.length) {

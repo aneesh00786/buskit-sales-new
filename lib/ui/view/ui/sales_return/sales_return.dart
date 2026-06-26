@@ -86,27 +86,14 @@ class _SalesReturnState extends State<SalesReturn> {
       return;
     }
 
-    // Ensure UI is ready before triggering update
     if (mounted) {
-      setState(() {}); // Optional: trigger rebuild if needed
+      setState(() {});
     }
 
-    // This will now use FilterDateEnum.thisMonth
     await salesReturnController.updateSalesReturnList();
 
     log("Sales Return Response: ${salesReturnController.salesReturnList.length} items loaded");
   }
-
-  // void initializeData() async {
-  //   bool isOnline = await ConnectivityService().isOnline();
-  //   if (!isOnline) {
-  //     showCustomToastDisplay(
-  //         context, "You are Offline!", Colors.red, Icons.close);
-  //     return;
-  //   }
-  //   await salesReturnController.updateSalesReturnList();
-  //   log("Sales Return Response: ${salesReturnController.salesReturnList}");
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -142,26 +129,9 @@ class _SalesReturnState extends State<SalesReturn> {
                 startDate: '',
                 endDate: '',
               ),
-               SizedBox(width: 120, child: profiloe())
+              SizedBox(width: 120, child: profiloe())
             ],
           ),
-          // ListTile(
-          //   leading:    Text(
-          //       "Sales Return",
-          //         style: TextStyle(
-          //     fontSize: NkFontSize.extraLargeFont(),
-          //     fontWeight: FontWeight.bold),
-          //     ),
-          //     trailing: Row(
-          //       children: [
-          //         const NotificationWidget(
-          //           startDate: '',
-          //           endDate: '',
-          //         ),
-          //         const SizedBox(width: 120, child: UpdateAdminBt())
-          //       ],
-          //     ),
-          // ),
           SizedBox(
             width: isPhonePortrait(context)
                 ? fullScreenWidth(context) * 2.3
@@ -246,7 +216,8 @@ class _SalesReturnState extends State<SalesReturn> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Obx(
               () => DropdownButton<FilterDateEnum>(
                 value: salesReturnController.selectedFilter.value,
@@ -268,34 +239,29 @@ class _SalesReturnState extends State<SalesReturn> {
                     });
                   }
                 },
-                items:  [
+                items: [
                   DropdownMenuItem(
                     value: FilterDateEnum.thisMonth,
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_month, size: 16, color: primaryColor),
+                        Icon(Icons.calendar_month,
+                            size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Month'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Month'.tr,
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
-                  // DropdownMenuItem(
-                  //   value: FilterDateEnum.thisWeek,
-                  //   child: Row(
-                  //     children: [
-                  //       Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                  //       SizedBox(width: 8),
-                  //       Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  //     ],
-                  //   ),
-                  // ),
                   DropdownMenuItem(
                     value: FilterDateEnum.today,
                     child: Row(
                       children: [
                         Icon(Icons.today, size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Day'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Day'.tr,
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -303,9 +269,12 @@ class _SalesReturnState extends State<SalesReturn> {
                     value: FilterDateEnum.thisYear,
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
+                        Icon(Icons.calendar_view_month,
+                            size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Year'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Year'.tr,
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -315,7 +284,9 @@ class _SalesReturnState extends State<SalesReturn> {
                       children: [
                         Icon(Icons.date_range, size: 16, color: primaryColor),
                         SizedBox(width: 8),
-                        Text('Range'.tr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('Range'.tr,
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -323,7 +294,8 @@ class _SalesReturnState extends State<SalesReturn> {
                 isExpanded: true,
                 borderRadius: BorderRadius.circular(12),
                 underline: Container(),
-                icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
+                icon: Icon(Icons.keyboard_arrow_down,
+                    size: 20, color: Colors.grey[600]),
                 dropdownColor: Colors.white,
                 elevation: 8,
                 style: TextStyle(
@@ -338,90 +310,45 @@ class _SalesReturnState extends State<SalesReturn> {
       );
     }
 
-    // This widget Row holds the dropdown AND the dynamic pickers
-    // Inside _buildFilters in sales_return.dart
     Widget buildTimeFilterRow() {
       return Obx(() => Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              
-              // NEW: Conditional Standalone Year Dropdown
-              if (salesReturnController.selectedFilter.value != FilterDateEnum.range) ...[
+              if (salesReturnController.selectedFilter.value !=
+                  FilterDateEnum.range) ...[
                 const SalesReturnYearDropdown(),
                 const SizedBox(width: 10),
               ],
-
-              // Main dropdown
               timePeriodDropdown(),
-
-              if (salesReturnController.selectedFilter.value == FilterDateEnum.thisMonth) ...[
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.thisMonth) ...[
                 const SizedBox(width: 10),
-                const SalesReturnMonthDropdown() 
+                const SalesReturnMonthDropdown()
               ],
-               if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.thisWeek) ...[
                 const SizedBox(width: 10),
                 const SalesReturnWeekDropdown() // <-- NEW WIDGET
               ],
-
-            
-
-              if (salesReturnController.selectedFilter.value == FilterDateEnum.today) ...[
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.today) ...[
                 const SizedBox(width: 10),
-                const SalesReturnDayPicker() 
+                const SalesReturnDayPicker()
               ],
-
-              if (salesReturnController.selectedFilter.value == FilterDateEnum.range) ...[
+              if (salesReturnController.selectedFilter.value ==
+                  FilterDateEnum.range) ...[
                 const SizedBox(width: 10),
-                const SalesReturnRangePicker() 
+                const SalesReturnRangePicker()
               ],
             ],
           ));
     }
 
-    // Widget buildTimeFilterRow() {
-    //   return Obx(() => Row(
-    //         // Wrap in Obx to listen to selectedFilter changes
-    //         mainAxisSize: MainAxisSize.min,
-    //         children: [
-    //           timePeriodDropdown(), // The main dropdown
-
-    //           if (salesReturnController.selectedFilter.value ==
-    //               FilterDateEnum.thisMonth) ...[
-    //             const SizedBox(width: 10),
-    //             const SalesReturnMonthDropdown() // <-- NEW WIDGET
-    //           ],
-
-    //           // if (salesReturnController.selectedFilter.value == FilterDateEnum.thisWeek) ...[
-    //           //   const SizedBox(width: 10),
-    //           //   const SalesReturnWeekDropdown() // <-- NEW WIDGET
-    //           // ],
-
-    //           if (salesReturnController.selectedFilter.value ==
-    //               FilterDateEnum.thisYear) ...[
-    //             const SizedBox(width: 10),
-    //             // You can create SalesReturnYearDropdown similarly or use logic here
-    //             const SalesReturnYearDropdown()
-    //           ],
-
-    //           if (salesReturnController.selectedFilter.value ==
-    //               FilterDateEnum.today) ...[
-    //             const SizedBox(width: 10),
-    //             const SalesReturnDayPicker() // <-- NEW WIDGET
-    //           ],
-
-    //           if (salesReturnController.selectedFilter.value ==
-    //               FilterDateEnum.range) ...[
-    //             const SizedBox(width: 10),
-    //             const SalesReturnRangePicker() // <-- NEW WIDGET
-    //           ],
-    //         ],
-    //       ));
-    // }
-
     return [
       // 1. Time Period (Dropdown + Conditional Widgets)
       _buildFilterColumn(
-        title: CustomText(content: 'Time Period'.tr, fontWeight: FontWeight.bold),
+        title:
+            CustomText(content: 'Time Period'.tr, fontWeight: FontWeight.bold),
         spacing: 10,
         child: buildTimeFilterRow(), // <--- New logic here
       ),
@@ -430,8 +357,8 @@ class _SalesReturnState extends State<SalesReturn> {
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
 
       _buildFilterColumn(
-        title:
-            CustomText(content: 'Search Customer'.tr, fontWeight: FontWeight.bold),
+        title: CustomText(
+            content: 'Search Customer'.tr, fontWeight: FontWeight.bold),
         child: SizedBox(
           width: fieldWidth,
           height: fieldHeight,
@@ -530,8 +457,8 @@ class _SalesReturnState extends State<SalesReturn> {
                 onPressed: () async {
                   bool isOnline = await ConnectivityService().isOnline();
                   if (!isOnline) {
-                    showCustomToastDisplay(
-                        context, "You are Offline!".tr, Colors.red, Icons.close);
+                    showCustomToastDisplay(context, "You are Offline!".tr,
+                        Colors.red, Icons.close);
                     return;
                   }
                   salesReturnController.currentPage.value = 1;
@@ -557,9 +484,10 @@ class _SalesReturnState extends State<SalesReturn> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
-                child:  Text(
+                child: Text(
                   'Go'.tr,
                   style: TextStyle(
                     fontSize: 14,
@@ -622,10 +550,10 @@ class _SalesReturnState extends State<SalesReturn> {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     final ScrollController _horizontalScrollController = ScrollController();
     bool isArabic = Get.locale?.languageCode == 'ar';
-    double slNoWidth = isArabic ? 80 : 60; 
-double customerDetailsWidth = isArabic ? 220 : 240;
-    // DEFINE ITEMS PER PAGE (Set this to whatever your pagination expects, e.g., 10)
-    const int itemsPerPage = 10; 
+    double slNoWidth = isArabic ? 80 : 60;
+    double customerDetailsWidth = isArabic ? 220 : 240;
+
+    const int itemsPerPage = 10;
 
     return Column(
       children: [
@@ -633,9 +561,6 @@ double customerDetailsWidth = isArabic ? 220 : 240;
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ---------------------------------------------
-              // LEFT SIDE (Fixed Columns: Sl.No & Customer)
-              // ---------------------------------------------
               SizedBox(
                 width: 300,
                 child: Column(
@@ -643,75 +568,54 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                     Row(
                       children: [
                         buildSalesReturnTableHeader1(
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: Text( // Replaced CustomText with Text to ensure overflow works
-                  "Sl.No.".tr,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis, // Adds ... if it still overflows
-                ),
-              ),
-            ),
-            slNoWidth, // Uses dynamic width
-          ),
-                        // buildSalesReturnTableHeader1(
-                        //   Center(
-                        //     child: CustomText(
-                        //       content: "Sl.No.".tr,
-                        //       textAlign: TextAlign.center,
-                        //       fontSize: 14,
-                        //       color: Colors.white,
-                        //       fontWeight: FontWeight.bold,
-                        //     ),
-                        //   ),
-                        //   60,
-                        // ),
-                         buildSalesReturnTableHeader1(
-            Padding(
-              // Better for RTL than a hardcoded SizedBox(width: 40)
-              padding: const EdgeInsets.symmetric(horizontal: 16.0), 
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded( // Forces the text to respect the parent width constraint
-                    child: Text(
-                      "Customer Details".tr,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis, // Adds ... if text is too long
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            customerDetailsWidth, // Uses dynamic width
-          ),
-                        // buildSalesReturnTableHeader1(
-                        //   Row(
-                        //     mainAxisAlignment: MainAxisAlignment.start,
-                        //     children: [
-                        //       const SizedBox(width: 40),
-                        //       CustomText(
-                        //         content: "Customer Details".tr,
-                        //         fontSize: 14,
-                        //         color: Colors.white,
-                        //         fontWeight: FontWeight.bold,
-                        //       ),
-                        //     ],
-                        //   ),
-                        //   240,
-                        // ),
+                          Center(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2.0),
+                              child: Text(
+                                // Replaced CustomText with Text to ensure overflow works
+                                "Sl.No.".tr,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow
+                                    .ellipsis, // Adds ... if it still overflows
+                              ),
+                            ),
+                          ),
+                          slNoWidth, // Uses dynamic width
+                        ),
+                        buildSalesReturnTableHeader1(
+                          Padding(
+                            // Better for RTL than a hardcoded SizedBox(width: 40)
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  // Forces the text to respect the parent width constraint
+                                  child: Text(
+                                    "Customer Details".tr,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow
+                                        .ellipsis, // Adds ... if text is too long
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          customerDetailsWidth, // Uses dynamic width
+                        ),
                       ],
                     ),
                     Expanded(
@@ -721,7 +625,7 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                         physics: const ClampingScrollPhysics(),
                         child: Obx(() {
                           final list = salesReturnController.filteredList;
-                          
+
                           if (list.isEmpty) {
                             return SizedBox(
                               height: MediaQuery.of(context).size.height * 0.1,
@@ -735,34 +639,29 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                             );
                           }
 
-                          // --- PAGINATION LOGIC START ---
-                          // 1. Calculate Start Index based on Current Page
-                          int currentPage = salesReturnController.currentPage.value;
+                          int currentPage =
+                              salesReturnController.currentPage.value;
                           int startIndex = (currentPage - 1) * itemsPerPage;
 
-                          // 2. Safely slice the list (Get only 10 items for this page)
-                          // If the list has ALL data, this slices it. 
-                          // If the list has ONLY page data, this logic handles it gracefully.
                           var displayList = list.length > itemsPerPage
-                              ? list.skip(startIndex).take(itemsPerPage).toList()
-                              : list; 
+                              ? list
+                                  .skip(startIndex)
+                                  .take(itemsPerPage)
+                                  .toList()
+                              : list;
 
-                          // If displayList is empty (e.g. page out of range), fallback
                           if (displayList.isEmpty && list.isNotEmpty) {
-                             displayList = list.take(itemsPerPage).toList();
-                             startIndex = 0;
+                            displayList = list.take(itemsPerPage).toList();
+                            startIndex = 0;
                           }
-                          // --- PAGINATION LOGIC END ---
 
                           return Column(
                             children: displayList.asMap().entries.map((entry) {
                               int index = entry.key;
                               var data = entry.value;
 
-                              // Calculate correct Serial Number (Sl.No)
-                              // If on Page 2 (index 0), Sl.No should be 11, not 1.
-                              int serialNumber = (list.length > itemsPerPage) 
-                                  ? startIndex + index + 1 
+                              int serialNumber = (list.length > itemsPerPage)
+                                  ? startIndex + index + 1
                                   : index + 1;
 
                               return Container(
@@ -776,9 +675,11 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                                     SizedBox(
                                       width: 60,
                                       child: Padding(
-                                        padding: const EdgeInsets.only(left: 20),
+                                        padding:
+                                            const EdgeInsets.only(left: 20),
                                         child: CustomText(
-                                          content: "$serialNumber", // Use calculated Sl.No
+                                          content:
+                                              "$serialNumber", // Use calculated Sl.No
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -791,13 +692,17 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                                             backgroundColor: Colors.grey[200],
                                             backgroundImage:
                                                 (data.imageUrl != null &&
-                                                        data.imageUrl!.trim().isNotEmpty)
+                                                        data.imageUrl!
+                                                            .trim()
+                                                            .isNotEmpty)
                                                     ? NetworkImage(
                                                         "${ApiConstants.imageBaseUrl}/${data.imageUrl!.trim()}",
                                                       )
                                                     : null,
                                             child: (data.imageUrl == null ||
-                                                    data.imageUrl!.trim().isEmpty)
+                                                    data.imageUrl!
+                                                        .trim()
+                                                        .isEmpty)
                                                 ? const Icon(
                                                     Icons.person,
                                                     color: Colors.blue,
@@ -808,11 +713,14 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 CustomText(
-                                                  content: data.businessName ?? '-',
+                                                  content:
+                                                      data.businessName ?? '-',
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                                 CustomText(
@@ -821,7 +729,8 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                                                 ),
                                                 CustomText(
                                                   content: data.email ?? '',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   fontSize: 12,
                                                 ),
                                               ],
@@ -841,10 +750,6 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                   ],
                 ),
               ),
-
-              // ---------------------------------------------
-              // RIGHT SIDE (Scrollable Data Columns)
-              // ---------------------------------------------
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -862,29 +767,30 @@ double customerDetailsWidth = isArabic ? 220 : 240;
                             child: Obx(() {
                               final list = salesReturnController.filteredList;
 
-                              // --- APPLY SAME PAGINATION LOGIC HERE ---
-                              int currentPage = salesReturnController.currentPage.value;
+                              int currentPage =
+                                  salesReturnController.currentPage.value;
                               int startIndex = (currentPage - 1) * itemsPerPage;
 
                               var displayList = list.length > itemsPerPage
-                                  ? list.skip(startIndex).take(itemsPerPage).toList()
+                                  ? list
+                                      .skip(startIndex)
+                                      .take(itemsPerPage)
+                                      .toList()
                                   : list;
-                              
+
                               if (displayList.isEmpty && list.isNotEmpty) {
-                                 displayList = list.take(itemsPerPage).toList();
-                                 startIndex = 0;
+                                displayList = list.take(itemsPerPage).toList();
+                                startIndex = 0;
                               }
-                              // ----------------------------------------
 
                               return Column(
-                                children: displayList.asMap().entries.map((entry) {
+                                children:
+                                    displayList.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   var data = entry.value;
-                                  
-                                  // Pass the correct Serial Number/Index logic if your buildTableRow needs it
-                                  // Note: buildTableRow usually just needs the data. 
-                                  // The 'index' here is 0-9 for the current page.
-                                  return buildTableRow(context, index, 90, data);
+
+                                  return buildTableRow(
+                                      context, index, 90, data);
                                 }).toList(),
                               );
                             }),
@@ -898,7 +804,7 @@ double customerDetailsWidth = isArabic ? 220 : 240;
             ],
           ),
         ),
-        
+
         // FOOTER
         Container(
           color: Colors.white,
@@ -923,225 +829,4 @@ double customerDetailsWidth = isArabic ? 220 : 240;
       ],
     );
   }
-
-  // Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
-  //   double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
-  //   final ScrollController _horizontalScrollController = ScrollController();
-
-  //   return Column(
-  //     children: [
-  //       Expanded(
-  //         child: Row(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             SizedBox(
-  //               width: 300,
-  //               child: Column(
-  //                 children: [
-  //                   Row(
-  //                     children: [
-  //                       buildSalesReturnTableHeader1(
-  //                         Center(
-  //                           child: CustomText(
-  //                             content: "Sl.No.",
-  //                             textAlign: TextAlign.center,
-  //                             fontSize: 14,
-  //                             color: Colors.white,
-  //                             fontWeight: FontWeight.bold,
-  //                           ),
-  //                         ),
-  //                         60,
-  //                       ),
-  //                       buildSalesReturnTableHeader1(
-  //                         Row(
-  //                           mainAxisAlignment: MainAxisAlignment.start,
-  //                           children: [
-  //                             const SizedBox(width: 40),
-  //                             CustomText(
-  //                               content: "Customer Details",
-  //                               fontSize: 14,
-  //                               color: Colors.white,
-  //                               fontWeight: FontWeight.bold,
-  //                             ),
-  //                           ],
-  //                         ),
-  //                         240,
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   Expanded(
-  //                     child: SingleChildScrollView(
-  //                       scrollDirection: Axis.vertical,
-  //                       controller: vertical,
-  //                       physics: const ClampingScrollPhysics(),
-  //                       child: Obx(() {
-  //                         final list = salesReturnController.filteredList;
-  //                         if (list.isEmpty) {
-  //                           return SizedBox(
-  //                             height: MediaQuery.of(context).size.height * 0.1,
-  //                             child: Center(
-  //                               child: CustomText(
-  //                                 content: "No delivered orders found",
-  //                                 fontSize: 16,
-  //                                 fontWeight: FontWeight.bold,
-  //                               ),
-  //                             ),
-  //                           );
-  //                         }
-
-  //                         return Column(
-  //                           children: list.asMap().entries.map((entry) {
-  //                             int index = entry.key;
-  //                             var data = entry.value;
-
-  //                             // ✅ REMOVED: Don't try to access customer array
-  //                             // Use flat fields directly from data
-
-  //                             return Container(
-  //                               height: 90,
-  //                               color: index.isEven
-  //                                   ? Colors.grey[50]
-  //                                   : Colors.white,
-  //                               padding: const EdgeInsets.all(8.0),
-  //                               child: Row(
-  //                                 children: [
-  //                                   SizedBox(
-  //                                     width: 60,
-  //                                     child: Padding(
-  //                                       padding:
-  //                                           const EdgeInsets.only(left: 20),
-  //                                       child: CustomText(
-  //                                         content: "${index + 1}",
-  //                                         fontWeight: FontWeight.bold,
-  //                                       ),
-  //                                     ),
-  //                                   ),
-  //                                   Expanded(
-  //                                     child: Row(
-  //                                       children: [
-  //                                         CircleAvatar(
-  //                                           radius: 30,
-  //                                           backgroundColor: Colors.grey[200],
-  //                                           backgroundImage:
-  //                                               (data.imageUrl != null &&
-  //                                                       data.imageUrl!
-  //                                                           .trim()
-  //                                                           .isNotEmpty)
-  //                                                   ? NetworkImage(
-  //                                                       "${ApiConstants.imageBaseUrl}/${data.imageUrl!.trim()}",
-  //                                                     )
-  //                                                   : null,
-  //                                           child: (data.imageUrl == null ||
-  //                                                   data.imageUrl!
-  //                                                       .trim()
-  //                                                       .isEmpty)
-  //                                               ? const Icon(
-  //                                                   Icons.person,
-  //                                                   color: Colors.blue,
-  //                                                   size: 30,
-  //                                                 )
-  //                                               : null,
-  //                                         ),
-
-                                       
-  //                                         const SizedBox(width: 10),
-  //                                         Expanded(
-  //                                           child: Column(
-  //                                             crossAxisAlignment:
-  //                                                 CrossAxisAlignment.start,
-  //                                             mainAxisAlignment:
-  //                                                 MainAxisAlignment.center,
-  //                                             children: [
-  //                                               CustomText(
-  //                                                 content: data.businessName ??
-  //                                                     '-', // ✅ Use data.businessName
-  //                                                 fontWeight: FontWeight.bold,
-  //                                               ),
-  //                                               CustomText(
-  //                                                 content: data.mobileno ??
-  //                                                     '', // ✅ Use data.mobileno
-  //                                                 fontSize: 12,
-  //                                               ),
-  //                                               CustomText(
-  //                                                 content: data.email ??
-  //                                                     '', // ✅ Use data.email
-  //                                                 overflow:
-  //                                                     TextOverflow.ellipsis,
-  //                                                 fontSize: 12,
-  //                                               ),
-  //                                             ],
-  //                                           ),
-  //                                         ),
-  //                                       ],
-  //                                     ),
-  //                                   ),
-  //                                 ],
-  //                               ),
-  //                             );
-  //                           }).toList(),
-  //                         );
-  //                       }),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             Expanded(
-  //               child: SingleChildScrollView(
-  //                 scrollDirection: Axis.horizontal,
-  //                 controller: _horizontalScrollController,
-  //                 child: SizedBox(
-  //                   width: totalTableWidth,
-  //                   child: Obx(() {
-  //                     final list = salesReturnController.filteredList;
-  //                     return Column(
-  //                       children: [
-  //                         buildSalesReturnTableHeader(),
-  //                         Expanded(
-  //                           child: SingleChildScrollView(
-  //                             scrollDirection: Axis.vertical,
-  //                             controller: vertical1,
-  //                             physics: const ClampingScrollPhysics(),
-  //                             child: Column(
-  //                               children: list.asMap().entries.map((entry) {
-  //                                 int index = entry.key;
-  //                                 var data = entry.value;
-  //                                 return buildTableRow(
-  //                                     context, index, 90, data);
-  //                               }).toList(),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     );
-  //                   }),
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //       Container(
-  //         color: Colors.white,
-  //         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Row(
-  //               children: [
-  //                 SalesReturnPagination(
-  //                     salesReturnController: salesReturnController),
-  //               ],
-  //             ),
-  //             const SizedBox(height: 8),
-  //             CustomHorizontalScrollbar(
-  //               thumbColor: Colors.blue,
-  //               controller: _horizontalScrollController,
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }

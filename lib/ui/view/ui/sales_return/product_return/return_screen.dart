@@ -162,7 +162,6 @@ class _ProductReturnDialogContentState
     return Scaffold(
       body: Column(
         children: [
-          // ---- SCROLLABLE BODY ----
           Expanded(child: Obx(() {
             if (_ctrl.orderData.value == null) {
               return const Center(
@@ -174,13 +173,12 @@ class _ProductReturnDialogContentState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ---------- TITLE ----------
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Product Return - Invoice #${_ctrl.orderData.value!.invoice!.first.invoiceId}',
-                        style: TextStyle(
+                        'Product Return - Invoice #${(_ctrl.orderData.value!.invoice != null && _ctrl.orderData.value!.invoice!.isNotEmpty) ? _ctrl.orderData.value!.invoice!.first.invoiceId : "N/A"}',
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       InkWell(
@@ -752,74 +750,6 @@ class _ProductReturnDialogContentState
     );
   }
 
-//   Widget _suppQtyCol(
-//   String txt,
-//   double width, {
-//   TextAlign align = TextAlign.left,
-//   required Cart cart,
-// }) {
-//   return SizedBox(
-//     width: width,
-//     child: Center(
-//       child: Obx(() {
-//         // --- ALL LOGIC INSIDE Obx → fully reactive ---
-//         final info = _ctrl.returnInfo.value;
-//         if (info == null) {
-//           return _buildQtyText(txt, align);
-//         }
-
-//         final hasPending = info.aggregated.any((a) => a.variationId == cart.variationId);
-//         final pendingQty = info.aggregated
-//                 .firstWhere(
-//                   (a) => a.variationId == cart.variationId,
-//                   orElse: () => Aggregated(variationId: '', pendingQty: 0),
-//                 )
-//                 .pendingQty ??
-//             0;
-
-//         // Filter the full data list
-//         final filtered = info.data
-//             .where((r) => r.variationId == cart.variationId)
-//             .toList();
-
-//         return Row(
-//           mainAxisSize: MainAxisSize.min,
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             // 1. Supplied Qty
-//             Flexible(
-//               child: CustomText(
-//                 content: txt,
-//                 fontSize: 12,
-//                 textAlign: align,
-//                 overflow: TextOverflow.ellipsis,
-//               ),
-//             ),
-
-//             // 2. Info Button
-//             if (hasPending) ...[
-//               const SizedBox(width: 6),
-//               SizedBox(
-//                 width: 20,
-//                 height: 20,
-//                 child: IconButton(
-//                   padding: EdgeInsets.zero,
-//                   constraints: const BoxConstraints(),
-//                   icon: const Icon(Icons.info_outline, color: Colors.blue, size: 16),
-//                   tooltip: 'Pending: $pendingQty',
-//                   onPressed: () {
-
-//                     showPendingReturnsDialog(context,cart.productName ?? '',cart.variationName ?? '',filtered);
-//                   },
-//                 ),
-//               ),
-//             ],
-//           ],
-//         );
-//       }),
-//     ),
-//   );
-// }
   void showPendingReturnsDialog(BuildContext context, String productName,
       String variationName, List<ReturnInfoData> filtered) {
     showDialog(
@@ -974,13 +904,10 @@ class _ProductReturnDialogContentState
 
     final List<Widget> rows = [];
 
-    // ---------- SUBTOTAL ----------
     rows.add(_totalRow('Subtotal:', formatAmount(subtotal)));
 
-    // ---------- DISCOUNT ----------
     rows.add(_totalRow('Discount:', '${formatAmount(discount)}'));
 
-    // ---------- TOTAL (BEFORE TAX) ----------
     rows.add(
       Padding(
         padding: const EdgeInsets.only(top: 8.0),
@@ -991,9 +918,6 @@ class _ProductReturnDialogContentState
         ),
       ),
     );
-
-    // ---------- TAX (now a separate widget method) ----------
-    // rows.add(_buildTaxTotal());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1019,14 +943,9 @@ class _ProductReturnDialogContentState
     );
   }
 
-  /* --------------------------------------------------------------
-     PAYMENT INFO
-     -------------------------------------------------------------- */
-
   Widget _buildPaymentInfo() {
     final order = _ctrl.orderData.value!;
 
-    // ---- 1. Payment Status (unchanged) ----
     String paymentStatusText;
     switch (order.paymentStatus) {
       case 0:
@@ -1042,14 +961,11 @@ class _ProductReturnDialogContentState
         paymentStatusText = 'Unknown';
     }
 
-    // ---- 2. Payment Method (conditional) ----
     String paymentMethodText;
 
     if (order.paymentStatus == 0) {
-      // Pending → No payment method
       paymentMethodText = '';
     } else {
-      // Paid or Partially Paid → Show actual method
       switch (order.paymentType) {
         case 0:
           paymentMethodText = 'Cash';

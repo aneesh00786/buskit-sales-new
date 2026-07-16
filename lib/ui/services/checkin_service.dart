@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
@@ -15,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/services/permission_status_service.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 
 class CheckInService {
   static final CheckInService _instance = CheckInService._internal();
@@ -137,6 +142,7 @@ class CheckInService {
     
     // Treat as successfully checked in locally so the UI updates
     await ApiWorker().saveSwitchState(true);
+    await SessionManager.setStringValue('check_in_time', DateTime.now().toIso8601String());
     
   } else {
     // 2. ONLINE LOGIC: Hit API
@@ -150,6 +156,7 @@ class CheckInService {
 
     if (response.statusCode == 200) {
       await ApiWorker().saveSwitchState(true);
+      await SessionManager.setStringValue('check_in_time', DateTime.now().toIso8601String());
     }
   }
 
@@ -359,10 +366,11 @@ class CheckInService {
     final service = FlutterBackgroundService();
     service.invoke('stopService');
     _stopForegroundTracking();
+    SessionManager.deleteData('check_in_time');
   }
 
   void _startForegroundTracking() {
-    print("Starting foreground tracking (Timer Mode)...");
+    // print("Starting foreground tracking (Timer Mode)...");
     _stopForegroundTracking(); // Ensure no multiple timers
     _performForegroundUpdate();
     _foregroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
@@ -374,19 +382,125 @@ class CheckInService {
     if (_foregroundTimer != null) {
       _foregroundTimer!.cancel();
       _foregroundTimer = null;
-      print("Stopped foreground tracking.");
+      // print("Stopped foreground tracking.");
     }
+  }
+
+  Future<bool> checkCheckInTimeout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // IMPORTANT: Reload to get latest state from disk/background isolate
+
+    final DateTime now = DateTime.now();
+    bool isExpired = false;
+
+    // 1. Check if current time is past 'to_time' from settings
+    final String settingsJson = prefs.getString(SpString.settingsKey) ?? "";
+    String toTimeStr = "";
+    if (settingsJson.isNotEmpty) {
+      try {
+        final List<dynamic> jsonList = jsonDecode(settingsJson);
+        for (var item in jsonList) {
+          if (item['key'] == 'to_time') {
+            toTimeStr = item['value'] ?? "";
+            break;
+          }
+        }
+      } catch (e) {
+        print("Error parsing settings data for to_time: $e");
+      }
+    }
+    if (toTimeStr.isEmpty) {
+      toTimeStr = "18:00"; // fallback default
+    }
+    
+    final parts = toTimeStr.split(":");
+    if (parts.length >= 2) {
+      final int hour = int.parse(parts[0]);
+      final int minute = int.parse(parts[1]);
+      final DateTime endDt = DateTime(now.year, now.month, now.day, hour, minute);
+      if (now.isAfter(endDt)) {
+        isExpired = true;
+      }
+    }
+
+    // 2. Check check-in time day change if present
+    final String checkInTimeStr = prefs.getString('check_in_time') ?? "";
+    if (checkInTimeStr.isNotEmpty) {
+      DateTime checkInTime = DateTime.parse(checkInTimeStr);
+      if (checkInTime.year != now.year || checkInTime.month != now.month || checkInTime.day != now.day) {
+        isExpired = true;
+      }
+    }
+
+    if (isExpired) {
+      print("Check-in expired (end time reached or day changed). Auto checkout.");
+      stopTracking();
+      
+      final connectivityService = ConnectivityService();
+      final isOnline = await connectivityService.isOnline();
+      final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      final time = DateFormat('HH:mm').format(DateTime.now());
+      
+      String loginJsonString = prefs.getString(SpString.spLogin) ?? "";
+      if (loginJsonString.isNotEmpty) {
+        try {
+          final Map<String, dynamic> loginMap = jsonDecode(loginJsonString);
+          final LoginData loginData = LoginData.fromJson(loginMap);
+          
+          if (isOnline) {
+            await ApiWorker().updateAdminCheckInOut(
+              date: date,
+              time: time,
+              direction: "out",
+              lat: "0.0",
+              long: "0.0",
+            );
+          } else {
+            final box = await Hive.openBox('offlineRequests');
+            final payload = {
+              "companyId": loginData.company_id ?? 0,
+              "date": date,
+              "sales_id": loginData.salesmanId ?? loginData.id.toString(),
+              "time": time,
+              "direction": "out",
+              "latitude": "0.0",
+              "longitude": "0.0",
+            };
+            await box.add({
+              'url': ApiConstants.baseUrl + ApiConstants.updateCheckinOut,
+              'payload': payload,
+            });
+          }
+        } catch (e) {
+          print("Error parsing login data or calling checkout: $e");
+        }
+      }
+      
+      await ApiWorker().saveSwitchState(false);
+      return true;
+    }
+    return false;
   }
 
   Future<void> _performForegroundUpdate() async {
     try {
+      final bool isCheckedIn = await ApiWorker().loadSwitchState();
+      if (!isCheckedIn) {
+        // print("Foreground update called but not checked in. Stopping foreground tracking.");
+        _stopForegroundTracking();
+        return;
+      }
+
+      bool timeout = await checkCheckInTimeout();
+      if (timeout) return;
+
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
       await updateServer(position);
-      print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
+      // print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
     } catch (e) {
-      print("Error in foreground update: $e");
+      // print("Error in foreground update: $e");
     }
   }
 }

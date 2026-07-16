@@ -2579,6 +2579,7 @@ class ApiWorker with ApiConstants {
 
   Future<bool> loadSwitchState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     return prefs.getBool('switch_state') ?? false;
   }
 

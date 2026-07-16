@@ -90,23 +90,27 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     
     _checkingInWorker = ever(CheckInService.isCheckingIn, (bool isChecking) {
       if (!isChecking) {
-        ApiWorker().loadSwitchState().then((value) {
-          if (mounted) {
-            setState(() {
-              _onSwitchSelected = value;
-            });
-          }
+        CheckInService().checkCheckInTimeout().then((_) {
+          ApiWorker().loadSwitchState().then((value) {
+            if (mounted) {
+              setState(() {
+                _onSwitchSelected = value;
+              });
+            }
+          });
         });
       }
     });
     
-    ApiWorker().loadSwitchState().then((value) {
-      if (mounted) {
-        setState(() {
-          _onSwitchSelected = value;
-          _isLoading = false;
-        });
-      }
+    CheckInService().checkCheckInTimeout().then((_) {
+      ApiWorker().loadSwitchState().then((value) {
+        if (mounted) {
+          setState(() {
+            _onSwitchSelected = value;
+            _isLoading = false;
+          });
+        }
+      });
     });
   }
 
@@ -157,6 +161,17 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
       if (_pendingSettingsReturn) {
         _pendingSettingsReturn = false;
       }
+      CheckInService().checkCheckInTimeout().then((timeoutOccurred) {
+        if (timeoutOccurred) {
+          ApiWorker().loadSwitchState().then((value) {
+            if (mounted) {
+              setState(() {
+                _onSwitchSelected = value;
+              });
+            }
+          });
+        }
+      });
     }
   }
 

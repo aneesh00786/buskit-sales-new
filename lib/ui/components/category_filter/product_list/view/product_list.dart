@@ -258,6 +258,7 @@ class _ProductGridState extends State<ProductGrid> {
                                   .toList();
 
                               product.detail?.forEach((e) {
+                                print("DEBUG: ${product.productName} -> sellingPrice: ${e.sellingPrice}, sellingPackPrice: ${e.sellingPackPrice}");
                                 double price = double.tryParse(
                                         e.sellingPrice.toString()) ??
                                     0.0;

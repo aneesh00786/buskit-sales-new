@@ -11,7 +11,7 @@
 
     <application
         android:theme="@style/AppTheme"
-        android:label="buskit_sales"
+        android:label="ThriveWoo-Sales"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_png_thrive_woo"
         android:networkSecurityConfig="@xml/network_security_config">

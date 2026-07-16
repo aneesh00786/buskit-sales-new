@@ -783,9 +783,9 @@ isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as St
       double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
   print('discount percentage when add to cart:$discountPercentage');
   
-  double discountedTax = detail.tax != null
-      ? detail.tax! - (detail.tax! * discountPercentage / 100)
-      : 0.0;
+  double discountedTax = (inclTax == "N.A" || detail.tax == null)
+      ? 0.0
+      : detail.tax! - (detail.tax! * discountPercentage / 100);
 
   // --- DRAFT BOX CHECK ---
   final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
@@ -830,7 +830,7 @@ isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as St
       // Update existing cart item
       existingCartItem.detail.count += localCount.toDouble();
       final double priceWithTax =
-          existingCartItem.detail.inclTax != "incl_tax"
+          (existingCartItem.detail.inclTax != "incl_tax" && existingCartItem.detail.inclTax != "N.A")
               ? effectiveSellingPrice + discountedTax
               : effectiveSellingPrice;
 
@@ -844,7 +844,7 @@ isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as St
       await cartBox.putAt(existingCartItemIndex, existingCartItem);
     } else {
       // --- NEW ITEM CREATION ---
-      final double priceWithTax = inclTax != "incl_tax"
+      final double priceWithTax = (inclTax != "incl_tax" && inclTax != "N.A")
           ? effectiveSellingPrice + discountedTax
           : effectiveSellingPrice;
           
@@ -1048,9 +1048,9 @@ isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as St
   double discountPercentage =
       double.tryParse(detail.discount?.toString() ?? '0') ?? 0.0;
 
-  double discountedTax = detail.tax != null
-      ? detail.tax! - (detail.tax! * discountPercentage / 100)
-      : 0.0;
+  double discountedTax = (inclTax == "N.A" || detail.tax == null)
+      ? 0.0
+      : detail.tax! - (detail.tax! * discountPercentage / 100);
 
   // Check for existing promo item in draftBox
   final existingDraftItemIndex = draftBox.values.toList().indexWhere((item) =>
@@ -1090,7 +1090,7 @@ isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as St
       final existingCartItem = cartBox.getAt(existingCartItemIndex)!;
       existingCartItem.detail.count += localCount.toDouble();
 
-      final double priceWithTax = inclTax != "incl_tax"
+      final double priceWithTax = (inclTax != "incl_tax" && inclTax != "N.A")
           ? effectiveSellingPrice + discountedTax
           : effectiveSellingPrice;
 
@@ -1105,7 +1105,7 @@ isPack: (cart['packtype'] as String? ?? '') == "Pack" || (cart['packtype'] as St
       print('Updated existing promo cart item - new count: ${existingCartItem.detail.count}');
     } else {
       // NEW PROMO ITEM → Create fresh Detail and set initialCount
-      final double priceWithTax = inclTax != "incl_tax"
+      final double priceWithTax = (inclTax != "incl_tax" && inclTax != "N.A")
           ? effectiveSellingPrice + discountedTax
           : effectiveSellingPrice;
 

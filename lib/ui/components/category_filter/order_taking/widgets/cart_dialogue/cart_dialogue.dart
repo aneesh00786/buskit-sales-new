@@ -354,7 +354,9 @@ class CartDialogueState extends State<CartDialogue> {
         print('tax perrecntage in the load cart items:$taxPercentage');
         double calculatedTax = 0.0;
 
-        if (taxPercentage > 0) {
+        if (item.detail.inclTax == "N.A") {
+          calculatedTax = 0.0;
+        } else if (taxPercentage > 0) {
           // Scenario A: Use Category Tax Percentage on the Discounted Price
           calculatedTax = priceAfterDiscount * (taxPercentage / 100);
           print('tax in the if case in the load cart items:$calculatedTax');
@@ -375,7 +377,9 @@ class CartDialogueState extends State<CartDialogue> {
           print(
               'calculated tax in the else case in the load cart items:$calculatedTax');
         }
-        if (bulkTaxPercentage <= 0) {
+        if (item.detail.inclTax == "N.A") {
+          item.taxAmount = 0.0;
+        } else if (bulkTaxPercentage <= 0) {
           item.taxAmount = calculatedTax;
         } else {
           print('Skipped assigning item.taxAmount because bulk tax is active');
@@ -385,7 +389,7 @@ class CartDialogueState extends State<CartDialogue> {
         // item.taxAmount = calculatedTax;
 
         // 7. Final Price Logic (Inclusive vs Exclusive)
-        if (item.detail.inclTax == "incl_tax") {
+        if (item.detail.inclTax == "incl_tax" || item.detail.inclTax == "N.A") {
           item.finalPrice = priceAfterDiscount;
           print('final price in load cart items:${item.finalPrice}');
           // For consistency with other parts of the app that rely on totalPrice
@@ -409,7 +413,7 @@ class CartDialogueState extends State<CartDialogue> {
               : 1.0;
           final sellPrice =
               double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final unitTax = item.detail.tax?.toDouble() ?? 0.0;
+          final unitTax = item.detail.inclTax == "N.A" ? 0.0 : (item.detail.tax?.toDouble() ?? 0.0);
           final inclTax = item.detail.inclTax;
 
           // 1. Calculate the taxAmount for the fold function to use
@@ -418,7 +422,7 @@ class CartDialogueState extends State<CartDialogue> {
 
           // 2. Calculate Total Price (Base Price + Tax if not inclusive)
           double basePrice = count * pieces * sellPrice;
-          if (inclTax != 'incl_tax') {
+          if (inclTax != 'incl_tax' && inclTax != 'N.A') {
             item.totalPrice = basePrice + (item.taxAmount ?? 0.0);
           } else {
             item.totalPrice = basePrice;
@@ -4222,7 +4226,9 @@ class CartDialogueState extends State<CartDialogue> {
       double taxPercentage = (cartItem.catTax ?? 0).toDouble();
 
       double tax;
-      if (taxPercentage > 0) {
+      if (cartItem.detail.inclTax == "N.A") {
+        tax = 0.0;
+      } else if (taxPercentage > 0) {
         // Scenario A: We have the percentage, calculate normally
         tax = priceAfterDiscount * (taxPercentage / 100);
       } else {
@@ -4241,7 +4247,7 @@ class CartDialogueState extends State<CartDialogue> {
       cartItem.taxAmount = tax;
 
       // 5. Update Final Price
-      if (cartItem.detail.inclTax == "incl_tax") {
+      if (cartItem.detail.inclTax == "incl_tax" || cartItem.detail.inclTax == "N.A") {
         cartItem.finalPrice = priceAfterDiscount;
       } else {
         cartItem.finalPrice = priceAfterDiscount + tax;

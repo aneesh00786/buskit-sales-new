@@ -10,7 +10,7 @@ class Utils {
       if (item.isChecked == true) {
         double sellingPrice =
             double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-        num tax = item.detail.tax ?? 0;
+        num tax = item.detail.inclTax == "N.A" ? 0 : (item.detail.tax ?? 0);
         if ((item.detail.discount ?? 0) > 0) {
           final num discountPercentage = item.detail.discount!;
           sellingPrice -= (sellingPrice * discountPercentage / 100);
@@ -19,7 +19,7 @@ class Utils {
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
         double totalCount = item.isPack == true ? count * pieces : count;
-        sellingPrice = item.detail.inclTax == "incl_tax"
+        sellingPrice = (item.detail.inclTax == "incl_tax" || item.detail.inclTax == "N.A")
             ? sellingPrice
             : sellingPrice + tax;
         double itemTotal = sellingPrice * totalCount;
@@ -103,7 +103,7 @@ class Utils {
           double.tryParse(cartItem.detail.sellPrice ?? '0') ?? 0;
       int pieces = cartItem.detail.pieces?.toInt() ?? 1;
       num count = cartItem.detail.count;
-      num tax = cartItem.detail.tax ?? 0;
+      num tax = cartItem.detail.inclTax == "N.A" ? 0 : (cartItem.detail.tax ?? 0);
 
       double calculatedSellPrice = cartItem.isPack == true
           ? effectiveSellingPrice * pieces
@@ -193,7 +193,7 @@ class Utils {
       cartItem.detail.discount = appliedDiscountPercentage;
 
       num totalCount = cartItem.isPack == true ? count * pieces : count;
-      double priceWithTax = cartItem.detail.inclTax == "incl_tax"
+      double priceWithTax = (cartItem.detail.inclTax == "incl_tax" || cartItem.detail.inclTax == "N.A")
           ? effectiveSellingPrice
           : effectiveSellingPrice + tax;
 

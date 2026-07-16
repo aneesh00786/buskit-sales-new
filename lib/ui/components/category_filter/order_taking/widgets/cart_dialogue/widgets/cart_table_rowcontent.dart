@@ -112,7 +112,10 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
           (baseSellAmount * productQuantity) - totalDiscountAmount;
 
       double tax;
-      if (groupedItem.taxAmount != null && groupedItem.taxAmount! > 0) {
+      if (groupedItem.detail.inclTax == "N.A") {
+        tax = 0.0;
+        groupedItem.taxAmount = 0.0;
+      } else if (groupedItem.taxAmount != null && groupedItem.taxAmount! > 0) {
         tax = groupedItem.taxAmount!;
         print('backend tax:$tax');
       } else {
@@ -130,8 +133,8 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
         finalPrice = groupedItem.finalPrice!;
       } else {
         // 2. If no finalPrice exists, run your current calculation condition
-        if (groupedItem.detail.inclTax == "incl_tax") {
-          print('its inclusive tax');
+        if (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A") {
+          print('its inclusive tax or N.A');
           finalPrice = priceAfterDiscount;
         } else {
           print('its not inclusive tax');
@@ -701,7 +704,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
                   groupedItem,
-                  (groupedItem.detail.inclTax == 'incl_tax'
+                  ((groupedItem.detail.inclTax == 'incl_tax' || groupedItem.detail.inclTax == 'N.A')
                       ? groupedItem.totalPrice.toString()
                       : (groupedItem.totalPrice + (groupedItem.detail.tax ?? 0))
                           .toString()),
@@ -951,7 +954,11 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
           ),
           DataCell(
             TableContent(
-                maxLines: 1, fontSize: fontSize, content: formatAmount(tax)),
+                maxLines: 1,
+                fontSize: fontSize,
+                content: groupedItem.detail.inclTax == "N.A"
+                    ? "N.A"
+                    : formatAmount(tax)),
           ),
 
           //  DataCell(
@@ -985,7 +992,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                             0;
                     int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
                     num count = groupedItem.detail.count;
-                    num tax = groupedItem.detail.tax ?? 0;
+                    num tax = groupedItem.detail.inclTax == "N.A" ? 0 : (groupedItem.detail.tax ?? 0);
                     double discountPercentage =
                         groupedItem.detail.discount?.toDouble() ?? 0;
                     double? maxDiscount =
@@ -1016,7 +1023,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                     tax = tax * (1 - effectiveDiscountPercentage / 100);
 
                     double priceWithTax =
-                        groupedItem.detail.inclTax == "incl_tax"
+                        (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A")
                             ? effectiveSellingPrice
                             : effectiveSellingPrice + tax;
 

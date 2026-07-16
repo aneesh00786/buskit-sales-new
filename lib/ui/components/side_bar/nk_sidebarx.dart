@@ -55,12 +55,13 @@ class NkSidebarXSideBar extends StatefulWidget {
   State<NkSidebarXSideBar> createState() => _NkSidebarXSideBarState();
 }
 
-class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindingObserver {
+class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
+    with WidgetsBindingObserver {
   bool _onSwitchSelected = false;
   bool _isLoading = true;
   bool _hasAlwaysPermission = false;
   bool _pendingSettingsReturn = false;
-   Timer? _foregroundTimer;
+  Timer? _foregroundTimer;
   StaffController staffController = Get.put(StaffController());
   LeadsController leadsController = Get.put(LeadsController());
   CustomersController leadsCustomerController = Get.put(CustomersController());
@@ -84,10 +85,10 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     super.initState();
     // Register lifecycle observer to detect when app returns from settings
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Initialize permission status service and set up listener
     _initializePermissionStatus();
-    
+
     _checkingInWorker = ever(CheckInService.isCheckingIn, (bool isChecking) {
       if (!isChecking) {
         CheckInService().checkCheckInTimeout().then((_) {
@@ -101,7 +102,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
         });
       }
     });
-    
+
     CheckInService().checkCheckInTimeout().then((_) {
       ApiWorker().loadSwitchState().then((value) {
         if (mounted) {
@@ -117,27 +118,28 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   Future<void> _initializePermissionStatus() async {
     final permissionService = PermissionStatusService();
     print("=== Sidebar initializing permission service ===");
-    
+
     // Wait for permission service to initialize and get current status
     await permissionService.initialize();
-    
+
     // Get current permission status after initialization
     var alwaysStatus = await Permission.locationAlways.status;
     bool currentPermissionStatus = alwaysStatus.isGranted;
-    
+
     print("=== Sidebar permission service initialized ===");
     print("=== Current permission status: $currentPermissionStatus ===");
-    
+
     // Set initial permission status
     if (mounted) {
       setState(() {
         _hasAlwaysPermission = currentPermissionStatus;
       });
     }
-    
+
     print("=== Sidebar adding listener to permission service ===");
     permissionService.addListener(() {
-      print("=== Sidebar listener called, new permission status: ${permissionService.hasAlwaysPermission} ===");
+      print(
+          "=== Sidebar listener called, new permission status: ${permissionService.hasAlwaysPermission} ===");
       if (mounted) {
         setState(() {
           _hasAlwaysPermission = permissionService.hasAlwaysPermission;
@@ -150,7 +152,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   void dispose() {
     _checkingInWorker?.dispose();
     WidgetsBinding.instance.removeObserver(this);
-      _stopForegroundTracking();
+    _stopForegroundTracking();
     super.dispose();
   }
 
@@ -234,116 +236,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
                     ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: SyncButtonWidget(
-                        // onSync: () async {
-                        //   DateTime now = DateTime.now();
-                        //   DateTime firstDayOfMonth =
-                        //       DateTime(now.year, now.month, 1);
-                        //   DateTime lastDayOfMonth =
-                        //       DateTime(now.year, now.month + 1, 0);
-                        //   String firstDayString =
-                        //       DateFormat('yyyy-MM-dd').format(firstDayOfMonth);
-                        //   String lastDayString =
-                        //       DateFormat('yyyy-MM-dd').format(lastDayOfMonth);
-                        //   DateTime? initialDay;
-                        //   final companyId =
-                        //       SessionHelper.loginSavedData?.company_id ?? 0;
-                        //   final salesmanId =
-                        //       SessionHelper.loginSavedData?.salesmanId ?? '';
-
-                        //   dashboardProvider.resetProvider();
-                        //   dashboardProvider.fetchData();
-                        //   dashboardProvider.fetchChatData(salesmanId);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.delivered,
-                        //       isLogin: true);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.estimates,
-                        //       checkDate: true,
-                        //       isLogin: true);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.estimates,
-                        //       checkDate: false,
-                        //       isLogin: true);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.preOrder,
-                        //       checkDate: true,
-                        //       isLogin: true);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.preOrder,
-                        //       checkDate: false,
-                        //       isLogin: true);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.draft,
-                        //       isLogin: true);
-                        //   await dashboardProvider.fetchOrdersData(
-                        //       OrderStatus.cancelled,
-                        //       isLogin: true);
-                        //   await Future.delayed(const Duration(seconds: 2));
-                        //   final settings =
-                        //       await _apiWorker.fetchAllSettings(companyId);
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   await Provider.of<CustomersProvider>(context,
-                        //           listen: false)
-                        //       .fetchCustomerData();
-                        //   await customerAndOrderController.loadCustomer();
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   await productsController.fetchCategoryData();
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   await ApiWorker().fetchRecentOrderCount(
-                        //       startDate: '', endDate: '');
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   await pendingPaymentController.loadOrderData(
-                        //       chartIndex: 0, compId: companyId, isLogin: true);
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   await staffController
-                        //       .loadSalesmanTargetForSelectedTab(
-                        //           currentYear: currentYear.toString(),
-                        //           selectedTabIndex:
-                        //               _tabController?.index ?? 0 + 1,
-                        //           staffId: salesmanId);
-
-                        //   if (settings != null) {
-                        //     await SessionHelper().setSettingsData(settings);
-                        //   }
-                        //   SubCategoryItem? subCategoryItem = productsController
-                        //       .getInitialSubCategoryIdAndName();
-                        //   if (subCategoryItem != null &&
-                        //       (subCategoryItem.id ?? '').isNotEmpty) {
-                        //     await productsController
-                        //         .fetchProducts(subCategoryItem.id!);
-                        //   } else {
-                        //     log("No subcategory found. Products not fetched.");
-                        //   }
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   await leadsController.loadLeadsCustomerData;
-                        //   await leadsCustomerController.loadLeadsCustomerData;
-                        //   await leadsRejectedController.loadRejectedLeadsData;
-                        //   await Future.delayed(
-                        //       const Duration(microseconds: 500));
-                        //   ApiWorker().getRecentOrdersData(
-                        //     searchModel: searchData,
-                        //     orderStatus: 11,
-                        //     isLogin: false,
-                        //     startDate: firstDayString,
-                        //     endDate: lastDayString,
-                        //   );
-                        //   await calenderMapController.fetchCalenderEvents(
-                        //       initialDay ?? DateTime.now());
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(
-                        //       content: Text('Syncing offline orders...'),
-                        //       backgroundColor: Colors.blue,
-                        //     ),
-                        //   );
-                        // },
-                      ),
+                      child: SyncButtonWidget(),
                     ),
                   ],
                 ),
@@ -433,8 +326,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
                                         Align(
                                           alignment: Alignment.centerRight,
                                           child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(right: 15),
+                                            padding: const EdgeInsets.only(
+                                                right: 15),
                                             child: Text(
                                               'Out',
                                               style: TextStyle(
@@ -579,7 +472,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
             ],
           ),
           content: Text(
-            'Are you sure you want to'.tr + ' ${newState ? 'check in'.tr : 'check out'.tr}?',
+            'Are you sure you want to'.tr +
+                ' ${newState ? 'check in'.tr : 'check out'.tr}?',
             style: TextStyle(
               fontSize: 19.0,
               color: Colors.black87,
@@ -588,7 +482,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
           actions: [
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 10.0),
                 side: BorderSide(color: primaryColor, width: 2.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -610,7 +505,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 10.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
@@ -634,7 +530,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
     if (confirmAction != true) return;
 
     // Close any remaining dialogs/popups before proceeding
-    Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+    Navigator.of(context, rootNavigator: true)
+        .popUntil((route) => route.isFirst);
 
     setState(() => _isLoading = true);
 
@@ -643,7 +540,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
         // Use the shared CheckInService for check-in
         print("=== Sidebar calling CheckInService().performCheckIn ===");
         await CheckInService().performCheckIn(context);
-        
+
         // After CheckInService completes, reload the switch state and update UI
         bool updatedState = await ApiWorker().loadSwitchState();
         if (mounted) {
@@ -651,11 +548,10 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
             _onSwitchSelected = updatedState;
           });
         }
-        
+
         // The CheckInService will handle permission status updates
         // and the sidebar listener will automatically update the permission status
-      } 
-      else {
+      } else {
         // === CHECK OUT LOGIC ===
         setState(() {
           _hasAlwaysPermission = false;
@@ -700,7 +596,7 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
 
           // Update local state to successfully check out visually
           await ApiWorker().saveSwitchState(false);
-          
+
           if (mounted) {
             setState(() {
               _onSwitchSelected = false;
@@ -708,7 +604,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 backgroundColor: Colors.orange,
-                content: Text('Offline: Admin Check-out saved locally and will sync when online.'),
+                content: Text(
+                    'Offline: Admin Check-out saved locally and will sync when online.'),
                 duration: Duration(seconds: 3),
               ),
             );
@@ -733,109 +630,18 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
           }
         }
       }
-      // else {
-      //   // Handle check-out logic
-      //   // Reset permission status on check out
-      //   setState(() {
-      //     _hasAlwaysPermission = false;
-      //   });
-        
-      //   // === CHECK OUT LOGIC ===
-      //   CheckInService().stopTracking();
-
-      //   // Send API for check-out
-      //   final response = await ApiWorker().updateAdminCheckInOut(
-      //     date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-      //     time: DateFormat('HH:mm').format(DateTime.now()),
-      //     direction: "out",
-      //     lat: "0.0", // No position needed for check-out
-      //     long: "0.0",
-      //   );
-
-      //   if (response.statusCode == 200) {
-      //     await ApiWorker().saveSwitchState(false);
-      //     if (mounted) {
-      //       setState(() {
-      //         _onSwitchSelected = false;
-      //       });
-      //     }
-      //   }
-      // }
-    } 
-    catch (e) {
+    } catch (e) {
       print("Error: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  // void _handleSwitchToggle(BuildContext context) async {
-  //   bool newState = !_onSwitchSelected;
-  //   bool? confirmAction = await showDialog<bool>(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(newState ? 'Confirm Check-In' : 'Confirm Check-Out'),
-  //         content: Text(
-  //             'Are you sure you want to ${newState ? 'check in' : 'check out'}?'),
-  //         actions: [
-  //           TextButton(
-  //             child: const Text('Cancel'),
-  //             onPressed: () => Navigator.of(context).pop(false),
-  //           ),
-  //           ElevatedButton(
-  //             child: const Text('Confirm'),
-  //             onPressed: () => Navigator.of(context).pop(true),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-
-  //   if (confirmAction == true) {
-  //     if (!await handleLocationPermission(context)) {
-  //       return;
-  //     }
-
-  //     setState(() {
-  //       _isLoading = true;
-  //     });
-
-  //     try {
-  //       Position position = await Geolocator.getCurrentPosition(
-  //         desiredAccuracy: LocationAccuracy.high,
-  //       );
-  //       final response = await ApiWorker().updateAdminCheckInOut(
-  //         date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-  //         time: DateFormat('HH:mm').format(DateTime.now()),
-  //         direction: newState ? "in" : "out",
-  //         lat: position.latitude.toString(),
-  //         long: position.longitude.toString(),
-  //       );
-  //       if (response.statusCode == 200) {
-  //         await ApiWorker().saveSwitchState(newState);
-
-  //         if (mounted) {
-  //           setState(() {
-  //             _onSwitchSelected = newState;
-  //           });
-  //         }
-  //       }
-  //     } catch (e) {
-  //     //
-  //     } finally {
-  //       if (mounted) {
-  //         setState(() {
-  //           _isLoading = false;
-  //         });
-  //       }
-  //     }
-  //   }
-  // }
-   void _stopForegroundTracking() {
+  void _stopForegroundTracking() {
     if (_foregroundTimer != null) {
       _foregroundTimer!.cancel();
       _foregroundTimer = null;
@@ -844,30 +650,30 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar> with WidgetsBindi
   }
 }
 
-
-
 Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
   return await showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text("Enable Background Tracking"),
-      content: const Text(
-        "To track your location even when the app is closed (for accurate attendance), please allow 'Always' permission.\n\n"
-        "If you prefer, you can continue with foreground-only tracking (app must stay open)."
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false), // User chose "No"
-          child: const Text("Only while using the app"),
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Enable Background Tracking"),
+          content: const Text(
+              "To track your location even when the app is closed (for accurate attendance), please allow 'Always' permission.\n\n"
+              "If you prefer, you can continue with foreground-only tracking (app must stay open)."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), // User chose "No"
+              child: const Text("Only while using the app"),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.pop(context, true), // User chose to proceed
+              child: const Text("Request Always"),
+            ),
+          ],
         ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, true), // User chose to proceed
-          child: const Text("Request Always"),
-        ),
-      ],
-    ),
-  ) ?? false;
+      ) ??
+      false;
 }
+
 Future<bool> handleLocationPermission(BuildContext context) async {
   PermissionStatus status = await Permission.locationWhenInUse.status;
 

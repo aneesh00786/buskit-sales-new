@@ -957,7 +957,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                 maxLines: 1,
                 fontSize: fontSize,
                 content: groupedItem.detail.inclTax == "N.A"
-                    ? "N.A"
+                    ? formatAmount(0)
                     : formatAmount(tax)),
           ),
 

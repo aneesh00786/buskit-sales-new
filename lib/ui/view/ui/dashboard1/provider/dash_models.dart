@@ -83,7 +83,9 @@ class CategoryPerformancee {
 
     return CategoryPerformancee(
       cid: json['cid'] as int?,
-      category: json['category'] as String?,
+      category: json['category'] is List
+          ? (json['category'].isNotEmpty ? json['category'][0]?.toString() : null)
+          : json['category']?.toString(),
       actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
       actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
       actualSales: num.tryParse(json['actual_sales'].toString()) ?? 0,
@@ -126,7 +128,9 @@ class MonthlyPerformancee {
 
   factory MonthlyPerformancee.fromJson(Map<String, dynamic> json) {
     return MonthlyPerformancee(
-      cid: json['cid'] as String?,
+      cid: json['cid'] is List
+          ? (json['cid'].isNotEmpty ? json['cid'][0]?.toString() : null)
+          : json['cid']?.toString(),
       actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
       actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
       actualSales: num.tryParse(json['actual_sales'].toString()) ?? 0,

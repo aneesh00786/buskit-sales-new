@@ -157,7 +157,7 @@ Widget middleTopLeftComponet({
                             allCategory: categories ?? [],
                             staffProjection: staffProjection,
                             categoryTarget: targetType,
-                            isMonthly: targetType == '0' ? true : false,
+                            isMonthly: false,
                             isDayOrRange: provider.selectedFilter ==
                                     FilterDateEnum.range ||
                                 provider.selectedFilter == FilterDateEnum.today,

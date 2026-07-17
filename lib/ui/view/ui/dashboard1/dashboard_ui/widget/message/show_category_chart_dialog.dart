@@ -103,8 +103,7 @@ void showCategoryChartDialog(
                                     allCategory: categories!,
                                     staffProjection: staffProjection,
                                     categoryTarget: categoryTarget,
-                                    isMonthly:
-                                        categoryTarget == '0' ? true : false,
+                                    isMonthly: false,
                                     isDayOrRange: provider.selectedFilter ==
                                             FilterDateEnum.range ||
                                         provider.selectedFilter ==

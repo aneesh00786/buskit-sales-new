@@ -781,7 +781,9 @@ class CategoryPerformancez {
   factory CategoryPerformancez.fromJson(Map<String, dynamic> json) =>
       CategoryPerformancez(
         cid: json["cid"] ?? 0,
-        category: json["category"] ?? '',
+        category: json["category"] is List
+            ? (json["category"].isNotEmpty ? json["category"][0]?.toString() ?? '' : '')
+            : json["category"]?.toString() ?? '',
         totalPrice: num.tryParse(json["total_price"].toString()) ?? 0,
       );
 

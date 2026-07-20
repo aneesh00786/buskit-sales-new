@@ -96,25 +96,25 @@ showBarchartDialog(
                         height: headerHeight,
                         child: Row(
                           children: [
-                             DialogTableHeaderText(
+                            DialogTableHeaderText(
                               text: 'Name'.tr,
                               fontSize: 13,
                             ),
                             if (!isDayOrRange) ...[
                               // if (targetType == '1') ...[
-                               DialogTableHeaderText(
+                              DialogTableHeaderText(
                                 text: 'Target'.tr,
                                 fontSize: 13,
                               ),
                               // ],
                               if (staffProjection == '1') ...[
-                                 DialogTableHeaderText(
+                                DialogTableHeaderText(
                                   text: 'Projection'.tr,
                                   fontSize: 13,
                                 ),
                               ]
                             ],
-                             DialogTableHeaderText(
+                            DialogTableHeaderText(
                               text: 'Actual'.tr,
                               fontSize: 13,
                             ),
@@ -234,16 +234,16 @@ showBarchartDialog(
                                           ),
                                         ],
                                       ],
-//                                    
+//
                                       Expanded(
                                         child: Center(
                                           child: InkWell(
                                             onTap: () async {
-                                             
                                               await dashboardProvider
                                                   .fetchChartOrderData(
-                                                      category.salesmanId,
-                                                     targetType == '0' ? 0 : catId,);
+                                                category.salesmanId,
+                                                catId,
+                                              );
                                               Get.dialog(StaffOrdersDialog(
                                                 heading: 'orders',
                                                 orderData: dashboardProvider

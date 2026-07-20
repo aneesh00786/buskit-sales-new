@@ -28,7 +28,12 @@ class TimeUtils {
   static String formatTimeInZone(DateTime dateTime,
       {String? timeZoneName, String format = 'hh:mm:ss a'}) {
     try {
-      final targetZone = timeZoneName ?? _getCompanyTimeZone();
+      var targetZone = timeZoneName ?? _getCompanyTimeZone();
+      if (targetZone == 'Asia/Calcutta') {
+        targetZone = 'Asia/Kolkata';
+      } else if (targetZone == 'Asia/Katmandu') {
+        targetZone = 'Asia/Kathmandu';
+      }
       final location = tz.getLocation(targetZone);
 
       final utcDateTime = DateTime.utc(

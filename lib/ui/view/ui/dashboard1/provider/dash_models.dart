@@ -84,7 +84,9 @@ class CategoryPerformancee {
     return CategoryPerformancee(
       cid: json['cid'] as int?,
       category: json['category'] is List
-          ? (json['category'].isNotEmpty ? json['category'][0]?.toString() : null)
+          ? (json['category'].isNotEmpty
+              ? json['category'][0]?.toString()
+              : null)
           : json['category']?.toString(),
       actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
       actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
@@ -401,7 +403,7 @@ class OrderRevenueDatum {
         orderId: json["order_id"],
         orderStatus: json["order_status"],
         totalOrderRevenue: json["total_order_revenue"],
-        orderGeneratedDate:DateTime.parse(json["generated_date"]),
+        orderGeneratedDate: DateTime.parse(json["generated_date"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -410,7 +412,8 @@ class OrderRevenueDatum {
         "order_id": orderId,
         "order_status": orderStatus,
         "total_order_revenue": totalOrderRevenue,
-        "generated_date":orderGeneratedDate!.toIso8601String(),      };
+        "generated_date": orderGeneratedDate!.toIso8601String(),
+      };
 }
 
 class ResponseModell {
@@ -1349,9 +1352,9 @@ class PendingAmount {
   final String? businessName;
   final int? orderStatus;
   final num? orderTotal;
-   num? receivedAmount;
+  num? receivedAmount;
   final num? receivableAmount;
-   int? paymentStatus;
+  int? paymentStatus;
   final int? creditPeriod;
   final int? count;
   final String? percentage;
@@ -2734,7 +2737,7 @@ class SpecificOrderData {
     this.invoice,
     this.tax,
     this.orderSource,
-    this.generateAt,  
+    this.generateAt,
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>

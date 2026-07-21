@@ -9,9 +9,9 @@ class DioClient with ApiConstants {
       : _dio = Dio(
           BaseOptions(
               baseUrl: ApiConstants.baseUrl,
-              connectTimeout: const Duration(seconds: 20),
-              receiveTimeout: const Duration(seconds: 30),
-              sendTimeout: const Duration(seconds: 20),
+              connectTimeout: const Duration(seconds: 15),
+              receiveTimeout: const Duration(seconds: 15),
+              sendTimeout: const Duration(seconds: 15),
               responseType: ResponseType.json),
         )..interceptors.addAll([
             GlobalApiInterceptor(),
@@ -143,7 +143,7 @@ Future<Response<dynamic>> responseGetMethod(
       .post("${ApiConstants.baseUrl}$endPoint",
           data: requestData, options: options, queryParameters: queryParameters)
       .timeout(
-    const Duration(seconds: 10),
+    const Duration(seconds: 15),
     onTimeout: () {
       throw DioException(
         requestOptions:
@@ -179,8 +179,18 @@ class DioExceptionHandler implements Exception {
         break;
 
       case DioExceptionType.badResponse:
-        errorMessage = dioError.response?.data['message'] ??
-            'Received invalid status code: ${dioError.response?.statusCode}.';
+        // errorMessage = dioError.response?.data['message'] ??
+            // 'Received invalid status code: ${dioError.response?.statusCode}.';
+            final responseData = dioError.response?.data;
+        if (responseData is Map) {
+          errorMessage = responseData['message']?.toString() ??
+              responseData['error']?.toString() ??
+              dioError.message ?? '';
+        } else if (responseData is String) {
+          errorMessage = responseData;
+        } else {
+          errorMessage = dioError.message ?? '';
+        }
         break;
 
       case DioExceptionType.connectionError:

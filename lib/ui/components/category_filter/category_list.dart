@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -93,7 +94,7 @@ class _CategoryListState extends State<CategoryList> {
                 ),
                 const SizedBox(width: 20),
                 Text(
-                  'Categories',
+                  'Categories'.tr,
                   style: GoogleFonts.poppins(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,

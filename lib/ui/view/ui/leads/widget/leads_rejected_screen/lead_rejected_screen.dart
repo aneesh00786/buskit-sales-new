@@ -65,6 +65,9 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
   }
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
+    bool isArabic = Get.locale?.languageCode == 'ar';
+    double slNoWidth = isArabic ? 70 : 50; 
+    double leadsWidth = isArabic ? 230 : 250;
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     return Row(
       children: [
@@ -74,30 +77,72 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
             children: [
               Row(
                 children: [
-                  buildTableHeader1(
+                   buildTableHeader1(
                     Center(
-                      child: CustomText(
-                        content: "Sl.No.",
-                        textAlign: TextAlign.center,
-                        fontSize: 12.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Text( // Changed to Text widget to ensure ellipsis works perfectly
+                          "Sl.No.".tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis, // Automatically adds ...
+                        ),
                       ),
                     ),
-                    60,
+                    slNoWidth, // Using dynamic width
                   ),
+                  // buildTableHeader1(
+                  //   Center(
+                  //     child: CustomText(
+                  //       content: "Sl.No.".tr,
+                  //       textAlign: TextAlign.center,
+                  //       fontSize: 12.5,
+                  //       color: Colors.white,
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //   ),
+                  //   60,
+                  // ),
                   buildTableHeader1(
-                    Center(
-                      child: CustomText(
-                        content: "Customers",
-                        textAlign: TextAlign.center,
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded( // Forces text to respect bounds
+                            child: Text(
+                              "Customers".tr,
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis, // Automatically adds ...
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    240,
+                    leadsWidth, // Using dynamic width
                   ),
+                  // buildTableHeader1(
+                  //   Center(
+                  //     child: CustomText(
+                  //       content: "Customers".tr,
+                  //       textAlign: TextAlign.center,
+                  //       fontSize: 12,
+                  //       color: Colors.white,
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //   ),
+                  //   240,
+                  // ),
                 ],
               ),
               Expanded(
@@ -124,7 +169,7 @@ class _LeadRejectedScreenState extends State<LeadRejectedScreen> {
                           child: Row(
                             children: [
                               SizedBox(
-                                width: 60,
+                                width: slNoWidth,
                                 child: CustomText(
                                   content:
                                       '   ${((widget.rejectedLeadsController.currentPage.value - 1) * 10) + (index + 1)}.',

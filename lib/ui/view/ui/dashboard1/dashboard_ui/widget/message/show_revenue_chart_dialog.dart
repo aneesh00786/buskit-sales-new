@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void showRevenueChartDialog(
@@ -133,14 +134,14 @@ void showRevenueChartDialog(
                                               } else {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
                                               const Color(0xff1d3d63),
-                                              'Bookings : ${formatAmount(bookingRevenueLength)}',
+                                              'Bookings'.tr + ' : ${formatAmount(bookingRevenueLength)}',
                                             ),
                                           ),
                                           SizedBox(width: 10),
@@ -154,14 +155,14 @@ void showRevenueChartDialog(
                                               } else {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
                                               Colors.blue,
-                                              'Orders : ${formatAmount(orderRevenueLast)}',
+                                              'Orders'.tr + ' : ${formatAmount(orderRevenueLast)}',
                                             ),
                                           ),
                                         ],

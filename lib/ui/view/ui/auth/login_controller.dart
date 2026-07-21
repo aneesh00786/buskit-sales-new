@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/api_handler/handle_logout.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/localization_service.dart';
 import 'package:busskit_salesexecutive/common/pagination_model.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
@@ -104,6 +105,11 @@ class LoginController extends GetxController {
   final int currentYear = DateTime.now().year;
   int selectedTabIndex = 0;
   SearchModel searchData = SearchModel();
+   RxBool isSyncing = false.obs;
+
+  void setSyncing(bool value) {
+    isSyncing.value = value;
+  }
   var isEmailVerified = false.obs;
   var successMessage = "".obs;
   String? serverGeneratedOtp;
@@ -173,23 +179,23 @@ class LoginController extends GetxController {
     otpController.clear();
   }
 
-  Widget get getIsPasswordVisible {
-    if (isPasswordVisible.value) {
-      return IconButton(
-        onPressed: () {
-          isPasswordVisible.value = !isPasswordVisible.value;
-        },
-        icon: const Icon(Icons.visibility),
-      );
-    } else {
-      return IconButton(
-        onPressed: () {
-          isPasswordVisible.value = !isPasswordVisible.value;
-        },
-        icon: const Icon(Icons.visibility_off),
-      );
-    }
-  }
+  // Widget get getIsPasswordVisible {
+  //   if (isPasswordVisible.value) {
+  //     return IconButton(
+  //       onPressed: () {
+  //         isPasswordVisible.value = !isPasswordVisible.value;
+  //       },
+  //       icon: const Icon(Icons.visibility),
+  //     );
+  //   } else {
+  //     return IconButton(
+  //       onPressed: () {
+  //         isPasswordVisible.value = !isPasswordVisible.value;
+  //       },
+  //       icon: const Icon(Icons.visibility_off),
+  //     );
+  //   }
+  // }
 
   void initializeTabController(TickerProvider vsync, {required int length}) {
     _tabController = TabController(length: length, vsync: vsync);
@@ -284,6 +290,7 @@ class LoginController extends GetxController {
 
         await SessionHelper().setLoginData(loginResponce!.data!);
         await SessionHelper().getLoginData();
+        // await syncAppLanguage();
         await Future.delayed(const Duration(seconds: 2));
         final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
         final settings = await _apiWorker
@@ -316,21 +323,42 @@ class LoginController extends GetxController {
         );
 
         requiredDataFuture.then((_) async {
-          if (settings != null) {
-            await SessionHelper().setSettingsData(settings);
-            await SessionHelper().getSettingsData();
+          try {
+            if (settings != null) {
+              await SessionHelper().setSettingsData(settings);
+              await SessionHelper().getSettingsData();
+            }
+            if (syncInBackground) {
+              if (!navigationCompleter.isCompleted) {
+                navigationCompleter.complete();
+              }
+              await customerSyncFuture;
+              ApiWorker().cacheSyncImages(companyId);
+            } else {
+              await customerSyncFuture;
+              ApiWorker().cacheSyncImages(companyId);
+              if (!navigationCompleter.isCompleted) {
+                navigationCompleter.complete();
+              }
+            }
+          } catch (e, s) {
+            print("ERROR IN LOGIN DATA RECOVERY/SYNC: $e\n$s");
+            Get.snackbar(
+              "Sync Error",
+              "Sync failed: $e",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red.withOpacity(0.8),
+              colorText: Colors.white,
+              duration: const Duration(seconds: 7),
+            );
+            if (!navigationCompleter.isCompleted) {
+              navigationCompleter.complete();
+            }
           }
-          // If sync in background was pressed, navigate to home immediately
-          if (syncInBackground) {
-            if (!navigationCompleter.isCompleted) {
-              navigationCompleter.complete();
-            } else {}
-          } else {
-            // Otherwise, wait for customer sync to finish before navigating
-            await customerSyncFuture;
-            if (!navigationCompleter.isCompleted) {
-              navigationCompleter.complete();
-            } else {}
+        }).catchError((error) {
+          print("CRITICAL ERROR IN requiredDataFuture: $error");
+          if (!navigationCompleter.isCompleted) {
+            navigationCompleter.complete();
           }
         });
 
@@ -460,18 +488,13 @@ class LoginController extends GetxController {
       // Fetch first page to get totalPages
       final firstResponse = await apiService.fetchCustomer(
         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-        customerName: provider.searchCustomerName,
+        customerName: '',
         startDate: '',
         endDate: '',
         limit: 10,
         page: 1,
-        valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-            ? [
-                provider.selectedFilter.name,
-                provider.selectedStartDate,
-                provider.selectedEndDate
-              ]
-            : provider.selectedFilter.name).toString(),
+        valueFromDw: "Month",
+        selectedRange: [DateFormat('MMMM').format(DateTime.now())],
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
@@ -486,18 +509,13 @@ class LoginController extends GetxController {
       for (page = 2; page <= totalPages; page++) {
         final response = await apiService.fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          customerName: provider.searchCustomerName,
+          customerName: '',
           startDate: '',
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-              ? [
-                  provider.selectedFilter.name,
-                  provider.selectedStartDate,
-                  provider.selectedEndDate
-                ]
-              : provider.selectedFilter.name).toString(),
+          valueFromDw: "Month",
+          selectedRange: [DateFormat('MMMM').format(DateTime.now())],
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);
@@ -517,7 +535,8 @@ class LoginController extends GetxController {
           .toList();
       await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
     } catch (e) {
-      rethrow;
+      print("Error fetching customer pages: $e. Falling back to local cache.");
+      await loadAllCachedCustomerPages(context);
     }
   }
 
@@ -596,6 +615,9 @@ class LoginController extends GetxController {
       } catch (e) {
         //
       }
+      try {
+        await ApiWorker().fetchAllCustomerDiscounts(customerId);
+      } catch (e) {}
     }
   }
 
@@ -670,9 +692,10 @@ class LoginController extends GetxController {
 
         // ApiWorker().getProductReturnDetails(orderId: orderId),
 
-        _apiWorker.getAllProducts(),
+        _apiWorker.getAllProducts(companyId: companyId),
         _apiWorker.getBulkVolumes(),
-        
+        _apiWorker.getStaffDiscount(),
+        _apiWorker.getPromotions(),
         calenderMapController.getRouteCredit(),
         _apiWorker.getCalendarEvents({
           'companyId': companyId,
@@ -680,9 +703,6 @@ class LoginController extends GetxController {
               .toIso8601String(),
         }),
         _apiWorker.fetchOnlyCustomerDataInWhole(startDate, endDate),
-
-        connectivityService.syncOfflineDrafts(),
-
         ApiService().fetchAllOrders(
             isLogin: true,
             orderType: '',
@@ -755,6 +775,7 @@ class LoginController extends GetxController {
           currentMonth,
           DateTime.now().year.toString(),
         ),
+        // syncAppLanguage(),
         ApiWorker().getTimeSheetData(
   filterValue: currentMonth,  // Passes "March"
   filterType: "Month",        // Explicitly asks for Month data
@@ -780,4 +801,33 @@ class LoginController extends GetxController {
       // Do NOT rethrow, so the future always completes
     }
   }
+  // Future<void> syncAppLanguage() async {
+  //   try {
+  //     // 1. Get just the language string from your ApiWorker
+  //     String apiLanguage = await _apiWorker.getCompanyActiveLanguage();
+
+  //     final localizationService = Get.find<LocalizationService>();
+      
+  //     // 2. Reconstruct the current locale string (e.g., 'en' or 'zh-CN') to compare
+  //     String currentLangCode = localizationService.activeLocale.languageCode;
+  //     if (localizationService.activeLocale.countryCode != null) {
+  //       currentLangCode += '-${localizationService.activeLocale.countryCode}';
+  //     }
+
+  //     // 3. Only trigger the UI change and download if the admin changed the language
+  //     if (apiLanguage != currentLangCode) {
+  //       print("Admin set language to $apiLanguage. Syncing Sales App...");
+
+  //       // Instantly change locale to update the UI with any cached data
+  //       localizationService.changeLocale(apiLanguage);
+
+  //       // Silently fetch missing translations from Google Translate in the background
+  //       await localizationService.fetchAndSaveTranslations(apiLanguage);
+  //     } else {
+  //       print("Language is already in sync ($apiLanguage).");
+  //     }
+  //   } catch (e) {
+  //     print("Error syncing language: $e");
+  //   }
+  // }
 }

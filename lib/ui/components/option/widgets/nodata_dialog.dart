@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget noDataFoundWidget(String type) {
   return LayoutBuilder(
@@ -90,9 +91,9 @@ Widget noDataFoundWidget(String type) {
                           ),
                         )),
                       ],
-                      rows: const [
+                      rows:  [
                         DataRow(cells: [
-                          DataCell(Text('Record Not Found')),
+                          DataCell(Text('Record Not Found'.tr)),
                           DataCell(Text('')),
                           DataCell(Text('')),
                           DataCell(Text('')),

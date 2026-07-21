@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_mode
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 Future<dynamic> showDashTimesDialogue<T>(
@@ -179,23 +180,23 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                   child: Row(
                     children: [
                       if (widget.isDash) ...[
-                        SizedBox(width: 50, child: buildHeader('  Sl.No.')),
-                        Expanded(flex: 2, child: buildHeader('Customer')),
-                        Expanded(child: buildHeader('Order Id')),
-                        Expanded(child: buildHeader('Date')),
-                        Expanded(child: buildHeader('Price')),
-                        Expanded(child: buildHeader('Quantity')),
-                        Expanded(child: buildHeader('Tax')),
-                        Expanded(child: buildHeader('Amount')),
+                        SizedBox(width: 50, child: buildHeader('  Sl.No.'.tr)),
+                        Expanded(flex: 2, child: buildHeader('Customer'.tr)),
+                        Expanded(child: buildHeader('Order Id'.tr)),
+                        Expanded(child: buildHeader('Date'.tr)),
+                        Expanded(child: buildHeader('Price'.tr)),
+                        Expanded(child: buildHeader('Quantity'.tr)),
+                        Expanded(child: buildHeader('Tax'.tr)),
+                        Expanded(child: buildHeader('Amount'.tr)),
                       ],
                       if (!widget.isDash) ...[
-                        SizedBox(width: 50, child: buildHeader('  Sl.No.')),
-                        Expanded(child: buildHeader('Order Id')),
-                        Expanded(child: buildHeader('Date')),
-                        Expanded(child: buildHeader('Price')),
-                        Expanded(child: buildHeader('Quantity')),
-                        Expanded(child: buildHeader('Tax')),
-                        Expanded(child: buildHeader('Amount')),
+                        SizedBox(width: 50, child: buildHeader('  Sl.No.'.tr)),
+                        Expanded(child: buildHeader('Order Id'.tr)),
+                        Expanded(child: buildHeader('Date'.tr)),
+                        Expanded(child: buildHeader('Price'.tr)),
+                        Expanded(child: buildHeader('Quantity'.tr)),
+                        Expanded(child: buildHeader('Tax'.tr)),
+                        Expanded(child: buildHeader('Amount'.tr)),
                       ],
                     ],
                   ),
@@ -365,7 +366,7 @@ class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
                           child: CustomText(
                             fontWeight: FontWeight.w600,
                             textAlign: TextAlign.center,
-                            content: 'Total',
+                            content: 'Total'.tr,
                             fontSize: 11,
                             maxLine: 1,
                           ),

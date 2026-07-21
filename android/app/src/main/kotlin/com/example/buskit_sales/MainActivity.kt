@@ -1,4 +1,4 @@
-package com.example.buskit_sales
+package com.jrb.buskitSales
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

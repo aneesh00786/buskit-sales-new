@@ -1,11 +1,13 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_times_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 Widget topSellingProductsCustomer(
@@ -47,7 +49,7 @@ Widget topSellingProductsCustomer(
                         width: colWidth0,
                         child: const Center(
                           child: MyRegularText(
-                            label: "Sl.No.",
+                            label: "Sl.No..tr",
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -58,9 +60,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth1,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Product",
+                            label: "Product".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -71,9 +73,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth2_2,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "I/N",
+                            label: "I/N".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -84,9 +86,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth2,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Last Purchase",
+                            label: "Last Purchase".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -97,9 +99,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth3,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Times",
+                            label: "Times".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -110,9 +112,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth4,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Amount",
+                            label: "Amount".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -123,9 +125,9 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth5,
-                        child: const Center(
+                        child:  Center(
                           child: MyRegularText(
-                            label: "Qty",
+                            label: "Qty".tr,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             align: TextAlign.center,
@@ -185,17 +187,34 @@ Widget topSellingProductsCustomer(
                               ),
                               const SizedBox(width: 5),
                               SizedBox(
-                                width: colWidth2,
-                                child: Center(
-                                  child: MyRegularText(
-                                    label: DateFormat('dd-MM-yyyy')
-                                        .format(product.createdAt.toLocal()),
-                                    color: secondaryTextColor,
-                                    fontSize: fontSize,
-                                    maxlines: 1,
-                                  ),
-                                ),
-                              ),
+  width: colWidth2,
+  child: Center(
+    child: MyRegularText(
+      // Added a safe null check just in case createdAt is ever missing
+      label: product.createdAt != null
+          ? TimeUtils.formatTimeInZone(
+              product.createdAt, // Passed directly as a DateTime object!
+              format: 'dd-MM-yyyy', // Enforces the date-only format
+            )
+          : 'N/A',
+      color: secondaryTextColor,
+      fontSize: fontSize,
+      maxlines: 1,
+    ),
+  ),
+),
+                              // SizedBox(
+                              //   width: colWidth2,
+                              //   child: Center(
+                              //     child: MyRegularText(
+                              //       label: DateFormat('dd-MM-yyyy')
+                              //           .format(product.createdAt.toLocal()),
+                              //       color: secondaryTextColor,
+                              //       fontSize: fontSize,
+                              //       maxlines: 1,
+                              //     ),
+                              //   ),
+                              // ),
                               const SizedBox(width: 5),
                               SizedBox(
                                 width: colWidth3,

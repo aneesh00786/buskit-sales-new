@@ -1,29 +1,31 @@
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 
 Widget buildCustomersDialogContent(
     CustomerData? data, StaffController staffController) {
   List<String> headers = [
-    "Customer/s",
-    "Customer ID",
-    "Address",
-    "Business NO",
-    "Created At",
+    "Customer/s".tr,
+    "Customer ID".tr,
+    "Address".tr,
+    "Business NO".tr,
+    "Created At".tr,
   ];
 
   List<TableViewRow> rows = (staffController.customerDatas.value == null ||
           staffController.customerDatas.value!.data == null ||
           staffController.customerDatas.value!.data!.isEmpty)
       ? [
-          const TableViewRow(
+           TableViewRow(
             height: 60,
             cells: [
-              TableViewCell(child: Text("Record Not Found")),
+              TableViewCell(child: Text("Record Not Found".tr)),
               TableViewCell(child: SizedBox()),
               TableViewCell(child: SizedBox()),
               TableViewCell(child: SizedBox()),
@@ -45,8 +47,9 @@ Widget buildCustomersDialogContent(
                             height: 35,
                             width: 35,
                             child: Image.network(
+                              '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}',
                               // 👇 Removed condition, now safely accessing invoiceData
-                              'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
+                              // 'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
 
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {

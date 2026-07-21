@@ -1,18 +1,15 @@
-
-
 import 'package:timezone/timezone.dart' as tz;
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 class TimeUtils {
-  /// Fetches the timezone directly from Hive.
   static String _getCompanyTimeZone() {
     try {
       if (Hive.isBoxOpen('settingsBox')) {
         final box = Hive.box('settingsBox');
         final storedData = box.get('all_settings_data');
-        
+
         if (storedData != null && storedData is List) {
           for (var item in storedData) {
             if (item is Map && item['key'] == 'time_zone') {
@@ -24,18 +21,21 @@ class TimeUtils {
     } catch (e) {
       debugPrint('⚠️ Error reading timezone from Hive: $e');
     }
-    // Safe fallback if Hive isn't loaded yet
-    return 'Australia/Melbourne'; 
+
+    return 'Australia/Melbourne';
   }
 
-  /// Converts an existing DateTime to the dynamic timezone.
-  static String formatTimeInZone(DateTime dateTime, {String? timeZoneName, String format = 'hh:mm:ss a'}) {
+  static String formatTimeInZone(DateTime dateTime,
+      {String? timeZoneName, String format = 'hh:mm:ss a'}) {
     try {
-      // 1. Get timezone (either passed in, or fetched automatically from Hive)
-      final targetZone = timeZoneName ?? _getCompanyTimeZone();
+      var targetZone = timeZoneName ?? _getCompanyTimeZone();
+      if (targetZone == 'Asia/Calcutta') {
+        targetZone = 'Asia/Kolkata';
+      } else if (targetZone == 'Asia/Katmandu') {
+        targetZone = 'Asia/Kathmandu';
+      }
       final location = tz.getLocation(targetZone);
-      
-      // 2. Force the DateTime to be treated as UTC
+
       final utcDateTime = DateTime.utc(
         dateTime.year,
         dateTime.month,
@@ -45,13 +45,13 @@ class TimeUtils {
         dateTime.second,
       );
 
-      // 3. Convert that strict UTC time to the target timezone
-      final tz.TZDateTime timeInZone = tz.TZDateTime.from(utcDateTime, location);
-      
+      final tz.TZDateTime timeInZone =
+          tz.TZDateTime.from(utcDateTime, location);
+
       return DateFormat(format).format(timeInZone);
     } catch (e) {
       debugPrint('🚨 Error converting time for zone: $e');
-      // Fallback returns the un-converted time (which is why you saw 01:50 PM)
+
       return DateFormat(format).format(dateTime);
     }
   }

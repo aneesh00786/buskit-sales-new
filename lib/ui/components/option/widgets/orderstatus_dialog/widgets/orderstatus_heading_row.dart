@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OrderStatusHeadingRow extends StatelessWidget {
   const OrderStatusHeadingRow({
@@ -44,9 +45,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Customer List',
+                            'Customer List'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -58,9 +59,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Order No.',
+                            'Order No.'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -72,9 +73,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Created',
+                            'Created'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -86,9 +87,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Created By',
+                            'Created By'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -100,9 +101,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Amount',
+                            'Amount'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -114,9 +115,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Invoice',
+                            'Invoice'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -128,9 +129,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Payment Status',
+                            'Payment Status'.tr,
                             maxLines: 2,
                           ),
                         ),
@@ -142,9 +143,9 @@ class OrderStatusHeadingRow extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(
                             top: fullScreenWidth(context) > 740 ? 0 : 30),
-                        child: const Center(
+                        child:  Center(
                           child: Text(
-                            'Status',
+                            'Status'.tr,
                             maxLines: 2,
                           ),
                         ),

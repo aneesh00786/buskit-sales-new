@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/return_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 
 Widget buildSalesReturnTableHeader1(Widget child, double width) {
@@ -28,13 +29,13 @@ Widget buildSalesReturnTableHeader() {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: buildSalesReturnHeaderText('Order Details', 14)),
-        Expanded(child: buildSalesReturnHeaderText('Invoice', 14)),
-        Expanded(child: buildSalesReturnHeaderText('Delivered Date', 14)),
-        Expanded(child: buildSalesReturnHeaderText('Order Amount', 14)),
-        Expanded(child: buildSalesReturnHeaderText('Payment Status', 14)),
-        Expanded(child: buildSalesReturnHeaderText('Status', 14)),
-        Expanded(child: buildSalesReturnHeaderText('Action', 14)),
+        Expanded(child: buildSalesReturnHeaderText('Order Details'.tr, 14)),
+        Expanded(child: buildSalesReturnHeaderText('Invoice'.tr, 14)),
+        Expanded(child: buildSalesReturnHeaderText('Delivered Date'.tr, 14)),
+        Expanded(child: buildSalesReturnHeaderText('Order Amount'.tr, 14)),
+        Expanded(child: buildSalesReturnHeaderText('Payment Status'.tr, 14)),
+        Expanded(child: buildSalesReturnHeaderText('Status'.tr, 14)),
+        Expanded(child: buildSalesReturnHeaderText('Action'.tr, 14)),
         // const Expanded(child: Text('')),
       ],
     ),
@@ -202,7 +203,7 @@ Widget buildStatus(GetRecentOrderReturnData statusData) {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             onPressed: () {},
             child: CustomText(
-              content: getStatusName.call(statusData.orderStatus!),
+              content: getStatusName.call(statusData.orderStatus!).tr,
               fontWeight: FontWeight.bold,
               fontSize: 14,
               color: Colors.white,

@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_responce/product_frequency_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
@@ -257,6 +258,7 @@ class _ProductGridState extends State<ProductGrid> {
                                   .toList();
 
                               product.detail?.forEach((e) {
+                                print("DEBUG: ${product.productName} -> sellingPrice: ${e.sellingPrice}, sellingPackPrice: ${e.sellingPackPrice}");
                                 double price = double.tryParse(
                                         e.sellingPrice.toString()) ??
                                     0.0;
@@ -288,19 +290,31 @@ class _ProductGridState extends State<ProductGrid> {
                                       ? sellPriceValues
                                           .reduce((a, b) => a > b ? a : b)
                                       : 0.0;
-
-                              num lowstockItem = 0;
-                              num outOfStockItem = 0;
+                                      bool isLowStock = false;
+                              bool isOutOfStock = false;
 
                               product.detail?.forEach((detail) {
                                 num stock = detail.stock ?? 0;
                                 num lowstock = detail.lowstock ?? 0;
                                 if (stock == 0) {
-                                  outOfStockItem++;
-                                } else if (stock < lowstock) {
-                                  lowstockItem++;
+                                  isOutOfStock = true;
+                                } else if (stock <= lowstock) {
+                                  isLowStock = true;
                                 }
                               });
+
+                              // num lowstockItem = 0;
+                              // num outOfStockItem = 0;
+
+                              // product.detail?.forEach((detail) {
+                              //   num stock = detail.stock ?? 0;
+                              //   num lowstock = detail.lowstock ?? 0;
+                              //   if (stock == 0) {
+                              //     outOfStockItem++;
+                              //   } else if (stock < lowstock) {
+                              //     lowstockItem++;
+                              //   }
+                              // });
 
                               final colorCodeString = productFrequencyCustomer
                                       .firstWhere(
@@ -394,52 +408,84 @@ class _ProductGridState extends State<ProductGrid> {
                                                         .productAvailabilityStatus
                                                         .value ==
                                                     "true") ...[
-                                                  Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 3),
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
-                                                      color: Colors.yellow[700],
-                                                    ),
-                                                    child: Text(
-                                                      '$lowstockItem Low',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 7,
-                                                        fontWeight:
-                                                            FontWeight.w600,
+                                                  if (isLowStock) ...[
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                          horizontal: 6, vertical: 3),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(30),
+                                                        color: Colors.yellow[700],
                                                       ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 3),
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              30),
-                                                      color:
-                                                          Colors.red.shade800,
-                                                    ),
-                                                    child: Text(
-                                                      '$outOfStockItem Nil',
-                                                      style:
-                                                          GoogleFonts.poppins(
+                                                      child: CustomText(
+                                                        content: 'Low'.tr, // Count removed
                                                         fontSize: 7,
                                                         color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w600,
+                                                        fontWeight: FontWeight.w600,
                                                       ),
                                                     ),
-                                                  ),
+                                                    const SizedBox(width: 6),
+                                                  ],
+                                                  if (isOutOfStock) ...[
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                          horizontal: 6, vertical: 3),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(30),
+                                                        color: Colors.red.shade800,
+                                                      ),
+                                                      child: CustomText(
+                                                        content: 'Nill'.tr, // Count removed
+                                                        fontSize: 7,
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 6), // Added spacing for consistency
+                                                  ],
                                                 ],
+                                                // if (subscriptionController
+                                                //         .productAvailabilityStatus
+                                                //         .value ==
+                                                //     "true") ...[
+                                                //   Container(
+                                                //     padding: const EdgeInsets
+                                                //         .symmetric(
+                                                //         horizontal: 6,
+                                                //         vertical: 3),
+                                                //     decoration: BoxDecoration(
+                                                //       borderRadius:
+                                                //           BorderRadius.circular(
+                                                //               30),
+                                                //       color: Colors.yellow[700],
+                                                //     ),
+                                                //      child: CustomText(
+                                                //       content: '$lowstockItem ${'Low'.tr}',
+                                                //       fontSize: 7,
+                                                //       color: Colors.white,
+                                                //       fontWeight: FontWeight.w600,
+                                                //     ),
+                                                //   ),
+                                                //   const SizedBox(width: 6),
+                                                //   Container(
+                                                //     padding: const EdgeInsets
+                                                //         .symmetric(
+                                                //         horizontal: 6,
+                                                //         vertical: 3),
+                                                //     decoration: BoxDecoration(
+                                                //       borderRadius:
+                                                //           BorderRadius.circular(
+                                                //               30),
+                                                //       color:
+                                                //           Colors.red.shade800,
+                                                //     ),
+                                                //     child: CustomText(
+                                                //     content: '$outOfStockItem ${'Nill'.tr}',
+                                                //     fontSize: 7,
+                                                //     color: Colors.white,
+                                                //     fontWeight: FontWeight.w600,
+                                                //   ),
+                                                //   ),
+                                                // ],
                                                 const Spacer(),
                                                 Text(
                                                   smallestSellPrice ==
@@ -525,16 +571,12 @@ class _ProductGridState extends State<ProductGrid> {
                                                                   .symmetric(
                                                                   horizontal: 6,
                                                                   vertical: 3),
-                                                          child: Text(
-                                                            'Stock : ${product.stock}',
-                                                            style: const TextStyle(
-                                                                fontSize: 7,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600),
-                                                          ),
+                                                        child:CustomText(
+                                                          content: '${'Stock'.tr} : ${product.stock}',
+                                                          fontSize: 7,
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w600,
+                                                        ),
                                                         ),
                                                       )
                                                     : SizedBox(),

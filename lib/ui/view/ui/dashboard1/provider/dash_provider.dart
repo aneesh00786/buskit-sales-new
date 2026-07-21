@@ -334,7 +334,9 @@ class DashboardProvider with ChangeNotifier {
           selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
               ? _selectedFilterWeeks
               : [],
-          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+         year: _selectedFilter == FilterDateEnum.thisYear 
+              ? _selectedYear 
+              : DateTime.now().year,
         );
       });
     } catch (e, stackTrace) {
@@ -425,7 +427,8 @@ class DashboardProvider with ChangeNotifier {
           selectedWeeks: _selectedFilter == FilterDateEnum.thisWeek
               ? _selectedFilterWeeks
               : [],
-          year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
+          year: _selectedYear != 0 ? _selectedYear : DateTime.now().year,
+          // year: _selectedFilter == FilterDateEnum.thisYear ? _selectedYear : 0,
           isLogin: isLogin,
           checkDate: checkDate,
         );

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
@@ -14,6 +15,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_re
 
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class StaffOrdersDialog extends StatefulWidget {
@@ -155,8 +157,8 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                   ],
                                   rows: filteredOrders.isEmpty
                                       ? [
-                                          const DataRow(cells: [
-                                            DataCell(Text('Record Not Found')),
+                                           DataRow(cells: [
+                                            DataCell(Text('Record Not Found'.tr)),
                                             DataCell(Text('')),
                                             DataCell(Text('')),
                                             DataCell(Text('')),
@@ -317,15 +319,20 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                   width: flexWidth * 1,
                                                   child: Center(
                                                     child: Text(
-                                                      // ignore: unnecessary_null_comparison
-                                                      order.orderCreatAt != null
-                                                          ? NKDateUtils.commonFullDateTimeFormat(
-                                                                  NKDateUtils
-                                                                      .formatStringUTCDateTime(
-                                                                          order.orderCreatAt ??
-                                                                              ''))
-                                                              .replaceAll(
-                                                                  " ", "\n")
+                                                      order.orderCreatAt !=
+                                                                  null &&
+                                                              order.orderCreatAt
+                                                                  .toString()
+                                                                  .isNotEmpty
+                                                          ? TimeUtils
+                                                              .formatTimeInZone(
+                                                              DateTime.parse(order
+                                                                  .orderCreatAt
+                                                                  .toString()),
+                                                              // Notice the \n right in the middle instead of a space!
+                                                              format:
+                                                                  'dd/MM/yyyy\nhh:mm a',
+                                                            )
                                                           : 'N/A',
                                                       style: TextStyle(
                                                         fontSize: fontSize,
@@ -336,6 +343,26 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                       textAlign:
                                                           TextAlign.center,
                                                     ),
+                                                    //  Text(
+                                                    //   // ignore: unnecessary_null_comparison
+                                                    //   order.orderCreatAt != null
+                                                    //       ? NKDateUtils.commonFullDateTimeFormat(
+                                                    //               NKDateUtils
+                                                    //                   .formatStringUTCDateTime(
+                                                    //                       order.orderCreatAt ??
+                                                    //                           ''))
+                                                    //           .replaceAll(
+                                                    //               " ", "\n")
+                                                    //       : 'N/A',
+                                                    //   style: TextStyle(
+                                                    //     fontSize: fontSize,
+                                                    //   ),
+                                                    //   maxLines: 2,
+                                                    //   overflow:
+                                                    //       TextOverflow.ellipsis,
+                                                    //   textAlign:
+                                                    //       TextAlign.center,
+                                                    // ),
                                                   ),
                                                 ),
                                               ),
@@ -455,7 +482,7 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                               child: Text(
                                                                 getStatusName(
                                                                     order.orderStatus ??
-                                                                        0),
+                                                                        0).tr,
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         fontSize,
@@ -477,10 +504,22 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                     horizontal:
                                                                         8.0),
                                                                 child: Text(
-                                                                  NKDateUtils.commonFullDateTimeFormat(
-                                                                      NKDateUtils
-                                                                          .formatStringUTCDateTime(
-                                                                              order.deliveryDatetime!)),
+                                                                  order.deliveryDatetime !=
+                                                                              null &&
+                                                                          order
+                                                                              .deliveryDatetime
+                                                                              .toString()
+                                                                              .isNotEmpty
+                                                                      ? TimeUtils
+                                                                          .formatTimeInZone(
+                                                                          // Assuming it's a string. If it's already a DateTime, just pass order.deliveryDatetime!
+                                                                          DateTime.parse(order
+                                                                              .deliveryDatetime
+                                                                              .toString()),
+                                                                          format:
+                                                                              'dd/MM/yyyy\nhh:mm a',
+                                                                        )
+                                                                      : 'N/A',
                                                                   textAlign:
                                                                       TextAlign
                                                                           .center,
@@ -495,6 +534,25 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                             .w400,
                                                                   ),
                                                                 ),
+                                                                // Text(
+                                                                //   NKDateUtils.commonFullDateTimeFormat(
+                                                                //       NKDateUtils
+                                                                //           .formatStringUTCDateTime(
+                                                                //               order.deliveryDatetime!)),
+                                                                //   textAlign:
+                                                                //       TextAlign
+                                                                //           .center,
+                                                                //   maxLines: 2,
+                                                                //   style:
+                                                                //       TextStyle(
+                                                                //     fontSize:
+                                                                //         fontSize -
+                                                                //             2,
+                                                                //     fontWeight:
+                                                                //         FontWeight
+                                                                //             .w400,
+                                                                //   ),
+                                                                // ),
                                                               ),
                                                             ],
                                                             if (order
@@ -507,10 +565,10 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                                                   Expanded(
                                                                     child: Container(
                                                                         color: Colors.blue,
-                                                                        child: const Center(
+                                                                        child:  Center(
                                                                           child:
                                                                               Text(
-                                                                            'Quick Sale',
+                                                                            'Quick Sale'.tr,
                                                                             style: TextStyle(
                                                                                 color: white,
                                                                                 fontWeight: FontWeight.bold,

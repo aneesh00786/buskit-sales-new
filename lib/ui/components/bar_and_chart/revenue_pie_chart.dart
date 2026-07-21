@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:fl_chart/fl_chart.dart' as fl_chart;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DoughnutDefault extends StatefulWidget {
   final Revenuee categoryData;
@@ -104,10 +105,10 @@ class _DoughnutDefaultState extends State<DoughnutDefault> {
                     // INDEX 0 = ORDER
                     // INDEX 1 = BOOKING
                     if (touchedIndex == 0) {
-                      const title = 'Order';
+                    final   title = 'Order';
                       showValueDialog(context, widget.categoryData, title);
                     } else if (touchedIndex == 1) {
-                      const title = 'Booking';
+                      final title = 'Booking';
                       showValueDialog(context, widget.categoryData, title);
                     }
                   }

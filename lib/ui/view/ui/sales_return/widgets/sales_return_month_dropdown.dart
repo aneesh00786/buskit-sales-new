@@ -16,6 +16,8 @@ class SalesReturnMonthDropdown extends StatefulWidget {
 class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
   final SalesReturnController controller = Get.find<SalesReturnController>();
   final GlobalKey _dropdownKey = GlobalKey();
+  //  List<String> get months => ["January".tr, "February".tr, "March".tr, "April".tr, "May".tr, "June".tr, "July".tr, "August".tr, "September".tr, "October".tr, "November".tr, "December".tr];
+ 
   final List<String> months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -46,10 +48,10 @@ class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
   }
 
   String _getSelectedText() {
-    if (controller.selectedMonths.length == months.length) return "All months";
-    if (controller.selectedMonths.length == 1) return controller.selectedMonths.first;
-    if (controller.selectedMonths.isNotEmpty) return "${controller.selectedMonths.length} months selected";
-    return "Select Months";
+    if (controller.selectedMonths.length == months.length) return "All months".tr;
+    if (controller.selectedMonths.length == 1) return controller.selectedMonths.first.tr;
+    if (controller.selectedMonths.isNotEmpty) return "${controller.selectedMonths.length}" + "months selected".tr;
+    return "Select Months".tr;
   }
   @override
   void initState() {
@@ -95,7 +97,7 @@ class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
                          return CheckboxListTile(
                            value: controller.selectedMonths.length == months.length,
                            onChanged: _toggleSelectAll,
-                           title: const Text("Select All", style: TextStyle(fontWeight: FontWeight.bold)),
+                           title:  Text("Select All".tr, style: TextStyle(fontWeight: FontWeight.bold)),
                            controlAffinity: ListTileControlAffinity.leading,
                          );
                        }),
@@ -107,7 +109,7 @@ class _SalesReturnMonthDropdownState extends State<SalesReturnMonthDropdown> {
                          return CheckboxListTile(
                            value: controller.selectedMonths.contains(month),
                            onChanged: (_) => _toggleMonth(month),
-                           title: Text(month),
+                           title: Text(month.tr),
                            controlAffinity: ListTileControlAffinity.leading,
                          );
                        }),

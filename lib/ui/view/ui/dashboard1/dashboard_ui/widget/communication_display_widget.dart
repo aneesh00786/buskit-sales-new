@@ -63,8 +63,8 @@ class _CommunicationsDisplayWidgetState
                   ),
                   padding: const EdgeInsets.only(
                       right: 20, left: 20, top: 5, bottom: 5),
-                  child: const Text(
-                    "Communication",
+                  child:  Text(
+                    "Communication".tr,
                     style: cardHeadingTextStyle,
                     maxLines: 1,
                     softWrap: false,

@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CustomDialogHeading extends StatelessWidget {
   const CustomDialogHeading({
@@ -14,14 +15,14 @@ class CustomDialogHeading extends StatelessWidget {
     return Container(
       color: const Color.fromARGB(255, 248, 248, 249),
       height: headerHeight,
-      child: const Row(
+      child:  Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
             flex: 1,
             child: Center(
               child: DialogTableHeaderText(
-                text: "Date",
+                text: "Date".tr,
                 fontSize: 13,
               ),
             ),
@@ -30,7 +31,7 @@ class CustomDialogHeading extends StatelessWidget {
             flex: 1,
             child: Center(
               child: DialogTableHeaderText(
-                text: "Invoice",
+                text: "Invoice".tr,
                 fontSize: 13,
               ),
             ),
@@ -39,7 +40,7 @@ class CustomDialogHeading extends StatelessWidget {
             flex: 1,
             child: Center(
               child: DialogTableHeaderText(
-                text: "Status",
+                text: "Status".tr,
                 fontSize: 13,
               ),
             ),
@@ -48,7 +49,7 @@ class CustomDialogHeading extends StatelessWidget {
             flex: 2,
             child: Center(
               child: DialogTableHeaderText(
-                text: "Amount",
+                text: "Amount".tr,
                 fontSize: 13,
               ),
             ),
@@ -57,7 +58,7 @@ class CustomDialogHeading extends StatelessWidget {
             flex: 1,
             child: Center(
               child: DialogTableHeaderText(
-                text: "Due By",
+                text: "Due By".tr,
                 fontSize: 13,
               ),
             ),
@@ -66,7 +67,7 @@ class CustomDialogHeading extends StatelessWidget {
             flex: 1,
             child: Center(
               child: DialogTableHeaderText(
-                text: "Select",
+                text: "Select".tr,
                 fontSize: 13,
               ),
             ),

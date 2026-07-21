@@ -487,7 +487,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 10),
                                       child: Text(
-                                        "Products",
+                                        "Products".tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -526,7 +526,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 10),
                                       child: Text(
-                                        "Promotions",
+                                        "Promotions".tr,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -562,7 +562,7 @@ class _OrderTakingState extends State<OrderTaking>
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10),
                                 child: Text(
-                                  "Bulk",
+                                  "Bulk".tr,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -625,7 +625,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    "Products",
+                                    "Products".tr,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -663,7 +663,7 @@ class _OrderTakingState extends State<OrderTaking>
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    "Promotions",
+                                    "Promotions".tr,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -700,7 +700,7 @@ class _OrderTakingState extends State<OrderTaking>
                             padding:
                                 const EdgeInsets.symmetric(vertical: 10),
                             child: Text(
-                              "Bulk",
+                              "Bulk".tr,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -780,8 +780,8 @@ class _OrderTakingState extends State<OrderTaking>
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          const MyRegularText(
-                                            label: "Customer",
+                                           MyRegularText(
+                                            label: "Customer".tr,
                                             fontSize: 9,
                                           ),
                                         ],
@@ -840,10 +840,11 @@ class _OrderTakingState extends State<OrderTaking>
             padding: EdgeInsets.only(
               left: widget.productsController.selectedCustomerName.isEmpty ? 45 : 0,
               top: 10,
+              right: 20,
             ),
             child: Consumer<CustomersProvider>(
               builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
@@ -854,7 +855,7 @@ class _OrderTakingState extends State<OrderTaking>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomSearchBar(
-                          text: "Search customer...",
+                          text: "Search customer...".tr,
                           controller: customerSearchController,
                           onChange: (value) {
                             filterCustomers(value);
@@ -1143,10 +1144,11 @@ class _OrderTakingState extends State<OrderTaking>
             padding: EdgeInsets.only(
               left: widget.productsController.selectedCustomerName.isEmpty ? 40 : 0,
               top: 10,
+              right: 20,
             ),
             child: Consumer<CustomersProvider>(
               builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
@@ -1157,7 +1159,7 @@ class _OrderTakingState extends State<OrderTaking>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomSearchBar(
-                          text: "Search customer...",
+                          text: "Search customer...".tr,
                           controller: customerSearchController,
                           onChange: (value) {
                             filterCustomers(value);

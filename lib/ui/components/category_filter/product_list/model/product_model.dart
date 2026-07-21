@@ -144,7 +144,17 @@ class ProductModel {
   });
 
   ProductModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    // id = json['id'];
+    if (json['id'] != null) {
+      if (json['id'] is int) {
+        id = json['id'];
+      } else {
+       
+        id = int.tryParse(json['id'].toString().replaceAll(RegExp(r'[^0-9]'), ''));
+      }
+    } else {
+      id = null;
+    }
     productId = json['product_id'];
     brandname = json['brandname'];
     productName = json['product_name'];
@@ -156,23 +166,21 @@ class ProductModel {
     scid = json['scid'];
     catId = json['catId'];
     companyId = json['company_id'];
-    stock = json['stock'];
+  stock = json['stock']?.toString();
     productCode = json['product_code'];
 
-    // --- FIX START ---
-    // 1. Try to get tax from the main product level
     var rawTax = json['cat_tax'];
 
-    // 2. If it's missing there, check inside the first item of the 'detail' list
+    
     if (rawTax == null &&
         json['detail'] != null &&
         (json['detail'] as List).isNotEmpty) {
       rawTax = json['detail'][0]['cat_tax'];
     }
 
-    // 3. Safely parse whatever we found into a number
+    
     catTax = rawTax != null ? num.tryParse(rawTax.toString()) : 0;
-    // --- FIX END ---
+   
 
     if (json['detail'] != null) {
       detail = <Detail>[];
@@ -348,6 +356,17 @@ class Detail {
   @HiveField(38)
   String? bulkId;
 
+  @HiveField(39)
+  num? bulkDiscount; 
+
+  @HiveField(40)
+  num? bulkTax;
+
+  @HiveField(41)
+  num? bulkDiscountAmount;
+
+
+
   Detail({
     this.id,
     this.companyId,
@@ -386,6 +405,9 @@ class Detail {
     this.customerDiscount,
     this.initialCount,
     this.bulkId,
+    this.bulkDiscount,
+    this.bulkTax,
+    this.bulkDiscountAmount,
   });
   Detail copyWith({
     int? id,
@@ -422,6 +444,9 @@ class Detail {
     num? maxDiscount,
     String? productName,
     String? bulkId,
+    num? bulkDiscount,
+    num? bulkTax,
+    num? bulkDiscountAmount,
   }) {
     return Detail(
       id: id ?? this.id,
@@ -458,6 +483,9 @@ class Detail {
       productName: productName ?? this.productName,
       maxDiscount: maxDiscount ?? this.maxDiscount,
       bulkId: bulkId ?? this.bulkId,
+      bulkDiscount: bulkDiscount ?? this.bulkDiscount,
+      bulkTax: bulkTax ?? this.bulkTax,
+      bulkDiscountAmount: bulkDiscountAmount ?? this.bulkDiscountAmount,
     );
   }
 
@@ -497,7 +525,10 @@ class Detail {
         maxDiscount = json['max_discount'],
         promoDiscount = json['promo_discount'],
         initialCount = json['initialCount'] ?? json['count'] ?? 0.0,
-        bulkId = json['bulk_id'];
+        bulkId = json['bulk_id'],
+        bulkDiscount = json['bulk_discount'],
+        bulkTax = json['bulk_tax'],
+        bulkDiscountAmount = json['bulk_discount_amount'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
@@ -537,6 +568,9 @@ class Detail {
     data['promo_discount'] = promoDiscount;
     data['initialCount'] = initialCount;
     data['bulk_id'] = bulkId;
+    data['bulk_discount'] = bulkDiscount;
+    data['bulk_tax'] = bulkTax;
+    data['bulk_discount_amount'] = bulkDiscountAmount;
     return data;
   }
 }

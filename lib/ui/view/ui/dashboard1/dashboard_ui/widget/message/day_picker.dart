@@ -134,48 +134,48 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             const SizedBox(width: 5),
             
             // 2. Updated Go Button Logic
-            Container(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await checkOnline();
-                  if (!isOnline) {
-                    showCustomToastDisplay(
-                        context, "You are Offline!", red, Icons.close);
-                    return;
-                  }
+            // Container(
+            //   height: 50,
+            //   child: ElevatedButton(
+            //     onPressed: () async {
+            //       await checkOnline();
+            //       if (!isOnline) {
+            //         showCustomToastDisplay(
+            //             context, "You are Offline!", red, Icons.close);
+            //         return;
+            //       }
 
-                  // Check if Custom Action is provided
-                  if (widget.onApplyTap != null) {
-                    widget.onApplyTap!();
-                  } else {
-                    // Default Dashboard Logic
-                    final dashboardProvider =
-                        Provider.of<DashboardProvider>(context, listen: false);
-                    await dashboardProvider.setTempToFilter();
+            //       // Check if Custom Action is provided
+            //       if (widget.onApplyTap != null) {
+            //         widget.onApplyTap!();
+            //       } else {
+            //         // Default Dashboard Logic
+            //         final dashboardProvider =
+            //             Provider.of<DashboardProvider>(context, listen: false);
+            //         await dashboardProvider.setTempToFilter();
 
-                    await dashboardProvider.fetchAllOrdersAtOnce();
+            //         await dashboardProvider.fetchAllOrdersAtOnce();
 
-                    dashboardProvider.fetchData();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 4,
-                  shadowColor: primaryColor.withOpacity(0.4),
-                  textStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                child: const Text('Go'),
-              ),
-            ),
+            //         dashboardProvider.fetchData();
+            //       }
+            //     },
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: primaryColor,
+            //       foregroundColor: Colors.white,
+            //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(12),
+            //       ),
+            //       elevation: 4,
+            //       shadowColor: primaryColor.withOpacity(0.4),
+            //       textStyle: const TextStyle(
+            //         fontSize: 13,
+            //         fontWeight: FontWeight.w700,
+            //       ),
+            //     ),
+            //     child: const Text('Go'),
+            //   ),
+            // ),
           ],
         );
       },

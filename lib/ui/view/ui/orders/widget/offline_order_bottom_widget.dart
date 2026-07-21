@@ -81,7 +81,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                             flex: 2,
                             child: Center(
                               child: CustomText(
-                                  content: 'SI No.',
+                                  content: 'Sl No.'.tr,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white),
@@ -608,7 +608,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                       children: [
                         CustomText(
                           content: status != null
-                              ? OrderHandlingClass.fromType(status).name
+                              ? OrderHandlingClass.fromType(status).name.tr
                               : 'Unknown',
                           fontSize: 11.0,
                           fontWeight: FontWeight.w600,
@@ -620,9 +620,9 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                               Expanded(
                                 child: Container(
                                     color: Colors.blue,
-                                    child: const Center(
+                                    child:  Center(
                                       child: Text(
-                                        'Quick Sale',
+                                        'Quick Sale'.tr,
                                         style: TextStyle(
                                             color: white,
                                             fontWeight: FontWeight.bold,
@@ -653,7 +653,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                   child: Center(
                     child: CustomText(
                       content: status != null
-                          ? OrderHandlingClass.fromType(status).name
+                          ? OrderHandlingClass.fromType(status).name.tr
                           : 'Unknown',
                       fontSize: 11,
                       textAlign: TextAlign.center,
@@ -689,17 +689,17 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
           final confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Delete Order'),
-              content: const Text(
-                  'Are you sure you want to delete this offline order?'),
+              title:  Text('Delete Order'.tr),
+              content:  Text(
+                  'Are you sure you want to delete this offline order?'.tr),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child:  Text('Cancel'.tr),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Delete'),
+                  child:  Text('Delete'.tr),
                 ),
               ],
             ),

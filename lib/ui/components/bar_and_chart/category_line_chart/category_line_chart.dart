@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dar
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../../view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
@@ -50,7 +51,9 @@ class _CustomBarChartCustomerDashState
       FullCategory category = entry.value;
 
       CategoryPerformancez? perf = widget.categoryPerformance.firstWhere(
-        (performance) => performance.category == category.categoryName,
+        (performance) =>
+            performance.category.trim().toLowerCase() ==
+            category.categoryName.trim().toLowerCase(),
         orElse: () => CategoryPerformancez(
           cid: -1,
           category: category.categoryName,
@@ -122,16 +125,18 @@ class _CustomBarChartCustomerDashState
         // }
         final perfIndex = widget.categoryPerformance.indexWhere(
           (performance) =>
-              performance.category == widget.allCategory[index].categoryName,
+              performance.category.trim().toLowerCase() ==
+              widget.allCategory[index].categoryName.trim().toLowerCase(),
         );
 
         if (perfIndex == -1) {
-          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+          showCustomToastDisplay(
+              context, "No Record Found".tr, red, Icons.close);
         } else {
           final perf = widget.categoryPerformance[perfIndex];
           if (perf.totalPrice == 0) {
             showCustomToastDisplay(
-                context, "No Record Found", red, Icons.close);
+                context, "No Record Found".tr, red, Icons.close);
           } else {
             showSalesmanPopup(
                 cid: perf.cid,
@@ -324,9 +329,9 @@ class _CustomBarChartCustomerDashState
                                               .categoryPerformance
                                               .firstWhere(
                                             (performance) =>
-                                                performance.category ==
+                                                performance.category.trim().toLowerCase() ==
                                                 widget.allCategory[index]
-                                                    .categoryName,
+                                                    .categoryName.trim().toLowerCase(),
                                           );
 
                                           showSalesmanPopup(
@@ -490,9 +495,9 @@ class _CustomBarChartCustomerDashState
                                               .categoryPerformance
                                               .firstWhere(
                                             (performance) =>
-                                                performance.category ==
+                                                performance.category.trim().toLowerCase() ==
                                                 widget.allCategory[index]
-                                                    .categoryName,
+                                                    .categoryName.trim().toLowerCase(),
                                           );
 
                                           showSalesmanPopup(
@@ -615,7 +620,7 @@ Widget customUnderlinedText(String text) {
         child: Container(
           height: 1.5,
           // 3. Calculate the underline width using the displayText length
-          width: displayText.length * 8.0, 
+          width: displayText.length * 8.0,
           color: primaryColor,
         ),
       ),

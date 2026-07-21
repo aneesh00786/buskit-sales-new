@@ -35,14 +35,14 @@ class GroupedItemDataRows {
         productsController.flatDiscountByCustomer[cid] ?? 0.0;
 
     return groupedItems.map((groupedItem) {
-      final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
-          ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
-              ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
-                  groupedItem.detail.count.toDouble()
-              : groupedItem.detail.count.toDouble()) *
-          ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
-                  0.0) /
-              100));
+      // final taxDiscountAmount = ((groupedItem.detail.tax ?? 0.0) *
+      //     ((groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+      //         ? (groupedItem.detail.pieces?.toDouble() ?? 1) *
+      //             groupedItem.detail.count.toDouble()
+      //         : groupedItem.detail.count.toDouble()) *
+      //     ((double.tryParse(groupedItem.detail.discount?.toString() ?? '0') ??
+      //             0.0) /
+      //         100));
 
       final double sellingPrice =
           double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
@@ -75,30 +75,47 @@ class GroupedItemDataRows {
               groupedItem.tieredDiscount! > 0)
           ? groupedItem.tieredDiscount!
           : 0;
+        
+      num? bulkDiscount = groupedItem.detail.bulkDiscount != null && groupedItem.detail.bulkDiscount! > 0
+          ? groupedItem.detail.bulkDiscount
+          : 0;
+      print('bulk discount:$bulkDiscount');
        
       num flatDiscount = (groupedItem.flatDiscount != null &&
               groupedItem.flatDiscount! > 0)
           ? groupedItem.flatDiscount!
           : 0;
+          num bulkDiscountAmount = (groupedItem.detail.bulkDiscountAmount != null &&
+              groupedItem.detail.bulkDiscountAmount! > 0)? groupedItem.detail.bulkDiscountAmount! : 0;
           num bogoDiscount = (groupedItem.bogoDiscount != null &&
               groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
-         print('bogo discount:$bogoDiscount');
-      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount;
+        //  print('bogo discount:$bogoDiscount');
+      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
+      print('total discount percentage:$totalDiscountPercent');
+      print('backend discount amount:${groupedItem.totalDiscountAmount}');
       double percentageDiscountAmount =
           (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
-    groupedItem.totalDiscountAmount = percentageDiscountAmount;
-      double totalDiscountAmount = percentageDiscountAmount + flatDiscount ;
-      
+    groupedItem.totalDiscountAmount = percentageDiscountAmount ;
+    
+      double totalDiscountAmount = percentageDiscountAmount + flatDiscount  + bulkDiscountAmount   ;
+      print('total discount amount$totalDiscountAmount');
   
       // groupedItem.totalDiscountAmount = totalDiscountAmount;
-
-      double taxPercentage = (groupedItem.catTax ?? 0).toDouble();
-      print('tax perecntage in the row content :$taxPercentage');
+double bulkTaxPercentage = (groupedItem.detail.bulkTax ?? 0).toDouble();
+print('bulktax percentage from detail: $bulkTaxPercentage');
+     double taxPercentage = bulkTaxPercentage > 0 
+          ? bulkTaxPercentage 
+          : (groupedItem.catTax ?? 0).toDouble();
+          print('final tax percentage used: $taxPercentage');
+      // print('tax perecntage in the row content :$taxPercentage');
       double priceAfterDiscount =
           (baseSellAmount * productQuantity) - totalDiscountAmount;
 
       double tax;
-      if (groupedItem.taxAmount != null && groupedItem.taxAmount! > 0) {
+      if (groupedItem.detail.inclTax == "N.A") {
+        tax = 0.0;
+        groupedItem.taxAmount = 0.0;
+      } else if (groupedItem.taxAmount != null && groupedItem.taxAmount! > 0) {
         tax = groupedItem.taxAmount!;
         print('backend tax:$tax');
       } else {
@@ -109,14 +126,34 @@ class GroupedItemDataRows {
       print('inclusive tax:${groupedItem.detail.inclTax}');
 
       double finalPrice;
-      if (groupedItem.detail.inclTax == "incl_tax") {
-        print('its inclusive tax');
-        finalPrice = priceAfterDiscount;
+
+      // 1. Check if finalPrice is already calculated/assigned
+      if (groupedItem.finalPrice != null && groupedItem.finalPrice! > 0) {
+        print('Using existing final price: ${groupedItem.finalPrice}');
+        finalPrice = groupedItem.finalPrice!;
       } else {
-        print('its not inclusive tax');
-        finalPrice = priceAfterDiscount + tax;
+        // 2. If no finalPrice exists, run your current calculation condition
+        if (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A") {
+          print('its inclusive tax or N.A');
+          finalPrice = priceAfterDiscount;
+        } else {
+          print('its not inclusive tax');
+          finalPrice = priceAfterDiscount + tax;
+        }
+        
+        // 3. Assign the newly calculated price back to groupedItem
+        groupedItem.finalPrice = finalPrice;
       }
-      groupedItem.finalPrice = finalPrice;
+
+      // double finalPrice;
+      // if (groupedItem.detail.inclTax == "incl_tax") {
+      //   print('its inclusive tax');
+      //   finalPrice = priceAfterDiscount;
+      // } else {
+      //   print('its not inclusive tax');
+      //   finalPrice = priceAfterDiscount + tax;
+      // }
+      // groupedItem.finalPrice = finalPrice;
 
       return DataRow(
         cells: [
@@ -667,7 +704,7 @@ class GroupedItemDataRows {
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
                   groupedItem,
-                  (groupedItem.detail.inclTax == 'incl_tax'
+                  ((groupedItem.detail.inclTax == 'incl_tax' || groupedItem.detail.inclTax == 'N.A')
                       ? groupedItem.totalPrice.toString()
                       : (groupedItem.totalPrice + (groupedItem.detail.tax ?? 0))
                           .toString()),
@@ -746,13 +783,13 @@ class GroupedItemDataRows {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18)),
                           elevation: 12,
-                          title: const Row(
+                          title:  Row(
                             children: [
                               Icon(Icons.discount_outlined,
                                   color: Colors.deepPurple, size: 28),
                               SizedBox(width: 12),
                               Text(
-                                "Discount Details",
+                                "Discount Details".tr,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 20),
                               ),
@@ -808,7 +845,7 @@ class GroupedItemDataRows {
                                 if (CustomerDiscount > 0) ...[
                                   _buildDiscountRow(
                                     icon: Icons.card_giftcard_rounded,
-                                    label: "Customer Discount",
+                                    label: "Customer Discount".tr,
                                     percent: CustomerDiscount,
                                     amount: CustomerDiscount * quantity,
                                     color: Colors.orange.shade700,
@@ -820,7 +857,7 @@ class GroupedItemDataRows {
                                 if (tieredDiscount > 0) ...[
                                   _buildDiscountRow(
                                     icon: Icons.local_offer_outlined,
-                                    label: "Promo Offer",
+                                    label: "Promo Offer".tr,
                                     percent: tieredDiscount,
                                     amount:
                                         promoDiscountAmountPerUnit * quantity,
@@ -831,10 +868,10 @@ class GroupedItemDataRows {
 
                                 if (CustomerDiscount == 0 &&
                                     tieredDiscount == 0)
-                                  const Padding(
+                                   Padding(
                                     padding: EdgeInsets.all(20),
                                     child: Text(
-                                      "No discount applied",
+                                      "No discount applied".tr,
                                       style: TextStyle(
                                           color: Colors.grey,
                                           fontStyle: FontStyle.italic,
@@ -855,8 +892,8 @@ class GroupedItemDataRows {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        "You Saved",
+                                       Text(
+                                        "You Saved".tr,
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 19,
@@ -893,7 +930,7 @@ class GroupedItemDataRows {
                               child: ElevatedButton.icon(
                                 onPressed: () => Navigator.pop(context),
                                 icon: const Icon(Icons.check, size: 20),
-                                label: const Text("Got it",
+                                label:  Text("Got it".tr,
                                     style: TextStyle(fontSize: 16)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.deepPurple.shade600,
@@ -917,7 +954,11 @@ class GroupedItemDataRows {
           ),
           DataCell(
             TableContent(
-                maxLines: 1, fontSize: fontSize, content: formatAmount(tax)),
+                maxLines: 1,
+                fontSize: fontSize,
+                content: groupedItem.detail.inclTax == "N.A"
+                    ? formatAmount(0)
+                    : formatAmount(tax)),
           ),
 
           //  DataCell(
@@ -951,7 +992,7 @@ class GroupedItemDataRows {
                             0;
                     int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
                     num count = groupedItem.detail.count;
-                    num tax = groupedItem.detail.tax ?? 0;
+                    num tax = groupedItem.detail.inclTax == "N.A" ? 0 : (groupedItem.detail.tax ?? 0);
                     double discountPercentage =
                         groupedItem.detail.discount?.toDouble() ?? 0;
                     double? maxDiscount =
@@ -982,7 +1023,7 @@ class GroupedItemDataRows {
                     tax = tax * (1 - effectiveDiscountPercentage / 100);
 
                     double priceWithTax =
-                        groupedItem.detail.inclTax == "incl_tax"
+                        (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A")
                             ? effectiveSellingPrice
                             : effectiveSellingPrice + tax;
 

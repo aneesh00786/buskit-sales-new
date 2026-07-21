@@ -1,6 +1,6 @@
 {
-    "name": "buskit_sales",
-    "short_name": "buskit_sales",
+    "name": "ThriveWoo-Sales",
+    "short_name": "ThriveWoo-Sales",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

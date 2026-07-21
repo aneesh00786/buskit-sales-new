@@ -1,164 +1,257 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
+import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_common_function.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/ui/services/permission_status_service.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 
 class CheckInService {
   static final CheckInService _instance = CheckInService._internal();
-
   factory CheckInService() => _instance;
-
   CheckInService._internal();
 
-  // Shared check-in function that can be called from anywhere
+  Timer? _foregroundTimer;
+
+  // ✅ Add this flag
+  static bool isReturningFromSettings = false;
+  static RxBool isCheckingIn = false.obs;
+
   Future<void> performCheckIn(BuildContext context) async {
-    bool newState = true; // Always check-in from popup
-
-    // Skip confirmation dialog - proceed directly to check-in
-
+    isCheckingIn.value = true;
     try {
-      // Basic Check
-      if (!await _handleLocationPermission()) {
-        return;
-      }
+      if (!await _handleLocationPermission()) return;
 
-      // Get Position for API
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      // Check current permission status
       var alwaysStatus = await Permission.locationAlways.status;
 
-      // If NOT granted, show explanation dialog FIRST, then request
       if (!alwaysStatus.isGranted) {
-        
-        // Use root navigator context to show dialog
-        bool proceed = await _showAlwaysPermissionDialog(context);
-        
+        bool proceed = await _showAlwaysPermissionDialog(context, alwaysStatus.isPermanentlyDenied);
+
         if (!proceed) {
-          // User chose "Use Foreground Only" - proceed with fallback
           _startForegroundTracking();
         } else {
-          // User clicked "Request Always" - Try popup first
-          await Permission.locationAlways.request();
-          
-          // Wait a moment for iOS to update the permission status
-          await Future.delayed(const Duration(milliseconds: 1500));
-          
-          // Check if permission was granted
-          var newStatus = await Permission.locationAlways.status;
-          
-          if (newStatus.isGranted) {
-            // Permission granted! Complete check-in
-            await initializeService();
-            final service = FlutterBackgroundService();
-            if (!await service.isRunning()) service.startService();
-            
-            // Update permission status service
-            final permissionService = PermissionStatusService();
-            await permissionService.updatePermissionStatus();
+          var requestStatus = await Permission.locationAlways.request();
+
+          if (requestStatus.isGranted) {
+            await _startBackgroundService();
           } else {
-            // Popup didn't grant Always - Open Settings instead
-            // Show message
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Please enable "Always" in Settings to enable background tracking'),
-                  duration: Duration(seconds: 4),
-                ),
-              );
+            // If the popup didn't come (or was permanently denied), redirect to settings
+            if (requestStatus.isPermanentlyDenied) {
+              isReturningFromSettings = true;
+              await openAppSettings();
+              await _waitForAppResume();
+              isReturningFromSettings = false;
             }
             
-            // Open settings
-            await openAppSettings();
-            return;
+            // Verify final permission statuses after potential settings change
+            var finalAlwaysStatus = await Permission.locationAlways.status;
+            var finalWhenInUseStatus = await Permission.locationWhenInUse.status;
+
+            if (finalAlwaysStatus.isGranted) {
+              await _startBackgroundService();
+            } else if (finalWhenInUseStatus.isGranted) {
+              _startForegroundTracking();
+            } else {
+              NkCommonFunction.showErrorSnakBar('Location permission is required to check in.');
+              return; // Abort check-in entirely if they denied everything
+            }
           }
         }
       } else {
-        // Already has Always permission - start background service
-        await initializeService();
-        final service = FlutterBackgroundService();
-        if (!await service.isRunning()) service.startService();
-        
-        // Update permission status service
-        final permissionService = PermissionStatusService();
-        await permissionService.updatePermissionStatus();
+        await _startBackgroundService();
       }
 
-      // Send API
-      final response = await ApiWorker().updateAdminCheckInOut(
-        date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-        time: DateFormat('HH:mm').format(DateTime.now()),
-        direction: "in",
-        lat: position.latitude.toString(),
-        long: position.longitude.toString(),
-      );
+      await _completeCheckIn(context, position);
 
-      if (response.statusCode == 200) {
-        await ApiWorker().saveSwitchState(true);
-      }
-
-      // Update permission status service to notify listeners
-      final permissionService = PermissionStatusService();
-      await permissionService.updatePermissionStatus();
     } catch (e) {
+      isReturningFromSettings = false; // ✅ Clear on error too
       if (context.mounted) {
         NkCommonFunction.showErrorSnakBar("Error: $e");
       }
+    } finally {
+      isCheckingIn.value = false;
     }
   }
 
-Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
-  
-  // Get the context from Get.key
-  final globalContext = Get.key.currentContext;
-
-  if (globalContext == null || !globalContext.mounted) {
-    return false;
+  Future<void> _waitForAppResume() async {
+    final completer = Completer<void>();
+    late final AppLifecycleListener listener;
+    listener = AppLifecycleListener(
+      onResume: () {
+        if (!completer.isCompleted) completer.complete();
+        listener.dispose();
+      },
+    );
+    await completer.future.timeout(
+      const Duration(seconds: 60),
+      onTimeout: () {},
+    );
   }
 
+  Future<void> _startBackgroundService() async {
+    await initializeService();
+    final service = FlutterBackgroundService();
+    if (!await service.isRunning()) service.startService();
+    final permissionService = PermissionStatusService();
+    await permissionService.updatePermissionStatus();
+  }
+  Future<void> _completeCheckIn(BuildContext context, Position position) async {
+  final connectivityService = ConnectivityService();
+  final isOnline = await connectivityService.isOnline();
   
-  return await showDialog<bool>(
-    context: globalContext,
-    barrierDismissible: false,
-    builder: (builderContext) {
-      return AlertDialog(
-        title: CustomText(content: 'Enable Background Tracking'),
-        content: CustomText(content: 'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(builderContext, false),
-            child: CustomText(content: 'Only while using the app'),
+  final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  final time = DateFormat('HH:mm').format(DateTime.now());
+  final lat = position.latitude.toString();
+  final long = position.longitude.toString();
+
+  if (!isOnline) {
+    // 1. OFFLINE LOGIC: Save Admin Check-in to Hive
+    final box = await Hive.openBox('offlineRequests');
+    final payload = {
+      // Add necessary fields for admin check-in based on your API requirements
+      "date": date,
+      "time": time,
+      "direction": "in",
+      "latitude": lat,
+      "longitude": long,
+    };
+    
+    await box.add({
+      'url': ApiConstants.baseUrl + 'update-admin-check-in-endpoint', // Replace with exact endpoint
+      'payload': payload,
+    });
+    
+    // Treat as successfully checked in locally so the UI updates
+    await ApiWorker().saveSwitchState(true);
+    await SessionManager.setStringValue('check_in_time', DateTime.now().toIso8601String());
+    
+  } else {
+    // 2. ONLINE LOGIC: Hit API
+    final response = await ApiWorker().updateAdminCheckInOut(
+      date: date,
+      time: time,
+      direction: "in",
+      lat: lat,
+      long: long,
+    );
+
+    if (response.statusCode == 200) {
+      await ApiWorker().saveSwitchState(true);
+      await SessionManager.setStringValue('check_in_time', DateTime.now().toIso8601String());
+    }
+  }
+
+  final permissionService = PermissionStatusService();
+  await permissionService.updatePermissionStatus();
+}
+
+  Future<bool> _showAlwaysPermissionDialog(BuildContext context, bool isPermanentlyDenied) async {
+    final globalContext = Get.key.currentContext;
+
+    if (globalContext == null || !globalContext.mounted) {
+      return false;
+    }
+
+    return await showDialog<bool>(
+      context: globalContext,
+      barrierDismissible: false,
+      builder: (builderContext) {
+        return AlertDialog(
+          titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+          contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+          actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+          title: Row(
+            children: [
+              Icon(
+                Icons.location_on,
+                size: 25.0,
+                color: primaryColor,
+              ),
+              const SizedBox(width: 8.0),
+               Expanded(
+                child: Text(
+                  'Background Tracking'.tr,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(builderContext, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50),
+          content:  Text(
+            'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.'.tr,
+            style: TextStyle(
+              fontSize: 19.0,
+              color: Colors.black87,
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                side: BorderSide(color: primaryColor, width: 2.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                backgroundColor: Colors.white,
+                elevation: 3,
+              ),
+              onPressed: () => Navigator.pop(builderContext, false),
+              child: Text(
+                'Only while using'.tr,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            child: CustomText(
-              content: 'Request Always',
-              color: white,
+            ElevatedButton(
+              onPressed: () => Navigator.pop(builderContext, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withOpacity(0.4),
+              ),
+              child: Text(
+                isPermanentlyDenied ? 'Open Settings'.tr : 'Request Always'.tr,
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-          ),
-        ],
-      );
-    },
-  ) ?? false;
-}
+          ],
+        );
+      },
+    ) ?? false;
+  }
 
   Future<bool> _handleLocationPermission() async {
     PermissionStatus status = await Permission.locationWhenInUse.status;
@@ -169,25 +262,245 @@ Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {
         return false;
       }
     } else if (status.isPermanentlyDenied) {
+      bool? openSettings = await _showSettingsDialog();
+      if (openSettings != true) return false;
+
+      isReturningFromSettings = true;
       await openAppSettings();
-      return false;
+      await _waitForAppResume();
+      isReturningFromSettings = false;
+      
+      status = await Permission.locationWhenInUse.status;
+      if (!status.isGranted) {
+        NkCommonFunction.showErrorSnakBar('Location permission denied');
+        return false;
+      }
     }
     return true;
   }
 
+  Future<bool?> _showSettingsDialog() async {
+    final globalContext = Get.key.currentContext;
+    if (globalContext == null || !globalContext.mounted) return false;
+
+    return await showDialog<bool>(
+      context: globalContext,
+      builder: (context) => AlertDialog(
+        titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
+        actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        title: Row(
+          children: [
+            Icon(
+              Icons.location_off,
+              size: 25.0,
+              color: primaryColor,
+            ),
+            const SizedBox(width: 8.0),
+            const Expanded(
+              child: Text(
+                'Permission Required',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Location permission is permanently denied. Please open settings to enable it to check in.',
+          style: TextStyle(
+            fontSize: 19.0,
+            color: Colors.black87,
+          ),
+        ),
+        actions: [
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              side: BorderSide(color: primaryColor, width: 2.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              backgroundColor: Colors.white,
+              elevation: 3,
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              elevation: 4,
+              shadowColor: primaryColor.withOpacity(0.4),
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Open Settings',
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void stopTracking() {
+    final service = FlutterBackgroundService();
+    service.invoke('stopService');
+    _stopForegroundTracking();
+    SessionManager.deleteData('check_in_time');
+  }
+
   void _startForegroundTracking() {
+    // print("Starting foreground tracking (Timer Mode)...");
+    _stopForegroundTracking(); // Ensure no multiple timers
     _performForegroundUpdate();
+    _foregroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      _performForegroundUpdate();
+    });
+  }
+
+  void _stopForegroundTracking() {
+    if (_foregroundTimer != null) {
+      _foregroundTimer!.cancel();
+      _foregroundTimer = null;
+      // print("Stopped foreground tracking.");
+    }
+  }
+
+  Future<bool> checkCheckInTimeout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // IMPORTANT: Reload to get latest state from disk/background isolate
+
+    final DateTime now = DateTime.now();
+    bool isExpired = false;
+
+    // 1. Check if current time is past 'to_time' from settings
+    final String settingsJson = prefs.getString(SpString.settingsKey) ?? "";
+    String toTimeStr = "";
+    if (settingsJson.isNotEmpty) {
+      try {
+        final List<dynamic> jsonList = jsonDecode(settingsJson);
+        for (var item in jsonList) {
+          if (item['key'] == 'to_time') {
+            toTimeStr = item['value'] ?? "";
+            break;
+          }
+        }
+      } catch (e) {
+        print("Error parsing settings data for to_time: $e");
+      }
+    }
+    if (toTimeStr.isEmpty) {
+      toTimeStr = "18:00"; // fallback default
+    }
+    
+    final parts = toTimeStr.split(":");
+    if (parts.length >= 2) {
+      final int hour = int.parse(parts[0]);
+      final int minute = int.parse(parts[1]);
+      final DateTime endDt = DateTime(now.year, now.month, now.day, hour, minute);
+      if (now.isAfter(endDt)) {
+        isExpired = true;
+      }
+    }
+
+    // 2. Check check-in time day change if present
+    final String checkInTimeStr = prefs.getString('check_in_time') ?? "";
+    if (checkInTimeStr.isNotEmpty) {
+      DateTime checkInTime = DateTime.parse(checkInTimeStr);
+      if (checkInTime.year != now.year || checkInTime.month != now.month || checkInTime.day != now.day) {
+        isExpired = true;
+      }
+    }
+
+    if (isExpired) {
+      print("Check-in expired (end time reached or day changed). Auto checkout.");
+      stopTracking();
+      
+      final connectivityService = ConnectivityService();
+      final isOnline = await connectivityService.isOnline();
+      final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      final time = DateFormat('HH:mm').format(DateTime.now());
+      
+      String loginJsonString = prefs.getString(SpString.spLogin) ?? "";
+      if (loginJsonString.isNotEmpty) {
+        try {
+          final Map<String, dynamic> loginMap = jsonDecode(loginJsonString);
+          final LoginData loginData = LoginData.fromJson(loginMap);
+          
+          if (isOnline) {
+            await ApiWorker().updateAdminCheckInOut(
+              date: date,
+              time: time,
+              direction: "out",
+              lat: "0.0",
+              long: "0.0",
+            );
+          } else {
+            final box = await Hive.openBox('offlineRequests');
+            final payload = {
+              "companyId": loginData.company_id ?? 0,
+              "date": date,
+              "sales_id": loginData.salesmanId ?? loginData.id.toString(),
+              "time": time,
+              "direction": "out",
+              "latitude": "0.0",
+              "longitude": "0.0",
+            };
+            await box.add({
+              'url': ApiConstants.baseUrl + ApiConstants.updateCheckinOut,
+              'payload': payload,
+            });
+          }
+        } catch (e) {
+          print("Error parsing login data or calling checkout: $e");
+        }
+      }
+      
+      await ApiWorker().saveSwitchState(false);
+      return true;
+    }
+    return false;
   }
 
   Future<void> _performForegroundUpdate() async {
     try {
+      final bool isCheckedIn = await ApiWorker().loadSwitchState();
+      if (!isCheckedIn) {
+        // print("Foreground update called but not checked in. Stopping foreground tracking.");
+        _stopForegroundTracking();
+        return;
+      }
+
+      bool timeout = await checkCheckInTimeout();
+      if (timeout) return;
+
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      initializeService();
-      print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
+      await updateServer(position);
+      // print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
     } catch (e) {
-      print("Error in foreground update: $e");
+      // print("Error in foreground update: $e");
     }
   }
 }

@@ -1,12 +1,14 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showValueCollectionDialog(
     BuildContext context, Collection collection, String title) {
@@ -73,31 +75,31 @@ void showValueCollectionDialog(
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
-                      child: const Row(
+                      child:  Row(
                         children: [
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Business Name',
+                            text: 'Business Name'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Order Date',
+                            text: 'Order Date'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Invoice ID',
+                            text: 'Invoice ID'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Status',
+                            text: 'Status'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Total Amount',
+                            text: 'Total Amount'.tr,
                             fontSize: 13,
                           )),
                         ],
@@ -153,17 +155,35 @@ void showValueCollectionDialog(
                                         ),
                                       ),
                                       Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            getFormattedOrderCreatAt(
-                                                order.orderCreatAt ?? ''),
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: secondaryTextColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+  child: Center(
+    child: Text(
+      // Safely ensure the DateTime is not null before formatting
+      order.orderCreatAt != null
+          ? TimeUtils.formatTimeInZone(
+              order.orderCreatAt!,
+              // Optional: If this specific screen needs a certain format, add it here!
+              format: 'dd/MM/yyyy',
+            )
+          : 'N/A',
+      style: const TextStyle(
+        fontSize: 13,
+        color: secondaryTextColor,
+      ),
+    ),
+  ),
+),
+                                      // Expanded(
+                                      //   child: Center(
+                                      //     child: Text(
+                                      //       getFormattedOrderCreatAt(
+                                      //           order.orderCreatAt ?? ''),
+                                      //       style: const TextStyle(
+                                      //         fontSize: 13,
+                                      //         color: secondaryTextColor,
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // ),
                                       Expanded(
                                         child: Center(
                                           child: InkWell(
@@ -187,7 +207,7 @@ void showValueCollectionDialog(
                                         child: Center(
                                           child: Text(
                                             getStatusName(
-                                                order.orderStatus ?? 0),
+                                                order.orderStatus ?? 0).tr,
                                             style: const TextStyle(
                                               fontSize: 13,
                                               color: secondaryTextColor,
@@ -230,8 +250,8 @@ void showValueCollectionDialog(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          const DialogTableHeaderText(
-                            text: 'Total',
+                           DialogTableHeaderText(
+                            text: 'Total'.tr,
                             fontSize: 11,
                           ),
                           const Expanded(child: SizedBox.shrink()),

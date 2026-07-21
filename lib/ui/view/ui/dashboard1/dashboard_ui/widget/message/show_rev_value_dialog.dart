@@ -1,11 +1,13 @@
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showValueDialog(
     BuildContext context, Revenuee categoryData, String title) {
@@ -56,7 +58,7 @@ void showValueDialog(
                           children: [
                             Expanded(
                               child: Text(
-                                title,
+                                title.tr,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -76,11 +78,11 @@ void showValueDialog(
                       Container(
                         color: const Color.fromARGB(255, 247, 247, 247),
                         height: headerHeight,
-                        child: const Row(
+                        child:  Row(
                           children: [
                             Expanded(
                               child: Text(
-                                'Date',
+                                'Date'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -88,7 +90,7 @@ void showValueDialog(
                             ),
                             Expanded(
                               child: Text(
-                                'Invoice',
+                                'Invoice'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -96,7 +98,7 @@ void showValueDialog(
                             ),
                             Expanded(
                               child: Text(
-                                'Status',
+                                'Status'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -104,7 +106,7 @@ void showValueDialog(
                             ),
                             Expanded(
                               child: Text(
-                                'Amount',
+                                'Amount'.tr,
                                 style: TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.center,
@@ -152,18 +154,31 @@ void showValueDialog(
                                         children: [
                                           Expanded(
                                             child: buildRowData(
-                                              getFormattedOrderCreatAt(
-                                                title == "Order"
-                                                    ? categoryData
-                                                        .orderRevenueData![
-                                                            index]
-                                                        .orderCreatAt
-                                                    : categoryData
-                                                        .bookingRevenueData![
-                                                            index]
-                                                        .orderCreatAt,
-                                              ),
-                                            ),
+                                                TimeUtils.formatTimeInZone(
+                                              (title == "Order"
+                                                      ? categoryData
+                                                          .orderRevenueData![
+                                                              index]
+                                                          .orderGeneratedDate
+                                                      : categoryData
+                                                          .bookingRevenueData![
+                                                              index]
+                                                          .orderGnerateAt) ??
+                                                  DateTime.now(),
+                                              format: 'dd/MM/yyyy',
+                                            )
+                                                // getFormattedOrderCreatAt(
+                                                //   title == "Order"
+                                                //       ? categoryData
+                                                //           .orderRevenueData![
+                                                //               index]
+                                                //           .orderCreatAt
+                                                //       : categoryData
+                                                //           .bookingRevenueData![
+                                                //               index]
+                                                //           .orderCreatAt,
+                                                // ),
+                                                ),
                                           ),
                                           Expanded(
                                             child: buildRowData(
@@ -192,7 +207,7 @@ void showValueDialog(
                                                                 index]
                                                             .orderStatus)!
                                                     .toInt(),
-                                              ),
+                                              ).tr,
                                             ),
                                           ),
                                           Expanded(
@@ -236,12 +251,12 @@ void showValueDialog(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
-                              const Expanded(
+                               Expanded(
                                 flex: 1,
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Total',
+                                    'Total'.tr,
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold),
@@ -334,7 +349,7 @@ void showValueDialogCusDash(
                         children: [
                           Expanded(
                             child: Text(
-                              title,
+                              title.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -353,26 +368,26 @@ void showValueDialogCusDash(
                     Container(
                       color: const Color.fromARGB(255, 247, 247, 247),
                       height: headerHeight,
-                      child: const Row(
+                      child:  Row(
                         children: [
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Date',
+                            text: 'Date'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Invoice',
+                            text: 'Invoice'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Status',
+                            text: 'Status'.tr,
                             fontSize: 13,
                           )),
                           Expanded(
                               child: DialogTableHeaderText(
-                            text: 'Amount',
+                            text: 'Amount'.tr,
                             fontSize: 13,
                           )),
                         ],
@@ -450,8 +465,8 @@ void showValueDialogCusDash(
                       height: rowHeight,
                       child: Row(
                         children: [
-                          const DialogTableHeaderText(
-                            text: 'Total',
+                           DialogTableHeaderText(
+                            text: 'Total'.tr,
                             fontSize: 13,
                           ),
                           const Expanded(child: SizedBox.shrink()),

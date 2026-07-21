@@ -114,7 +114,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                     border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: Text(
-                    "Daily Route Credit - $dailyCreditCount/3",
+                    'Daily Route Credit -'.tr + ' \u200E$dailyCreditCount/3',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -131,26 +131,26 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
             ),
 
             const SizedBox(height: 10),
-            const Text(
-              "Set your trip’s start location",
+             Text(
+              "Set your trip’s start location".tr,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             _buildLocationField(
-              hint: "Start Location",
+              hint: "Start Location".tr,
               icon: Icons.my_location,
               iconColor: Colors.blue,
               controller: _startTextController,
               onLocationSelected: (latLng, address) => startLocation = latLng,
             ),
             const SizedBox(height: 20),
-            const Text(
-              "Set your trip’s end location",
+             Text(
+              "Set your trip’s end location".tr,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             _buildLocationField(
-              hint: "Destination Location",
+              hint: "Destination Location".tr,
               icon: Icons.location_on,
               iconColor: Colors.red,
               controller: _endTextController,
@@ -170,7 +170,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                 onPressed: isLoading ? null : () => _handleShowRoute(),
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Show Route",
+                    :  Text("Show Route".tr,
                         style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 1),
                             fontSize: 18,
@@ -197,9 +197,9 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
       bool confirm = await showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text("Warning"),
-          content: const Text(
-              "You already generated routes twice and only one more route generation can be done today."),
+          title: Text("Warning".tr),
+          content: Text(
+              "You already generated routes twice and only one more route generation can be done today.".tr),
           actions: [
             TextButton(
               onPressed: (){
@@ -207,11 +207,11 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                 Get.back();
               },
               // onPressed: () => Navigator.pop(ctx, false), 
-              child: const Text("Cancel"),
+              child: Text("Cancel".tr),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true), 
-              child: const Text("OK"),
+              child: Text("OK".tr),
             ),
           ],
         ),
@@ -231,7 +231,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
         setState(() => isLoading = false);
         showCustomToastDisplay(
             context,
-            "Daily limit reached. You cannot search new custom routes today.",
+            "Daily limit reached. You cannot search new custom routes today.".tr,
             Colors.red,
             Icons.block);
         return;

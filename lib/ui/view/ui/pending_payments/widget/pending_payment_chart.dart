@@ -108,7 +108,7 @@ class _PendingPaymentChartState extends State<PendingPaymentChart> {
                                 widget.onBarTapped(0);
                               }
                             },
-                            child: Text('All', style: style));
+                            child: Text('All'.tr, style: style));
                       case 1:
                         return InkWell(
                             splashColor: Colors.transparent,
@@ -117,7 +117,7 @@ class _PendingPaymentChartState extends State<PendingPaymentChart> {
                                 widget.onBarTapped(1);
                               }
                             },
-                            child: Text('Nearly Due', style: style));
+                            child: Text('Nearly Due'.tr, style: style));
                       case 2:
                         return InkWell(
                             splashColor: Colors.transparent,
@@ -126,7 +126,7 @@ class _PendingPaymentChartState extends State<PendingPaymentChart> {
                                 widget.onBarTapped(2);
                               }
                             },
-                            child: Text('Due', style: style));
+                            child: Text('Due'.tr, style: style));
                       case 3:
                         return InkWell(
                             splashColor: Colors.transparent,
@@ -135,7 +135,7 @@ class _PendingPaymentChartState extends State<PendingPaymentChart> {
                                 widget.onBarTapped(3);
                               }
                             },
-                            child: Text('Overdue', style: style));
+                            child: Text('Overdue'.tr, style: style));
                       default:
                         return const Text('');
                     }

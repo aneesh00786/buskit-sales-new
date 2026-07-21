@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison, library_private_types_in_public_api, deprecated_member_use
 
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
@@ -27,15 +28,15 @@ extension EventTypeExtension on EventType {
   String get displayName {
     switch (this) {
       case EventType.select:
-        return "-Select-";
+        return "-Select-".tr;
       case EventType.weekly:
-        return "Weekly";
+        return "Weekly".tr;
       case EventType.fortnightly:
-        return "Fortnightly";
+        return "Fortnightly".tr;
       case EventType.monthly:
-        return "Monthly";
+        return "Monthly".tr;
       case EventType.daily:
-        return "Daily";
+        return "Daily".tr;
     }
   }
 
@@ -166,14 +167,14 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Row(
+                                         Row(
                                           children: [
                                             Icon(Icons.warning_amber_rounded,
                                                 color: Colors.redAccent),
                                             SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                "Cancel Visit",
+                                                "Cancel Visit".tr,
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold),
@@ -215,7 +216,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                                   try {
                                                     Dio dio = Dio();
                                                     final response = await dio.post(
-                                                      'https://test.thrivewoo.com/delete_future_events',
+                                                       '${ApiConstants.baseUrl1}/delete_future_events',
+                                                      // 'https://test.thrivewoo.com/delete_future_events',
                                                       data: {
                                                         "customer_id":
                                                             widget.customerId
@@ -281,15 +283,15 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      "Change Visit Type",
+                                     Text(
+                                      "Change Visit Type".tr,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     const SizedBox(height: 10),
                                     Text(
-                                      "Are you sure you want to change the visit from ${selectedValue.displayName} to ${newValue.displayName}?",
+                                      'Are you sure you want to change the visit from'.tr + ' ${selectedValue.displayName} to ${newValue.displayName}?',
                                       style: const TextStyle(fontSize: 14),
                                     ),
                                     const SizedBox(height: 20),
@@ -299,7 +301,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                         TextButton(
                                           onPressed: () => Navigator.of(context)
                                               .pop(false),
-                                          child: const Text("Cancel",
+                                          child:  Text("Cancel".tr,
                                               style: TextStyle(
                                                   color: Colors.orange)),
                                         ),
@@ -309,7 +311,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                               .pop(true),
                                           style: ElevatedButton.styleFrom(
                                               backgroundColor: Colors.red),
-                                          child: const Text("Confirm",style: TextStyle(color: Colors.white),),
+                                          child:  Text("Confirm".tr,style: TextStyle(color: Colors.white),),
                                         ),
                                       ],
                                     ),
@@ -381,7 +383,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                                       ElevatedButton.styleFrom(
                                                           backgroundColor:
                                                               Colors.grey),
-                                                  child: Text('Cancel',style: TextStyle(color: Colors.white),)
+                                                  child: Text('Cancel.tr',style: TextStyle(color: Colors.white),)
                                                   ),
 
                                                 // TextButton(
@@ -653,8 +655,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        "Select Event Days",
+                       Text(
+                        "Select Event Days".tr,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -667,8 +669,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Select Week",
+                             Text(
+                              "Select Week".tr,
                               style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold),
                             ),
@@ -688,7 +690,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                               items: weekOptions
                                   .map((week) => DropdownMenuItem(
                                         value: week,
-                                        child: Text(week),
+                                        child: Text(week.tr),
                                       ))
                                   .toList(),
                               onChanged: (value) {
@@ -700,10 +702,10 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                             const SizedBox(height: 16),
                           ],
                         ),
-                      const Align(
+                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Select Days",
+                          "Select Days".tr,
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold),
                         ),
@@ -720,7 +722,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                 contentPadding: EdgeInsets.zero,
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
-                                title: Text(day),
+                                title: Text(day.tr),
                                 value: selectedDays.contains(day.toLowerCase()),
                                 onChanged: (bool? value) {
                                   setState(() {
@@ -750,8 +752,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                               onPressed: () {
                                 Navigator.of(context).pop(false);
                               },
-                              child: const Text(
-                                "Cancel",
+                              child:  Text(
+                                "Cancel".tr,
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -781,14 +783,14 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Row(
+                                           Row(
                                             children: [
                                               Icon(Icons.warning_amber_rounded,
                                                   color: Colors.orange),
                                               SizedBox(width: 8),
                                               Expanded(
                                                 child: Text(
-                                                  "Are you sure you want to add this visit to the calendar?.",
+                                                  "Are you sure you want to add this visit to the calendar?.".tr,
                                                   style: TextStyle(
                                                       fontSize: 15,
                                                       fontWeight:
@@ -811,7 +813,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                                       ElevatedButton.styleFrom(
                                                           backgroundColor:
                                                               Colors.grey),
-                                                  child: Text('Cancel',style: TextStyle(color: Colors.white),)
+                                                  child: Text('Cancel'.tr,style: TextStyle(color: Colors.white),)
                                                   ),
                                               // TextButton(
                                               //   onPressed: () =>
@@ -848,12 +850,12 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                   });
 
                                   List<String> validDaysOrder = [
-                                    'monday',
-                                    'tuesday',
-                                    'wednesday',
-                                    'thursday',
-                                    'friday',
-                                    'saturday',
+                                    'monday'.tr,
+                                    'tuesday'.tr,
+                                    'wednesday'.tr,
+                                    'thursday'.tr,
+                                    'friday'.tr,
+                                    'saturday'.tr,
                                   ];
 
                                   List<String> eventDays = selectedDays
@@ -904,8 +906,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                                   }
                                 }
                               },
-                              child: const Text(
-                                "Add to Calendar",
+                              child:  Text(
+                                "Add to Calendar".tr,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

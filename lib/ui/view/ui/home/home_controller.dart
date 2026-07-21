@@ -8,6 +8,8 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
+import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart' hide SalesReturn;
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
@@ -316,7 +318,7 @@ class HomeController extends GetxController {
                     Icon(Icons.logout, size: 25.0, color: primaryColor),
                       const SizedBox(width: 8.0),
                       Text(
-                        "Logout ?",
+                        "Logout ?".tr,
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
@@ -328,7 +330,7 @@ class HomeController extends GetxController {
                     content: Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Text(
-                      "Are you sure you want to log out ?.",
+                      "Are you sure you want to log out ?.".tr,
                       style: TextStyle(
                         fontSize: 19.0,
                         color: Colors.black87,
@@ -351,7 +353,7 @@ class HomeController extends GetxController {
                               sidebarXController.selectIndex(previousIndex);
                     },
                     child: Text(
-                      "Cancel",
+                      "Cancel".tr,
                     style: TextStyle(
                           fontSize: 14.0,
                           color: primaryColor,
@@ -374,7 +376,7 @@ class HomeController extends GetxController {
                         shadowColor: primaryColor.withOpacity(0.4),
                       ),
                     child: CustomText(
-                      content: 'Confirm',
+                      content: 'Confirm'.tr,
                       color: white,
                       fontSize: 14.0,
                       fontWeight: FontWeight.w600
@@ -441,7 +443,7 @@ class HomeController extends GetxController {
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: CustomText(
-                      content: barTitle,
+                      content: barTitle.tr,
                       color: Colors.black.withOpacity(0.7),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -516,6 +518,14 @@ class HomeController extends GetxController {
   }
 
   Future<void> handleLogoutOnConfirmation(BuildContext context) async {
+    // Stop location tracking (both background service and foreground timer)
+    try {
+      CheckInService().stopTracking();
+      ConnectivityService().reset();
+    } catch (e) {
+      print("Error stopping location tracking or resetting connectivity on logout: $e");
+    }
+
     // Create backup of current login data before clearing
     SessionHelper().createLoginDataBackup();
 

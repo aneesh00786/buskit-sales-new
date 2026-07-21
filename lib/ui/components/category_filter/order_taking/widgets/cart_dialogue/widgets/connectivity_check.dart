@@ -1,5 +1,4 @@
-//Connectivity Plus
-
+import 'dart:async';
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -18,18 +17,77 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart' as getx;
 
 class ConnectivityService {
+  static final ConnectivityService _instance = ConnectivityService._internal();
+  factory ConnectivityService() => _instance;
+
   final Connectivity _connectivity = Connectivity();
   bool _isSyncing = false;
+  dio.Dio dio1 = dio.Dio();
+
+  bool? _cachedIsOnline;
+  DateTime? _lastCheckTime;
+  Future<bool>? _currentCheckFuture;
+
+  // Broadcast stream for real internet status changes
+  final StreamController<bool> _onlineStatusController = StreamController<bool>.broadcast();
+  Stream<bool> get onOnlineStatusChanged => _onlineStatusController.stream;
+
+  // Track last emitted status to avoid duplicate notifications
+  bool? _lastEmittedStatus;
+
+  ConnectivityService._internal() {
+    _connectivity.onConnectivityChanged.listen((results) {
+      _checkAndUpdateOnlineStatus();
+    });
+  }
+
   Stream<List<ConnectivityResult>> get connectivityStream =>
       _connectivity.onConnectivityChanged;
+
+  void _notifyStatusChange(bool status) {
+    if (_lastEmittedStatus != status) {
+      _lastEmittedStatus = status;
+      _onlineStatusController.add(status);
+    }
+  }
+
+  Future<void> _checkAndUpdateOnlineStatus() async {
+    if (_currentCheckFuture != null) return;
+    _currentCheckFuture = () async {
+      try {
+        final result = await _connectivity.checkConnectivity();
+        if (result.isEmpty || result.contains(ConnectivityResult.none)) {
+          _cachedIsOnline = false;
+          _lastCheckTime = DateTime.now();
+          _notifyStatusChange(false);
+          return false;
+        }
+        final lookup = await InternetAddress.lookup('google.com')
+            .timeout(const Duration(milliseconds: 3000));
+        final isOnline = lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
+        _cachedIsOnline = isOnline;
+        _notifyStatusChange(isOnline);
+      } catch (_) {
+        _cachedIsOnline = false;
+        _notifyStatusChange(false);
+      } finally {
+        _lastCheckTime = DateTime.now();
+        _currentCheckFuture = null;
+      }
+      return _cachedIsOnline ?? false;
+    }();
+    await _currentCheckFuture;
+  }
+
   Future<bool> isConnected() async {
     var result = await _connectivity.checkConnectivity();
-    return result != ConnectivityResult.none;
+    return result.isNotEmpty && !result.contains(ConnectivityResult.none);
   }
 
   Future<bool> hasInternet() async {
     try {
-      final result = await InternetAddress.lookup('google.com');
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(milliseconds: 3000));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } catch (e) {
       return false;
@@ -37,18 +95,56 @@ class ConnectivityService {
   }
 
   Future<bool> isOnline() async {
-    bool hasNetwork = await isConnected();
-    if (!hasNetwork) {
-      return false;
+    final now = DateTime.now();
+    if (_cachedIsOnline != null &&
+        _lastCheckTime != null &&
+        now.difference(_lastCheckTime!).inSeconds < 30) {
+      _notifyStatusChange(_cachedIsOnline!);
+      return _cachedIsOnline!;
     }
 
-    bool hasInternetAccess = await hasInternet();
-    return hasInternetAccess;
+    if (_currentCheckFuture != null) {
+      return _currentCheckFuture!;
+    }
+
+    _currentCheckFuture = () async {
+      try {
+        bool hasNetwork = await isConnected();
+        if (!hasNetwork) {
+          _cachedIsOnline = false;
+          _lastCheckTime = DateTime.now();
+          _notifyStatusChange(false);
+          return false;
+        }
+
+        bool hasInternetAccess = await hasInternet();
+        _cachedIsOnline = hasInternetAccess;
+        _lastCheckTime = DateTime.now();
+        _notifyStatusChange(hasInternetAccess);
+        return hasInternetAccess;
+      } catch (_) {
+        _cachedIsOnline = false;
+        _lastCheckTime = DateTime.now();
+        _notifyStatusChange(false);
+        return false;
+      } finally {
+        _currentCheckFuture = null;
+      }
+    }();
+
+    return _currentCheckFuture!;
+  }
+
+  void reset() {
+    _cachedIsOnline = null;
+    _lastCheckTime = null;
+    _currentCheckFuture = null;
+    _lastEmittedStatus = null;
   }
 
   Future<bool> isConnectedToNetwork() async {
     final result = await _connectivity.checkConnectivity();
-    return result != ConnectivityResult.none;
+    return result.isNotEmpty && !result.contains(ConnectivityResult.none);
   }
 
   void startListening(
@@ -193,25 +289,41 @@ class ConnectivityService {
               draftDetails.isNotEmpty ? draftDetails.last : {'draft_id': ''};
           final String existingDraftId = firstDraft['draft_id'] ?? '';
 
-          final AddToCartModel productBYData = AddToCartModel(
-            customerId: customerId,
-            salesmanId: order['salesman_id'] ?? '',
-            cartId: '',
-            cartList: (order['cart_list'] as List).map((e) {
-              return SendCartData(
-                productId: e['product_id'] ?? '',
-                variantId: e['variant_id'] ?? '',
-                pack: e['pack']?.toString() ?? '0',
-                price: e['price']?.toString() ?? '0.0',
-                packType: e['packType'] ?? 'Pack',
-                discount: num.tryParse(e['discount']?.toString() ?? '0') ?? 0,
-                quantity: e['quantity'] ?? 0,
-                variantName: e['variant_name'] ?? '',
-              );
-            }).toList(),
-            total: order['order_price']?.toString() ?? '0.0',
-          );
-
+       final AddToCartModel productBYData = AddToCartModel(
+  customerId: customerId,
+  salesmanId: order['salesman_id'] ?? '',
+  cartId: '', // Generating a new cart for offline sync, same as online
+  cartList: (order['cart_list'] as List).map((e) {
+    return SendCartData(
+      productId: e['product_id'] ?? '',
+      variantId: e['variant_id'] ?? '',
+      pack: e['pack']?.toString() ?? '0',
+      price: e['price']?.toString() ?? '0.0', // This holds the final/sell/bulk price
+      packType: e['packType'] ?? 'Bulk',
+      discount: num.tryParse(e['discount']?.toString() ?? '0') ?? 0.0,
+      quantity: e['quantity'] ?? 0,
+      variantName: e['variant_name'] ?? '',
+      
+      // --- NEW FIELDS ADDED TO MATCH ONLINE CODE ---
+      unitPrice: e['unitPrice']?.toString() ?? e['price']?.toString() ?? '0.0',
+      maxDiscount: e['maxDiscount'] != null ? num.tryParse(e['maxDiscount'].toString())?.toInt() : null,
+      
+      // Promo & Bundle Details
+      isPromo: e['isPromo'] ?? false,
+      isBundle: e['isBundle'] ?? false,
+      promoCode: e['promoCode'] ?? '',
+      promoMsg: e['promoMsg'] ?? '',
+      bundleDetails: e['bundleDetails'],
+      customerDiscount: e['customerDiscount'] != null ? num.tryParse(e['customerDiscount'].toString())?.toDouble() : 0.0,
+      promoDiscount: e['promoDiscount'] != null ? num.tryParse(e['promoDiscount'].toString())?.toDouble() : 0.0,
+      
+      // Bulk Details
+      isBulk: e['isBulk'] ?? false,
+      bulkId: e['bulkId'],
+    );
+  }).toList(),
+  total: order['order_price']?.toString() ?? '0.0',
+);
           List<String> varientIdsPass = [];
           for (var item in order['cart_list']) {
             varientIdsPass.add(item['variant_id'] ?? '');
@@ -361,6 +473,17 @@ class ConnectivityService {
 
             final draftConvertedList = customerDraftItems.map((item) {
               final detail = item.detail;
+                final double combinedDiscount = (item.totalDiscountAmount ?? 0).toDouble() +
+      (item.flatDiscount ?? 0).toDouble() +
+      (item.bogoDiscount ?? 0).toDouble() +
+      (detail.bulkDiscountAmount ?? 0).toDouble();
+      
+  final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
+      (item.flatDiscount ?? 0) +
+      (item.bogoDiscount ?? 0);
+
+  bool isBundle = item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
+  bool isBulkItem = detail.bulkId != null && detail.bulkId!.isNotEmpty;
 
               return SendCartData(
                 productId: detail.productId ?? '',
@@ -370,9 +493,25 @@ class ConnectivityService {
                     : detail.count.toString(),
                 price: detail.sellPrice?.toString() ?? '0.0',
                 packType: detail.saleBy ?? 'Pack',
-                discount: detail.discount ?? 0,
+                 discount: combinedDiscount,
+                // discount: detail.discount ?? 0,
                 quantity: detail.count.toInt(),
                 variantName: detail.variationName ?? '',
+                 maxDiscount: detail.maxDiscount?.toInt(),
+    isPromo: item.isPromo ?? false,
+    isBundle: isBundle,
+    promoCode: item.promoCode ?? '',
+    promoMsg: isBundle ? "Bundle: ${detail.variationName}" : (item.promoMsg ?? ''),
+    bundleDetails: isBundle ? "Bundle: ${detail.variationName}" : null,
+    customerDiscount: item.CustomerDiscount,
+    promoDiscount: combinedPromoDiscount,
+    initialCount: detail.initialCount?.toInt(),
+    taxAmount: item.taxAmount?.toDouble(),
+    unitPrice: detail.sellPrice?.toString() ?? '0.0',
+    isBulk: isBulkItem,
+    bulkId: detail.bulkId,
+    itemNumbers: isBulkItem ? detail.pieces?.toInt() : null,
+    bulkDiscountAmount: detail.bulkDiscountAmount,
               );
             }).toList();
 
@@ -387,6 +526,21 @@ class ConnectivityService {
                         num.tryParse(e['discount']?.toString() ?? '0') ?? 0,
                     quantity: e['quantity'] ?? 0,
                     variantName: e['variant_name'] ?? '',
+                      maxDiscount: e['maxDiscount'] != null ? num.tryParse(e['maxDiscount'].toString())?.toInt() : null,
+        isPromo: e['isPromo'] ?? false,
+        isBundle: e['isBundle'] ?? false,
+        promoCode: e['promoCode'] ?? '',
+        promoMsg: e['promoMsg'] ?? '',
+        bundleDetails: e['bundleDetails'],
+        customerDiscount: e['customerDiscount'] != null ? num.tryParse(e['customerDiscount'].toString())?.toDouble() : 0.0,
+        promoDiscount: e['promoDiscount'] != null ? num.tryParse(e['promoDiscount'].toString())?.toDouble() : 0.0,
+        initialCount: e['initialCount'] != null ? num.tryParse(e['initialCount'].toString())?.toInt() : null,
+        taxAmount: e['taxAmount'] != null ? num.tryParse(e['taxAmount'].toString())?.toDouble() : null,
+        unitPrice: e['unitPrice']?.toString() ?? e['price']?.toString() ?? '0.0',
+        isBulk: e['isBulk'] ?? false,
+        bulkId: e['bulkId'],
+        itemNumbers: e['itemNumbers'] != null ? num.tryParse(e['itemNumbers'].toString())?.toInt() : null,
+        bulkDiscountAmount: e['bulkDiscountAmount'] != null ? num.tryParse(e['bulkDiscountAmount'].toString())?.toDouble() : null,
                   );
                 }).toList() ??
                 [];
@@ -474,9 +628,9 @@ class ConnectivityService {
               await ApiWorker().placeOrder(orderPayload,
                   (statusCode, message, response) async {
                 if (statusCode == 200) {
-                  showSyncSnackbar(
-                      "Your order has been successfully saved as Draft",
-                      "Saved Draft");
+                  // showSyncSnackbar(
+                  //     "Your order has been successfully saved as Draft",
+                  //     "Saved Draft");
 
                   final cartBox = CartDatabaseManager().cartBox;
 

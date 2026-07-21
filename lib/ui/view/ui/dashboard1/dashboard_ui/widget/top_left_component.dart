@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart'
     as model1;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 // ignore: library_prefixes
 
@@ -23,11 +24,11 @@ Widget middleTopLeftComponet({
 }) {
   String displayText = '';
   if (staffProjection == "1" && targetType == "1") {
-    displayText = "Category Target / Projection / Actuals";
+    displayText = "Category Target / Projection / Actuals".tr;
   } else if (staffProjection == "1" && targetType == "0") {
-    displayText = "Category Target / Projection / Actuals";
+    displayText = "Category Target / Projection / Actuals".tr;
   } else if (staffProjection == "0" && targetType == "1") {
-    displayText = "Category Target / Actuals";
+    displayText = "Category Target / Actuals".tr;
   } else {
     displayText = "Category Actuals";
   }
@@ -156,7 +157,7 @@ Widget middleTopLeftComponet({
                             allCategory: categories ?? [],
                             staffProjection: staffProjection,
                             categoryTarget: targetType,
-                            isMonthly: targetType == '0' ? true : false,
+                            isMonthly: false,
                             isDayOrRange: provider.selectedFilter ==
                                     FilterDateEnum.range ||
                                 provider.selectedFilter == FilterDateEnum.today,

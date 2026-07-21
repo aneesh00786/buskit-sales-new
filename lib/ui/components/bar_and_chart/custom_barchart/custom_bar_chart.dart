@@ -16,9 +16,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-
-
 
 class CustomBarChart extends StatefulWidget {
   final List<Category> allCategory;
@@ -50,13 +49,15 @@ class _CustomBarChartState extends State<CustomBarChart> {
   List<BarChartGroupData> barGroups = [];
 
   // State variables for filtering
- bool hideTarget = false;
-  bool hideProjection = false;
+  late bool hideTarget;
+  late bool hideProjection;
   bool hideActuals = false;
 
   @override
   void initState() {
     super.initState();
+    hideTarget = widget.categoryTarget == '0';
+    hideProjection = widget.staffProjection == '0';
     _createBarGroups();
   }
 
@@ -68,7 +69,10 @@ class _CustomBarChartState extends State<CustomBarChart> {
         oldWidget.categoryPerformance != widget.categoryPerformance ||
         oldWidget.monthlyPerformance != widget.monthlyPerformance ||
         oldWidget.staffProjection != widget.staffProjection ||
-        oldWidget.categoryTarget != widget.categoryTarget) {
+        oldWidget.categoryTarget != widget.categoryTarget ||
+        oldWidget.isMonthly != widget.isMonthly) {
+      hideTarget = widget.categoryTarget == '0';
+      hideProjection = widget.staffProjection == '0';
       _createBarGroups();
     }
   }
@@ -79,7 +83,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
       Category category = entry.value;
 
       CategoryPerformancee? perf = widget.categoryPerformance.firstWhere(
-        (performance) => performance.category == category.category,
+        (performance) =>
+            performance.category?.trim().toLowerCase() ==
+            category.category?.trim().toLowerCase(),
         orElse: () => CategoryPerformancee(
           cid: -1,
           category: category.category,
@@ -90,18 +96,20 @@ class _CustomBarChartState extends State<CustomBarChart> {
         ),
       );
 
-      MonthlyPerformancee? monthPerf = widget.monthlyPerformance
-          .firstWhere((performance) => performance.cid == category.category,
-              orElse: () => MonthlyPerformancee(
-                    cid: '',
-                    actualProjection: 0.0,
-                    actualSales: 0.0,
-                    actualTarget: 0.0,
-                    barType: '',
-                    month: '',
-                    week: '',
-                    year: 0,
-                  ));
+      MonthlyPerformancee? monthPerf = widget.monthlyPerformance.firstWhere(
+          (performance) =>
+              performance.cid?.trim().toLowerCase() ==
+              category.category?.trim().toLowerCase(),
+          orElse: () => MonthlyPerformancee(
+                cid: '',
+                actualProjection: 0.0,
+                actualSales: 0.0,
+                actualTarget: 0.0,
+                barType: '',
+                month: '',
+                week: '',
+                year: 0,
+              ));
 
       num target = widget.isMonthly
           ? monthPerf.actualTarget ?? 0.0
@@ -118,47 +126,49 @@ class _CustomBarChartState extends State<CustomBarChart> {
 
       // 1. Target Rod Logic
       if (!widget.isDayOrRange && !hideTarget) {
-          rods.add(BarChartRodData(
-            toY: target.toDouble(),
-            color: const Color(0xff3b6491),
-            width: 8,
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide.none,
-          ));
+        rods.add(BarChartRodData(
+          toY: target.toDouble(),
+          color: const Color(0xff3b6491),
+          width: 8,
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide.none,
+        ));
       }
-    //  if (!widget.isDayOrRange) {
-    //     if (!hideTarget) { // Only check if we should hide it
-    //       rods.add(BarChartRodData(
-    //         toY: target.toDouble(),
-    //         color: const Color(0xff3b6491),
-    //         width: 8,
-    //         borderRadius: BorderRadius.zero,
-    //         borderSide: BorderSide.none,
-    //       ));
-    //     }
-    //   }
+      //  if (!widget.isDayOrRange) {
+      //     if (!hideTarget) { // Only check if we should hide it
+      //       rods.add(BarChartRodData(
+      //         toY: target.toDouble(),
+      //         color: const Color(0xff3b6491),
+      //         width: 8,
+      //         borderRadius: BorderRadius.zero,
+      //         borderSide: BorderSide.none,
+      //       ));
+      //     }
+      //   }
 
       // 2. Projection Rod Logic
-      if (!widget.isDayOrRange && widget.staffProjection == "1" && !hideProjection) {
-          rods.add(BarChartRodData(
-            toY: projection.toDouble(),
-            color: const Color(0xff15396a),
-            width: 8,
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide.none,
-          ));
+      if (!widget.isDayOrRange &&
+          widget.staffProjection == "1" &&
+          !hideProjection) {
+        rods.add(BarChartRodData(
+          toY: projection.toDouble(),
+          color: const Color(0xff15396a),
+          width: 8,
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide.none,
+        ));
       }
-    //  if (!widget.isDayOrRange && widget.staffProjection == "1") {
-    //     if (!hideProjection) { // Only check if we should hide it
-    //       rods.add(BarChartRodData(
-    //         toY: projection.toDouble(),
-    //         color: const Color(0xff15396a),
-    //         width: 8,
-    //         borderRadius: BorderRadius.zero,
-    //         borderSide: BorderSide.none,
-    //       ));
-    //     }
-    //   }
+      //  if (!widget.isDayOrRange && widget.staffProjection == "1") {
+      //     if (!hideProjection) { // Only check if we should hide it
+      //       rods.add(BarChartRodData(
+      //         toY: projection.toDouble(),
+      //         color: const Color(0xff15396a),
+      //         width: 8,
+      //         borderRadius: BorderRadius.zero,
+      //         borderSide: BorderSide.none,
+      //       ));
+      //     }
+      //   }
 
       // 3. Actuals Rod Logic
       // Show ONLY if we are NOT in TargetOnly mode AND NOT in ProjectionOnly mode
@@ -171,15 +181,15 @@ class _CustomBarChartState extends State<CustomBarChart> {
           borderSide: BorderSide.none,
         ));
       }
-    //  if (!hideActuals) { // Only check if we should hide it
-    //     rods.add(BarChartRodData(
-    //       toY: actual.toDouble(),
-    //       color: const Color(0xff7a8f3d),
-    //       width: 8,
-    //       borderRadius: BorderRadius.zero,
-    //       borderSide: BorderSide.none,
-    //     ));
-    //   }
+      //  if (!hideActuals) { // Only check if we should hide it
+      //     rods.add(BarChartRodData(
+      //       toY: actual.toDouble(),
+      //       color: const Color(0xff7a8f3d),
+      //       width: 8,
+      //       borderRadius: BorderRadius.zero,
+      //       borderSide: BorderSide.none,
+      //     ));
+      //   }
 
       return BarChartGroupData(
         x: index,
@@ -189,17 +199,24 @@ class _CustomBarChartState extends State<CustomBarChart> {
   }
 
   void _showSalesmanPopup(int cid, String category) {
-    Provider.of<DashboardProvider>(context, listen: false)
+    // 1. Capture the safe, parent screen context before opening the dialog
+    final parentContext = context;
+
+    Provider.of<DashboardProvider>(parentContext, listen: false)
         .fetchchartCategoryPerformmenc(cid);
+
     showDialog(
       barrierDismissible: false,
-      context: context,
-      builder: (context) {
+      context: parentContext,
+      // 2. Rename this context to dialogContext
+      builder: (dialogContext) {
         return Consumer<DashboardProvider>(
-          builder: (context, provider, child) {
+          // 3. Rename this context to consumerContext
+          builder: (consumerContext, provider, child) {
             return FutureBuilder<ResponseModelCp>(
               future: provider.responseModelCp,
-              builder: (context, snapshot) {
+              // 4. Rename this context to futureContext
+              builder: (futureContext, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -215,10 +232,13 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   );
                 } else if (snapshot.hasData) {
                   final categories = snapshot.data!.data;
-                  Navigator.of(context).pop();
+
+                  // 5. Use dialogContext to pop the loading dialog
+                  Navigator.of(dialogContext).pop();
+
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     showBarchartDialog(
-                        context,
+                        parentContext, // 6. Use the SAFE parentContext here!
                         category,
                         categories ?? [],
                         widget.categoryTarget,
@@ -246,19 +266,83 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 
+  // void _showSalesmanPopup(int cid, String category) {
+  //   Provider.of<DashboardProvider>(context, listen: false)
+  //       .fetchchartCategoryPerformmenc(cid);
+  //   showDialog(
+  //     barrierDismissible: false,
+  //     context: context,
+  //     builder: (context) {
+  //       return Consumer<DashboardProvider>(
+  //         builder: (context, provider, child) {
+  //           return FutureBuilder<ResponseModelCp>(
+  //             future: provider.responseModelCp,
+  //             builder: (context, snapshot) {
+  //               if (snapshot.connectionState == ConnectionState.waiting) {
+  //                 return const Center(
+  //                   child: CircularProgressIndicator(),
+  //                 );
+  //               } else if (snapshot.hasError) {
+  //                 return AlertDialog(
+  //                   shape: const RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(10)),
+  //                   ),
+  //                   content: Center(
+  //                     child: Text('Error: ${snapshot.error}'),
+  //                   ),
+  //                 );
+  //               } else if (snapshot.hasData) {
+  //                 final categories = snapshot.data!.data;
+  //                 Navigator.of(context).pop();
+  //                 WidgetsBinding.instance.addPostFrameCallback((_) {
+  //                   showBarchartDialog(
+  //                       context,
+  //                       category,
+  //                       categories ?? [],
+  //                       widget.categoryTarget,
+  //                       widget.staffProjection,
+  //                       provider,
+  //                       cid,
+  //                       isDayOrRange: widget.isDayOrRange);
+  //                 });
+  //                 return const SizedBox.shrink();
+  //               } else {
+  //                 return const AlertDialog(
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(10)),
+  //                   ),
+  //                   content: Center(
+  //                     child: Text('No data available'),
+  //                   ),
+  //                 );
+  //               }
+  //             },
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   void _showSalesmanPopupMonthly(String cid, String month) {
-    final provider = Provider.of<DashboardProvider>(context, listen: false);
+    // 1. Capture the safe, parent screen context
+    final parentContext = context;
+
+    final provider =
+        Provider.of<DashboardProvider>(parentContext, listen: false);
     provider.fetchchartValuePerformance(month, "year");
 
     showDialog(
       barrierDismissible: false,
-      context: context,
-      builder: (context) {
+      context: parentContext,
+      // 2. Rename to dialogContext
+      builder: (dialogContext) {
         return Consumer<DashboardProvider>(
-          builder: (context, provider, child) {
+          // 3. Rename to consumerContext
+          builder: (consumerContext, provider, child) {
             return FutureBuilder<ResponseModelCp>(
               future: provider.responseModelNewCp,
-              builder: (context, snapshot) {
+              // 4. Rename to futureContext
+              builder: (futureContext, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -273,7 +357,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.pop(dialogContext),
                         child: const Text("Close"),
                       )
                     ],
@@ -282,9 +366,11 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   final categories = snapshot.data!.data;
 
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context).pop();
+                    // 5. Use dialogContext to pop
+                    Navigator.of(dialogContext).pop();
+
                     showBarchartDialog(
-                        context,
+                        parentContext, // 6. Use the SAFE parentContext here!
                         cid,
                         categories ?? [],
                         widget.categoryTarget,
@@ -305,6 +391,65 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 
+  // void _showSalesmanPopupMonthly(String cid, String month) {
+  //   final provider = Provider.of<DashboardProvider>(context, listen: false);
+  //   provider.fetchchartValuePerformance(month, "year");
+
+  //   showDialog(
+  //     barrierDismissible: false,
+  //     context: context,
+  //     builder: (context) {
+  //       return Consumer<DashboardProvider>(
+  //         builder: (context, provider, child) {
+  //           return FutureBuilder<ResponseModelCp>(
+  //             future: provider.responseModelNewCp,
+  //             builder: (context, snapshot) {
+  //               if (snapshot.connectionState == ConnectionState.waiting) {
+  //                 return const Center(
+  //                   child: CircularProgressIndicator(),
+  //                 );
+  //               } else if (snapshot.hasError) {
+  //                 return AlertDialog(
+  //                   shape: const RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.all(Radius.circular(10)),
+  //                   ),
+  //                   content: Center(
+  //                     child: Text('Error: ${snapshot.error}'),
+  //                   ),
+  //                   actions: [
+  //                     TextButton(
+  //                       onPressed: () => Navigator.pop(context),
+  //                       child: const Text("Close"),
+  //                     )
+  //                   ],
+  //                 );
+  //               } else if (snapshot.hasData) {
+  //                 final categories = snapshot.data!.data;
+
+  //                 WidgetsBinding.instance.addPostFrameCallback((_) {
+  //                   Navigator.of(context).pop();
+  //                   showBarchartDialog(
+  //                       context,
+  //                       cid,
+  //                       categories ?? [],
+  //                       widget.categoryTarget,
+  //                       widget.staffProjection,
+  //                       provider,
+  //                       0,
+  //                       isDayOrRange: widget.isDayOrRange);
+  //                 });
+  //                 return const SizedBox.shrink();
+  //               } else {
+  //                 return const SizedBox.shrink();
+  //               }
+  //             },
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
   Widget getBottomTitles(double value, TitleMeta meta) {
     int index = value.toInt();
     String? categoryName = widget.allCategory[index].category;
@@ -316,17 +461,19 @@ class _CustomBarChartState extends State<CustomBarChart> {
         if (!isConnected) {
           showCustomToastDisplay(context, "You are Offline!", red, Icons.close);
         } else {
-          if (widget.categoryTarget == '0') {
+          if (widget.isMonthly) {
             try {
               MonthlyPerformancee perfMonth =
                   widget.monthlyPerformance.firstWhere(
-                (performance) => performance.cid == categoryName,
+                (performance) =>
+                    performance.cid?.trim().toLowerCase() ==
+                    categoryName?.trim().toLowerCase(),
               );
               if (perfMonth.actualProjection == 0 &&
                   perfMonth.actualSales == 0 &&
                   perfMonth.actualTarget == 0) {
                 showCustomToastDisplay(
-                    context, "No Record Found", red, Icons.close);
+                    context, "No Record Found".tr, red, Icons.close);
               } else {
                 _showSalesmanPopupMonthly(
                     perfMonth.cid ?? '', perfMonth.cid ?? '');
@@ -335,13 +482,15 @@ class _CustomBarChartState extends State<CustomBarChart> {
           } else {
             try {
               CategoryPerformancee perf = widget.categoryPerformance.firstWhere(
-                (performance) => performance.category == categoryName,
+                (performance) =>
+                    performance.category?.trim().toLowerCase() ==
+                    categoryName?.trim().toLowerCase(),
               );
               if (perf.actualProjection == 0 &&
                   perf.actualSales == 0 &&
                   perf.actualTarget == 0) {
                 showCustomToastDisplay(
-                    context, "No Record Found", red, Icons.close);
+                    context, "No Record Found".tr, red, Icons.close);
               } else {
                 _showSalesmanPopup(perf.cid ?? 0, categoryName ?? '');
               }
@@ -400,7 +549,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
     double globalMax = 0;
     for (var category in widget.allCategory) {
       CategoryPerformancee? perf = widget.categoryPerformance.firstWhere(
-        (p) => p.category == category.category,
+        (p) =>
+            p.category?.trim().toLowerCase() ==
+            category.category?.trim().toLowerCase(),
         orElse: () => CategoryPerformancee(
             cid: -1,
             category: category.category,
@@ -410,7 +561,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
       );
 
       MonthlyPerformancee? monthPerf = widget.monthlyPerformance.firstWhere(
-        (p) => p.cid == category.category,
+        (p) =>
+            p.cid?.trim().toLowerCase() ==
+            category.category?.trim().toLowerCase(),
         orElse: () => MonthlyPerformancee(
             cid: '', actualProjection: 0, actualSales: 0, actualTarget: 0),
       );
@@ -421,31 +574,28 @@ class _CustomBarChartState extends State<CustomBarChart> {
       num projection = widget.isMonthly
           ? monthPerf.actualProjection ?? 0
           : perf.actualProjection ?? 0;
-      num actual = widget.isMonthly
-          ? monthPerf.actualSales ?? 0
-          : perf.actualSales ?? 0;
-          if (!widget.isDayOrRange) {
+      num actual =
+          widget.isMonthly ? monthPerf.actualSales ?? 0 : perf.actualSales ?? 0;
+      if (!widget.isDayOrRange) {
         // ONLY consider Target for Max Height if it is NOT HIDDEN
         if (!hideTarget) {
-           if (target > globalMax) globalMax = target.toDouble();
+          if (target > globalMax) globalMax = target.toDouble();
         }
-        
+
         // ONLY consider Projection for Max Height if it is NOT HIDDEN
         if (widget.staffProjection == "1" && !hideProjection) {
-           if (projection > globalMax) globalMax = projection.toDouble();
+          if (projection > globalMax) globalMax = projection.toDouble();
         }
       }
-      
+
       // ONLY consider Actuals for Max Height if it is NOT HIDDEN
       if (!hideActuals) {
-         if (actual > globalMax) globalMax = actual.toDouble();
+        if (actual > globalMax) globalMax = actual.toDouble();
       }
     }
 
     if (globalMax == 0) globalMax = 10;
     final maxBarValue = globalMax;
-
-    
 
     int calculateNiceInterval(int maxY, int maxDivisions) {
       if (maxY <= 0) return 1;
@@ -483,14 +633,13 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   return Colors.blueAccent.shade400;
                 }),
                 trackColor: MaterialStateProperty.all(Colors.transparent),
-                trackBorderColor:
-                    MaterialStateProperty.all(Colors.transparent),
+                trackBorderColor: MaterialStateProperty.all(Colors.transparent),
                 thickness: MaterialStateProperty.all(6),
                 radius: const Radius.circular(10),
                 minThumbLength: 50,
               ),
               child: Stack(
-                clipBehavior:Clip.none,
+                clipBehavior: Clip.none,
                 children: [
                   Scrollbar(
                     controller:
@@ -590,36 +739,84 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                                 final int index = touchResponse
                                                     .spot!.touchedBarGroupIndex;
 
-                                                if (widget.categoryTarget ==
-                                                    '0') {
-                                                  MonthlyPerformancee
-                                                      perfMonth = widget
-                                                          .monthlyPerformance
+                                                if (widget.isMonthly) {
+                                                  MonthlyPerformancee perfMonth =
+                                                      widget.monthlyPerformance
                                                           .firstWhere(
                                                     (performance) =>
-                                                        performance.cid ==
+                                                        performance.cid
+                                                            ?.trim()
+                                                            .toLowerCase() ==
                                                         widget
                                                             .allCategory[index]
-                                                            .category,
+                                                            .category
+                                                            ?.trim()
+                                                            .toLowerCase(),
+                                                    orElse: () =>
+                                                        MonthlyPerformancee(
+                                                            cid: '',
+                                                            actualSales: 0,
+                                                            actualTarget: 0,
+                                                            actualProjection:
+                                                                0),
                                                   );
-                                                  _showSalesmanPopupMonthly(
-                                                      perfMonth.cid ?? '',
-                                                      perfMonth.cid ?? '');
+                                                  if (perfMonth.cid == '' ||
+                                                      (perfMonth.actualProjection ==
+                                                              0 &&
+                                                          perfMonth.actualSales ==
+                                                              0 &&
+                                                          perfMonth.actualTarget ==
+                                                              0)) {
+                                                    showCustomToastDisplay(
+                                                        context,
+                                                        "No Record Found".tr,
+                                                        red,
+                                                        Icons.close);
+                                                  } else {
+                                                    _showSalesmanPopupMonthly(
+                                                        perfMonth.cid ?? '',
+                                                        perfMonth.cid ?? '');
+                                                  }
                                                 } else {
                                                   CategoryPerformancee perf =
                                                       widget.categoryPerformance
                                                           .firstWhere(
                                                     (performance) =>
-                                                        performance.category ==
+                                                        performance.category
+                                                            ?.trim()
+                                                            .toLowerCase() ==
                                                         widget
                                                             .allCategory[index]
-                                                            .category,
+                                                            .category
+                                                            ?.trim()
+                                                            .toLowerCase(),
+                                                    orElse: () =>
+                                                        CategoryPerformancee(
+                                                            cid: -1,
+                                                            actualSales: 0,
+                                                            actualTarget: 0,
+                                                            actualProjection:
+                                                                0),
                                                   );
-                                                  _showSalesmanPopup(
-                                                      perf.cid ?? 0,
-                                                      widget.allCategory[index]
-                                                              .category ??
-                                                          '');
+                                                  if (perf.cid == -1 ||
+                                                      (perf.actualProjection ==
+                                                              0 &&
+                                                          perf.actualSales ==
+                                                              0 &&
+                                                          perf.actualTarget ==
+                                                              0)) {
+                                                    showCustomToastDisplay(
+                                                        context,
+                                                        "No Record Found".tr,
+                                                        red,
+                                                        Icons.close);
+                                                  } else {
+                                                    _showSalesmanPopup(
+                                                        perf.cid ?? 0,
+                                                        widget.allCategory[index]
+                                                                .category ??
+                                                            '');
+                                                  }
                                                 }
                                               }
                                             },
@@ -674,7 +871,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
                                 getTitlesWidget: getLeftTitles,
                                 reservedSize:
                                     dynamicMaxY.toString().length * 7 + 10,
-                                  ),
+                              ),
                             ),
                             bottomTitles: const AxisTitles(
                               sideTitles: SideTitles(showTitles: false),
@@ -705,24 +902,23 @@ class _CustomBarChartState extends State<CustomBarChart> {
               // --- TARGET BUTTON ---
               _buildLegend(
                 color: const Color(0xff3b6491),
-                label: 'Target',
+                label: 'Target'.tr,
                 opacity: hideTarget ? 0.3 : 1.0,
                 onTap: () {
                   setState(() {
                     // 1. Toggle Target
                     hideTarget = !hideTarget;
-                    
-                 
+
                     _createBarGroups();
                   });
                 },
               ),
-              
+
               // --- PROJECTION BUTTON ---
               if (widget.staffProjection == "1")
                 _buildLegend(
                   color: const Color(0xff15396a),
-                  label: 'Projection',
+                  label: 'Projection'.tr,
                   opacity: hideProjection ? 0.3 : 1.0,
                   onTap: () {
                     setState(() {
@@ -743,12 +939,12 @@ class _CustomBarChartState extends State<CustomBarChart> {
             // --- ACTUALS BUTTON ---
             _buildLegend(
               color: const Color(0xff7a8f3d),
-              label: 'Actuals',
+              label: 'Actuals'.tr,
               opacity: hideActuals ? 0.3 : 1.0,
               onTap: () {
                 setState(() {
-                  // Simply toggle Actuals. 
-                  // If turned ON, the loop in build() will see it, 
+                  // Simply toggle Actuals.
+                  // If turned ON, the loop in build() will see it,
                   // find the huge value, and resize the Y-axis automatically.
                   hideActuals = !hideActuals;
                   _createBarGroups();
@@ -757,12 +953,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
             ),
           ],
         ),
-    
       ],
     );
   }
-
-
 
   Widget _buildLegend(
       {required Color color,
@@ -794,47 +987,12 @@ class _CustomBarChartState extends State<CustomBarChart> {
     );
   }
 }
-// Widget customUnderlinedText(String text) {
-//   const int maxLength = 20; 
-  
-//   String displayText = text;
-  
-//   // Check if text is longer than the limit
-//   if (text.length > maxLength) {
-//     // Take the first 20 characters and add "..."
-//     displayText = '${text.substring(0, maxLength)}...';
-//   }
-
-//   return Container(
-//     decoration: const BoxDecoration(
-//       border: Border(
-//         bottom: BorderSide(
-//           color: primaryColor,  // Make sure primaryColor is imported
-//           width: 1.5,
-//         ),
-//       ),
-//     ),
-//     child: Padding(
-//       padding: const EdgeInsets.only(bottom: 2.0),
-//       child: MyRegularText(
-//         label: displayText, 
-//         style: const TextStyle(
-//           fontWeight: FontWeight.w500,
-//           fontSize: 13,
-//           color: Colors.black,
-//           overflow: TextOverflow.ellipsis, 
-//         ),
-//       ),
-//     ),
-//   );
-// }
 
 Widget customUnderlinedText(String text) {
- 
-  const int maxLength = 10; 
-  
+  const int maxLength = 10;
+
   String displayText = text;
-  
+
   // Check if text is longer than the limit
   if (text.length > maxLength) {
     // Take the first 8 characters and add "..."
@@ -849,13 +1007,13 @@ Widget customUnderlinedText(String text) {
         padding: const EdgeInsets.only(bottom: 2.0),
         child: MyRegularText(
           // Use the modified 'displayText' instead of the original 'text'
-          label: displayText, 
+          label: displayText,
           style: const TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 13,
             color: Colors.black,
             // You can keep this as a failsafe, but the manual truncation handles it now
-            overflow: TextOverflow.ellipsis, 
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
@@ -871,8 +1029,6 @@ Widget customUnderlinedText(String text) {
     ],
   );
 }
-
-
 
 class CustomBarChartCustomerDash extends StatefulWidget {
   final List<FullCategory> allCategory;
@@ -1048,28 +1204,28 @@ class _CustomBarChartCustomerDashState
                                     headingRowColor: WidgetStatePropertyAll(
                                         Colors.grey.shade300),
                                     border: TableBorder.all(color: Colors.grey),
-                                    columns: const [
+                                    columns: [
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Product',
+                                          text: 'Product'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Invoice',
+                                          text: 'Invoice'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Quantity',
+                                          text: 'Quantity'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
                                       DataColumn(
                                         label: DialogTableHeaderText(
-                                          text: 'Price',
+                                          text: 'Price'.tr,
                                           fontSize: 13,
                                         ),
                                       ),
@@ -1193,7 +1349,9 @@ class _CustomBarChartCustomerDashState
       FullCategory category = entry.value;
 
       CategoryPerformancez? perf = widget.categoryPerformance.firstWhere(
-        (performance) => performance.category == category.categoryName,
+        (performance) =>
+            performance.category.trim().toLowerCase() ==
+            category.categoryName.trim().toLowerCase(),
         orElse: () => CategoryPerformancez(
           cid: -1,
           category: category.categoryName,
@@ -1231,16 +1389,18 @@ class _CustomBarChartCustomerDashState
       onTap: () {
         final perfIndex = widget.categoryPerformance.indexWhere(
           (performance) =>
-              performance.category == widget.allCategory[index].categoryName,
+              performance.category.trim().toLowerCase() ==
+              widget.allCategory[index].categoryName.trim().toLowerCase(),
         );
 
         if (perfIndex == -1) {
-          showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+          showCustomToastDisplay(
+              context, "No Record Found".tr, red, Icons.close);
         } else {
           final perf = widget.categoryPerformance[perfIndex];
           if (perf.totalPrice == 0) {
             showCustomToastDisplay(
-                context, "No Record Found", red, Icons.close);
+                context, "No Record Found".tr, red, Icons.close);
           } else {
             _showSalesmanPopup(
                 perf.cid, widget.allCategory[index].categoryName);
@@ -1687,4 +1847,3 @@ class _CustomBarChartCustomerDashState
     return (maxValue / 50).ceil() * 50;
   }
 }
-

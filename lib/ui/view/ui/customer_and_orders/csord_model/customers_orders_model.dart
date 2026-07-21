@@ -781,7 +781,9 @@ class CategoryPerformancez {
   factory CategoryPerformancez.fromJson(Map<String, dynamic> json) =>
       CategoryPerformancez(
         cid: json["cid"] ?? 0,
-        category: json["category"] ?? '',
+        category: json["category"] is List
+            ? (json["category"].isNotEmpty ? json["category"][0]?.toString() ?? '' : '')
+            : json["category"]?.toString() ?? '',
         totalPrice: num.tryParse(json["total_price"].toString()) ?? 0,
       );
 
@@ -805,7 +807,8 @@ class RecentOrder {
   final String customerId;
   final String invoiceId;
   List<dynamic>? duedate;
- final int? receivableAmount;
+  final int? receivableAmount;
+  int hasActiveLink;
 
   RecentOrder({
     required this.paymentType,
@@ -821,6 +824,7 @@ class RecentOrder {
     required this.invoiceId,
     this.duedate,
     this.receivableAmount,
+    this.hasActiveLink = 0,
   });
 
   factory RecentOrder.fromJson(Map<String, dynamic> json) {
@@ -838,6 +842,7 @@ class RecentOrder {
       invoiceId: json['invoice_id'] ?? '',
       duedate: List<dynamic>.from(json["duedate"].map((x) => x)),
       receivableAmount: json['receivable_amount'] as int?,
+      hasActiveLink: json["has_active_link"] ?? 0,
     );
   }
 
@@ -856,6 +861,7 @@ class RecentOrder {
       'invoice_id': invoiceId,
       "duedate": List<dynamic>.from(duedate!.map((x) => x)),
       'receivable_amount': receivableAmount,
+      "has_active_link": hasActiveLink,
     };
   }
 }

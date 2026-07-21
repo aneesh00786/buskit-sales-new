@@ -77,7 +77,7 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
               value: value,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                child: Text(value),
+                child: Text(value.tr),
               ),
             );
           }).toList(),
@@ -169,7 +169,7 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
               value: value,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                child: Text(value),
+                child: Text(value.tr),
               ),
             );
           }).toList(),

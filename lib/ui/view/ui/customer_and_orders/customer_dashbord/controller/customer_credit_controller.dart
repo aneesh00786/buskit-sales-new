@@ -1,4 +1,5 @@
 // controllers/customer_credit_controller.dart
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -18,8 +19,9 @@ class CustomerCreditController extends GetxController {
   var customerCredit = 0.obs;
   var errorMessage = ''.obs;
   var allCustomers = <Customer>[].obs;
+   final String apiUrl = "${ApiConstants.baseUrl1}/get_customer_credit";
 
-  final String apiUrl = "https://test.thrivewoo.com/get_customer_credit";
+  // final String apiUrl = "https://test.thrivewoo.com/get_customer_credit";
   static const String _boxName = 'customerCreditBox';
 
   // Generate cache key using company_id and salesman_id

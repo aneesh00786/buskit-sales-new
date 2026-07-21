@@ -1,5 +1,6 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -39,7 +40,8 @@ Widget buildHeader(
               width: 205,
               child: Column(
                 children: [
-                  Expanded(child: _buildHeaderText("Customer List", fontSize)),
+                  Expanded(
+                      child: _buildHeaderText("Customer List".tr, fontSize)),
                   const SizedBox(
                     height: 8,
                   )
@@ -76,35 +78,37 @@ Widget buildHeader(
                                 Expanded(
                                     flex: 3,
                                     child: _buildHeaderText(
-                                        "Order No.", fontSize)),
-                                const SizedBox(width: 5),
-                                Expanded(
-                                    flex: 3,
-                                    child: _buildHeaderText("Date", fontSize)),
+                                        "Order No.".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
                                     child:
-                                        _buildHeaderText("Due Date", fontSize)),
+                                        _buildHeaderText("Date".tr, fontSize)),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                    flex: 3,
+                                    child: _buildHeaderText(
+                                        "Due Date".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 2,
-                                    child: _buildHeaderText("Days", fontSize)),
+                                    child:
+                                        _buildHeaderText("Days".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Amount", fontSize)),
+                                    child: _buildHeaderText(
+                                        "Amount".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
-                                    child:
-                                        _buildHeaderText("Invoice", fontSize)),
+                                    child: _buildHeaderText(
+                                        "Invoice".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 4,
-                                    child:
-                                        _buildHeaderText("Status", fontSize)),
+                                    child: _buildHeaderText(
+                                        "Status".tr, fontSize)),
                                 const SizedBox(width: 5),
                                 Expanded(
                                     flex: 3,
@@ -157,22 +161,20 @@ Widget buildOrderList(
         children: [
           SizedBox(
             width: 210,
-            child: Scrollbar(
-              thumbVisibility: true,
-              child: ListView.builder(
-                itemCount: orderController.orderDataList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index < orderController.orderDataList.length) {
-                    final customerData = orderController.orderDataList[index];
-                    return _buildCustomerDetails(customerData, context, index);
-                  } else {
-                    return Container(
-                      height: 58,
-                      color: Colors.grey[200],
-                    );
-                  }
-                },
-              ),
+            child: ListView.builder(
+              primary: false,
+              itemCount: orderController.orderDataList.length + 1,
+              itemBuilder: (context, index) {
+                if (index < orderController.orderDataList.length) {
+                  final customerData = orderController.orderDataList[index];
+                  return _buildCustomerDetails(customerData, context, index);
+                } else {
+                  return Container(
+                    height: 58,
+                    color: Colors.grey[200],
+                  );
+                }
+              },
             ),
           ),
           Expanded(
@@ -203,6 +205,7 @@ Widget buildOrderList(
                                 : fullScreenWidth(context) * 1.2
                         : fullScreenWidth(context) * 2,
                     child: ListView.builder(
+                      primary: false,
                       itemCount: orderController.orderDataList.length + 1,
                       itemBuilder: (context, index) {
                         if (index < orderController.orderDataList.length) {
@@ -346,9 +349,13 @@ Widget _buildOrderNumber(CustomerData customerData, BuildContext context) {
 Widget _buildOrderCreatedDate(CustomerData customerData, BuildContext context) {
   return Center(
     child: _buildRegularText(
-      NKDateUtils.commonDayFormat2(NKDateUtils.formatStringUTCDateTime(
-        customerData.orderCreatAt.toString(),
-      )),
+      customerData.orderCreatAt != null &&
+              customerData.orderCreatAt.toString().isNotEmpty
+          ? TimeUtils.formatTimeInZone(
+              DateTime.parse(customerData.orderCreatAt.toString()),
+              format: 'dd-MM-yyyy',
+            )
+          : 'N/A',
       context,
       maxLines: 1,
     ),
@@ -356,19 +363,28 @@ Widget _buildOrderCreatedDate(CustomerData customerData, BuildContext context) {
 }
 
 Widget _buildOrderDueDate(CustomerData customerData, BuildContext context) {
-  int? creditPeriod = customerData.creditPeriod;
-  String? orderCreatAt = customerData.orderCreatAt.toString();
-  String? dueDate;
+  String dueDate = 'N/A';
 
-  DateTime orderDate = DateTime.parse(orderCreatAt);
+  if (customerData.orderCreatAt != null &&
+      customerData.orderCreatAt.toString().isNotEmpty) {
+    try {
+      DateTime orderDate = DateTime.parse(customerData.orderCreatAt.toString());
 
-  DateTime dueDateTime = orderDate.add(Duration(days: creditPeriod));
+      DateTime dueDateTime =
+          orderDate.add(Duration(days: customerData.creditPeriod ?? 0));
 
-  dueDate = NKDateUtils.commonDayFormat2(dueDateTime);
+      dueDate = TimeUtils.formatTimeInZone(
+        dueDateTime,
+        format: 'dd-MM-yyyy',
+      );
+    } catch (e) {
+      debugPrint('Error parsing order dueDate: $e');
+    }
+  }
 
   return Center(
     child: _buildRegularText(
-      dueDate.toString(),
+      dueDate,
       context,
       maxLines: 1,
     ),
@@ -428,8 +444,9 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                content:
-                    OrderHandlingClass.fromType(customerData.orderStatus).name,
+                content: OrderHandlingClass.fromType(customerData.orderStatus)
+                    .name
+                    .tr,
                 textAlign: TextAlign.center,
                 fontSize: 10,
                 overflow: TextOverflow.ellipsis,
@@ -439,9 +456,12 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
               if (customerData.orderStatus == 2 &&
                   customerData.deliveryDate != null) ...[
                 Text(
-                  NKDateUtils.commonFullDateTimeFormat(
-                      NKDateUtils.formatStringUTCDateTime(
-                          customerData.deliveryDate!.toIso8601String())),
+                  customerData.deliveryDate != null
+                      ? TimeUtils.formatTimeInZone(
+                          customerData.deliveryDate!,
+                          format: 'dd/MM/yyyy hh:mm a',
+                        )
+                      : 'N/A',
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   style: const TextStyle(
@@ -463,37 +483,70 @@ Widget _buildPaymentCollectionButton(
   final subscriptionController = Get.find<SubscriptionController>();
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 5),
-    child: InkResponse(
-      onTap: () {
-        if (subscriptionController.appPaymentCollection.value == "true") {
-          
-          pendingPaymentCollectionDialog(context, customerData.customerId);
-        }
-         else {
-          showUpgradePlanDialog(context);
-        }
-      },
-      child: IntrinsicHeight(
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color: const Color(0xff5bc0de),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: const Center(
-            child: Text(
-              'Collect Payment',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.white,
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.bold,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // 1. The Collect Payment Button
+        InkResponse(
+          onTap: () {
+            if (subscriptionController.appPaymentCollection.value == "true") {
+              pendingPaymentCollectionDialog(
+                context,
+                customerData.customerId,
+                customerEmail: customerData.email,
+                customerMobile: customerData.mobileno,
+              );
+            } else {
+              showUpgradePlanDialog(context);
+            }
+          },
+          child: IntrinsicHeight(
+            child: Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: const Color(0xff5bc0de),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Center(
+                child: Text(
+                  'Collect Payment'.tr,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.white,
+                    fontFamily: 'Poppins_Regular',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+
+        if ((customerData.hasActiveLink ?? 0) != 0) ...[
+          const SizedBox(height: 4),
+          Container(
+            // color: Colors.green,
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: const Text(
+                'Payment Link Sent',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
     ),
   );
 }

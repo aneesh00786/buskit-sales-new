@@ -1298,6 +1298,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 // ignore: must_be_immutable
 class OrderProcessInvoiceDialog extends StatefulWidget {
@@ -1413,6 +1414,15 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
       } catch (_) {}
       return sum + itemTax;
     });
+     final double calculatedOrderTotal = cartList.fold<double>(0, (sum, item) {
+      double itemTotal = 0.0;
+      if (isSpecific) {
+        itemTotal = double.tryParse(item.totalPrice?.toString() ?? '0') ?? 0.0;
+      } else {
+        itemTotal = double.tryParse(item.total?.toString() ?? '0') ?? 0.0;
+      }
+      return sum + itemTotal;
+    });
 
     final List<String> taxBreakdownParts = [];
     if (taxList.isNotEmpty) {
@@ -1461,8 +1471,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 Text(
                                   widget.customTitle ??
                                       (widget.selectedTabIndex == 5
-                                          ? 'INVOICE DETAILS'
-                                          : 'ORDER DETAILS'),
+                                          ? 'INVOICE DETAILS'.tr
+                                          : 'ORDER DETAILS'.tr),
                                   style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
@@ -1470,7 +1480,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  'Created At : $dateString',
+                                   'Created At'.tr + ' : \u200E$dateString',
                                   style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
@@ -1484,11 +1494,11 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Name :   $businessName"),
-                                    Text("Email :   $email"),
-                                    Text("Phone :   $phone"),
+                                    Text('Name'.tr + ' :   $businessName'),
+                                    Text('Email'.tr + ' :   $email'),
+                                    Text('Phone'.tr + ' :   $phone'),
                                     if (orderSource == 'app')
-                                      Text("Staff :   $salesmanName"),
+                                      Text('Staff'.tr + ' :   $salesmanName'),
                                   ],
                                 ),
                                 const Spacer(),
@@ -1537,45 +1547,45 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                   DataColumn(
                                       label: SizedBox(
                                           width: itemNameWidth,
-                                          child: const Text('ITEM NAME'))),
-                                  const DataColumn(
+                                          child:  Text('ITEM NAME'.tr))),
+                                   DataColumn(
                                       label: Expanded(
                                           flex: 1,
-                                          child: Text('U.PRICE',
+                                          child: Text('U.PRICE'.tr,
                                               textAlign: TextAlign.center))),
                                   
                                   // CONDITIONAL COLUMN: PACK TYPE
                                   if (widget.showPackType)
-                                    const DataColumn(
+                                     DataColumn(
                                         label: Expanded(
                                             flex: 1,
-                                            child: Text('PACK TYPE',
+                                            child: Text('PACK TYPE'.tr,
                                                 textAlign: TextAlign.center))),
                                                 
-                                  const DataColumn(
+                                   DataColumn(
                                       label: Expanded(
                                           flex: 1,
-                                          child: Text('QTY',
+                                          child: Text('QTY'.tr,
                                               textAlign: TextAlign.center))),
-                                  const DataColumn(
+                                   DataColumn(
                                       label: Expanded(
                                           flex: 1,
-                                          child: Text('AMOUNT',
+                                          child: Text('AMOUNT'.tr,
                                               textAlign: TextAlign.center))),
-                                  const DataColumn(
+                                   DataColumn(
                                       label: Expanded(
                                           flex: 1,
-                                          child: Text('DISCOUNT',
+                                          child: Text('DISCOUNT'.tr,
                                               textAlign: TextAlign.center))),
-                                  const DataColumn(
+                                   DataColumn(
                                       label: Expanded(
                                           flex: 1,
-                                          child: Text('TAX',
+                                          child: Text('TAX'.tr,
                                               textAlign: TextAlign.center))),
-                                  const DataColumn(
+                                   DataColumn(
                                       label: Expanded(
                                           flex: 1,
-                                          child: Text('TOTAL',
+                                          child: Text('TOTAL'.tr,
                                               textAlign: TextAlign.right))),
                                 ],
                                 rows: cartList.isNotEmpty
@@ -1758,7 +1768,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                       )
                                     : [
                                         DataRow(cells: [
-                                          const DataCell(Text('No items available.')),
+                                           DataCell(Text('No items available.'.tr)),
                                           const DataCell(Text('')),
                                           if (widget.showPackType) const DataCell(Text('')),
                                           const DataCell(Text('')),
@@ -1781,7 +1791,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             // --- SUBTOTAL ---
                             Row(
                               children: [
-                                const Text('Subtotal',
+                                 Text('Subtotal'.tr,
                                     style: TextStyle(
                                         color: black,
                                         fontSize: 15,
@@ -1795,7 +1805,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             // --- DISCOUNT ---
                             Row(
                               children: [
-                                const Text('Discount',
+                                 Text('Discount'.tr,
                                     style: TextStyle(
                                         color: black,
                                         fontSize: 15,
@@ -1813,8 +1823,8 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                 children: [
                                   Text(
                                     taxBreakdownText.isNotEmpty
-                                        ? 'Tax $taxBreakdownText'
-                                        : 'Tax',
+                                        ? 'Tax'.tr + '  $taxBreakdownText'
+                                        : 'Tax'.tr,
                                     style: const TextStyle(
                                       color: black,
                                       fontSize: 15,
@@ -1839,13 +1849,13 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                             Divider(color: Colors.grey.shade400),
                             Row(
                               children: [
-                                const Text('Total',
+                                 Text('Total'.tr,
                                     style: TextStyle(
                                         color: black,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600)),
                                 const Spacer(),
-                                Text(formatAmount(orderTotal.toString()),
+                                Text(formatAmount(calculatedOrderTotal.toString()),
                                     style: const TextStyle(
                                         fontSize: 16,
                                         color: red,
@@ -1860,7 +1870,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (widget.selectedTabIndex == 6) ...[
-                            const Text('Rejection Reason : '),
+                             Text('Rejection Reason : '.tr),
                             Text((data?.rejectionReason?.toString() ?? '')),
                             Text(NKDateUtils.commonDayFormat2(
                                 NKDateUtils.formatStringUTCDateTime(

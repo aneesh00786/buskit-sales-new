@@ -1,8 +1,9 @@
 mixin class ApiConstants {
-  static const String baseUrl1 = "https://test.thrivewoo.com";
+  static const String baseUrl1 = "https://thrivewoo.com";
   static const String baseUrl = "$baseUrl1/";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
+  static const String imageBaseUrl1 = "${baseUrl}";
   static const String login = "salesman_login";
   static const String sendOtp = "send_otp_staff";
   static const String verifyOtp = "verify_otp_staff";
@@ -12,7 +13,8 @@ mixin class ApiConstants {
   static const String customerRevenue = "customer_Revenue";
   static const String fetchOrderByRange = "fetch_orderByRange";
   static const String fetchValuePerformance = "fetchValuePerformance";
-  static const String fetchSalesmanTargetByCategory = "fetch_SalesmanTargetByCatId";
+  static const String fetchSalesmanTargetByCategory =
+      "fetch_SalesmanTargetByCatId";
   static const String getDashboardList = "Get_dashboard_list";
   static const String searchCustomer = "search_customer";
   static const String deletCustomer = "delete_customer";
@@ -54,11 +56,12 @@ mixin class ApiConstants {
   static const String fetchLeadsCount = "fetchLeadsCount";
   static const String updateCheckinOut = "UpdateCheckInOut";
   static const String fetchAllDiscount = "fetch_all_discount";
+  static const String fetchCustomerDiscount = "fetch_customer_discount";
   static const String sendVerificationMail = "sendVerificationMail";
   static const String insertadmin = "insertadmin";
   static const String sendInvoice = "send-invoice";
   static const String fetchcategories = "fetch_categories";
-  static const String fetchproduct = "fetch_product";
+  static const String fetchproduct = "fetch_product_b2b";
   static const String updateCheckinCustomer = "Update_checkin_customer";
   static const String addCustomer = "add_customer";
   static const String fetchLeads = "fetch_leads";
@@ -110,8 +113,8 @@ mixin class ApiConstants {
   static const String createPaypalAuth = "create-paypal-auth";
   static const String showRoute = "show-route";
   static const String fetchCategories = "fetch_categories";
-  static const String getPromoCategories = "get-promo-categories";
-  static const String fetchProduct = "fetch_product";
+  static const String getPromoCategories = "get-promo-categories_b2b";
+  static const String fetchProduct = "fetch_product_b2b";
   static const String promotions = "webStore-promo";
   static const String getLeadForUpdating = "get_lead_for_updating";
   static const String customerPayment = "customer_payment";
@@ -122,8 +125,9 @@ mixin class ApiConstants {
   static const String SearchInvoice = "SearchInvoice";
   static const String imagePath = '/uploads/setting/1739620175980.jpg';
   static const String imageEndpoint = '$baseUrl$imagePath';
-  static const String GetPendingReturnsForCart = '/get_pending_returns_for_cart';
-  static const String getVolumes = "get-volumes";
+  static const String GetPendingReturnsForCart =
+      '/get_pending_returns_for_cart';
+  static const String getVolumes = "get-volumes_b2b";
   static const String fetchSalesmanOfCustomer = "fetch_salesman_of_customer";
   static const String getRecentOrdersData = "get_recent_orders";
   static const String orderAcceptDirect = "order_accept_direct";
@@ -134,4 +138,7 @@ mixin class ApiConstants {
   static const String updatedeliveryaddress = "update-delivery-address";
   static const String visitReport = "visit_report";
   static const String getEvents = "get_events";
+  static const String config = "config";
+  static const String createPaymentLink = "create-payment-link";
+  static const String sendPaymentLink = "send-payment-link";
 }

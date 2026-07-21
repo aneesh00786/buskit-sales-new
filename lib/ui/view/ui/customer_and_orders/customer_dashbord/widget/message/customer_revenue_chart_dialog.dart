@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_mode
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_rev_value_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 void showCustomerRevenueChartDialog(
   BuildContext context,
@@ -50,7 +51,7 @@ void showCustomerRevenueChartDialog(
                         children: [
                           Expanded(
                             child: Text(
-                              title,
+                              title.tr,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -128,7 +129,7 @@ void showCustomerRevenueChartDialog(
                                         if (paymentCompleted == 0) {
                                           showCustomToastDisplay(
                                               context,
-                                              "No Record Found",
+                                              "No Record Found".tr,
                                               red,
                                               Icons.close);
                                         } else {
@@ -154,7 +155,7 @@ void showCustomerRevenueChartDialog(
                                         if (remaCompleted == 0) {
                                           showCustomToastDisplay(
                                               context,
-                                              "No Record Found",
+                                              "No Record Found".tr,
                                               red,
                                               Icons.close);
                                         } else {

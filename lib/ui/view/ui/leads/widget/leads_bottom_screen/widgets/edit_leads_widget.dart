@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -16,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditLeadsDialog extends StatefulWidget {
@@ -52,6 +54,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
   late TextEditingController fullnameController;
   late TextEditingController businesscontactController;
   late TextEditingController remarkController;
+  late TextEditingController deliveryContactNumController;
   late String imageFile;
   File? leadsImage;
 
@@ -91,6 +94,15 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
         text: widget.leadsController.leadForUpdateData.businessNo);
     remarkController = TextEditingController(
         text: widget.leadsController.leadForUpdateData.remark);
+    deliveryContactNumController = TextEditingController(
+        text:
+            widget.leadsController.leadForUpdateData.deliveryContact != null &&
+                    widget.leadsController.leadForUpdateData.deliveryContact
+                            .toString() !=
+                        '0'
+                ? widget.leadsController.leadForUpdateData.deliveryContact
+                    .toString()
+                : '');
     imageFile = widget.leadsController.leadForUpdateData.imageUrl ?? '';
   }
 
@@ -112,6 +124,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
     fullnameController.clear();
     businesscontactController.clear();
     remarkController.clear();
+    deliveryContactNumController.clear();
   }
 
   @override
@@ -149,8 +162,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Update Lead',
+                 Text(
+                  'Update Lead'.tr,
                   style: TextStyle(
                     color: white,
                     fontSize: 16,
@@ -187,7 +200,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Business Name',
+                            labelText: 'Business Name'.tr,
                             prefixIcon: filledIcon(Assets.icBusiness),
                             border: InputBorder.none,
                           ),
@@ -208,7 +221,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Address',
+                            labelText: 'Address'.tr,
                             prefixIcon: filledIcon(Assets.icLocation),
                             border: InputBorder.none,
                           ),
@@ -233,7 +246,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       horizontal: 12.0,
                                       vertical: 16.0,
                                     ),
-                                    labelText: 'City or Suburb',
+                                    labelText: 'City or Suburb'.tr,
                                     prefixIcon: filledIcon(Assets.icCity),
                                     border: InputBorder.none,
                                   ),
@@ -257,7 +270,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'State',
+                                  labelText: 'State'.tr,
                                   prefixIcon: filledIcon(Assets.icState),
                                   border: InputBorder.none,
                                 ),
@@ -280,7 +293,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Zip/Post/Pin Code',
+                                  labelText: 'Zip/Post/Pin Code'.tr,
                                   prefixIcon: filledIcon(Assets.icZipcode),
                                   border: InputBorder.none,
                                 ),
@@ -310,7 +323,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Mobile Number',
+                                  labelText: 'Mobile Number'.tr,
                                   prefixIcon: filledIcon(Assets.icMobile),
                                   border: InputBorder.none,
                                 ),
@@ -333,7 +346,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Email',
+                                  labelText: 'Email'.tr,
                                   prefixIcon: filledIcon(Assets.icEmail),
                                   border: InputBorder.none,
                                 ),
@@ -356,7 +369,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Business Reg.No',
+                                  labelText: 'Business Reg.No'.tr,
                                   prefixIcon: filledIcon(Assets.icBusinessReg),
                                   border: InputBorder.none,
                                 ),
@@ -384,7 +397,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Contact Person Name',
+                                  labelText: 'Contact Person Name'.tr,
                                   prefixIcon: filledIcon(Assets.icUser),
                                   border: InputBorder.none,
                                 ),
@@ -408,7 +421,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Contact Number',
+                                  labelText: 'Contact Number'.tr,
                                   prefixIcon: filledIcon(Assets.icPhone),
                                   border: InputBorder.none,
                                 ),
@@ -422,7 +435,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: Row(
                         children: [
-                          const Text('Delivery Address    ',
+                           Text('Delivery Address'.tr,
                               style: TextStyle(fontSize: 18)),
                           Checkbox(
                             value: sameAsAbove,
@@ -438,17 +451,20 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       stateController.text;
                                   deliveryZipcodeController.text =
                                       zipcodeController.text;
+                                  deliveryContactNumController.text =
+                                      businesscontactController.text;
                                 } else {
                                   deliveryAddressController.clear();
                                   deliveryTownController.clear();
                                   deliveryStateController.clear();
                                   deliveryZipcodeController.clear();
+                                  deliveryContactNumController.clear();
                                 }
                               });
                             },
                           ),
                           const SizedBox(width: 5),
-                          const Text('Same as Above'),
+                           Text('Same as Above'.tr),
                         ],
                       ),
                     ),
@@ -466,7 +482,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               horizontal: 12.0,
                               vertical: 16.0,
                             ),
-                            labelText: 'Address',
+                            labelText: 'Address'.tr,
                             prefixIcon: filledIcon(Assets.icLocation),
                             border: InputBorder.none,
                           ),
@@ -491,7 +507,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       horizontal: 12.0,
                                       vertical: 16.0,
                                     ),
-                                    labelText: 'City or Suburb',
+                                    labelText: 'City or Suburb'.tr,
                                     prefixIcon: filledIcon(Assets.icCity),
                                     border: InputBorder.none,
                                   ),
@@ -515,7 +531,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'State',
+                                  labelText: 'State'.tr,
                                   prefixIcon: filledIcon(Assets.icState),
                                   border: InputBorder.none,
                                 ),
@@ -538,7 +554,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                     horizontal: 12.0,
                                     vertical: 16.0,
                                   ),
-                                  labelText: 'Zip/Post/Pin Code',
+                                  labelText: 'Zip/Post/Pin Code'.tr,
                                   prefixIcon: filledIcon(Assets.icZipcode),
                                   border: InputBorder.none,
                                 ),
@@ -547,6 +563,29 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                           ),
                         ),
                       ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: TextField(
+                          controller: deliveryContactNumController,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 16.0,
+                            ),
+                            labelText: 'Delivery Contact Number'.tr,
+                            prefixIcon: filledIcon(Assets.icPhone),
+                            border: InputBorder.none,
+                            counterText: "",
+                          ),
+                        ),
+                      ),
                     ),
                     Row(
                       children: [
@@ -567,7 +606,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       horizontal: 12.0,
                                       vertical: 16.0,
                                     ),
-                                    labelText: 'Remark',
+                                    labelText: 'Remark'.tr,
                                     prefixIcon: filledIcon(Assets.icRemark),
                                     border: InputBorder.none,
                                   ),
@@ -586,7 +625,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text('Select Method'),
+                                      title:  Text('Select Method'.tr),
                                       actions: [
                                         IconButton(
                                           onPressed: () async {
@@ -641,8 +680,8 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         child: Text(
                                           leadsImage == null &&
                                                   imageFile.isEmpty
-                                              ? 'Pick an image from gallery'
-                                              : 'Image selected',
+                                              ? 'Pick an image from gallery'.tr
+                                              : 'Image selected'.tr,
                                           style: TextStyle(
                                             color: Colors.grey.shade700,
                                             fontSize: 16.0,
@@ -705,6 +744,15 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         isUpdatingLeads = true;
                                       });
 
+                                      Future.delayed(const Duration(seconds: 1),
+                                          () {
+                                        if (mounted) {
+                                          setState(() {
+                                            isUpdatingLeads = false;
+                                          });
+                                        }
+                                      });
+
                                       if (businessNameController.text.isEmpty ||
                                           addressController.text.isEmpty ||
                                           townController.text.isEmpty ||
@@ -714,14 +762,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                           emailController.text.isEmpty ||
                                           fullnameController.text.isEmpty ||
                                           businesscontactController
-                                              .text.isEmpty ||
-                                          remarkController.text.isEmpty) {
+                                              .text.isEmpty) {
                                         setState(() {
                                           isUpdatingLeads = false;
                                         });
                                         showCustomToastDisplay(
                                             context,
-                                            'All fields must be filled.',
+                                            'All fields must be filled.'.tr,
                                             red,
                                             Icons.close);
                                         return;
@@ -737,9 +784,26 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         });
                                         showCustomToastDisplay(
                                             context,
-                                            'Phone numbers must be exactly 10 digits.',
+                                            'Phone numbers must be exactly 10 digits.'.tr,
                                             red,
                                             Icons.close);
+                                        return;
+                                      }
+
+                                      final email = emailController.text.trim();
+                                      final emailRegex = RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                                      if (!emailRegex.hasMatch(email)) {
+                                        setState(() {
+                                          isUpdatingLeads = false;
+                                        });
+                                        showCustomToastDisplay(
+                                          context,
+                                          'Invalid Email format'.tr,
+                                          red,
+                                          Icons.close,
+                                        );
                                         return;
                                       }
 
@@ -753,7 +817,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                           });
                                           showCustomToastDisplay(
                                               context,
-                                              'File exceeds 1MB.',
+                                              'File exceeds 1MB.'.tr,
                                               red,
                                               Icons.close);
                                           return;
@@ -786,6 +850,11 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                         "delivery_zipcode": int.tryParse(
                                             deliveryZipcodeController.text),
                                         "remark": remarkController.text,
+                                        "delivery_contact": int.tryParse(
+                                                deliveryContactNumController
+                                                    .text
+                                                    .trim()) ??
+                                            0,
                                         "customer_id": widget.customerId,
                                         "oldimage_url": widget.leadsController
                                             .leadForUpdateData.imageUrl,
@@ -795,13 +864,107 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       };
 
                                       try {
-                                        await widget.leadsController
-                                            .updateLeads(sendData, leadsImage);
+                                        var response = await ApiWorker()
+                                            .updateCustomer(
+                                                sendData, leadsImage);
+
+                                        bool isSuccess = true;
+                                        String errorMsg =
+                                            "Failed to update lead";
+
+                                        if (response != null) {
+                                          String? serverMessage;
+                                          try {
+                                            if (response.data is Map) {
+                                              serverMessage ??= response
+                                                  .data['message']
+                                                  ?.toString();
+                                            }
+                                          } catch (_) {}
+
+                                          if (serverMessage != null &&
+                                              serverMessage.trim().isEmpty) {
+                                            serverMessage = null;
+                                          }
+
+                                          try {
+                                            if (response.statusCode != null &&
+                                                (response.statusCode! < 200 ||
+                                                    response.statusCode! >=
+                                                        300)) {
+                                              isSuccess = false;
+                                              errorMsg = serverMessage ??
+                                                  "API Error: ${response.statusCode}";
+                                              if (serverMessage == null) {
+                                                try {
+                                                  if (response.statusMessage !=
+                                                          null &&
+                                                      response.statusMessage
+                                                          .toString()
+                                                          .isNotEmpty) {
+                                                    errorMsg = response
+                                                        .statusMessage
+                                                        .toString();
+                                                  }
+                                                } catch (_) {}
+                                              }
+                                            }
+                                          } catch (_) {}
+
+                                          try {
+                                            if (response.data is Map) {
+                                              var status =
+                                                  response.data['status'];
+                                              if (status == false ||
+                                                  status == 0 ||
+                                                  status == 'false') {
+                                                isSuccess = false;
+                                                errorMsg =
+                                                    serverMessage ?? errorMsg;
+                                              }
+                                            }
+                                          } catch (_) {}
+                                        } else {
+                                          isSuccess = false;
+                                        }
+
+                                        if (isSuccess) {
+                                          widget.leadsController
+                                              .loadLeadsCustomerData;
+                                          if (context.mounted) {
+                                            Navigator.of(context).pop();
+                                          }
+                                        } else {
+                                          if (context.mounted) {
+                                            showCustomToastDisplay(
+                                                context,
+                                                errorMsg,
+                                                Colors.red,
+                                                Icons.close);
+                                          }
+                                        }
                                       } catch (error) {
+                                        if (context.mounted) {
+                                          String errMsg = error.toString();
+                                          final regex = RegExp(
+                                              r'"message"\s*:\s*"([^"]+)"');
+                                          final match =
+                                              regex.firstMatch(errMsg);
+                                          if (match != null &&
+                                              match.groupCount >= 1) {
+                                            errMsg = match.group(1)!;
+                                          } else {
+                                            errMsg = errMsg
+                                                .replaceAll("Exception: ", "")
+                                                .trim();
+                                          }
+                                          showCustomToastDisplay(context,
+                                              errMsg, Colors.red, Icons.error);
+                                        }
+                                      } finally {
                                         setState(() {
                                           isUpdatingLeads = false;
                                         });
-                                        // Error handling is done in the controller
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
@@ -821,11 +984,220 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                                 Colors.white),
                                       ),
                                     )
-                                  : const Text(
-                                      'Update',
+                                  :  Text(
+                                      'Update'.tr,
                                       style: TextStyle(color: white),
                                     ),
                             ),
+                          // ElevatedButton(
+                          //   onPressed: isUpdatingLeads
+                          //       ? null
+                          //       : () async {
+                          //           setState(() {
+                          //             isUpdatingLeads = true;
+                          //           });
+
+                          //           if (businessNameController.text.isEmpty ||
+                          //               addressController.text.isEmpty ||
+                          //               townController.text.isEmpty ||
+                          //               stateController.text.isEmpty ||
+                          //               zipcodeController.text.isEmpty ||
+                          //               mobilenoController.text.isEmpty ||
+                          //               emailController.text.isEmpty ||
+                          //               fullnameController.text.isEmpty ||
+                          //               businesscontactController
+                          //                   .text.isEmpty
+                          //               ) {
+                          //             setState(() {
+                          //               isUpdatingLeads = false;
+                          //             });
+                          //             showCustomToastDisplay(
+                          //                 context,
+                          //                 'All fields must be filled.',
+                          //                 red,
+                          //                 Icons.close);
+                          //             return;
+                          //           }
+
+                          //           if (mobilenoController.text.length !=
+                          //                   10 ||
+                          //               businesscontactController
+                          //                       .text.length !=
+                          //                   10) {
+                          //             setState(() {
+                          //               isUpdatingLeads = false;
+                          //             });
+                          //             showCustomToastDisplay(
+                          //                 context,
+                          //                 'Phone numbers must be exactly 10 digits.',
+                          //                 red,
+                          //                 Icons.close);
+                          //             return;
+                          //           }
+                          //           final email = emailController.text.trim();
+                          //   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                          //   if (!emailRegex.hasMatch(email)) {
+                          //     showCustomToastDisplay(
+                          //       context,
+                          //       'Invalid Email format',
+                          //       red,
+                          //       Icons.close,
+                          //     );
+                          //     return;
+                          //   }
+
+                          //           if (leadsImage != null) {
+                          //             bool isValid =
+                          //                 await isFileSizeWithinLimit(
+                          //                     leadsImage!);
+                          //             if (!isValid) {
+                          //               setState(() {
+                          //                 isUpdatingLeads = false;
+                          //               });
+                          //               showCustomToastDisplay(
+                          //                   context,
+                          //                   'File exceeds 1MB.',
+                          //                   red,
+                          //                   Icons.close);
+                          //               return;
+                          //             }
+                          //           }
+
+                          //           final sendData = {
+                          //             "businessname":
+                          //                 businessNameController.text,
+                          //             "address": addressController.text,
+                          //             "town": townController.text,
+                          //             "state": stateController.text,
+                          //             "zipcode": int.tryParse(
+                          //                 zipcodeController.text),
+                          //             "mobileno": int.tryParse(
+                          //                 mobilenoController.text),
+                          //             "email": emailController.text,
+                          //             "tfn": businessRegNoController.text,
+                          //             "fullname": fullnameController.text,
+                          //             "businesscontact": int.tryParse(
+                          //                 businesscontactController.text),
+                          //             "addressCheckbox":
+                          //                 sameAsAbove ? "ON" : "OFF",
+                          //             "delivery_address":
+                          //                 deliveryAddressController.text,
+                          //             "delivery_town":
+                          //                 deliveryTownController.text,
+                          //             "delivery_state":
+                          //                 deliveryStateController.text,
+                          //             "delivery_zipcode": int.tryParse(
+                          //                 deliveryZipcodeController.text),
+                          //             "remark": remarkController.text,
+                          //             "delivery_contact": int.tryParse(
+                          //             deliveryContactNumController.text.trim()) ?? 0,
+                          //             "customer_id": widget.customerId,
+                          //             "oldimage_url": widget.leadsController
+                          //                 .leadForUpdateData.imageUrl,
+                          //             "companyId": SessionHelper
+                          //                     .loginSavedData?.company_id ??
+                          //                 0,
+                          //           };
+                          //           setState(() {
+                          //     isUpdatingLeads = true;
+                          //   });
+
+                          //            try {
+                          //     var response = await ApiWorker().updateCustomer(sendData, leadsImage);
+
+                          //     bool isSuccess = true;
+                          //     String errorMsg = "Failed to update lead";
+
+                          //     if (response != null) {
+                          //       String? serverMessage;
+                          //       try {
+                          //         if (response.data is Map) {
+                          //           serverMessage ??= response.data['message']?.toString();
+                          //         }
+                          //       } catch (_) {}
+
+                          //       if (serverMessage != null && serverMessage.trim().isEmpty) {
+                          //         serverMessage = null;
+                          //       }
+
+                          //       try {
+                          //         if (response.statusCode != null && (response.statusCode! < 200 || response.statusCode! >= 300)) {
+                          //           isSuccess = false;
+                          //           errorMsg = serverMessage ?? "API Error: ${response.statusCode}";
+                          //           if (serverMessage == null) {
+                          //             try {
+                          //               if (response.statusMessage != null && response.statusMessage.toString().isNotEmpty) {
+                          //                 errorMsg = response.statusMessage.toString();
+                          //               }
+                          //             } catch (_) {}
+                          //           }
+                          //         }
+                          //       } catch (_) {}
+
+                          //       try {
+                          //         if (response.data is Map) {
+                          //           var status = response.data['status'];
+                          //           if (status == false || status == 0 || status == 'false') {
+                          //             isSuccess = false;
+                          //             errorMsg = serverMessage ?? errorMsg;
+                          //           }
+                          //         }
+                          //       } catch (_) {}
+                          //     } else {
+                          //       isSuccess = false;
+                          //     }
+
+                          //     if (isSuccess) {
+                          //       widget.leadsController.loadLeadsCustomerData;
+                          //       if (context.mounted) {
+                          //         Navigator.of(context).pop();
+                          //       }
+                          //     } else {
+                          //       if (context.mounted) {
+                          //         showCustomToastDisplay(context, errorMsg, Colors.red, Icons.close);
+                          //       }
+                          //     }
+                          //   } catch (error) {
+                          //     if (context.mounted) {
+                          //       String errMsg = error.toString();
+                          //       final regex = RegExp(r'"message"\s*:\s*"([^"]+)"');
+                          //       final match = regex.firstMatch(errMsg);
+                          //       if (match != null && match.groupCount >= 1) {
+                          //         errMsg = match.group(1)!;
+                          //       } else {
+                          //         errMsg = errMsg.replaceAll("Exception: ", "").trim();
+                          //       }
+                          //       showCustomToastDisplay(context, errMsg, Colors.red, Icons.error);
+                          //     }
+                          //   } finally {
+                          //     setState(() {
+                          //       isUpdatingLeads = false;
+                          //     });
+                          //   }
+                          //         },
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: primaryColor,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(4.0),
+                          //     ),
+                          //   ),
+                          //   child: isUpdatingLeads
+                          //       ? const SizedBox(
+                          //           width: 20,
+                          //           height: 20,
+                          //           child: CircularProgressIndicator(
+                          //             strokeWidth: 2,
+                          //             valueColor:
+                          //                 AlwaysStoppedAnimation<Color>(
+                          //                     Colors.white),
+                          //           ),
+                          //         )
+                          //       : const Text(
+                          //           'Update',
+                          //           style: TextStyle(color: white),
+                          //         ),
+                          // ),
                           if (widget.leadsController.isUpdating.value)
                             CircularProgressIndicator(),
                         ],

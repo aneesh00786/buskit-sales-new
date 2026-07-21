@@ -11,6 +11,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void showCollectionChartDialog(
@@ -107,16 +108,16 @@ void showCollectionChartDialog(
                                 } else {
                                   final responseModel = snapshot.data!;
                                   final pendingAmountLabel =
-                                      'Pending: ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.amount ?? 0.0)}';
+                                      'Pending'.tr + ': ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.amount ?? 0.0)}';
 
                                   final dueAmountLabel =
-                                      'Due: ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.dueAmount ?? 0.0)}';
+                                      'Due'.tr + ': ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.dueAmount ?? 0.0)}';
 
                                   final overdueAmountLabel =
-                                      'Overdue: ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.overDue ?? 0.0)}';
+                                      'Overdue'.tr + ': ${formatAmount(responseModel.collection?.order?.pendingAmount?.last.overDue ?? 0.0)}';
 
                                   final completedOrdersLabel =
-                                      'Completed: ${formatAmount(responseModel.collection?.payment?.payedAmount)}';
+                                      'Completed'.tr + ': ${formatAmount(responseModel.collection?.payment?.payedAmount)}';
 
                                   return Column(
                                     children: [
@@ -179,7 +180,7 @@ void showCollectionChartDialog(
                                                   'Completed: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {
@@ -208,7 +209,7 @@ void showCollectionChartDialog(
                                                   'Pending: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {
@@ -237,7 +238,7 @@ void showCollectionChartDialog(
                                                   'Due: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {
@@ -267,7 +268,7 @@ void showCollectionChartDialog(
                                                   'Overdue: ${formatAmount(0)}') {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               } else {

@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void showCategoryChartDialog(
@@ -102,8 +103,7 @@ void showCategoryChartDialog(
                                     allCategory: categories!,
                                     staffProjection: staffProjection,
                                     categoryTarget: categoryTarget,
-                                    isMonthly:
-                                        categoryTarget == '0' ? true : false,
+                                    isMonthly: false,
                                     isDayOrRange: provider.selectedFilter ==
                                             FilterDateEnum.range ||
                                         provider.selectedFilter ==
@@ -250,7 +250,7 @@ void showValueDialogCusDash(
                                             item.orderId ?? 'N/A')),
                                     Expanded(
                                         child: buildRowData(getStatusName(
-                                            item.orderStatus ?? 0))),
+                                            item.orderStatus ?? 0).tr)),
                                     Expanded(
                                         child: buildRowData(
                                             formatAmount(item.orderTotal))),

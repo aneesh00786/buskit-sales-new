@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void showOrderStatusChartDialog(
@@ -125,14 +126,14 @@ void showOrderStatusChartDialog(
                                               } else {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
                                               Colors.blue.shade300,
-                                              "Processing : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}",
+                                              'Processing'.tr + '  : ${formatAmount(categoryPerformance.order!.totalOrders!.last.orderProcessing)}',
                                             ),
                                           ),
                                           InkWell(
@@ -146,19 +147,19 @@ void showOrderStatusChartDialog(
                                                 showValueOrderDialog(
                                                     context,
                                                     categoryPerformance,
-                                                    "Packed & Ready for Delivery",
+                                                    "Packed & Ready for Delivery".tr,
                                                     1);
                                               } else {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
                                               const Color(0xffc38a42),
-                                              "Packed & Ready for Delivery : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}",
+                                              'Packed & Ready for Delivery'.tr + '  : ${formatAmount(categoryPerformance.order!.totalOrders!.last.outForDelivery)}',
                                             ),
                                           ),
                                           InkWell(
@@ -172,19 +173,19 @@ void showOrderStatusChartDialog(
                                                 showValueOrderDialog(
                                                     context,
                                                     categoryPerformance,
-                                                    "Delivered Orders",
+                                                    "Delivered Orders".tr,
                                                     2);
                                               } else {
                                                 showCustomToastDisplay(
                                                     context,
-                                                    "No Record Found",
+                                                    "No Record Found".tr,
                                                     red,
                                                     Icons.close);
                                               }
                                             },
                                             child: _buildLegendItem(
                                               const Color(0xff33b4a8),
-                                              "Delivered : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}",
+                                              'Delivered'.tr + '  : ${formatAmount(categoryPerformance.order!.totalOrders!.last.deliverd)}',
                                             ),
                                           ),
                                         ],

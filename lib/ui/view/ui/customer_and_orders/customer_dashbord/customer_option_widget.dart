@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
@@ -212,10 +213,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           svgBgColor: const Color.fromARGB(255, 229, 242, 254),
           color: const Color.fromARGB(255, 55, 74, 134),
           onTap: () async {
-           
             if (orderCountList.totalOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -227,7 +227,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.delivered);
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
@@ -242,7 +242,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.estimateFilteredOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -255,14 +255,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.estimates, 'Estimate');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
           onUnFilterTap: () async {
             if (orderCountList.estimateOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -275,7 +275,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.estimates, 'Estimate');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
@@ -290,7 +290,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.preorderFilteredOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -303,14 +303,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.preOrder, 'Booking');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
           onUnFilterTap: () async {
             if (orderCountList.preorderOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -323,7 +323,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.preOrder, 'Booking');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
@@ -375,7 +375,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           onTap: () async {
             if (orderCountList.cancelOrder.toString() == "0") {
               showCustomToastDisplay(
-                  context, "No Record Found", red, Icons.close);
+                  context, "No Record Found".tr, red, Icons.close);
             } else {
               bool isOnline = await ConnectivityService().isOnline();
               if (isOnline) {
@@ -387,7 +387,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     context, provider, OrderStatus.cancelled, 'Cancelled');
               } else {
                 showCustomToastDisplay(
-                    context, "You are Offline!", red, Icons.close);
+                    context, "You are Offline!".tr, red, Icons.close);
               }
             }
           },
@@ -441,7 +441,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                     direction: Axis.vertical,
                     children: [
                       CustomText(
-                        content: optionData.title,
+                        content: optionData.title.tr,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: secondaryTextColor,
@@ -536,7 +536,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                       direction: Axis.vertical,
                       children: [
                         CustomText(
-                          content: optionData.title,
+                          content: optionData.title.tr,
                           maxLine: 1,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -749,9 +749,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   ],
                                                   rows: filteredOrders.isEmpty
                                                       ? [
-                                                          const DataRow(cells: [
+                                                           DataRow(cells: [
                                                             DataCell(Text(
-                                                                'Record Not Found')),
+                                                                'Record Not Found'.tr)),
                                                             DataCell(Text('')),
                                                             DataCell(Text('')),
                                                             DataCell(Text('')),
@@ -871,7 +871,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                       } else {
                                                                         showCustomToastDisplay(
                                                                             context,
-                                                                            "You are Offline!",
+                                                                            "You are Offline!".tr,
                                                                             red,
                                                                             Icons.warning);
                                                                       }
@@ -906,9 +906,28 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           MainAxisAlignment
                                                                               .center,
                                                                       children: [
+                                                                        // Text(
+                                                                        //   order.orderCreatedAt != null
+                                                                        //       ? getFormattedOrderCreatAt(order.orderCreatedAt.toString())
+                                                                        //       : 'N/A',
+                                                                        //   style:
+                                                                        //       TextStyle(
+                                                                        //     fontSize:
+                                                                        //         fontSize,
+                                                                        //   ),
+                                                                        //   maxLines:
+                                                                        //       1,
+                                                                        //   overflow:
+                                                                        //       TextOverflow.ellipsis,
+                                                                        // ),
                                                                         Text(
-                                                                          order.orderCreatedAt != null
-                                                                              ? getFormattedOrderCreatAt(order.orderCreatedAt.toString())
+                                                                          order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                  // Note: If this string is saved as DD-MM-YYYY in your database,
+                                                                                  // remember to use DateFormat('dd-MM-yyyy').parse() instead of DateTime.parse()
+                                                                                  DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                  format: 'dd-MM-yyyy', // Enforces the date-only format
+                                                                                )
                                                                               : 'N/A',
                                                                           style:
                                                                               TextStyle(
@@ -921,8 +940,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               TextOverflow.ellipsis,
                                                                         ),
                                                                         Text(
-                                                                          order.orderCreatedAt != null
-                                                                              ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt)
+                                                                          order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                  DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                  format: 'hh:mm a', // Enforces the time-only format
+                                                                                )
                                                                               : 'N/A',
                                                                           style:
                                                                               TextStyle(
@@ -934,6 +956,20 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                           overflow:
                                                                               TextOverflow.ellipsis,
                                                                         ),
+                                                                        // Text(
+                                                                        //   order.orderCreatedAt != null
+                                                                        //       ? NKDateUtils.commonTimeOnlyFormat(order.orderCreatedAt)
+                                                                        //       : 'N/A',
+                                                                        //   style:
+                                                                        //       TextStyle(
+                                                                        //     fontSize:
+                                                                        //         fontSize,
+                                                                        //   ),
+                                                                        //   maxLines:
+                                                                        //       1,
+                                                                        //   overflow:
+                                                                        //       TextOverflow.ellipsis,
+                                                                        // ),
                                                                       ],
                                                                     ),
                                                                   ),
@@ -1009,7 +1045,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         } else {
                                                                           showCustomToastDisplay(
                                                                               context,
-                                                                              "You are Offline!",
+                                                                              "You are Offline!".tr,
                                                                               red,
                                                                               Icons.warning);
                                                                         }
@@ -1104,7 +1140,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                             Padding(
                                                                               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12.0),
                                                                               child: Text(
-                                                                                getStatusName(order.orderStatus),
+                                                                                getStatusName(order.orderStatus).tr,
                                                                                 style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                 textAlign: TextAlign.center,
                                                                               ),
@@ -1114,7 +1150,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               Padding(
                                                                                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                                                                 child: Text(
-                                                                                  NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                  order.deliveryDate != null
+                                                                                      ? TimeUtils.formatTimeInZone(
+                                                                                          order.deliveryDate!,
+                                                                                          format: 'dd-MM-yyyy hh:mm a', // Keeps the full date and time format
+                                                                                        )
+                                                                                      : 'N/A',
                                                                                   textAlign: TextAlign.center,
                                                                                   maxLines: 2,
                                                                                   style: TextStyle(
@@ -1122,6 +1163,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                     fontWeight: FontWeight.w400,
                                                                                   ),
                                                                                 ),
+                                                                                //  Text(
+                                                                                //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate!.toIso8601String())),
+                                                                                //   textAlign: TextAlign.center,
+                                                                                //   maxLines: 2,
+                                                                                //   style: TextStyle(
+                                                                                //     fontSize: fontSize - 2,
+                                                                                //     fontWeight: FontWeight.w400,
+                                                                                //   ),
+                                                                                // ),
                                                                               ),
                                                                             ],
                                                                             if (order.orderStatus ==
@@ -1132,9 +1182,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                   Expanded(
                                                                                     child: Container(
                                                                                         color: Colors.blue,
-                                                                                        child: const Center(
+                                                                                        child:  Center(
                                                                                           child: Text(
-                                                                                            'Quick Sale',
+                                                                                            'Quick Sale'.tr,
                                                                                             style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
                                                                                           ),
                                                                                         )),
@@ -1189,11 +1239,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                       DataColumn(
                                                           label: SizedBox(
                                                         width: flexWidth * 4.5,
-                                                        child: const Align(
+                                                        child:  Align(
                                                           alignment: Alignment
                                                               .centerRight,
                                                           child: Text(
-                                                            'Total',
+                                                            'Total'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -1285,9 +1335,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Customer List',
+                                                          'Customer List'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1303,9 +1353,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Order No.',
+                                                          'Order No.'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1321,9 +1371,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Created',
+                                                          'Created'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1339,9 +1389,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Created By',
+                                                          'Created By'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1357,9 +1407,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Amount',
+                                                          'Amount'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1375,9 +1425,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Invoice',
+                                                          'Invoice'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1393,9 +1443,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Payment Status',
+                                                          'Payment Status'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1411,9 +1461,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                   740
                                                               ? 0
                                                               : 30),
-                                                      child: const Center(
+                                                      child:  Center(
                                                         child: Text(
-                                                          'Status',
+                                                          'Status'.tr,
                                                           maxLines: 2,
                                                         ),
                                                       ),
@@ -1533,7 +1583,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
           freshOfflineDraftDetails = drafts.toList();
         } catch (e) {
-      //
+          //
         }
 
         if (mounted) {
@@ -1645,11 +1695,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                       FontWeight
                                                                           .w700),
                                                           columns: [
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Customer List',
+                                                                  'Customer List'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1658,25 +1708,26 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType No.',
+                                                                  '$orderType ${'No.'.tr}',
+                                                                  // '$orderType No.',
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
                                                             )),
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Created',
+                                                                  'Created'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
                                                             )),
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Created By',
+                                                                  'Created By'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1685,16 +1736,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  '$orderType Amount',
+                                                                  '$orderType ${'Amount'.tr}',
+                                                                  // '$orderType Amount',
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
                                                             )),
-                                                            const DataColumn(
+                                                             DataColumn(
                                                                 label: Expanded(
                                                               child: Center(
                                                                 child: Text(
-                                                                  'Status',
+                                                                  'Status'.tr,
                                                                   maxLines: 2,
                                                                 ),
                                                               ),
@@ -1716,10 +1768,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         offlineDraftDetails
                                                                             .isEmpty)
                                                                 ? [
-                                                                    const DataRow(
+                                                                     DataRow(
                                                                       cells: [
                                                                         DataCell(
-                                                                            Text('Record Not Found')),
+                                                                            Text('Record Not Found'.tr)),
                                                                         DataCell(
                                                                             Text('')),
                                                                         DataCell(
@@ -1820,7 +1872,12 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               width: flexWidth * 1,
                                                                               child: Center(
                                                                                 child: Text(
-                                                                                  order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                                  order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                                                      ? TimeUtils.formatTimeInZone(
+                                                                                          DateTime.parse(order.orderCreatedAt.toString()),
+                                                                                          format: 'dd-MM-yyyy', // Enforces the date-only format
+                                                                                        )
+                                                                                      : 'N/A',
                                                                                   style: TextStyle(fontSize: fontSize),
                                                                                   maxLines: 1,
                                                                                   overflow: TextOverflow.ellipsis,
@@ -1828,6 +1885,19 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                               ),
                                                                             ),
                                                                           ),
+                                                                          // DataCell(
+                                                                          //   SizedBox(
+                                                                          //     width: flexWidth * 1,
+                                                                          //     child: Center(
+                                                                          //       child: Text(
+                                                                          //         order.orderCreatedAt != null ? getFormattedOrderCreatAt(order.orderCreatedAt.toString()) : 'N/A',
+                                                                          //         style: TextStyle(fontSize: fontSize),
+                                                                          //         maxLines: 1,
+                                                                          //         overflow: TextOverflow.ellipsis,
+                                                                          //       ),
+                                                                          //     ),
+                                                                          //   ),
+                                                                          // ),
                                                                           DataCell(
                                                                             SizedBox(
                                                                               width: flexWidth * 1,
@@ -1869,13 +1939,18 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                       mainAxisSize: MainAxisSize.min,
                                                                                       children: [
                                                                                         Text(
-                                                                                          getStatusName(order.orderStatus),
+                                                                                          getStatusName(order.orderStatus).tr,
                                                                                           style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
                                                                                           textAlign: TextAlign.center,
                                                                                         ),
                                                                                         if (order.orderStatus == 2 && order.deliveryDate != null) ...[
                                                                                           Text(
-                                                                                            NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate?.toIso8601String() ?? '')),
+                                                                                            order.deliveryDate != null
+                                                                                                ? TimeUtils.formatTimeInZone(
+                                                                                                    order.deliveryDate!,
+                                                                                                    format: 'dd-MM-yyyy hh:mm a',
+                                                                                                  )
+                                                                                                : 'N/A',
                                                                                             textAlign: TextAlign.center,
                                                                                             maxLines: 2,
                                                                                             style: const TextStyle(
@@ -1883,6 +1958,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                                               fontWeight: FontWeight.w400,
                                                                                             ),
                                                                                           ),
+                                                                                          // Text(
+                                                                                          //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order.deliveryDate?.toIso8601String() ?? '')),
+                                                                                          //   textAlign: TextAlign.center,
+                                                                                          //   maxLines: 2,
+                                                                                          //   style: const TextStyle(
+                                                                                          //     fontSize: 10.0,
+                                                                                          //     fontWeight: FontWeight.w400,
+                                                                                          //   ),
+                                                                                          // ),
                                                                                         ]
                                                                                       ],
                                                                                     ),
@@ -2174,13 +2258,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                         fontWeight:
                                                             FontWeight.w700),
                                                     columns: [
-                                                      const DataColumn(
+                                                       DataColumn(
                                                           label: Expanded(
                                                         child: Align(
                                                           alignment: Alignment
                                                               .centerRight,
                                                           child: Text(
-                                                            'Total',
+                                                            'Total'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2288,9 +2372,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Customer List',
+                                                            'Customer List'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2307,7 +2391,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                     : 0),
                                                         child: Center(
                                                           child: Text(
-                                                            '$orderType No.',
+                                                            '${orderType.tr} ${'No.'.tr}',
+                                                            // '$orderType No.',
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2322,9 +2407,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Created',
+                                                            'Created'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2339,9 +2424,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Created By',
+                                                            'Created By'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2358,7 +2443,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                     : 0),
                                                         child: Center(
                                                           child: Text(
-                                                            '$orderType Amount',
+                                                            '$orderType ${'Amount'.tr}',
+                                                            // '$orderType Amount',
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2373,9 +2459,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                                         context)
                                                                     ? 30
                                                                     : 0),
-                                                        child: const Center(
+                                                        child:  Center(
                                                           child: Text(
-                                                            'Status',
+                                                            'Status'.tr,
                                                             maxLines: 2,
                                                           ),
                                                         ),
@@ -2592,9 +2678,9 @@ Widget noOrderDataFoundWidget() {
                           ),
                         )),
                       ],
-                      rows: const [
+                      rows:  [
                         DataRow(cells: [
-                          DataCell(Text('Record Not Found')),
+                          DataCell(Text('Record Not Found'.tr)),
                           DataCell(Text('')),
                           DataCell(Text('')),
                           DataCell(Text('')),

@@ -517,54 +517,7 @@ print('dashboard list body:$requestBody');
     throw Exception('Failed to fetch data: $e');
   }
 }
-
-
-  // Future<ResponseModelCp> fetchDashboardValuePerformanceData({
-  //   required String catId,
-  //   String? fetchType,
-  //   String? startDate,
-  //   String? endDate,
-  //   String? selectedDay,
-  //   List<String>? selectedMonths,
-  //   List<String>? selectedWeeks,
-  //   int? year,
-  // }) async {
-  //   final requestBody = {
-  //     "month": catId,
-  //     "time_range": "Month",
-  //     "year": DateTime.now().year,
-  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //   };
-  //   try {
-  //     final response = await responsePostMethod(
-  //         requestData: requestBody,
-  //         endPoint: ApiConstants.fetchValuePerformance,
-  //         options: Options(
-  //           headers: {'Content-Type': 'application/json'},
-  //         ));
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = response.data;
-  //       var allCategoryList = jsonResponse['data'] as List;
-  //       List<Salesmanvn> allCategory =
-  //           allCategoryList.map((json) => Salesmanvn.fromJson(json)).toList();
-  //       return ResponseModelCp(
-  //           statusCode: jsonResponse['status_code'] ?? 0,
-  //           status: jsonResponse['status'] ?? false,
-  //           message: jsonResponse['message'] ?? '',
-  //           data: allCategory);
-  //     } else {
-  //       handleExceptionMessage(
-  //           response: response, apiName: "value perfromance");
-  //       throw Exception('Failed to load data');
-  //     }
-  //   } on DioException catch (error) {
-  //     handleExceptionMessage(
-  //         response: error.response, apiName: "value perfromance", error: error);
-  //     throw Exception('Failed to fetch data: $error');
-  //   }
-  // }
-  Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
+Future<List<orderResponseModel.OrderData>> fetchChartSalesmanOrderData({
     required dynamic catId,
     String? salesmanId,
     String? fetchType,
@@ -577,40 +530,46 @@ print('dashboard list body:$requestBody');
   }) async {
     Object? sendData;
     
-    // 1. Updated Logic: Year is a single value, others are lists
-    switch (fetchType) {
-      case "Month":
-        sendData = selectedMonths; // List
+    // Normalize string to avoid case-sensitive fall-throughs
+    final String type = fetchType?.toLowerCase() ?? '';
+
+    switch (type) {
+      case "month":
+        sendData = selectedMonths; // Ensure these are names like ["June"]
         break;
-      case "Week":
-        sendData = selectedWeeks; // List
+      case "week":
+        sendData = selectedWeeks; 
         break;
-      case "Day":
-        sendData = selectedDay != null ? [selectedDay] : null; // List
+      case "day":
+        sendData = selectedDay != null ? [selectedDay] : null; 
         break;
-      case "Year":
       case "year":
-        // ✅ CHANGE: Send as single value (String), not inside a list
+        // Sent as single value (String) as per your logic
         sendData = year?.toString(); 
         break;
-      case "Range":
+      case "range":
         sendData = (startDate != null && endDate != null) 
-            ? [startDate, endDate] // List
+            ? [startDate, endDate] 
             : null;
         break;
       default:
         sendData = selectedMonths;
     }
 
+    // Safely parse catId to ensure backend receives an integer
+    int? parsedCatId;
+    if (catId != null && catId.toString().isNotEmpty) {
+      parsedCatId = int.tryParse(catId.toString());
+    }
+
     final requestBody = {
-      "categories_id": catId,
+      "categories_id": parsedCatId ?? 0, // Fallback to 0, not empty string
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "customer_id": "",
-      // Use parameter salesmanId if provided, otherwise session
       "salesman_id": salesmanId ?? SessionHelper.loginSavedData?.salesmanId ?? '',
-      "bar_type": fetchType,
-      "range_type": fetchType,
-      "selected_range": sendData, // String for Year, List for others
+      "bar_type": fetchType, // e.g. "Month"
+      "range_type": fetchType, 
+      "selected_range": sendData, 
       "year": year?.toString() ?? DateTime.now().year.toString(),
       "limit": 1000,
       "page": 1
@@ -623,6 +582,8 @@ print('dashboard list body:$requestBody');
           options: Options(
             headers: {'Content-Type': 'application/json'},
           ));
+          print("API PAYLOAD: $requestBody");
+        log('response of the fetchOrderByRange: ${response.data}');
       if (response.statusCode == 200) {
         var jsonResponse = response.data;
         var returnResponse = jsonResponse['data'] as List;
@@ -657,37 +618,46 @@ print('dashboard list body:$requestBody');
   //   int? year,
   // }) async {
   //   Object? sendData;
+    
+  //   // 1. Updated Logic: Year is a single value, others are lists
   //   switch (fetchType) {
   //     case "Month":
-  //       sendData = selectedMonths;
+  //       sendData = selectedMonths; // List
   //       break;
   //     case "Week":
-  //       sendData = selectedWeeks;
+  //       sendData = selectedWeeks; // List
   //       break;
   //     case "Day":
-  //       sendData = [selectedDay];
+  //       sendData = selectedDay != null ? [selectedDay] : null; // List
   //       break;
   //     case "Year":
-  //       sendData = year;
+  //     case "year":
+  //       // ✅ CHANGE: Send as single value (String), not inside a list
+  //       sendData = year?.toString(); 
   //       break;
   //     case "Range":
-  //       sendData = [startDate, endDate];
+  //       sendData = (startDate != null && endDate != null) 
+  //           ? [startDate, endDate] // List
+  //           : null;
   //       break;
   //     default:
   //       sendData = selectedMonths;
   //   }
+
   //   final requestBody = {
   //     "categories_id": catId,
   //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
   //     "customer_id": "",
-  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
+  //     // Use parameter salesmanId if provided, otherwise session
+  //     "salesman_id": salesmanId ?? SessionHelper.loginSavedData?.salesmanId ?? '',
   //     "bar_type": fetchType,
   //     "range_type": fetchType,
-  //     "selected_range": sendData,
-  //     "year": fetchType == "Year" ? year : DateTime.now().year.toString(),
+  //     "selected_range": sendData, // String for Year, List for others
+  //     "year": year?.toString() ?? DateTime.now().year.toString(),
   //     "limit": 1000,
   //     "page": 1
   //   };
+    
   //   try {
   //     final response = await responsePostMethod(
   //         requestData: requestBody,
@@ -695,6 +665,8 @@ print('dashboard list body:$requestBody');
   //         options: Options(
   //           headers: {'Content-Type': 'application/json'},
   //         ));
+  //         log('response of fetchOrderByRange:${response.data}');
+        
   //     if (response.statusCode == 200) {
   //       var jsonResponse = response.data;
   //       var returnResponse = jsonResponse['data'] as List;
@@ -716,6 +688,7 @@ print('dashboard list body:$requestBody');
   //     throw Exception('Failed to fetch data: $error');
   //   }
   // }
+
   Future<List<TargetDatum>> fetchSalesmanTargetByCategory({
   required int catId,
   String? salesmanId,
@@ -1010,6 +983,7 @@ print('dashboard list body:$requestBody');
   bool isLogin = false,
   bool checkDate = false,
 }) async {
+  print('fetch fetchAllOrders apio called');
   
   // --- 1. PREPARE VARIABLES (Like in fetchDashboardData) ---
   dynamic sendData;
@@ -1044,13 +1018,13 @@ print('dashboard list body:$requestBody');
     default:
       sendData = selectedMonths;
   }
-
-  // --- 2. CONSTRUCT BODY ---
-  // We determine the year to send: 
-  // If timeRange is "year", use the selected `year`. Otherwise, current year.
-  final int yearToSend = (timeRangePayload == "year" && year != null) 
+final int yearToSend = (year != null && year != 0) 
       ? year 
       : DateTime.now().year;
+ 
+  // final int yearToSend = (timeRangePayload == "year" && year != null) 
+  //     ? year 
+  //     : DateTime.now().year;
 
   final requestBody = isLogin
       ? {
@@ -1139,226 +1113,6 @@ print('dashboard list body:$requestBody');
   }
 }
   
-  // Future<OrderResponse> fetchAllOrders({
-  //   String? fetchType,
-  //   String? startDate,
-  //   String? endDate,
-  //   String? selectedDay,
-  //   List<String>? selectedMonths,
-  //   List<String>? selectedWeeks,
-  //   int? year,
-  //   OrderStatus? orderStatus,
-  //   required dynamic orderType,
-  //   bool isLogin = false,
-  //   bool checkDate = false,
-  // }) async {
-  //   dynamic sendData;
-  //   switch (fetchType) {
-  //     case "Month":
-  //       sendData = selectedMonths;
-  //       break;
-  //     case "Week":
-  //       sendData = selectedWeeks;
-  //       break;
-  //     case "Day":
-  //       sendData = [selectedDay];
-  //       break;
-  //     case "Year":
-      
-  //       sendData = year.toString();
-         
-  //       break;
-  //     case "Range":
-  //       sendData = [startDate, endDate];
-  //       break;
-  //     default:
-  //       sendData = selectedMonths;
-  //   }
-
-  //   final requestBody = isLogin
-  //       ? {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": "",
-  //           "time_range": "Month",
-  //           "selected_range": [DateFormat('MMMM').format(DateTime.now())],
-  //           "payment_type": "",
-  //           "year": DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         }
-  //       : {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": "",
-  //           "time_range":
-  //               fetchType?.toLowerCase() == "year" ? "year" : fetchType,
-  //           "selected_range": sendData,
-  //           "payment_type": "",
-  //           "year": fetchType == "Year" ? year : DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         };
-
-  //   final cacheKey =
-  //       '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType${checkDate ? '_true' : ''}';
-
-  //   final orderBox = await getHiveBoxSafely('fetchAllOrdersBox');
-
-  //   try {
-  //     final isOnline = await ConnectivityService().isOnline();
-  //     if (!isOnline) {
-  //       final cachedData = orderBox.get(cacheKey);
-  //       if (cachedData != null) {
-  //         // log("Cached data found: $cachedData");
-  //         Map<String, dynamic> safeMap = ensureStringKeyedMap(cachedData);
-  //         return OrderResponse.fromJson(safeMap);
-  //       }
-  //     }
-  //     print('API REQUEST BODY: $requestBody');
-
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.fetchAllOrderByRange,
-  //       requestData: requestBody,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = response.data;
-  //     print('response from orders api:$jsonResponse');
-  //       await orderBox.put(cacheKey, Map<String, dynamic>.from(jsonResponse));
-
-  //       return OrderResponse.fromJson(ensureStringKeyedMap(jsonResponse));
-  //     } else {
-  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
-  //     }
-  //   } on SocketException {
-  //     final cachedData = orderBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       Map<String, dynamic> safeMap = ensureStringKeyedMap(cachedData);
-  //       return OrderResponse.fromJson(safeMap);
-  //     } else {
-  //       throw Exception('Network error, and no cached data is available.');
-  //     }
-  //   } catch (e) {
-  //     final cachedData = orderBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       Map<String, dynamic> safeMap = ensureStringKeyedMap(cachedData);
-  //       return OrderResponse.fromJson(safeMap);
-  //     } else {
-  //       throw Exception('Unexpected error occurred: $e');
-  //     }
-  //   }
-  // }
-
-  // Future<OrderResponse> fetchAllOrders({
-  //   String? fetchType,
-  //   String? startDate,
-  //   String? endDate,
-  //   String? selectedDay,
-  //   List<String>? selectedMonths,
-  //   List<String>? selectedWeeks,
-  //   int? year,
-  //   OrderStatus? orderStatus,
-  //   required dynamic orderType,
-  //   bool isLogin = false,
-  //   bool checkDate = false,
-  // }) async {
-  //   Object? sendData;
-  //   switch (fetchType) {
-  //     case "Month":
-  //       sendData = selectedMonths;
-  //       break;
-  //     case "Week":
-  //       sendData = selectedWeeks;
-  //       break;
-  //     case "Day":
-  //       sendData = [selectedDay];
-  //       break;
-  //     case "Year":
-  //       sendData = year.toString();
-  //       break;
-  //     case "Range":
-  //       sendData = [startDate, endDate];
-  //       break;
-  //     default:
-  //       sendData = selectedMonths;
-  //   }
-
-  //   final requestBody = isLogin
-  //       ? {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //           "time_range": "Month",
-  //           "selected_range": [DateFormat('MMMM').format(DateTime.now())],
-  //           "payment_type": "",
-  //           "year": DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         }
-  //       : {
-  //           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //           "check_date": checkDate,
-  //           "order_type": orderType,
-  //           "categories_id": "",
-  //           "customer_id": "",
-  //           "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //           "time_range": fetchType == "Year" ? 'year' : fetchType,
-  //           "selected_range": sendData,
-  //           "payment_type": "",
-  //           "year": fetchType == "Year" ? year : DateTime.now().year,
-  //           "limit": 1000,
-  //           "page": 1,
-  //         };
-
-  //   final cacheKey =
-  //       '${SessionHelper.loginSavedData?.company_id ?? -1}_orders_$orderType${checkDate ? '_true' : ''}';
-  //   final orderBox = Hive.box('fetchAllOrdersBox');
-  //   try {
-  //     final isOnline = await ConnectivityService().isOnline();
-  //     if (!isOnline) {
-  //       final cachedData = orderBox.get(cacheKey);
-  //       if (cachedData != null) {
-  //         final castedData = LocalStorage()
-  //             .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-  //         return OrderResponse.fromJson(castedData);
-  //       }
-  //     }
-
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.fetchAllOrderByRange,
-  //       requestData: requestBody,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = response.data;
-  //       await orderBox.put(cacheKey, jsonResponse);
-  //       return OrderResponse.fromJson(Map<String, dynamic>.from(jsonResponse));
-  //     } else {
-  //       throw Exception('Failed to fetch orders - ${response.statusCode}');
-  //     }
-  //   } on SocketException {
-  //     final cachedData = orderBox.get(cacheKey);
-  //     if (cachedData != null) {
-  //       final castedData = LocalStorage()
-  //           .castToStringDynamic(Map<dynamic, dynamic>.from(cachedData));
-  //       return OrderResponse.fromJson(castedData);
-  //     } else {
-  //       throw Exception('Network error, and no cached data is available.');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Unexpected error occurred: $e');
-  //   }
-  // }
 
   Future<OrderResponse> fetchCustomerDashOrders({
     required String cusId,
@@ -1507,45 +1261,48 @@ print('dashboard list body:$requestBody');
 
     throw Exception('Failed to fetch admin details from API and Hive.');
   }
-
-    Future<CustomerResponseModelxx> fetchCustomer({
+   Future<CustomerResponseModelxx> fetchCustomer({
     required String salesmanId,
     required String customerName,
     required int limit,
     required int page,
-    // Changed params to match new payload structure
-    required String valueFromDw, 
-     List<String> selectedRange = const [], 
+    required String valueFromDw,
+    List<String> selectedRange = const [],
     String startDate = "",
     String endDate = "",
+    int? year, // <--- ADDED YEAR PARAMETER
   }) async {
-    
+    // If year is not passed, fallback to current year
+    final int finalYear = year ?? DateTime.now().year;
+
     // Construct the payload based on the new backend requirement
     final requestBody = {
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      "salesman_id":SessionHelper.loginSavedData?.salesmanId ?? '',
+      "salesman_id": salesmanId,
       "business_name": customerName,
       "limit": limit,
       "page": page,
-      "valueFromDw": valueFromDw, // e.g., "Month", "Week", "Range"
-      "selected_range": selectedRange, // e.g., ["January", "February"]
-      "start_date": startDate, // Keep empty if not needed, or use for Range/Day
+      "valueFromDw": valueFromDw, 
+      "selected_range": selectedRange, 
+      "start_date": startDate, 
       "end_date": endDate,
+      "previous_year_of_sales": finalYear.toString(), // <--- ADDED TO MATCH WEB PAYLOAD
     };
 
     final customerBox = Hive.box('customerBox');
-    final cacheKey =
-        '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
+    final cacheKey = '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
 
     try {
       final response = await responsePostMethod(
         endPoint: ApiConstants.fetchCustomer,
         requestData: requestBody,
       );
+      print('request body of fetch customer: $requestBody'); // Debug print
+      log('response of fetch customer: ${response.data}');
 
       if (response.statusCode == 200) {
         final jsonResponse = response.data;
-log('response of the fetchCustomer API :${response.data}');
+
         if (jsonResponse['status'] != true) {
           throw Exception('API returned error: ${jsonResponse['message']}');
         }
@@ -1553,23 +1310,18 @@ log('response of the fetchCustomer API :${response.data}');
         final customers = (jsonResponse['data'] as List?)
                 ?.where((json) => json != null)
                 .map((json) => CustomerModelxx.fromJson(json))
-                .toList() ??
-            [];
+                .toList() ?? [];
 
         final orderTotal = (jsonResponse['orderTotal'] as List?)
                 ?.where((json) => json != null)
                 .map((json) => OrderTotalxx.fromJson(json))
-                .toList() ??
-            [];
+                .toList() ?? [];
 
         final yearList = (jsonResponse['years_list_of_all'] as List?)
                 ?.where((json) => json != null)
                 .map((json) => YearsListOfAll.fromJson(json))
-                .toList() ??
-            [];
+                .toList() ?? [];
 
-        // You might want to update how you cache given the complex filters, 
-        // but keeping it simple for now:
         await customerBox.put(cacheKey, jsonResponse);
 
         return CustomerResponseModelxx(
@@ -1584,7 +1336,7 @@ log('response of the fetchCustomer API :${response.data}');
       } else {
         throw Exception('Request failed with status: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch  (e) {
       handleHttpResponseError(
         statusCode: e is http.Response ? e.statusCode : 0,
         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
@@ -1631,145 +1383,140 @@ log('response of the fetchCustomer API :${response.data}');
           yearsListOfAll: [],
         );
       } else {
-        throw Exception('No cached data available');
+        throw Exception('No cached data available. Original error: $e');
       }
     }
   }
 
+//     Future<CustomerResponseModelxx> fetchCustomer({
+//     required String salesmanId,
+//     required String customerName,
+//     required int limit,
+//     required int page,
+//     // Changed params to match new payload structure
+//     required String valueFromDw, 
+//      List<String> selectedRange = const [], 
+//     String startDate = "",
+//     String endDate = "",
+//   }) async {
+    
+//     // Construct the payload based on the new backend requirement
+//     final requestBody = {
+//       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+//       "salesman_id":SessionHelper.loginSavedData?.salesmanId ?? '',
+//       "business_name": customerName,
+//       "limit": limit,
+//       "page": page,
+//       "valueFromDw": valueFromDw, // e.g., "Month", "Week", "Range"
+//       "selected_range": selectedRange, // e.g., ["January", "February"]
+//       "start_date": startDate, // Keep empty if not needed, or use for Range/Day
+//       "end_date": endDate,
+//     };
 
-  // Future<CustomerResponseModelxx> fetchCustomer({
-  //   required String salesmanId,
-  //   required String customerName,
-  //   required String startDate,
-  //   required String endDate,
-  //   required int limit,
-  //   required int page,
-  //   required dynamic valueFromDw,
-  // }) async {
+//     final customerBox = Hive.box('customerBox');
+//     final cacheKey =
+//         '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
 
-  //   dynamic value;
-  //   if (valueFromDw == 'This Month') {
-  //     value = 'This Month';
-  //   } else if (valueFromDw == 'Today') {
-  //     value = 'Today';
-  //   } else if (valueFromDw == 'This Week') {
-  //     value = 'This Week';
-  //   } else if (valueFromDw == 'This Year') {
-  //     value = 'This Year';
-  //   } else if (valueFromDw.toString().contains('Range')) {
-  //     value = valueFromDw;
-  //   }
+//     try {
+//       final response = await responsePostMethod(
+//         endPoint: ApiConstants.fetchCustomer,
+//         requestData: requestBody,
+//       );
 
-  //   final requestBody = {
-  //     "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //     "business_name": customerName,
-  //     "start_date": startDate,
-  //     "end_date": endDate,
-  //     "limit": limit,
-  //     "page": page,
-  //     "valueFromDw": value,
-  //     "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //   };
+//       if (response.statusCode == 200) {
+//         final jsonResponse = response.data;
+// log('response of the fetchCustomer API :${response.data}');
+//         if (jsonResponse['status'] != true) {
+//           throw Exception('API returned error: ${jsonResponse['message']}');
+//         }
 
-  //   final customerBox = Hive.box('customerBox');
+//         final customers = (jsonResponse['data'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => CustomerModelxx.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //   final cacheKey =
-  //       '${SessionHelper.loginSavedData?.company_id ?? -1}_customer_list_$page';
+//         final orderTotal = (jsonResponse['orderTotal'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => OrderTotalxx.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //   try {
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.fetchCustomer,
-  //       requestData: requestBody,
-  //     );
+//         final yearList = (jsonResponse['years_list_of_all'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => YearsListOfAll.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //     if (response.statusCode == 200) {
-  //       final jsonResponse = response.data;
+//         // You might want to update how you cache given the complex filters, 
+//         // but keeping it simple for now:
+//         await customerBox.put(cacheKey, jsonResponse);
 
-  //       if (jsonResponse['status'] != true) {
-  //         throw Exception('API returned error: ${jsonResponse['message']}');
-  //       }
+//         return CustomerResponseModelxx(
+//           statusCode: jsonResponse['status_code'] ?? 0,
+//           status: jsonResponse['status'] ?? false,
+//           message: jsonResponse['message'] ?? '',
+//           data: customers,
+//           orderTotal: orderTotal,
+//           pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
+//           yearsListOfAll: yearList,
+//         );
+//       } else {
+//         throw Exception('Request failed with status: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       handleHttpResponseError(
+//         statusCode: e is http.Response ? e.statusCode : 0,
+//         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
+//         message: 'Customer',
+//       );
 
-  //       final customers = (jsonResponse['data'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => CustomerModelxx.fromJson(json))
-  //               .toList() ??
-  //           [];
+//       // Offline Fallback Logic
+//       final isOnline = await ConnectivityService().isOnline();
+//       if (!isOnline) log('Using cached data due to offline mode');
 
-  //       final orderTotal = (jsonResponse['orderTotal'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => OrderTotalxx.fromJson(json))
-  //               .toList() ??
-  //           [];
+//       final cachedData = customerBox.get(cacheKey);
 
-  //       final yearList = (jsonResponse['years_list_of_all'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => YearsListOfAll.fromJson(json))
-  //               .toList() ??
-  //           [];
+//       if (cachedData != null) {
+//         final castedData = ensureStringKeyedMap(cachedData);
+//         // ... (Existing offline mapping logic remains the same)
+//         final customers = (castedData['data'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => CustomerModelxx.fromJson(json))
+//                 .toList() ?? [];
+                
 
-  //       await customerBox.put(cacheKey, jsonResponse);
+//                 final orderTotal = (castedData['orderTotal'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => OrderTotalxx.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //       return CustomerResponseModelxx(
-  //         statusCode: jsonResponse['status_code'] ?? 0,
-  //         status: jsonResponse['status'] ?? false,
-  //         message: jsonResponse['message'] ?? '',
-  //         data: customers,
-  //         orderTotal: orderTotal,
-  //         pagination: Paginationxx.fromJson(jsonResponse['pagination'] ?? {}),
-  //         yearsListOfAll: yearList,
-  //       );
-  //     } else {
-  //       throw Exception('Request failed with status: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     handleHttpResponseError(
-  //       statusCode: e is http.Response ? e.statusCode : 0,
-  //       showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-  //       message: 'Customer',
-  //     );
+//         final yearList = (castedData['years_list_of_all'] as List?)
+//                 ?.where((json) => json != null)
+//                 .map((json) => YearsListOfAll.fromJson(json))
+//                 .toList() ??
+//             [];
 
-  //     final cachedData = customerBox.get(cacheKey);
+//         await customerBox.put(cacheKey, castedData);
+//          // ... map other fields ...
 
-  //     if (cachedData != null) {
-  //       final castedData = castToStringDynamic(cachedData);
+//         return CustomerResponseModelxx(
+//           statusCode: castedData['status_code'] ?? 0,
+//           status: castedData['status'] ?? false,
+//           message: castedData['message'] ?? '',
+//           data: customers,
+//           orderTotal: [], // Handle empty or cached totals
+//           pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
+//           yearsListOfAll: [],
+//         );
+//       } else {
+//         throw Exception('No cached data available');
+//       }
+//     }
+//   }
 
-  //       final customers = (castedData['data'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => CustomerModelxx.fromJson(json))
-  //               .toList() ??
-  //           [];
 
-  //       final orderTotal = (castedData['orderTotal'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => OrderTotalxx.fromJson(json))
-  //               .toList() ??
-  //           [];
-
-  //       final yearList = (castedData['years_list_of_all'] as List?)
-  //               ?.where((json) => json != null)
-  //               .map((json) => YearsListOfAll.fromJson(json))
-  //               .toList() ??
-  //           [];
-
-  //       return CustomerResponseModelxx(
-  //         statusCode: castedData['status_code'] ?? 0,
-  //         status: castedData['status'] ?? false,
-  //         message: castedData['message'] ?? '',
-  //         data: customers,
-  //         orderTotal: orderTotal,
-  //         pagination: Paginationxx.fromJson(castedData['pagination'] ?? {}),
-  //         yearsListOfAll: yearList,
-  //       );
-  //     } else {
-  //       handleHttpResponseError(
-  //         statusCode: 0,
-  //         showErrorSnackBar: NkCommonFunction.showErrorSnakBar,
-  //         message: 'No cached data available',
-  //       );
-  //       throw Exception('No cached data available');
-  //     }
-  //   }
-  // }
 
   Future<AddEvent> addEvent(
     String customerId,
@@ -1811,7 +1558,7 @@ log('response of the fetchCustomer API :${response.data}');
     } catch (e) {
       showCustomToastDisplay(
         context,
-        "Please Assign Staff",
+        "Please Assign Staff".tr,
         red,
         Icons.close,
       );
@@ -2313,16 +2060,24 @@ log('response of the fetchCustomer API :${response.data}');
       throw Exception('Failed to update admin details: $e');
     }
   }
-
-  Future<void> addCustomer(
+  Future<dynamic> addCustomer(
       {required Map<String, dynamic> model,
-      required File adminProfilePicture,
+      File? adminProfilePicture,
       required String salesmanId}) async {
-    ApiWorker().addCustomer2(
+    return await ApiWorker().addCustomer2(
         model: model,
         adminProfilePicture: adminProfilePicture,
         salesmanId: salesmanId);
   }
+  // Future<void> addCustomer(
+  //     {required Map<String, dynamic> model,
+  //     required File adminProfilePicture,
+  //     required String salesmanId}) async {
+  //   ApiWorker().addCustomer2(
+  //       model: model,
+  //       adminProfilePicture: adminProfilePicture,
+  //       salesmanId: salesmanId);
+  // }
 
   Future<void> addLead({
     required CustomerDashMo model,

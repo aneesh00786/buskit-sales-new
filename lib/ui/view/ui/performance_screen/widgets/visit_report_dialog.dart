@@ -1,6 +1,7 @@
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_report_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/customer_event_details_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 // visit_report_dialog.dart
 
 
@@ -27,7 +28,7 @@ class VisitReportDialog extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Visit Report', style: TextStyle(color: Colors.white, fontSize: 20)),
+                 Text('Visit Report'.tr, style: TextStyle(color: Colors.white, fontSize: 20)),
                 InkWell(
                   onTap: () => Navigator.pop(context),
                   child: const Icon(Icons.close, color: Colors.white),
@@ -64,11 +65,11 @@ class VisitReportDialog extends StatelessWidget {
                           // Table Header
                           TableRow(
                             decoration: BoxDecoration(color: Colors.grey.shade100),
-                            children: const [
-                              _Cell('Working Days', isBold: true),
-                              _Cell('Visited', isBold: true),
-                              _Cell('Missed', isBold: true),
-                              _Cell('Total', isBold: true),
+                            children:  [
+                              _Cell('Working Days'.tr, isBold: true),
+                              _Cell('Visited'.tr, isBold: true),
+                              _Cell('Missed'.tr, isBold: true),
+                              _Cell('Total'.tr, isBold: true),
                             ],
                           ),
                           // Mapped Data Rows

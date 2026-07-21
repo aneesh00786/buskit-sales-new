@@ -592,26 +592,44 @@ Future<void> fetchChartCategoryPerformance(
       throw Exception('Failed to update admin: $e');
     }
   }
-
-  Future<void> addCustomer({
+    Future<dynamic> addCustomer({
     required Map<String, dynamic> admin,
     required String salsmanId,
   }) async {
     try {
-      await _apiService
+      var response = await _apiService
           .addCustomer(
               model: admin,
-              adminProfilePicture: imageFile!,
-              salesmanId: salsmanId)
-          .then((value) => fetchCustomerData());
+              adminProfilePicture: imageFile,
+              salesmanId: salsmanId);
 
+      await fetchCustomerData();
       notifyListeners();
+      return response;
     } catch (e) {
       throw Exception('Failed to update admin: $e');
-    } finally {
-      _imageFile = null;
     }
   }
+
+  // Future<void> addCustomer({
+  //   required Map<String, dynamic> admin,
+  //   required String salsmanId,
+  // }) async {
+  //   try {
+  //     await _apiService
+  //         .addCustomer(
+  //             model: admin,
+  //             adminProfilePicture: imageFile!,
+  //             salesmanId: salsmanId)
+  //         .then((value) => fetchCustomerData());
+
+  //     notifyListeners();
+  //   } catch (e) {
+  //     throw Exception('Failed to update admin: $e');
+  //   } finally {
+  //     _imageFile = null;
+  //   }
+  // }
 
   Future<void> fetchCustomersDataDash(String customerId) async {
     if (customerId.isEmpty) return;
@@ -911,11 +929,26 @@ Future<void> fetchChartCategoryPerformance(
           case FilterDateEnum.thisMonth:
             apiValueFromDw = "Month";
             apiSelectedRange = dashboardProvider.selectedFilterMonths;
+            if (apiSelectedRange.isEmpty) {
+              final List<String> monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+              ];
+              apiSelectedRange = [monthNames[DateTime.now().month - 1]];
+            }
             break;
 
           case FilterDateEnum.thisWeek:
             apiValueFromDw = "Week";
             apiSelectedRange = dashboardProvider.selectedFilterWeeks;
+            if (apiSelectedRange.isEmpty) {
+              // Fallback: calculate the current week number
+              final now = DateTime.now();
+              final startOfYear = DateTime(now.year, 1, 1);
+              final dayOfYear = now.difference(startOfYear).inDays + 1;
+              final weekNumber = ((dayOfYear - 1) ~/ 7) + 1;
+              apiSelectedRange = ["Week $weekNumber"];
+            }
             break;
 
           case FilterDateEnum.thisYear:
@@ -932,7 +965,10 @@ Future<void> fetchChartCategoryPerformance(
 
           case FilterDateEnum.today:
             apiValueFromDw = "Day";
-            apiSelectedRange = [dashboardProvider.selectedDate];
+            final selectedDay = dashboardProvider.selectedDate;
+            apiSelectedRange = [selectedDay.isNotEmpty
+              ? selectedDay
+              : DateFormat('yyyy-MM-dd').format(DateTime.now())];
             break;
 
           default:
@@ -949,6 +985,9 @@ Future<void> fetchChartCategoryPerformance(
           selectedRange: apiSelectedRange,
           startDate: apiStartDate,
           endDate: apiEndDate,
+          year: dashboardProvider.selectedYear != 0
+              ? dashboardProvider.selectedYear
+              : DateTime.now().year,
         );
 
         final value = await _customersFuture!;
@@ -1142,27 +1181,32 @@ Future<void> fetchChartCategoryPerformance(
     }
   }
 
+
   void onFilterChanged(FilterDateEnum? selectedFilter) {
-    NotificationController notificationController =
-        Get.find<NotificationController>();
     if (selectedFilter != null) {
       _selectedFilter = selectedFilter;
-      _errorMessage = ''; // Clear previous error messages
+
+      // Reset custom range dates if not selecting "Range"
       if (_selectedFilter != FilterDateEnum.range) {
         _selectedStartDate = '';
         _selectedEndDate = '';
       } else {
-        if (_selectedStartDate.isEmpty) {
-          _selectedStartDate =
-              DateTime.now().toIso8601String().substring(0, 10);
-        }
-        if (_selectedEndDate.isEmpty) {
-          _selectedEndDate = DateTime.now().toIso8601String().substring(0, 10);
-        }
+        // Optional: Set default range to today if empty
+        final today = DateTime.now().toIso8601String().substring(0, 10);
+
+        _selectedStartDate = today;
+        _selectedEndDate = today;
+        // if (_selectedStartDate.isEmpty) {
+        //   _selectedStartDate = today;
+        // }
+        // if (_selectedEndDate.isEmpty) {
+        //   _selectedEndDate = today;
+        // }
       }
 
       final now = DateTime.now();
 
+      // Automatically calculate start/end dates based on selected filter
       switch (_selectedFilter) {
         case FilterDateEnum.thisMonth:
           _selectedStartDate = DateTime(now.year, now.month, 1)
@@ -1172,34 +1216,96 @@ Future<void> fetchChartCategoryPerformance(
               .toIso8601String()
               .substring(0, 10);
           break;
+
         case FilterDateEnum.today:
-          _selectedStartDate = DateTime(now.year, now.month, now.day)
+          final today = DateTime(now.year, now.month, now.day)
               .toIso8601String()
               .substring(0, 10);
-          _selectedEndDate = _selectedStartDate;
+          _selectedStartDate = today;
+          _selectedEndDate = today;
           break;
+
         case FilterDateEnum.thisWeek:
           final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
           _selectedStartDate = startOfWeek.toIso8601String().substring(0, 10);
           _selectedEndDate = now.toIso8601String().substring(0, 10);
           break;
+
         case FilterDateEnum.thisYear:
           _selectedStartDate =
               DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
           _selectedEndDate =
               DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
           break;
+
         case FilterDateEnum.range:
+          // Keep existing or default dates – user will pick via date picker
           break;
       }
 
-      if (selectedFilter != FilterDateEnum.range) {
-        fetchCustomerData();
-        notificationController.loadNotificationData();
-      }
+      // Only update UI – do NOT fetch data here
       notifyListeners();
     }
   }
+
+  // void onFilterChanged(FilterDateEnum? selectedFilter) {
+  //   NotificationController notificationController =
+  //       Get.find<NotificationController>();
+  //   if (selectedFilter != null) {
+  //     _selectedFilter = selectedFilter;
+  //     _errorMessage = ''; // Clear previous error messages
+  //     if (_selectedFilter != FilterDateEnum.range) {
+  //       _selectedStartDate = '';
+  //       _selectedEndDate = '';
+  //     } else {
+  //       if (_selectedStartDate.isEmpty) {
+  //         _selectedStartDate =
+  //             DateTime.now().toIso8601String().substring(0, 10);
+  //       }
+  //       if (_selectedEndDate.isEmpty) {
+  //         _selectedEndDate = DateTime.now().toIso8601String().substring(0, 10);
+  //       }
+  //     }
+
+  //     final now = DateTime.now();
+
+  //     switch (_selectedFilter) {
+  //       case FilterDateEnum.thisMonth:
+  //         _selectedStartDate = DateTime(now.year, now.month, 1)
+  //             .toIso8601String()
+  //             .substring(0, 10);
+  //         _selectedEndDate = DateTime(now.year, now.month + 1, 0)
+  //             .toIso8601String()
+  //             .substring(0, 10);
+  //         break;
+  //       case FilterDateEnum.today:
+  //         _selectedStartDate = DateTime(now.year, now.month, now.day)
+  //             .toIso8601String()
+  //             .substring(0, 10);
+  //         _selectedEndDate = _selectedStartDate;
+  //         break;
+  //       case FilterDateEnum.thisWeek:
+  //         final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+  //         _selectedStartDate = startOfWeek.toIso8601String().substring(0, 10);
+  //         _selectedEndDate = now.toIso8601String().substring(0, 10);
+  //         break;
+  //       case FilterDateEnum.thisYear:
+  //         _selectedStartDate =
+  //             DateTime(now.year, 1, 1).toIso8601String().substring(0, 10);
+  //         _selectedEndDate =
+  //             DateTime(now.year, 12, 31).toIso8601String().substring(0, 10);
+  //         break;
+  //       case FilterDateEnum.range:
+  //         break;
+  //     }
+
+  //     if (selectedFilter != FilterDateEnum.range) {
+  //       fetchCustomerData();
+  //       notificationController.loadNotificationData();
+  //     }
+  //     notifyListeners();
+  //   }
+  // }
 
   void goToNextPage() async {
     if (_currentPage < _totalPages) {

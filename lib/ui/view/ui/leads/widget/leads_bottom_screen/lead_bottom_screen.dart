@@ -60,8 +60,10 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
       }),
     );
   }
-
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
+    bool isArabic = Get.locale?.languageCode == 'ar';
+    double slNoWidth = isArabic ? 70 : 50; 
+    double leadsWidth = isArabic ? 230 : 250;
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
     return Row(
       children: [
@@ -73,28 +75,74 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                 children: [
                   buildTableHeader1(
                     Center(
-                      child: CustomText(
-                        content: "Sl.No.",
-                        textAlign: TextAlign.center,
-                        fontSize: 12.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Text( // Changed to Text widget to ensure ellipsis works perfectly
+                          "Sl.No.".tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis, // Automatically adds ...
+                        ),
                       ),
                     ),
-                    60,
+                    slNoWidth, // Using dynamic width
                   ),
+                  // buildTableHeader1(
+                  //   Center(
+                  //     child: CustomText(
+                  //       content: "Sl.No.".tr,
+                  //       textAlign: TextAlign.center,
+                  //       fontSize: 12.5,
+                  //       color: Colors.white,
+                  //       fontWeight: FontWeight.bold,
+                  //       overflow: TextOverflow.ellipsis,
+                  //       // maxLines: 1, // Added maxLines back
+                  //     ),
+                  //   ),
+                  //   50, // Header width is 50
+                  // ),
                   buildTableHeader1(
-                    Center(
-                      child: CustomText(
-                        content: "Leads",
-                        textAlign: TextAlign.center,
-                        fontSize: 12.5,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded( // Forces text to respect bounds
+                            child: Text(
+                              "Leads".tr,
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis, // Automatically adds ...
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    240,
+                    leadsWidth, // Using dynamic width
                   ),
+                  // buildTableHeader1(
+                  //   Center(
+                  //     child: CustomText(
+                  //       content: "Leads".tr,
+                  //       textAlign: TextAlign.center,
+                  //       fontSize: 12.5,
+                  //       color: Colors.white,
+                  //       fontWeight: FontWeight.bold,
+                  //       overflow: TextOverflow.ellipsis, 
+                  //       // maxLines: 1, // Added maxLines back
+                  //     ),
+                  //   ),
+                  //   250,
+                  // ),
                 ],
               ),
               Expanded(
@@ -113,21 +161,22 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                       return Container(
                         height: fixedRowHeight,
                         decoration: BoxDecoration(
-                         color: index.isEven ? Colors.grey[50] : Color.fromARGB(255, 255, 255, 255),
-                          
+                         color: index.isEven ? Colors.grey[50] : const Color.fromARGB(255, 255, 255, 255),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
                               SizedBox(
-                                width: 60,
+                                width: slNoWidth,
+                                // width: 50, // MATCHED to header width (was 60)
                                 child: CustomText(
                                   content:
                                       '   ${((widget.leadsController.currentPage.value - 1) * 10) + (index + 1)}.',
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                   overflow: TextOverflow.ellipsis,
+                                  // maxLines: 1,
                                 ),
                               ),
                               Expanded(
@@ -159,12 +208,18 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    CustomText(
-                                      content:
-                                          leadCustomerData.businessName ?? '',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      overflow: TextOverflow.ellipsis,
+                                    // --------------------------------------------------
+                                    // THE FIX: Wrapped CustomText in Expanded
+                                    // --------------------------------------------------
+                                    Expanded(
+                                      child: CustomText(
+                                        content:
+                                            leadCustomerData.businessName ?? '',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        overflow: TextOverflow.ellipsis,
+                                        // maxLines: 1,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -236,6 +291,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
       ],
     );
   }
+
 }
 
 

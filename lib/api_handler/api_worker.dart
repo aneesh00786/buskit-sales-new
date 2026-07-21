@@ -2,10 +2,12 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/common/local_storage_datas.dart';
 import 'package:busskit_salesexecutive/common/search_model.dart';
@@ -33,6 +35,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_action_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_responce/order_responce.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/payment_link_resposnse.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_responce/pending_payment_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_event_details_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
@@ -48,6 +51,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart' show Get;
 import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -65,6 +69,174 @@ class ApiWorker with ApiConstants {
   ApiWorker() {
     dio = DioClient();
   }
+
+  String getFullImageUrl(String? path) {
+    if (path == null || path.isEmpty) return "";
+    if (path.startsWith("http")) return path;
+
+    // Remove leading slash if any
+    String cleanedPath = path.startsWith("/") ? path.substring(1) : path;
+
+    // Make sure imageBaseUrl ends with a single slash
+    String base = ApiConstants.imageBaseUrl;
+    if (!base.endsWith("/")) {
+      base = "$base/";
+    }
+    return base + cleanedPath;
+  }
+
+  void _logSync(String message) {
+    debugPrint("[Product Image Sync] $message");
+  }
+
+  void cacheSyncImages(int companyId) {
+    Future.microtask(() async {
+      try {
+        final isConnected = await ConnectivityService().isConnected();
+        if (!isConnected) return;
+
+        final List<String> customerUrls = [];
+        final List<String> productUrls = [];
+
+        // 1. Collect Customer Image URLs
+        final customerBox = Hive.box('customerBox');
+        int page = 1;
+        while (true) {
+          final cacheKey = '${companyId}_customer_list_$page';
+          final cachedData = customerBox.get(cacheKey);
+          if (cachedData == null) break;
+          try {
+            final response = CustomerResponseModelxx.fromJson(ApiService().ensureStringKeyedMap(cachedData));
+            for (var customer in response.data) {
+              if (customer.imageUrl.isNotEmpty) {
+                customerUrls.add(customer.imageUrl);
+              }
+            }
+          } catch (e) {
+            // Keep parsing errors silent
+          }
+          page++;
+        }
+
+        // 2. Collect Product Image URLs
+        final products = await _loadCachedProducts();
+        for (var product in products) {
+          if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
+            productUrls.add(product.imageUrl!);
+          }
+        }
+
+        // De-duplicate URLs
+        final uniqueCustomerUrls = customerUrls.toSet().toList();
+        final uniqueProductUrls = productUrls.toSet().toList();
+
+        final cacheManager = DefaultCacheManager();
+
+        // 3. Cache Customer Images asynchronously (Quietly)
+        for (final relativeUrl in uniqueCustomerUrls) {
+          if (relativeUrl.isEmpty) continue;
+          final singleSlashUrl = getFullImageUrl(relativeUrl);
+          final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
+          final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
+
+          Future(() async {
+            try {
+              final isStillConnected = await ConnectivityService().isConnected();
+              if (isStillConnected) {
+                await cacheManager.getSingleFile(singleSlashUrl);
+                await cacheManager.getSingleFile(doubleSlashUrl);
+              }
+            } catch (_) {}
+          });
+        }
+
+        // 4. Cache Product Images asynchronously (Log full URLs immediately)
+        for (final relativeUrl in uniqueProductUrls) {
+          if (relativeUrl.isEmpty) continue;
+          final singleSlashUrl = getFullImageUrl(relativeUrl);
+          final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
+          final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
+
+          _logSync("Caching Product Image URL 1: $singleSlashUrl");
+          _logSync("Caching Product Image URL 2: $doubleSlashUrl");
+
+          Future(() async {
+            try {
+              final isStillConnected = await ConnectivityService().isConnected();
+              if (isStillConnected) {
+                await cacheManager.getSingleFile(singleSlashUrl);
+                await cacheManager.getSingleFile(doubleSlashUrl);
+              }
+            } catch (_) {}
+          });
+        }
+      } catch (e) {
+        // Keep errors silent
+      }
+    });
+  }
+
+  Future<List<CustomerCategoryDiscountData>> fetchAllCustomerDiscounts(
+      String customerId) async {
+    final cacheKey = "${customerId}_category_discounts";
+    try {
+      final isConnected = await ConnectivityService().isOnline();
+      final box = await Hive.openBox('customerBox');
+
+      if (isConnected) {
+        final request = {
+          "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+          "customer_id": customerId,
+        };
+
+        final response = await responsePostMethod(
+          endPoint: ApiConstants.fetchCustomerDiscount,
+          requestData: request,
+        );
+
+        if (response.data != null && response.data['status'] == true) {
+          List<dynamic> dataList = response.data['data'];
+          await box.put(cacheKey, response.data);
+          return dataList
+              .map((e) => CustomerCategoryDiscountData.fromJson(e))
+              .toList();
+        } else {
+          throw Exception('Invalid response structure');
+        }
+      } else {
+        final cachedData = box.get(cacheKey);
+        if (cachedData != null) {
+          final jsonString = json.encode(cachedData);
+          final Map<String, dynamic> cleanJson = json.decode(jsonString);
+          if (cleanJson['data'] != null && cleanJson['data'] is List) {
+            List<dynamic> dataList = cleanJson['data'];
+            return dataList
+                .map((e) => CustomerCategoryDiscountData.fromJson(e))
+                .toList();
+          }
+        }
+        return [];
+      }
+    } catch (error) {
+      // Fallback fallback on error
+      try {
+        final box = await Hive.openBox('customerBox');
+        final cachedData = box.get(cacheKey);
+        if (cachedData != null) {
+          final jsonString = json.encode(cachedData);
+          final Map<String, dynamic> cleanJson = json.decode(jsonString);
+          if (cleanJson['data'] != null && cleanJson['data'] is List) {
+            List<dynamic> dataList = cleanJson['data'];
+            return dataList
+                .map((e) => CustomerCategoryDiscountData.fromJson(e))
+                .toList();
+          }
+        }
+      } catch (_) {}
+      return [];
+    }
+  }
+
   final targetType = SessionHelper.settingsData
           ?.firstWhere(
             (setting) => setting.key == 'targetType',
@@ -201,6 +373,7 @@ class ApiWorker with ApiConstants {
     try {
       final response = await responsePostMethod(
           requestData: data, endPoint: ApiConstants.login);
+          debugPrint("Login Response Data: ${response.data}");
       if (response.data != null) {
         final status = response.data['status'];
         final message = response.data['message'] ?? 'No message available';
@@ -699,50 +872,54 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch category Promo data: $error');
     }
   }
-
-  Future<List<ProductModel>> getTempProduct(String subCatId,
-      {required int companyid}) async {
+  Future<List<ProductModel>> getTempProduct(String subCatId, {required int companyid}) async {
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
       try {
-        print('api called correctlyyyyyy get temp product');
+        print('api called correctly get temp product (B2B)');
 
-        // 1. Construct the URL manually to match your required format
-        late String requestUrl =
-            "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
-
+     
+        String requestUrl = "${ApiConstants.baseUrl}fetch_product_b2b?company_id=$companyid";
+        
         print('Requesting URL: $requestUrl');
 
-        // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
         final response = await dio.getbycustom(requestUrl);
-log('response of alll products get :${response.data}'); 
+
         if (response.statusCode == 200) {
           final responseData = response.data;
-          // log('category data from backend in order taking screen:${responseData}');
-
-          final productApiResponse = ProductApiResponse.fromJson(responseData);
-
           List<ProductModel> productsForSubCategory = [];
-          ScidProductGroup? targetScidGroup;
-
-          for (var scidGroup in productApiResponse.data) {
-            if (scidGroup.scid == subCatId) {
-              productsForSubCategory.addAll(scidGroup.products);
-              targetScidGroup = scidGroup;
-              break;
+ 
+          if (responseData['status'] == true && responseData['data'] != null) {
+            try {
+              await _cacheProductsByScid(responseData['data']);
+            } catch (cacheError) {
+              print("Cache saving failed in getTempProduct: $cacheError");
+            }
+            for (var scidGroup in responseData['data']) {
+              // Find the specific subcategory group we are looking for
+              if (scidGroup['scid'] == subCatId) {
+                if (scidGroup['product'] != null) {
+                  for (var prod in scidGroup['product']) {
+                    productsForSubCategory.add(ProductModel.fromJson(prod));
+                  }
+                }
+               
+                
+                break; 
+              }
             }
           }
 
-          if (targetScidGroup != null) {
-            await _cacheSingleScidGroup(targetScidGroup);
-          } else {}
+         
 
           return productsForSubCategory;
         } else {
           return [];
         }
-      } catch (e) {
+      } catch (e, stacktrace) {
+        print("CRASH REASON: $e");
+        print("STACKTRACE: $stacktrace");
         handleExceptionMessage(
           apiName: 'Get Temp Product',
           response: e is DioException ? e.response : null,
@@ -750,7 +927,6 @@ log('response of alll products get :${response.data}');
         return [];
       }
     } else {
-      
       final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
       return cachedProducts;
     }
@@ -763,35 +939,33 @@ log('response of alll products get :${response.data}');
   //   if (isConnected) {
   //     try {
   //       print('api called correctlyyyyyy get temp product');
-  //       final queryParams = {
-  //         "company_id": companyid,
-  //         "sub_catid": subCatId,
-  //       };
-  //       print('query parametr:$queryParams');
 
-  //       final response = await dio.getbycustom(ApiConstants.fetchProduct,
-  //           queryParameters: queryParams);
+  //       // 1. Construct the URL manually to match your required format
+  //       late String requestUrl =
+  //           "${ApiConstants.fetchProduct}?company_id=$companyid&sub_catid=$subCatId";
 
+  //       print('Requesting URL: $requestUrl');
+
+  //       // 2. Pass the full URL directly. Do NOT pass 'queryParameters'
+  //       final response = await dio.getbycustom(requestUrl);
+  //       log('response of alll products get :${response.data}');
   //       if (response.statusCode == 200) {
   //         final responseData = response.data;
-  //         // log('API Response Data: $responseData');
-  // log('category data from backend in order taking screen:${responseData}');
-  //         // Parse the new response structure
+  //         // log('category data from backend in order taking screen:${responseData}');
+
   //         final productApiResponse = ProductApiResponse.fromJson(responseData);
 
   //         List<ProductModel> productsForSubCategory = [];
   //         ScidProductGroup? targetScidGroup;
 
-  //         // Find products for the specific subcategory
   //         for (var scidGroup in productApiResponse.data) {
   //           if (scidGroup.scid == subCatId) {
   //             productsForSubCategory.addAll(scidGroup.products);
   //             targetScidGroup = scidGroup;
-  //             break; // Found the specific subcategory, no need to continue
+  //             break;
   //           }
   //         }
 
-  //         // Cache only the specific subcategory data, not all data
   //         if (targetScidGroup != null) {
   //           await _cacheSingleScidGroup(targetScidGroup);
   //         } else {}
@@ -808,13 +982,12 @@ log('response of alll products get :${response.data}');
   //       return [];
   //     }
   //   } else {
-  //     // Load from cached data when offline
   //     final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
   //     return cachedProducts;
   //   }
   // }
 
-  // Helper method to load cached products for a specific subcategory
+ 
   Future<List<ProductModel>> _loadCachedProductsBySubCategory(
       String subCatId) async {
     try {
@@ -856,41 +1029,45 @@ log('response of alll products get :${response.data}');
       return [];
     }
   }
-
-  Future<List<ProductModel>> getAllProducts() async {
-    final companyId = SessionHelper.loginSavedData?.company_id;
-
+  Future<List<ProductModel>> getAllProducts({required int companyId}) async {
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
       try {
-        print('get all product api called');
-        // print('get all product api called');
+        print('get all product api called (B2B)');
+        
         final queryParams = {"company_id": companyId};
-        // print('query paerametyer in the get all product:$queryParams');
 
-        final response = await dio.getbycustom(ApiConstants.fetchProduct,
-            queryParameters: queryParams);
+        final response = await dio.getbycustom(
+          ApiConstants.fetchProduct, // Make sure this is "fetch_product_b2b" in ApiConstants
+          queryParameters: queryParams,
+        );
 
         if (response.statusCode == 200) {
           final responseData = response.data;
-          // log('[getAllProducts] API Response Data: $responseData');
-// log('category data from backend in order taking screen get all producrt:${responseData}');
-          // Parse the new response structure
-          final productApiResponse = ProductApiResponse.fromJson(responseData);
-
           List<ProductModel> allProducts = [];
 
-          // Extract all products from all scid groups
-          for (var scidGroup in productApiResponse.data) {
-            allProducts.addAll(scidGroup.products);
+          // Parse the new JSON structure directly
+          if (responseData['status'] == true && responseData['data'] != null) {
+            for (var scidGroup in responseData['data']) {
+              // The backend now uses 'product' instead of 'products'
+              if (scidGroup['product'] != null) {
+                for (var prod in scidGroup['product']) {
+                  allProducts.add(ProductModel.fromJson(prod));
+                }
+              }
+            }
+
+            try {
+              // Pass the raw data to the cache function
+              await _cacheProductsByScid(responseData['data']);
+              await _verifyProductCache();
+              print("Products cached in Hive. Triggering background image caching.");
+              cacheSyncImages(companyId);
+            } catch (cacheError) {
+              print("Cache saving bypassed or failed: $cacheError");
+            }
           }
-
-          // Store products by scid for caching
-          await _cacheProductsByScid(productApiResponse.data);
-
-          // Verify cache was successful
-          await _verifyProductCache();
 
           return allProducts;
         } else {
@@ -913,21 +1090,83 @@ log('response of alll products get :${response.data}');
         print('└───────────────────────────────');
 
         handleExceptionMessage(
-          apiName: 'Get All Product',
+          apiName: 'Get All Product B2B',
           response: e is DioException ? e.response : null,
         );
-        // handleExceptionMessage(
-        //   apiName: 'Get All Product',
-        //   response: e is DioException ? e.response : null,
-        // );
+        
         return [];
       }
     } else {
-      // Load from cached data when offline
       final cachedProducts = await _loadCachedProducts();
       return cachedProducts;
     }
   }
+
+  // Future<List<ProductModel>> getAllProducts() async {
+  //   final companyId = SessionHelper.loginSavedData?.company_id;
+
+  //   final isConnected = await ConnectivityService().isOnline();
+
+  //   if (isConnected) {
+  //     try {
+  //       print('get all product api called');
+        
+  //       final queryParams = {"company_id": companyId};
+       
+
+  //       final response = await dio.getbycustom(ApiConstants.fetchProduct,
+  //           queryParameters: queryParams);
+
+  //       if (response.statusCode == 200) {
+  //         final responseData = response.data;
+         
+  //         final productApiResponse = ProductApiResponse.fromJson(responseData);
+
+  //         List<ProductModel> allProducts = [];
+
+         
+  //         for (var scidGroup in productApiResponse.data) {
+  //           allProducts.addAll(scidGroup.products);
+  //         }
+
+        
+  //         await _cacheProductsByScid(productApiResponse.data);
+   
+  //         await _verifyProductCache();
+
+  //         return allProducts;
+  //       } else {
+  //         return [];
+  //       }
+  //     } catch (e, stackTrace) {
+  //       print('┌───────────────────────────────');
+  //       print('│ ERROR in getAllProducts()');
+  //       print('├───────────────────────────────');
+  //       print('│ Type:     ${e.runtimeType}');
+  //       print('│ Message:  $e');
+  //       if (e is DioException) {
+  //         print('│ Status:   ${e.response?.statusCode}');
+  //         print('│ Endpoint: ${e.requestOptions.path}');
+  //         print('│ Response: ${e.response?.data}');
+  //       }
+  //       print('│');
+  //       print('│ Stack trace (first few lines):');
+  //       print('│ ${stackTrace.toString().split('\n').take(6).join('\n│ ')}');
+  //       print('└───────────────────────────────');
+
+  //       handleExceptionMessage(
+  //         apiName: 'Get All Product',
+  //         response: e is DioException ? e.response : null,
+  //       );
+        
+  //       return [];
+  //     }
+  //   } else {
+     
+  //     final cachedProducts = await _loadCachedProducts();
+  //     return cachedProducts;
+  //   }
+  // }
 
   // Method to verify product cache status
   Future<void> _verifyProductCache() async {
@@ -996,7 +1235,7 @@ log('response of alll products get :${response.data}');
   }
 
   // Helper method to cache products by scid
-  Future<void> _cacheProductsByScid(List<ScidProductGroup> scidGroups) async {
+  Future<void> _cacheProductsByScid(List<dynamic> rawData) async {
     try {
       // Open or create boxes for caching
       late Box<ScidProductGroup> scidGroupBox;
@@ -1013,6 +1252,19 @@ log('response of alll products get :${response.data}');
         productBox = Hive.box<ProductModel>('products');
       } else {
         productBox = await Hive.openBox<ProductModel>('products');
+      }
+
+      List<ScidProductGroup> scidGroups = [];
+      for (var rawGroup in rawData) {
+        try {
+          if (rawGroup is Map<String, dynamic>) {
+            scidGroups.add(ScidProductGroup.fromJson(rawGroup));
+          } else if (rawGroup is Map) {
+            scidGroups.add(ScidProductGroup.fromJson(Map<String, dynamic>.from(rawGroup)));
+          }
+        } catch (e) {
+          print("Error parsing raw group: $e");
+        }
       }
 
       // Store scid groups with their scid as key (don't clear existing data)
@@ -1041,7 +1293,7 @@ log('response of alll products get :${response.data}');
       // Add new products without deduplication (let the API handle it)
       await productBox.addAll(newProducts);
     } catch (e) {
-      //
+      print("Error in _cacheProductsByScid: $e");
     }
   }
 
@@ -1448,8 +1700,9 @@ log('response of alll products get :${response.data}');
   Future<List<EventData>> getCalendarEvents(
       Map<String, dynamic> sendData) async {
     sendData['companyId'] = SessionHelper.loginSavedData?.company_id;
+    sendData['salesman_id'] = SessionHelper.loginSavedData?.salesmanId ?? '';
     final cacheKey =
-        'calendar_events_${sendData['companyId']}_${sendData['startDate']}_${sendData['endDate']}';
+        'calendar_events_${sendData['companyId']}_${sendData['salesman_id']}_${sendData['startDate']}_${sendData['endDate']}';
 
     final eventsBox = await Hive.openBox('calendarEventsBox');
     List<EventData> allEvents = [];
@@ -1629,6 +1882,7 @@ log('response of alll products get :${response.data}');
         'pending_payment_${chartIndex}_${salesmanId ?? ''}_${paginationModel?.currentPage ?? ''}';
     final pendingPaymentBox = Hive.box('pendingPaymentBox');
     try {
+      print('pending payment api called');
       bool isOnline = await ConnectivityService().isOnline();
       if (!isOnline) {
         return localStorage.storedPendingPaymentData(
@@ -1637,6 +1891,7 @@ log('response of alll products get :${response.data}');
       final response = await responsePostMethod(
           requestData: requestData,
           endPoint: ApiConstants.fetchPendingPayments);
+          log("API Response for pending payments: ${response.data}");
       if (response.statusCode == 200 && response.data != null) {
         await pendingPaymentBox.put(cacheKey, response.data);
         return PendingPaymentResponse.fromJson(response.data);
@@ -1670,6 +1925,7 @@ log('response of alll products get :${response.data}');
       final response = await responsePostMethod(
           requestData: requestData,
           endPoint: ApiConstants.getAllPendingPaymentIndividuals);
+           log("API Response for individual pending payments: ${response.data}");
       if (response.statusCode == 200) {
         return IndividualPendingPaymentResponse.fromJson(response.data);
       } else {
@@ -1681,6 +1937,83 @@ log('response of alll products get :${response.data}');
       handleExceptionMessage(
           response: error.response, apiName: "pending payments", error: error);
       return Future.error(handledError);
+    }
+  }
+  Future<PaymentLinkResponse> createPaymentLink({
+    required String customerId,
+    required List<String> orderIds,
+    required String amount,
+    required String remarks,
+  }) async {
+    try {
+      final requestData = {
+        "companyId": SessionHelper.loginSavedData?.company_id ?? 1, // Fallback to 1 as per your payload
+        "customer_id": customerId,
+        "order_ids": orderIds,
+        "amount": amount,
+        "remarks": remarks,
+      };
+
+      // If you add this to ApiConstants, replace the string with ApiConstants.createPaymentLink
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint:ApiConstants.createPaymentLink
+         
+      );
+      
+      log("API Response for create payment link: ${response.data}");
+
+      if (response.statusCode == 200) {
+        return PaymentLinkResponse.fromJson(response.data);
+      } else {
+        handleExceptionMessage(response: response, apiName: "create payment link");
+        return Future.error('API Error: ${response.statusCode}');
+      }
+    } on DioException catch (error) {
+      final handledError = DioExceptionHandler.fromDioError(error);
+      handleExceptionMessage(
+          response: error.response, apiName: "create payment link", error: error);
+      return Future.error(handledError);
+    }
+  }
+  Future<bool> sendPaymentLink({
+    required String token,
+    required String type,
+    String? email,
+    String? mobile,
+  }) async {
+    try {
+      // Build payload dynamically based on type
+      final requestData = {
+        "token": token,
+        "type": type,
+      };
+      
+      if (type == 'email' && email != null) {
+        requestData["email"] = email;
+      } else if (type == 'mobile' || type == 'whatsapp') {
+        // Adjust "mobile" key if your API expects something else (e.g., "phone")
+        requestData["mobile"] = mobile!; 
+      }
+      print('Request data for sending payment link: $requestData');
+
+      final response = await responsePostMethod(
+        requestData: requestData,
+        endPoint: ApiConstants.sendPaymentLink
+        
+      );
+
+      log("API Response for send payment link: ${response.data}");
+
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        return true;
+      } else {
+        handleExceptionMessage(response: response, apiName: "send payment link");
+        return false;
+      }
+    } on DioException catch (error) {
+      handleExceptionMessage(response: error.response, apiName: "send payment link", error: error);
+      return false;
     }
   }
 
@@ -1708,7 +2041,6 @@ log('response of alll products get :${response.data}');
       );
       log('get recent orders response:${response.data}');
 
-    
       if (response.data['status'] == true &&
           response.data['status_code'] == 200) {}
 
@@ -1794,7 +2126,7 @@ log('response of alll products get :${response.data}');
       };
       final response = await responsePostMethod(
           requestData: requestBody, endPoint: ApiConstants.orderProcessInvoice);
-          log('reponse of the order invoice details:${response.data}');
+      log('reponse of the order invoice details:${response.data}');
       if (response.statusCode == 200) {
         return OrderProcessInvoice.fromJson(response.data);
       } else {
@@ -1844,7 +2176,6 @@ log('response of alll products get :${response.data}');
     final scheduleBox = Hive.box('scheduleBox');
 
     bool isOnline = await ConnectivityService().isOnline();
-
     if (isOnline) {
       try {
         final requestData = {
@@ -1859,25 +2190,71 @@ log('response of alll products get :${response.data}');
           requestData: requestData,
         );
 
+        print('Raw Schedule Response: ${response.data}');
+
+        if (response.data == null) {
+          print('Response data is null. Returning empty state.');
+          return null;
+        }
+
+        if (response.data is List && (response.data as List).isEmpty) {
+          print('Backend returned an empty list. Returning null.');
+          return null;
+        }
+
         final scheduleResponse = ScheduleListResponse.fromJson(response.data);
 
         await scheduleBox.put(cacheKey, response.data);
 
         return scheduleResponse;
-      } on DioException {
+      } on DioException catch (dioError) {
+        print('Dio Error: ${dioError.message}');
         final cachedData = scheduleBox.get(cacheKey);
         if (cachedData != null) {
           return ScheduleListResponse.fromJson(
               Map<String, dynamic>.from(cachedData));
-        } else {
-          // NkCommonFunction.showErrorSnakBar(
-          //   // 'No offline schedule data available.',
-          // );
         }
-      } catch (e) {
-        NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+      } catch (e, stackTrace) {
+        print('My Unexpected Error: $e');
+        print('Stack trace: $stackTrace');
+
+        NkCommonFunction.showErrorSnakBar('An unexpected error occurredeee.');
       }
     }
+
+    // if (isOnline) {
+    //   try {
+    //     final requestData = {
+    //       "end_date": endDate,
+    //       "salesman_id": salesmanId,
+    //       "start_date": startDate,
+    //       "company_id": companyId,
+    //     };
+
+    //     final response = await responsePostMethod(
+    //       endPoint: ApiConstants.fetchSchedule,
+    //       requestData: requestData,
+    //     );
+
+    //     final scheduleResponse = ScheduleListResponse.fromJson(response.data);
+
+    //     await scheduleBox.put(cacheKey, response.data);
+
+    //     return scheduleResponse;
+    //   } on DioException {
+    //     final cachedData = scheduleBox.get(cacheKey);
+    //     if (cachedData != null) {
+    //       return ScheduleListResponse.fromJson(
+    //           Map<String, dynamic>.from(cachedData));
+    //     } else {
+    //       // NkCommonFunction.showErrorSnakBar(
+    //       //   // 'No offline schedule data available.',
+    //       // );
+    //     }
+    //   } catch (e) {
+    //     NkCommonFunction.showErrorSnakBar('An unexpected error occurred.');
+    //   }
+    // }
 
     try {
       final cachedData = scheduleBox.get(cacheKey);
@@ -2010,7 +2387,7 @@ log('response of alll products get :${response.data}');
 
       if (response.statusCode == 200) {
         onResponse(
-            200, 'Your order has been successfully placed.', response.data);
+            200, 'Your order has been successfully placed.'.tr, response.data);
       } else {
         handleExceptionMessage(response: response, apiName: "place order");
       }
@@ -2104,45 +2481,46 @@ log('response of alll products get :${response.data}');
     }
     return null;
   }
+
   Future<StaffTimesheetResponse> getTimeSheetData({
-  required String filterValue, // Pass "March" here
-  required String filterType,  // Pass "Month" here
-}) async {
-  final id = SessionHelper.loginSavedData?.id ?? '';
+    required String filterValue, // Pass "March" here
+    required String filterType, // Pass "Month" here
+  }) async {
+    final id = SessionHelper.loginSavedData?.id ?? '';
 
-  // Update cache key to be unique based on inputs
-  final cacheKey = 'timesheet_${id}_${filterType}_$filterValue';
-  final timesheetBox = await Hive.openBox('timesheetBox');
+    // Update cache key to be unique based on inputs
+    final cacheKey = 'timesheet_${id}_${filterType}_$filterValue';
+    final timesheetBox = await Hive.openBox('timesheetBox');
 
-  bool isOnline = await ConnectivityService().isOnline();
+    bool isOnline = await ConnectivityService().isOnline();
 
-  // Correct Payload Structure matches Web App
-  final requestData = {
-    "id": id,
-    "valueFromDw": filterType, // "Month"
-    "selected_range": [filterValue] // ["March"]
-  };
+    // Correct Payload Structure matches Web App
+    final requestData = {
+      "id": id,
+      "valueFromDw": filterType, // "Month"
+      "selected_range": [filterValue] // ["March"]
+    };
 
-  if (isOnline) {
-    try {
-      final response = await responsePostMethod(
-        requestData: requestData,
-        endPoint: ApiConstants.getStaffTimeSheet,
-      );
-      
-      if (response.statusCode == 200) {
-        await timesheetBox.put(cacheKey, response.data);
-        return StaffTimesheetResponse.fromJson(response.data);
-      } else {
+    if (isOnline) {
+      try {
+        final response = await responsePostMethod(
+          requestData: requestData,
+          endPoint: ApiConstants.getStaffTimeSheet,
+        );
+
+        if (response.statusCode == 200) {
+          await timesheetBox.put(cacheKey, response.data);
+          return StaffTimesheetResponse.fromJson(response.data);
+        } else {
+          return _getFromCache(timesheetBox, cacheKey);
+        }
+      } catch (e) {
         return _getFromCache(timesheetBox, cacheKey);
       }
-    } catch (e) {
+    } else {
       return _getFromCache(timesheetBox, cacheKey);
     }
-  } else {
-    return _getFromCache(timesheetBox, cacheKey);
   }
-}
 
   // Future<StaffTimesheetResponse> getTimeSheetData({
   //   required String year, // Changed parameters to accept Year
@@ -2158,8 +2536,8 @@ log('response of alll products get :${response.data}');
   //   // New Payload Structure
   //   final requestData = {
   //     "id": id,
-  //     "valueFromDw": "Year", 
-  //     "selected_range": [year] 
+  //     "valueFromDw": "Year",
+  //     "selected_range": [year]
   //   };
 
   //   if (isOnline) {
@@ -2187,8 +2565,6 @@ log('response of alll products get :${response.data}');
   //   }
   // }
 
-  
-
   StaffTimesheetResponse _getFromCache(Box timesheetBox, String cacheKey) {
     final cachedData = timesheetBox.get(cacheKey);
 
@@ -2203,6 +2579,7 @@ log('response of alll products get :${response.data}');
 
   Future<bool> loadSwitchState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     return prefs.getBool('switch_state') ?? false;
   }
 
@@ -2952,15 +3329,17 @@ log('response of alll products get :${response.data}');
 
   Future<Response> addCustomer2({
     required Map<String, dynamic> model,
-    required File adminProfilePicture,
+    File? adminProfilePicture,
     required String salesmanId,
   }) async {
     try {
-      final customerPicture = await MultipartFile.fromFile(
-        adminProfilePicture.path,
-        filename: adminProfilePicture.path.split('/').last,
-      );
-      model['cutomerpicture'] = customerPicture;
+      if (adminProfilePicture != null) {
+        final customerPicture = await MultipartFile.fromFile(
+          adminProfilePicture.path,
+          filename: adminProfilePicture.path.split('/').last,
+        );
+        model['cutomerpicture'] = customerPicture;
+      }
 
       final formData = FormData.fromMap(model);
 
@@ -2981,6 +3360,37 @@ log('response of alll products get :${response.data}');
       return Future.error(error);
     }
   }
+  // Future<Response> addCustomer2({
+  //   required Map<String, dynamic> model,
+  //   required File adminProfilePicture,
+  //   required String salesmanId,
+  // }) async {
+  //   try {
+  //     final customerPicture = await MultipartFile.fromFile(
+  //       adminProfilePicture.path,
+  //       filename: adminProfilePicture.path.split('/').last,
+  //     );
+  //     model['cutomerpicture'] = customerPicture;
+
+  //     final formData = FormData.fromMap(model);
+
+  //     final response = await dio.postbycustom(
+  //       ApiConstants.addCustomer,
+  //       data: formData,
+  //     );
+
+  //     return response;
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //       apiName: 'Add Customer',
+  //       response: error.response,
+  //     );
+
+  //     throw DioExceptionHandler.fromDioError(error);
+  //   } catch (error) {
+  //     return Future.error(error);
+  //   }
+  // }
 
   Future<LeadsForUpdatingData> fetchLeadsForUpdate(
     String? customerId,
@@ -2988,16 +3398,21 @@ log('response of alll products get :${response.data}');
     try {
       final response = await dio.postbycustom(
         ApiConstants.getLeadForUpdating,
-        data: {
+        data: FormData.fromMap({
           "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-          "customer_id": customerId
-        },
+          "customer_id": customerId ?? ""
+        }),
       );
 
       final parsedJson =
           response.data is String ? jsonDecode(response.data) : response.data;
 
-      return LeadsForUpdating.fromJson(parsedJson).data.first;
+      final leadsList = LeadsForUpdating.fromJson(parsedJson).data;
+      try {
+        return leadsList.firstWhere((lead) => lead.customerId == customerId);
+      } catch (_) {
+        return leadsList.first;
+      }
     } on DioException catch (error) {
       handleExceptionMessage(
         apiName: 'Get Leads for Update',
@@ -3009,6 +3424,33 @@ log('response of alll products get :${response.data}');
       return Future.error(error);
     }
   }
+  // Future<LeadsForUpdatingData> fetchLeadsForUpdate(
+  //   String? customerId,
+  // ) async {
+  //   try {
+  //     final response = await dio.postbycustom(
+  //       ApiConstants.getLeadForUpdating,
+  //       data: {
+  //         "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+  //         "customer_id": customerId
+  //       },
+  //     );
+
+  //     final parsedJson =
+  //         response.data is String ? jsonDecode(response.data) : response.data;
+
+  //     return LeadsForUpdating.fromJson(parsedJson).data.first;
+  //   } on DioException catch (error) {
+  //     handleExceptionMessage(
+  //       apiName: 'Get Leads for Update',
+  //       response: error.response,
+  //     );
+
+  //     throw DioExceptionHandler.fromDioError(error);
+  //   } catch (error) {
+  //     return Future.error(error);
+  //   }
+  // }
   Future<void> customerPayment({
     BuildContext? context,
     required String detail,
@@ -3025,7 +3467,7 @@ log('response of alll products get :${response.data}');
 
     // 2. Get the Sales ID (Assuming it is stored in SessionHelper like company_id)
     // If your sales ID variable is named differently (e.g., userId), change '.id' below.
-    String salesId = SessionHelper.loginSavedData?.id?.toString() ?? "0"; 
+    String salesId = SessionHelper.loginSavedData?.id?.toString() ?? "0";
 
     // 3. Generate the Unique ID
     String uniqueId = "${timestamp}_$salesId";
@@ -3040,9 +3482,10 @@ log('response of alll products get :${response.data}');
       "transation_date": transactionDate,
       "transation_id": transactionId,
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-      
+
       // ✅ Add the new fields here
-      "sales_id": salesId,   // Ensure sales_id is in payload for your offline logic
+      "sales_id":
+          salesId, // Ensure sales_id is in payload for your offline logic
       "unique_id": uniqueId, // The unique string you requested
     };
 
@@ -3200,15 +3643,13 @@ log('response of alll products get :${response.data}');
       final box = await Hive.openBox('promotionsBox');
 
       if (!isConnected) {
-        final savedPromotions = box.get(cacheKey) as List?;
-        if (savedPromotions != null) {
-          return List<PromotionReponse>.from(
-            savedPromotions.map(
-              (x) => PromotionReponse.fromJson(
-                ApiService().castToStringDynamic(x),
-              ),
-            ),
-          );
+        final savedPromotions = box.get(cacheKey);
+        if (savedPromotions != null && savedPromotions is List) {
+          final jsonString = json.encode(savedPromotions);
+          final List<dynamic> cleanList = json.decode(jsonString);
+          return cleanList
+              .map((x) => PromotionReponse.fromJson(x as Map<String, dynamic>))
+              .toList();
         } else {
           throw Exception('No data available offline');
         }
@@ -3321,7 +3762,14 @@ log('response of alll products get :${response.data}');
     ).onError((DioException error, _) {
       return Future.error(DioExceptionHandler.fromDioError(error));
     });
-
+    print({
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+      "limit": 10,
+      "page": page ?? 1,
+      "valueFromDw": valueFromDw,
+      "selected_range": selectedRange,
+      "order_status": 2,
+    });
     final responseJson = response.data as Map<String, dynamic>;
     await box.put(cacheKey, responseJson);
 
@@ -3330,52 +3778,46 @@ log('response of alll products get :${response.data}');
 
   // Future<GetRecentOrderReturn> getRecentOrdersReturns({
   //   SearchModel? searchModel,
-  //   String? customerId,
-  //   String? salesmanId,
-  //   String? startDate,
-  //   String? endDate,
-  //   // PaginationModel? paginationModel,
   //   int? page,
+  //   // New strict parameters
+  //   required String valueFromDw,
+  //   required List<String> selectedRange,
   // }) async {
+  //   print('api called');
   //   bool isConnected = await ConnectivityService().isOnline();
-  //   final cacheKey =
-  //      "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${startDate ?? ''}_${endDate ?? ''}";
-  //       // "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${''}_${''}";
 
+  //   // Update cache key to be unique based on the new filters
+  //   final cacheKey =
+  //       "${SessionHelper.loginSavedData?.company_id ?? 0}_sales_return_${valueFromDw}_${selectedRange.join('_')}_$page";
   //   final box = Hive.box('salesReturnBox');
 
   //   if (!isConnected) {
   //     final savedData = box.get(cacheKey);
   //     if (savedData != null && savedData is Map) {
   //       return GetRecentOrderReturn.fromJson(
-  //         ApiService().castToStringDynamic(savedData),
-  //       );
+  //           ApiService().castToStringDynamic(savedData));
   //     } else {
   //       throw Exception('No offline data available');
   //     }
   //   }
 
+  //   // UPDATED PAYLOAD
   //   final response = await dio.postbycustom(
   //     ApiConstants.getRecentOrder,
   //     data: {
-  //       "companyId": 1,
-  //       "start_date": startDate ?? "",
-  //      "end_date": endDate ?? "",
+  //       "companyId": SessionHelper.loginSavedData?.company_id ?? 1,
+  //       "limit": 10, // Updated to 1000 as per your payload
+  //       "page": page ?? 1,
+  //       "valueFromDw": valueFromDw,
+  //       "selected_range": selectedRange,
   //       "order_status": 2,
-  //      "limit": 10,
-  //       "page": page,
   //     },
   //   ).onError((DioException error, _) {
   //     return Future.error(DioExceptionHandler.fromDioError(error));
   //   });
 
-  //   final responseJson =
-  //       response.data as Map<String, dynamic>; // ✅ Ensure object
-
-  //   // ✅ Save full response object for correct offline parsing
+  //   final responseJson = response.data as Map<String, dynamic>;
   //   await box.put(cacheKey, responseJson);
-
-  //   log("[getRecentOrdersReturns] Response Data: $responseJson");
 
   //   return GetRecentOrderReturn.fromJson(responseJson);
   // }
@@ -3607,7 +4049,8 @@ log('response of alll products get :${response.data}');
       if (!isOnline) {
         final box = await Hive.openBox('offlineRequests');
         await box.add({
-          "url": 'https://test.thrivewoo.com/create-checkout-session-product',
+          "url": '${ApiConstants.baseUrl1}/create-checkout-session-product',
+          // "url": 'https://test.thrivewoo.com/create-checkout-session-product',
           "method": "POST",
           "payload": requestPayload,
           "timestamp": DateTime.now().toIso8601String(),
@@ -3617,7 +4060,8 @@ log('response of alll products get :${response.data}');
       }
 
       final response = await dio1.post(
-        'https://test.thrivewoo.com/create-checkout-session-product',
+        '${ApiConstants.baseUrl1}/create-checkout-session-product',
+        // 'https://test.thrivewoo.com/create-checkout-session-product',
         data: requestPayload,
       );
 
@@ -3648,7 +4092,8 @@ log('response of alll products get :${response.data}');
       print("🌐 [API] company_id: $companyId");
 
       final response = await dio1.get(
-        'https://test.thrivewoo.com/verify-checkout-session',
+        '${ApiConstants.baseUrl1}/verify-checkout-session',
+        // 'https://test.thrivewoo.com/verify-checkout-session',
         queryParameters: {
           'session_id': sessionId,
           'company_id': companyId,
@@ -3848,7 +4293,7 @@ log('response of alll products get :${response.data}');
 
 //         if (response.statusCode == 200) {
 //           final responseData = response.data;
-          
+
 //           // 1. Parse Data
 //           final bulk = Bulk.fromJson(responseData);
 
@@ -3881,7 +4326,7 @@ log('response of alll products get :${response.data}');
 //       }
 //     }
 //   }
-Future<Bulk> getBulkVolumes() async {
+  Future<Bulk> getBulkVolumes() async {
     // 1. Setup Keys
     final int companyId = SessionHelper.loginSavedData?.company_id ?? 0;
     final String cacheKey = "${companyId}_bulk_volumes";
@@ -3893,11 +4338,12 @@ Future<Bulk> getBulkVolumes() async {
       if (isConnected) {
         // --- ONLINE MODE ---
         print('Attempting Online Fetch...');
-        
+
         final response = await dio.postbycustom(
           ApiConstants.getVolumes,
           data: {"company_id": companyId},
         );
+        log('reposne of bulk item:${response.data}');
 
         if (response.statusCode == 200) {
           try {
@@ -3907,10 +4353,11 @@ Future<Bulk> getBulkVolumes() async {
 
             // B. Save to Cache (Only if parsing works)
             await _cacheBulkData(boxName, cacheKey, response.data);
-            
+
             return bulk;
           } catch (e) {
-            print('CRITICAL: JSON Parsing Failed! Check your Bulk.fromJson model.');
+            print(
+                'CRITICAL: JSON Parsing Failed! Check your Bulk.fromJson model.');
             print('Error: $e');
             // If parsing fails, we throw to trigger the offline fallback
             throw Exception('JSON Parsing Error: $e');
@@ -3923,7 +4370,6 @@ Future<Bulk> getBulkVolumes() async {
         print('No Internet. Loading from cache...');
         return await _loadCachedBulkData(boxName, cacheKey);
       }
-
     } catch (e) {
       // --- FALLBACK (API Failed or Parsing Failed) ---
       print('Online fetch failed ($e). Attempting fallback to cache...');
@@ -3933,11 +4379,12 @@ Future<Bulk> getBulkVolumes() async {
       } catch (cacheError) {
         // Both failed.
         print('Cache also failed or is empty: $cacheError');
-        
+
         // OPTIONAL: Return an empty object instead of throwing error
         // return Bulk(data: []); // Uncomment if you have an empty constructor
-        
-        throw Exception('Failed to fetch bulk volumes (Online & Offline failed)');
+
+        throw Exception(
+            'Failed to fetch bulk volumes (Online & Offline failed)');
       }
     }
   }
@@ -3960,40 +4407,39 @@ Future<Bulk> getBulkVolumes() async {
 
   // --- Helper: Load from Cache ---
 
-
 // ... inside your class ...
 
-Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
-  try {
-    late Box box;
-    if (Hive.isBoxOpen(boxName)) {
-      box = Hive.box(boxName);
-    } else {
-      box = await Hive.openBox(boxName);
+  Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
+    try {
+      late Box box;
+      if (Hive.isBoxOpen(boxName)) {
+        box = Hive.box(boxName);
+      } else {
+        box = await Hive.openBox(boxName);
+      }
+
+      final cachedData = box.get(key);
+
+      if (cachedData != null) {
+        print('Cache hit for $key. Processing data...');
+
+        // --- THE FIX ---
+        // Hive returns Map<dynamic, dynamic>.
+        // We encode it to String and decode it back to JSON.
+        // This cleans up all nested Map types to Map<String, dynamic>.
+        final jsonString = json.encode(cachedData);
+        final Map<String, dynamic> cleanJson = json.decode(jsonString);
+
+        return Bulk.fromJson(cleanJson);
+      } else {
+        print('Cache miss: No data found for key $key');
+        throw Exception('No offline data available');
+      }
+    } catch (e) {
+      print('Error loading cached bulk data: $e');
+      throw e;
     }
-
-    final cachedData = box.get(key);
-
-    if (cachedData != null) {
-      print('Cache hit for $key. Processing data...');
-
-      // --- THE FIX ---
-      // Hive returns Map<dynamic, dynamic>.
-      // We encode it to String and decode it back to JSON.
-      // This cleans up all nested Map types to Map<String, dynamic>.
-      final jsonString = json.encode(cachedData);
-      final Map<String, dynamic> cleanJson = json.decode(jsonString);
-
-      return Bulk.fromJson(cleanJson);
-    } else {
-      print('Cache miss: No data found for key $key');
-      throw Exception('No offline data available');
-    }
-  } catch (e) {
-    print('Error loading cached bulk data: $e');
-    throw e;
   }
-}
 
   // Future<void> _cacheBulkData(String boxName, String key, dynamic json) async {
   //   try {
@@ -4229,9 +4675,9 @@ Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
         final cachedData = box.get(cacheKey);
 
         if (cachedData != null) {
-          return StaffDiscount.fromJson(cachedData
-              // ApiService().castToStringDynamic(cachedData),
-              );
+          final jsonString = json.encode(cachedData);
+          final Map<String, dynamic> cleanJson = json.decode(jsonString);
+          return StaffDiscount.fromJson(cleanJson);
         } else {
           throw Exception('No staff discount data available offline');
         }
@@ -4376,6 +4822,43 @@ Future<Bulk> _loadCachedBulkData(String boxName, String key) async {
         }
       }
       return null;
+    }
+  }
+
+  Future<String> getCompanyActiveLanguage() async {
+    final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+    final requestUrl =
+        '${ApiConstants.baseUrl1}/Companydetails_GET?company_id=$companyId';
+    final isConnected = await ConnectivityService().isOnline();
+
+    // 1. If offline, return the last saved language from SharedPreferences
+    if (!isConnected) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('selected_language') ?? 'en';
+    }
+
+    // 2. If online, fetch from API
+    try {
+      final response =
+          await dio.getbycustom(requestUrl); // Use your existing Dio setup
+
+      if (response.data == null) {
+        throw Exception("API returned empty data");
+      }
+
+      // Check if data exists and safely extract just the active_language
+      if (response.data['status'] == true && response.data['data'] != null) {
+        String activeLanguage =
+            response.data['data']['active_language'] ?? 'en';
+        return activeLanguage;
+      }
+
+      return 'en'; // Default fallback
+    } catch (e) {
+      print("Error fetching active language: $e");
+      // Fallback to local storage on error
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('selected_language') ?? 'en';
     }
   }
 }

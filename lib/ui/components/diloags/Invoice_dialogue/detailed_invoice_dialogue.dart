@@ -552,7 +552,7 @@ void showDetailedOrderInvoiceDialog(
     builder: (BuildContext context) {
       return OrderProcessInvoiceDialog(
         specificData: orderInvoiceData,
-        customTitle: invoice ? 'INVOICE' : changedTitle.toUpperCase(),
+        customTitle: invoice ? 'INVOICE'.tr : changedTitle.tr.toUpperCase(),
         selectedTabIndex: 0,
         showPackType: false,
         orderController: null,

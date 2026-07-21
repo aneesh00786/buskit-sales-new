@@ -83,7 +83,11 @@ class CategoryPerformancee {
 
     return CategoryPerformancee(
       cid: json['cid'] as int?,
-      category: json['category'] as String?,
+      category: json['category'] is List
+          ? (json['category'].isNotEmpty
+              ? json['category'][0]?.toString()
+              : null)
+          : json['category']?.toString(),
       actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
       actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
       actualSales: num.tryParse(json['actual_sales'].toString()) ?? 0,
@@ -126,7 +130,9 @@ class MonthlyPerformancee {
 
   factory MonthlyPerformancee.fromJson(Map<String, dynamic> json) {
     return MonthlyPerformancee(
-      cid: json['cid'] as String?,
+      cid: json['cid'] is List
+          ? (json['cid'].isNotEmpty ? json['cid'][0]?.toString() : null)
+          : json['cid']?.toString(),
       actualProjection: num.tryParse(json['actual_projection'].toString()) ?? 0,
       actualTarget: num.tryParse(json['actual_target'].toString()) ?? 0,
       actualSales: num.tryParse(json['actual_sales'].toString()) ?? 0,
@@ -267,6 +273,7 @@ class BookingRevenueDatum {
   int? notificationStatus;
   dynamic orderCreatedStored;
   num? totalBookingRevenue;
+  DateTime? orderGnerateAt;
 
   BookingRevenueDatum({
     this.id,
@@ -299,6 +306,7 @@ class BookingRevenueDatum {
     this.notificationStatus,
     this.orderCreatedStored,
     this.totalBookingRevenue,
+    this.orderGnerateAt,
   });
 
   factory BookingRevenueDatum.fromJson(Map<String, dynamic> json) =>
@@ -333,6 +341,7 @@ class BookingRevenueDatum {
         notificationStatus: json["notification_status"],
         orderCreatedStored: json["order_created_stored"],
         totalBookingRevenue: json["total_booking_revenue"],
+        orderGnerateAt: DateTime.parse(json["generated_date"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -366,6 +375,7 @@ class BookingRevenueDatum {
         "notification_status": notificationStatus,
         "order_created_stored": orderCreatedStored,
         "total_booking_revenue": totalBookingRevenue,
+        "generated_date": orderGnerateAt!.toIso8601String(),
       };
 }
 
@@ -375,6 +385,7 @@ class OrderRevenueDatum {
   String? orderId;
   num? orderStatus;
   num? totalOrderRevenue;
+  DateTime? orderGeneratedDate;
 
   OrderRevenueDatum({
     this.orderTotal,
@@ -382,6 +393,7 @@ class OrderRevenueDatum {
     this.orderId,
     this.orderStatus,
     this.totalOrderRevenue,
+    this.orderGeneratedDate,
   });
 
   factory OrderRevenueDatum.fromJson(Map<String, dynamic> json) =>
@@ -391,6 +403,7 @@ class OrderRevenueDatum {
         orderId: json["order_id"],
         orderStatus: json["order_status"],
         totalOrderRevenue: json["total_order_revenue"],
+        orderGeneratedDate: DateTime.parse(json["generated_date"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -399,6 +412,7 @@ class OrderRevenueDatum {
         "order_id": orderId,
         "order_status": orderStatus,
         "total_order_revenue": totalOrderRevenue,
+        "generated_date": orderGeneratedDate!.toIso8601String(),
       };
 }
 
@@ -1338,9 +1352,9 @@ class PendingAmount {
   final String? businessName;
   final int? orderStatus;
   final num? orderTotal;
-   num? receivedAmount;
+  num? receivedAmount;
   final num? receivableAmount;
-   int? paymentStatus;
+  int? paymentStatus;
   final int? creditPeriod;
   final int? count;
   final String? percentage;
@@ -2723,7 +2737,7 @@ class SpecificOrderData {
     this.invoice,
     this.tax,
     this.orderSource,
-    this.generateAt,  
+    this.generateAt,
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>

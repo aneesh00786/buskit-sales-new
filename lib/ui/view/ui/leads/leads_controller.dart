@@ -271,9 +271,13 @@ class LeadsController extends GetxController {
     );
   }
 
-  void deleteLeads(String customerId) {
-    ApiWorker().deleteCustomer(customerId);
-    loadLeadsCustomerData;
+  Future<void> deleteLeads(String customerId) async {
+    try {
+      await ApiWorker().deleteCustomer(customerId);
+      await loadLeadsCustomerData;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void goToPreviousPage() {

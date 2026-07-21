@@ -124,8 +124,8 @@ void _loadTimesheetData() async {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'Time Sheet',
+           Text(
+            'Time Sheet'.tr,
             style: TextStyle(
               color: white,
               fontSize: 15,
@@ -157,10 +157,10 @@ void _loadTimesheetData() async {
           TableRow(
             decoration: BoxDecoration(color: Colors.grey[300]),
             children: [
-              _buildTableHeader('Date'),
-              _buildTableHeader('Check-In'),
-              _buildTableHeader('Check-Out'),
-              _buildTableHeader('Hrs'),
+              _buildTableHeader('Date'.tr),
+              _buildTableHeader('Check-In'.tr),
+              _buildTableHeader('Check-Out'.tr),
+              _buildTableHeader('Hrs'.tr),
             ],
           ),
           ..._buildDataRows(),

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
@@ -43,6 +42,7 @@ void pendingPaymentCollectionDialog(
       return false;
     });
   }
+
   List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
     if (!Hive.isBoxOpen('offlineRequests')) return [];
     var box = Hive.box('offlineRequests');
@@ -53,29 +53,23 @@ void pendingPaymentCollectionDialog(
       if (element is Map) {
         final payload = element['payload'];
         if (payload != null && payload['order_id'].toString() == orderId) {
-          
-          // ✅ NEW LOGIC: Try to get the ID directly from the saved payload first
           String uniqueId;
-          
+
           if (payload['unique_id'] != null) {
-             // 1. BEST CASE: Read the exact ID generated during payment
-             uniqueId = payload['unique_id'].toString();
+            uniqueId = payload['unique_id'].toString();
           } else {
-             // 2. FALLBACK: Only reconstruct if it's an old record (backward compatibility)
-             String timestamp = element['timestamp'] ?? DateTime.now().toIso8601String();
-             String salesId = payload['sales_id'] ?? 'unknown'; 
-             uniqueId = "${timestamp}_$salesId";
+            String timestamp =
+                element['timestamp'] ?? DateTime.now().toIso8601String();
+            String salesId = payload['sales_id'] ?? 'unknown';
+            uniqueId = "${timestamp}_$salesId";
           }
 
-          payments.add({
-            'hive_key': key, 
-            'unique_id': uniqueId, // Now guaranteed to match the API function
-            'data': element
-          });
+          payments
+              .add({'hive_key': key, 'unique_id': uniqueId, 'data': element});
         }
       }
     }
-    
+
     // Sort by timestamp descending
     payments.sort((a, b) {
       var tA = DateTime.parse(a['data']['timestamp']);
@@ -86,41 +80,6 @@ void pendingPaymentCollectionDialog(
     return payments;
   }
 
-  // List<Map<String, dynamic>> getOfflinePaymentsList(String orderId) {
-  //   if (!Hive.isBoxOpen('offlineRequests')) return [];
-  //   var box = Hive.box('offlineRequests');
-  //   List<Map<String, dynamic>> payments = [];
-
-  //   // Iterate keys to ensure we have the Hive Key for deletion
-  //   for (var key in box.keys) {
-  //     var element = box.get(key);
-  //     if (element is Map) {
-  //       final payload = element['payload'];
-  //       if (payload != null && payload['order_id'].toString() == orderId) {
-  //         // Construct the requested unique key: time_stamp_sales_id
-  //         // Note: Assuming 'sales_id' exists in payload or strictly using timestamp if not.
-  //         String timestamp = element['timestamp'] ?? DateTime.now().toIso8601String();
-  //         String salesId = payload['sales_id'] ?? 'unknown'; 
-  //         String uniqueId = "${timestamp}_$salesId";
-
-  //         payments.add({
-  //           'hive_key': key, // Critical for deletion
-  //           'unique_id': uniqueId,
-  //           'data': element
-  //         });
-  //       }
-  //     }
-  //   }
-    
-  //   // Sort by timestamp descending (newest first)
-  //   payments.sort((a, b) {
-  //     var tA = DateTime.parse(a['data']['timestamp']);
-  //     var tB = DateTime.parse(b['data']['timestamp']);
-  //     return tB.compareTo(tA);
-  //   });
-
-  //   return payments;
-  // }
   Map<String, dynamic>? getOfflinePaymentDetails(String orderId) {
     if (!Hive.isBoxOpen('offlineRequests')) return null;
     var box = Hive.box('offlineRequests');
@@ -137,322 +96,216 @@ void pendingPaymentCollectionDialog(
       return null;
     }
   }
+
   void showOfflineInfoDialog(BuildContext context, String orderId) {
-  showDialog(
-    context: context,
-    builder: (dialogContext) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          final paymentList = getOfflinePaymentsList(orderId);
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final paymentList = getOfflinePaymentsList(orderId);
 
-          // Auto-close if list became empty
-          if (paymentList.isEmpty) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(dialogContext).pop();
-              final dashboardProvider = Provider.of<DashboardProvider>(
-                context,
-                listen: false,
-              );
-              dashboardProvider.fetchData();
-            });
-            return const SizedBox.shrink();
-          }
+            if (paymentList.isEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(dialogContext).pop();
+                final dashboardProvider = Provider.of<DashboardProvider>(
+                  context,
+                  listen: false,
+                );
+                dashboardProvider.fetchData();
+              });
+              return const SizedBox.shrink();
+            }
 
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-            contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            title: Row(
-              children: const [
-                Icon(Icons.cloud_off_rounded, color: Colors.deepOrange, size: 28),
-                SizedBox(width: 12),
-                Text(
-                  "Offline Payment Queue",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              title: Row(
+                children: [
+                  Icon(Icons.cloud_off_rounded,
+                      color: Colors.deepOrange, size: 28),
+                  SizedBox(width: 12),
+                  Text(
+                    "Offline Payment Queue".tr,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: DataTable(
+                    headingRowHeight: 48,
+                    dataRowHeight: 56,
+                    horizontalMargin: 16,
+                    columnSpacing: 24,
+                    headingRowColor:
+                        MaterialStateProperty.all(Colors.grey.shade100),
+                    border: TableBorder(
+                      horizontalInside: BorderSide(color: Colors.grey.shade300),
+                      bottom: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    columns: [
+                      DataColumn(
+                        label: Text(
+                          'Order ID'.tr,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Amount'.tr,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Time'.tr,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Action'.tr,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                    rows: paymentList.map<DataRow>((item) {
+                      final data = item['data'];
+                      final payload = data['payload'] as Map;
+                      final hiveKey = item['hive_key'];
+                      final uniqueKeyStr = item['unique_id'];
+                      final timestamp =
+                          DateTime.parse(data['timestamp'] as String);
+
+                      final formattedTime =
+                          TimeUtils.formatTimeInZone(timestamp);
+
+                      return DataRow(
+                        key: ValueKey(uniqueKeyStr),
+                        cells: [
+                          DataCell(
+                            Text(
+                              payload['order_id'].toString(),
+                              style: const TextStyle(fontSize: 14),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              "${addCurrencySymbol()}${payload['recieved_amount']}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              formattedTime,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          DataCell(
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                color: Colors.redAccent,
+                                size: 22,
+                              ),
+                              tooltip: 'Delete from queue',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text("Remove payment?"),
+                                    content: const Text(
+                                      "This offline payment record will be permanently deleted from the queue.",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(ctx, true);
+                                          Get.back(); // Close the info dialog as well
+                                        },
+                                        child: const Text(
+                                          "Delete",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  final box = Hive.box('offlineRequests');
+                                  await box.delete(hiveKey);
+                                  setState(() {}); // refresh table
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              actions: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text(
+                    "Close",
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
-            ),
-            content: SizedBox(
-              width: double.maxFinite, // helps DataTable take available width
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: DataTable(
-                  headingRowHeight: 48,
-                  dataRowHeight: 56,
-                  horizontalMargin: 16,
-                  columnSpacing: 24,
-                  headingRowColor: MaterialStateProperty.all(Colors.grey.shade100),
-                  border: TableBorder(
-                    horizontalInside: BorderSide(color: Colors.grey.shade300),
-                    bottom: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  columns: const [
-                    DataColumn(
-                      label: Text(
-                        'Order ID',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Amount',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Time',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Action',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                  rows: paymentList.map<DataRow>((item) {
-                    final data = item['data'];
-                    final payload = data['payload'] as Map;
-                    final hiveKey = item['hive_key'];
-                    final uniqueKeyStr = item['unique_id'];
-                    final timestamp = DateTime.parse(data['timestamp'] as String);
-                    
-                     final formattedTime = TimeUtils.formatTimeInZone(timestamp);
-                    // final formattedTime = DateFormat('hh:mm a • dd MMM').format(timestamp);
-
-                    return DataRow(
-                      key: ValueKey(uniqueKeyStr),
-                      cells: [
-                        DataCell(
-                          Text(
-                            payload['order_id'].toString(),
-                            style: const TextStyle(fontSize: 14),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            "${addCurrencySymbol()}${payload['recieved_amount']}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            formattedTime,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade700,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              color: Colors.redAccent,
-                              size: 22,
-                            ),
-                            tooltip: 'Delete from queue',
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text("Remove payment?"),
-                                  content: const Text(
-                                    "This offline payment record will be permanently deleted from the queue.",
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
-                                      child: const Text("Cancel"),
-                                    ),
-                                    TextButton(
-                                      onPressed:(){
-                                        Navigator.pop(ctx, true);
-                                        Get.back(); // Close the info dialog as well
-                                      } ,
-                                      child: const Text(
-                                        "Delete",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (confirm == true) {
-                                final box = Hive.box('offlineRequests');
-                                await box.delete(hiveKey);
-                                setState(() {}); // refresh table
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            actions: [
-              TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text(
-                  "Close",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-//   void showOfflineInfoDialog(BuildContext context, String orderId) {
-//   showDialog(
-//     context: context,
-//     builder: (ctx) {
-//       return StatefulBuilder(
-//         builder: (context, setState) {
-//           var paymentList = getOfflinePaymentsList(orderId);
-
-//           if (paymentList.isEmpty) {
-//             WidgetsBinding.instance.addPostFrameCallback((_) {
-//               Navigator.pop(ctx);
-//               final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-//               dashboardProvider.fetchData();
-//             });
-//             return const SizedBox();
-//           }
-
-//           return AlertDialog(
-//             title: const Row(
-//               children: [
-//                 Icon(Icons.wifi_off, color: Colors.orange),
-//                 SizedBox(width: 10),
-//                 Text("Offline Queue", style: TextStyle(fontSize: 16)),
-//               ],
-//             ),
-//             content: SingleChildScrollView(
-//               scrollDirection: Axis.horizontal,
-//               child: SingleChildScrollView(
-//                 scrollDirection: Axis.vertical,
-//                 child: DataTable(
-//                   columnSpacing: 20,
-//                   headingRowColor: MaterialStateProperty.all(Colors.grey.shade100),
-//                   columns: const [
-//                     DataColumn(label: Text('Order ID', style: TextStyle(fontWeight: FontWeight.bold))),
-//                     DataColumn(label: Text('Amount',  style: TextStyle(fontWeight: FontWeight.bold))),
-//                     DataColumn(label: Text('Time',    style: TextStyle(fontWeight: FontWeight.bold))),
-//                     DataColumn(label: Text('Action',  style: TextStyle(fontWeight: FontWeight.bold))),
-//                   ],
-//                   rows: paymentList.map<DataRow>((item) {
-//                     final data        = item['data'];
-//                     final payload     = data['payload'];
-//                     final hiveKey     = item['hive_key'];
-//                     final uniqueKeyStr = item['unique_id'];
-//                     final timestamp   = DateTime.parse(data['timestamp']);
-//                     // ✅ Single-line time format (no \n)
-//                     final formattedTime = DateFormat('hh:mm a, dd MMM').format(timestamp);
-
-//                     return DataRow(
-//                       key: ValueKey(uniqueKeyStr),
-//                       cells: [
-//                         // ✅ Fixed width + no wrap on every cell
-//                         DataCell(
-//                           SizedBox(
-//                             width: 80,
-//                             child: Text(
-//                               payload['order_id'].toString(),
-//                               overflow: TextOverflow.ellipsis,
-//                               softWrap: false,
-//                             ),
-//                           ),
-//                         ),
-//                         DataCell(
-//                           SizedBox(
-//                             width: 80,
-//                             child: Text(
-//                               "${addCurrencySymbol()}${payload['recieved_amount']}",
-//                               overflow: TextOverflow.ellipsis,
-//                               softWrap: false,
-//                             ),
-//                           ),
-//                         ),
-//                         DataCell(
-//                           SizedBox(
-//                             width: 110,
-//                             child: Text(
-//                               formattedTime,
-//                               style: const TextStyle(fontSize: 12),
-//                               overflow: TextOverflow.ellipsis,
-//                               softWrap: false,       // ✅ Prevent line break
-//                             ),
-//                           ),
-//                         ),
-//                         DataCell(
-//                           IconButton(
-//                             icon: const Icon(Icons.delete, color: Colors.red),
-//                             onPressed: () async {
-//                               var box = Hive.box('offlineRequests');
-//                               await box.delete(hiveKey);
-//                               setState(() {});
-//                               Get.back();
-//                             },
-//                           ),
-//                         ),
-//                       ],
-//                     );
-//                   }).toList(),
-//                 ),
-//               ),
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () => Navigator.pop(ctx),
-//                 child: const Text("Close"),
-//               )
-//             ],
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
-  
+            );
+          },
+        );
+      },
+    );
+  }
 
   late RxString selectedPaymentMethod;
   selectedPaymentMethod = 'Cash'.obs;
@@ -490,6 +343,9 @@ void pendingPaymentCollectionDialog(
     filteredPendingAmount = collection.order!.pendingAmount!.toList();
   }
   updateSelectedItems();
+  List<double> currentBalances = filteredPendingAmount.map((item) {
+    return (item.receivableAmount ?? ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0))).toDouble();
+  }).toList();
   Color getDueDateColor(String dueDateStr) {
     try {
       DateTime dueDate = parseCustomDate(dueDateStr);
@@ -507,34 +363,46 @@ void pendingPaymentCollectionDialog(
       return Colors.grey;
     }
   }
-
   double calculateTotalBalanceAmount() {
     double total = 0;
     for (int i = 0; i < selectedItems.length; i++) {
       if (selectedItems[i]) {
-        final receivable = filteredPendingAmount[i].pendingAmount;
-        if (receivable == null) {
-          total += ((filteredPendingAmount[i].orderTotal ?? 0) -
-                  (filteredPendingAmount[i].pendingAmount ?? 0))
-              .toDouble();
-        } else {
-          total += receivable;
-        }
+        total += currentBalances[i]; // Uses the editable list!
       }
     }
     return total;
   }
 
+  // double calculateTotalBalanceAmount() {
+  //   double total = 0;
+  //   for (int i = 0; i < selectedItems.length; i++) {
+  //     if (selectedItems[i]) {
+  //       final receivable = filteredPendingAmount[i].pendingAmount;
+  //       if (receivable == null) {
+  //         total += ((filteredPendingAmount[i].orderTotal ?? 0) -
+  //                 (filteredPendingAmount[i].pendingAmount ?? 0))
+  //             .toDouble();
+  //       } else {
+  //         total += receivable;
+  //       }
+  //     }
+  //   }
+  //   return total;
+  // }
+
   RxDouble totalBalanceAmount = RxDouble(calculateTotalBalanceAmount());
-  RxInt offlineStatusRefresh = 0.obs; // Triggers table rebuild when offline payments change
+  RxInt offlineStatusRefresh = 0.obs;
 
   final balanceAmountController = TextEditingController(
     text: totalBalanceAmount.value.toStringAsFixed(2),
   );
+  final receivedAmountController = TextEditingController(
+    text: totalBalanceAmount.value.toStringAsFixed(2),
+  );
 
-  final receivedAmountController = TextEditingController();
+  // final receivedAmountController = TextEditingController();
   final remarksController = TextEditingController();
- Future<void> processPayments(
+  Future<void> processPayments(
     List<PendingAmount> selectedItems,
     double enteredAmount,
   ) async {
@@ -543,85 +411,40 @@ void pendingPaymentCollectionDialog(
               ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
           .toDouble();
 
-      // Ensure we have enough balance (checking > 0.01 handles decimal errors)
       if (enteredAmount > 0.01) {
-        
-        // Logic: Pay strict item amount, or whatever is left in enteredAmount
         double appliedAmount = 0.0;
         if (enteredAmount >= itemAmount) {
-           appliedAmount = itemAmount;
+          appliedAmount = itemAmount;
         } else {
-           appliedAmount = enteredAmount;
+          appliedAmount = enteredAmount;
         }
 
         enteredAmount -= appliedAmount;
 
-        // Only call API if we are actually paying something
         if (appliedAmount > 0) {
-            await ApiWorker().customerPayment(
-              context: context,
-              checkDueDate: "",
-              checkNumber: "",
-              detail: remarksController.text,
-              orderId: item.orderId.toString(),
-              paymentType: selectedPaymentMethod.value == 'Cash'
-                  ? "0"
-                  : selectedPaymentMethod.value == 'Cheque'
-                      ? "1"
-                      : selectedPaymentMethod.value == 'Bank Transfer'
-                          ? "2"
-                          : "0",
-              receivedAmount: appliedAmount,
-              transactionDate: "",
-              transactionId: "",
-            );
+          await ApiWorker().customerPayment(
+            context: context,
+            checkDueDate: "",
+            checkNumber: "",
+            detail: remarksController.text,
+            orderId: item.orderId.toString(),
+            paymentType: selectedPaymentMethod.value == 'Cash'
+                ? "0"
+                : selectedPaymentMethod.value == 'Cheque'
+                    ? "1"
+                    : selectedPaymentMethod.value == 'Bank Transfer'
+                        ? "2"
+                        : "0",
+            receivedAmount: appliedAmount,
+            transactionDate: "",
+            transactionId: "",
+          );
 
-            // ✅ FORCE > 1 SECOND DELAY
-            // Many systems use keys like "2023-10-10 10:00:01".
-            // If you save two records in the same second, they overwrite each other.
-            // 1100ms ensures the clock moves to the next second.
-            await Future.delayed(const Duration(milliseconds: 1100));
+          await Future.delayed(const Duration(milliseconds: 1100));
         }
       }
     }
   }
-
-  // Future<void> processPayments(
-  //   List<PendingAmount> selectedItems,
-  //   double enteredAmount,
-  // ) async {
-  //   for (var item in selectedItems) {
-  //     double itemAmount = (item.receivableAmount ??
-  //             ((item.orderTotal ?? 0) - (item.receivedAmount ?? 0)))
-  //         .toDouble();
-
-  //     if (enteredAmount > 0) {
-  //       double appliedAmount =
-  //           enteredAmount >= itemAmount ? itemAmount : enteredAmount;
-  //       enteredAmount -= appliedAmount;
-        
-  //       // Await the API call here
-  //       await ApiWorker().customerPayment(
-  //         context: context,
-  //         checkDueDate: "",
-  //         checkNumber: "",
-  //         detail: remarksController.text,
-  //         orderId: item.orderId.toString(),
-  //         paymentType: selectedPaymentMethod.value == 'Cash'
-  //             ? "0"
-  //             : selectedPaymentMethod.value == 'Cheque'
-  //                 ? "1"
-  //                 : selectedPaymentMethod.value == 'Bank Transfer'
-  //                     ? "2"
-  //                     : "0",
-  //         receivedAmount: appliedAmount,
-  //         transactionDate: "",
-  //         transactionId: "",
-  //       );
-  //     }
-  //   }
-  // }
-
 
   Widget customPaymentDataTable() {
     return DataTable(
@@ -630,64 +453,64 @@ void pendingPaymentCollectionDialog(
       dataRowHeight: 30,
       headingRowHeight: 40,
       border: TableBorder.all(color: Colors.grey.shade300),
-      columns: const [
+      columns: [
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Customer',
+            text: 'Customer'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Date',
+            text: 'Date'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Order No.',
+            text: 'Order No.'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Amount',
+            text: 'Amount'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Status',
+            text: 'Status'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Invoice',
+            text: 'Invoice'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Due Date',
+            text: 'Due Date'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Payment',
+            text: 'Payment'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Receivable',
+            text: 'Receivable'.tr,
             fontSize: 13,
           ),
         ),
         DataColumn(
           label: DialogTableHeaderText(
-            text: 'Select',
+            text: 'Select'.tr,
             fontSize: 13,
           ),
         ),
@@ -697,7 +520,8 @@ void pendingPaymentCollectionDialog(
           (entry) {
             int index = entry.key;
             var payment = entry.value;
-            bool isOfflinePending = isOfflinePaymentPending(payment.orderId.toString());
+            bool isOfflinePending =
+                isOfflinePaymentPending(payment.orderId.toString());
             return DataRow(cells: [
               DataCell(Center(child: Text(payment.businessName.toString()))),
               DataCell(Center(
@@ -715,7 +539,8 @@ void pendingPaymentCollectionDialog(
                             horizontal: 5,
                           ),
                           child: Text(
-                              getStatusName(payment.orderStatus?.toInt() ?? 0),
+                              getStatusName(payment.orderStatus?.toInt() ?? 0)
+                                  .tr,
                               style: const TextStyle(
                                 color: Colors.white,
                               )))))),
@@ -736,15 +561,21 @@ void pendingPaymentCollectionDialog(
                 Center(
                   child: Text(
                     payment.dueDate != null && payment.dueDate!.isNotEmpty
-                        ? payment.dueDate!.first.toString().replaceAll('/', '-')
+                        ? TimeUtils.formatTimeInZone(
+                            // THIS IS THE FIX: Tell Dart exactly what format the string is in before parsing
+                            DateFormat('dd-MM-yyyy').parse(payment
+                                .dueDate!.first
+                                .toString()
+                                .replaceAll('/', '-')),
+                            format: 'dd-MM-yyyy',
+                          )
                         : 'N/A',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: payment.dueDate != null &&
-                              payment.dueDate!.isNotEmpty
-                          ? getDueDateColor(payment.dueDate!.first)
-                          : Colors
-                              .grey, // Set color to grey for null or empty dueDate
+                      color:
+                          payment.dueDate != null && payment.dueDate!.isNotEmpty
+                              ? getDueDateColor(payment.dueDate!.first)
+                              : Colors.grey,
                     ),
                   ),
                 ),
@@ -754,11 +585,12 @@ void pendingPaymentCollectionDialog(
                   child: isOfflinePending
                       ? InkWell(
                           onTap: () {
-                             showOfflineInfoDialog(context, payment.orderId.toString());
+                            showOfflineInfoDialog(
+                                context, payment.orderId.toString());
                           },
                           child: const Icon(
                             Icons.info,
-                            color: Colors.blue, 
+                            color: Colors.blue,
                             size: 20,
                           ),
                         )
@@ -785,7 +617,9 @@ void pendingPaymentCollectionDialog(
                           child: Padding(
                             padding: const EdgeInsets.all(1.0),
                             child: Icon(
-                              payment.paymentStatus == 0 ? Icons.close : Icons.done,
+                              payment.paymentStatus == 0
+                                  ? Icons.close
+                                  : Icons.done,
                               color: Colors.white,
                               size: 14.0,
                             ),
@@ -793,55 +627,31 @@ void pendingPaymentCollectionDialog(
                         ),
                 ),
               ),
-              // DataCell(
-              //   Center(
-              //     child: Container(
-              //       decoration: BoxDecoration(
-              //         color: payment.paymentStatus == 0
-              //             ? Colors.red
-              //             : payment.paymentStatus == 1
-              //                 ? Colors.green
-              //                 : payment.paymentStatus == 3
-              //                     ? Colors.amber
-              //                     : Colors.grey,
-              //         shape: BoxShape.circle,
-              //         border: Border.all(
-              //           color: payment.paymentStatus == 0
-              //               ? Colors.red
-              //               : payment.paymentStatus == 1
-              //                   ? Colors.green
-              //                   : payment.paymentStatus == 3
-              //                       ? Colors.amber
-              //                       : Colors.grey,
-              //         ),
-              //       ),
-              //       child: Padding(
-              //         padding: const EdgeInsets.all(1.0),
-              //         child: Icon(
-              //           payment.paymentStatus == 0 ? Icons.close : Icons.done,
-              //           color: Colors.white,
-              //           size: 14.0,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
               DataCell(
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3.0),
                     child: EditablePendingPaymentCell(
-                      initialValue: (payment.orderTotal! -
-                                      payment.receivedAmount! ==
-                                  payment.orderTotal
-                              ? payment.orderTotal
-                              : payment.orderTotal! - payment.receivedAmount!)
-                          .toString(),
+                      initialValue:currentBalances[index].toStringAsFixed(2),
+                      //  (payment.orderTotal! -
+                      //                 payment.receivedAmount! ==
+                      //             payment.orderTotal
+                      //         ? payment.orderTotal
+                      //         : payment.orderTotal! - payment.receivedAmount!)
+                      //     .toString(),
                       index: index,
                       orderId: payment.orderId.toString(),
                       orderTotal: payment.orderTotal?.toInt() ?? 0,
                       // receivable: payment.pendingAmount,
-                      onValueChanged: (newValue, index) {},
+                      onValueChanged: (newValue, idx) {
+                        currentBalances[idx] = double.tryParse(newValue) ?? 0.0;
+                        totalBalanceAmount.value = calculateTotalBalanceAmount();
+                        
+                        // Auto-update the text boxes at the bottom!
+                        balanceAmountController.text = totalBalanceAmount.value.toStringAsFixed(2);
+                        receivedAmountController.text = totalBalanceAmount.value.toStringAsFixed(2);
+                      },
+                      // (newValue, index) {},
                       amountEdited: payment.amountEdited,
                     ),
                   ),
@@ -857,6 +667,8 @@ void pendingPaymentCollectionDialog(
                       totalBalanceAmount.value = calculateTotalBalanceAmount();
                       balanceAmountController.text =
                           totalBalanceAmount.value.toStringAsFixed(2);
+                          receivedAmountController.text = 
+                          totalBalanceAmount.value.toStringAsFixed(2);
                     },
                   );
                 })),
@@ -864,59 +676,6 @@ void pendingPaymentCollectionDialog(
             ]);
           },
         ),
-        // DataRow(cells: [
-        //   const DataCell(
-        //     Center(
-        //       child: Text(
-        //         'Totaltt',
-        //         style: TextStyle(
-        //             fontSize: 12,
-        //             fontWeight: FontWeight.w600,
-        //             fontFamily: 'Poppins_Regular'),
-        //         textAlign: TextAlign.center,
-        //       ),
-        //     ),
-        //   ),
-        //   const DataCell(Text('')),
-        //   const DataCell(Text('')),
-        //   DataCell(
-        //     Center(
-        //       child: Text(
-        //         formatAmount(
-        //           filteredPendingAmount
-        //               .map((e) => e.orderTotal ?? 0.0)
-        //               .fold(0.0, (a, b) => a + b),
-        //         ),
-        //         style: const TextStyle(
-        //             fontSize: 12,
-        //             fontWeight: FontWeight.w600,
-        //             fontFamily: 'Poppins_Regular'),
-        //         textAlign: TextAlign.center,
-        //       ),
-        //     ),
-        //   ),
-        //   const DataCell(Text('')),
-        //   const DataCell(Text('')),
-        //   const DataCell(Text('')),
-        //   const DataCell(Text('')),
-        //   DataCell(
-        //     Center(
-        //       child: Text(
-        //         formatAmount(
-        //           filteredPendingAmount
-        //               .map((e) => e.pendingAmount ?? 0.0)
-        //               .fold(0.0, (a, b) => a + b),
-        //         ),
-        //         style: const TextStyle(
-        //             fontSize: 12,
-        //             fontWeight: FontWeight.w600,
-        //             fontFamily: 'Poppins_Regular'),
-        //         textAlign: TextAlign.center,
-        //       ),
-        //     ),
-        //   ),
-        //   const DataCell(Text('')),
-        // ]),
       ],
     );
   }
@@ -948,7 +707,7 @@ void pendingPaymentCollectionDialog(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    title,
+                    title.tr,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -1010,31 +769,31 @@ void pendingPaymentCollectionDialog(
                       child: DataTable(
                         dataRowHeight: 35,
                         headingRowHeight: 30,
-                        columns: const [
+                        columns: [
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Payment Method',
+                              text: 'Payment Method'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
                           ),
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Balance Amount',
+                              text: 'Balance Amount'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
                           ),
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Received Amount',
+                              text: 'Received Amount'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
                           ),
                           DataColumn(
                             label: DialogTableHeaderText(
-                              text: 'Remarks',
+                              text: 'Remarks'.tr,
                               fontSize: 11,
                               align: TextAlign.start,
                             ),
@@ -1059,17 +818,18 @@ void pendingPaymentCollectionDialog(
                                         horizontal: 8.0),
                                   ),
                                   dropdownColor: Colors.white,
-                                  items: const [
+                                  items: [
                                     DropdownMenuItem(
-                                        value: 'Cash', child: Text('Cash')),
+                                        value: 'Cash', child: Text('Cash'.tr)),
                                     DropdownMenuItem(
-                                        value: 'Cheque', child: Text('Cheque')),
+                                        value: 'Cheque',
+                                        child: Text('Cheque'.tr)),
                                     DropdownMenuItem(
                                         value: 'Bank Transfer',
-                                        child: Text('Bank Transfer')),
+                                        child: Text('Bank Transfer'.tr)),
                                     DropdownMenuItem(
                                         value: 'QR Payment',
-                                        child: Text('QR Payment')),
+                                        child: Text('QR Payment'.tr)),
                                   ],
                                   onChanged: (value) {
                                     if (value != null) {
@@ -1131,7 +891,7 @@ void pendingPaymentCollectionDialog(
                                       child: TextField(
                                         controller: receivedAmountController,
                                         decoration: InputDecoration(
-                                          hintText: 'Enter Amount',
+                                          hintText: 'Enter Amount'.tr,
                                           filled: true,
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
@@ -1153,7 +913,7 @@ void pendingPaymentCollectionDialog(
                                 TextField(
                                   controller: remarksController,
                                   decoration: InputDecoration(
-                                    hintText: 'Remarks',
+                                    hintText: 'Remarks'.tr,
                                     filled: true,
                                     fillColor: Colors.white,
                                     border: OutlineInputBorder(
@@ -1171,52 +931,78 @@ void pendingPaymentCollectionDialog(
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       // 1. Validation
-                                      final double enteredAmount = double.tryParse(receivedAmountController.text) ?? 0;
+                                      final double enteredAmount =
+                                          double.tryParse(
+                                                  receivedAmountController
+                                                      .text) ??
+                                              0;
                                       if (enteredAmount <= 0) {
-                                        showCustomToastDisplay(context, "Please enter a valid amount", Colors.red, Icons.error);
+                                        showCustomToastDisplay(
+                                            context,
+                                            "Please enter a valid amount".tr,
+                                            Colors.red,
+                                            Icons.error);
                                         return;
                                       }
 
                                       // 2. Build Selected List
-                                      List<PendingAmount> selectedItemsList = [];
-                                      for (int i = 0; i < selectedItems.length; i++) {
+                                      List<PendingAmount> selectedItemsList =
+                                          [];
+                                      for (int i = 0;
+                                          i < selectedItems.length;
+                                          i++) {
                                         if (selectedItems[i]) {
                                           if (title == 'Due Payment') {
-                                            selectedItemsList.add(collection.due!.dueAmount![i]);
-                                          } else if (title == 'Over Due Payment') {
-                                            selectedItemsList.add(collection.overdue!.overdueAmount![i]);
+                                            selectedItemsList.add(
+                                                collection.due!.dueAmount![i]);
+                                          } else if (title ==
+                                              'Over Due Payment') {
+                                            selectedItemsList.add(collection
+                                                .overdue!.overdueAmount![i]);
                                           } else {
-                                            selectedItemsList.add(collection.order!.pendingAmount![i]);
+                                            selectedItemsList.add(collection
+                                                .order!.pendingAmount![i]);
                                           }
                                         }
                                       }
 
                                       if (selectedItemsList.isEmpty) {
-                                        showCustomToastDisplay(context, "Please select at least one item", Colors.red, Icons.error);
+                                        showCustomToastDisplay(
+                                            context,
+                                            "Please select at least one item"
+                                                .tr,
+                                            Colors.red,
+                                            Icons.error);
                                         return;
                                       }
 
-                                      // 3. CHECK CONNECTIVITY
-                                      bool isOnline = await ConnectivityService().isOnline();
+                                      bool isOnline =
+                                          await ConnectivityService()
+                                              .isOnline();
 
-                                      // 4. Handle Offline QR Constraint
-                                      if (!isOnline && selectedPaymentMethod.value == 'QR Payment') {
+                                      if (!isOnline &&
+                                          selectedPaymentMethod.value ==
+                                              'QR Payment') {
                                         showDialog(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: const Text("Online Required"),
-                                            content: const Text("QR Payments can only be processed while online. Please select Cash, Cheque, or Bank Transfer for offline collection."),
+                                            title: Text("Online Required".tr),
+                                            content: Text(
+                                                "QR Payments can only be processed while online. Please select Cash, Cheque, or Bank Transfer for offline collection."
+                                                    .tr),
                                             actions: [
-                                              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("OK"))
+                                              TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(ctx),
+                                                  child: Text("OK".tr))
                                             ],
                                           ),
                                         );
                                         return;
                                       }
 
-                                      // 5. Normal Processing (Online or Offline-allowed methods)
-                                      if (selectedPaymentMethod.value == 'QR Payment') {
-                                        // This implies isOnline is TRUE (checked above)
+                                      if (selectedPaymentMethod.value ==
+                                          'QR Payment') {
                                         await _startOnlinePayment(
                                           context,
                                           enteredAmount,
@@ -1224,41 +1010,52 @@ void pendingPaymentCollectionDialog(
                                           remarks: remarksController.text,
                                         );
                                       } else {
-                                        // Cash/Cheque/Bank (Online OR Offline)
-                                        
-                                        // Await processing (which queues to Hive if offline)
-                                        await processPayments(selectedItemsList, enteredAmount);
-                                        
-                                        // Handle Offline Feedback
+                                        await processPayments(
+                                            selectedItemsList, enteredAmount);
+
                                         if (!isOnline) {
-                                          offlineStatusRefresh.value++; // ← rebuild table so ALL selected orders show the info icon
+                                          offlineStatusRefresh.value++;
                                           showDialog(
                                             context: context,
                                             barrierDismissible: false,
                                             builder: (ctx) => AlertDialog(
-                                              title: const Row(children: [Icon(Icons.wifi_off, color: Colors.orange), SizedBox(width:10), Text("Payment Queued")]),
-                                              content: const Text("You are offline. The payment has been saved locally and will complete automatically when you go online."),
+                                              title: const Row(children: [
+                                                Icon(Icons.wifi_off,
+                                                    color: Colors.orange),
+                                                SizedBox(width: 10),
+                                                Text("Payment Queued")
+                                              ]),
+                                              content: Text(
+                                                  "You are offline. The payment has been saved locally and will complete automatically when you go online."
+                                                      .tr),
                                               actions: [
                                                 TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(ctx); // Close Dialog
-                                                    Get.back(); // Close Collection Dialog
-                                                    
-                                                    // Trigger Dashboard refresh (to update UI with Info icons)
-                                                    final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-                                                    dashboardProvider.fetchData();
-                                                  }, 
-                                                  child: const Text("OK")
-                                                )
+                                                    onPressed: () {
+                                                      Navigator.pop(ctx);
+                                                      Get.back();
+
+                                                      final dashboardProvider =
+                                                          Provider.of<
+                                                                  DashboardProvider>(
+                                                              context,
+                                                              listen: false);
+                                                      dashboardProvider
+                                                          .fetchData();
+                                                    },
+                                                    child: const Text("OK"))
                                               ],
                                             ),
                                           );
                                         } else {
-                                          // Normal Online Success Flow
                                           updateSelectedItems();
-                                          final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-                                          await dashboardProvider.setTempToFilter();
-                                          await dashboardProvider.fetchAllOrdersAtOnce();
+                                          final dashboardProvider =
+                                              Provider.of<DashboardProvider>(
+                                                  context,
+                                                  listen: false);
+                                          await dashboardProvider
+                                              .setTempToFilter();
+                                          await dashboardProvider
+                                              .fetchAllOrdersAtOnce();
                                           dashboardProvider.fetchData();
                                           Get.back();
                                         }
@@ -1266,128 +1063,24 @@ void pendingPaymentCollectionDialog(
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0)),
                                     ),
                                     child: Obx(
                                       () => Text(
-                                        selectedPaymentMethod.value == 'QR Payment' ? 'Pay' : 'Submit',
-                                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                                        selectedPaymentMethod.value ==
+                                                'QR Payment'
+                                            ? 'Pay'.tr
+                                            : 'Submit'.tr,
+                                        style: const TextStyle(
+                                            fontSize: 14, color: Colors.white),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              // DataCell(
-                              //   Center(
-                              //     child: ElevatedButton(
-                              //       onPressed: () async {
-                              //         final double enteredAmount =
-                              //             double.tryParse(
-                              //                     receivedAmountController
-                              //                         .text) ??
-                              //                 0;
-
-                              //         if (enteredAmount <= 0) {
-                              //           showCustomToastDisplay(
-                              //               context,
-                              //               "Please enter a valid amount",
-                              //               Colors.red,
-                              //               Icons.error);
-                              //           return;
-                              //         }
-
-                              //         // Build selected items ONCE — used by BOTH flows
-                              //         List<PendingAmount> selectedItemsList =
-                              //             [];
-                              //         for (int i = 0;
-                              //             i < selectedItems.length;
-                              //             i++) {
-                              //           if (selectedItems[i]) {
-                              //             if (title == 'Due Payment') {
-                              //               selectedItemsList.add(
-                              //                   collection.due!.dueAmount![i]);
-                              //             } else if (title ==
-                              //                 'Over Due Payment') {
-                              //               selectedItemsList.add(collection
-                              //                   .overdue!.overdueAmount![i]);
-                              //             } else {
-                              //               selectedItemsList.add(collection
-                              //                   .order!.pendingAmount![i]);
-                              //             }
-                              //           }
-                              //         }
-
-                              //         if (selectedItemsList.isEmpty) {
-                              //           showCustomToastDisplay(
-                              //               context,
-                              //               "Please select at least one item",
-                              //               Colors.red,
-                              //               Icons.error);
-                              //           return;
-                              //         }
-
-                              //         // Now decide: Online Payment → QR flow, else → normal payment
-                              //         if (selectedPaymentMethod.value ==
-                              //             'QR Payment') {
-                              //           // await _startOnlinePayment(
-                              //           //   context,
-                              //           //   enteredAmount,
-                              //           //   selectedItemsList,
-                              //           //   // collection,
-                              //           // );
-                              //           await _startOnlinePayment(
-                              //             context,
-                              //             enteredAmount,
-                              //             selectedItemsList,
-                              //             remarks: remarksController.text,
-                              //           );
-
-                              //           print(
-                              //               'payament_type:${selectedPaymentMethod.value}');
-                              //         } else {
-                              //           // Normal Cash/Cheque/Bank Transfer
-                              //           processPayments(
-                              //             selectedItemsList,
-                              //             enteredAmount,
-                              //           );
-                              //           // _resetPaymentForm();
-                              //           updateSelectedItems();
-                              //           final dashboardProvider =
-                              //               Provider.of<DashboardProvider>(
-                              //                   context,
-                              //                   listen: false);
-                              //           await dashboardProvider
-                              //               .setTempToFilter();
-
-                              //           // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
-                              //           await dashboardProvider
-                              //               .fetchAllOrdersAtOnce();
-
-                              //           dashboardProvider.fetchData();
-
-                              //           Get.back();
-                              //         }
-                              //       },
-                              //       style: ElevatedButton.styleFrom(
-                              //         backgroundColor: Colors.blue,
-                              //         // primaryColor.withOpacity(0.2),
-                              //         shape: RoundedRectangleBorder(
-                              //             borderRadius:
-                              //                 BorderRadius.circular(10.0)),
-                              //       ),
-                              //       child: Obx(
-                              //         () => Text(
-                              //           selectedPaymentMethod.value ==
-                              //                   'QR Payment'
-                              //               ? 'Pay'
-                              //               : 'Submit',
-                              //           style: const TextStyle(
-                              //               fontSize: 14, color: Colors.white),
-                              //         ),
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
+                              //
                             ],
                           ),
                         ],
@@ -1405,17 +1098,17 @@ void pendingPaymentCollectionDialog(
                           DataTable(
                             dataRowHeight: 35,
                             headingRowHeight: 30,
-                            columns: const [
+                            columns: [
                               DataColumn(
                                 label: DialogTableHeaderText(
-                                  text: 'Payment Method',
+                                  text: 'Payment Method'.tr,
                                   fontSize: 11,
                                   align: TextAlign.start,
                                 ),
                               ),
                               DataColumn(
                                 label: DialogTableHeaderText(
-                                  text: 'Balance Amount',
+                                  text: 'Balance Amount'.tr,
                                   fontSize: 11,
                                   align: TextAlign.start,
                                 ),
@@ -1426,7 +1119,6 @@ void pendingPaymentCollectionDialog(
                                 cells: [
                                   DataCell(
                                     DropdownButtonFormField<String>(
-                                      // itemHeight: 9,
                                       value: selectedPaymentMethod.value,
                                       decoration: InputDecoration(
                                         filled: true,
@@ -1442,18 +1134,19 @@ void pendingPaymentCollectionDialog(
                                                 horizontal: 8.0),
                                       ),
                                       dropdownColor: Colors.white,
-                                      items: const [
+                                      items: [
                                         DropdownMenuItem(
-                                            value: 'Cash', child: Text('Cash')),
+                                            value: 'Cash',
+                                            child: Text('Cash'.tr)),
                                         DropdownMenuItem(
                                             value: 'Cheque',
-                                            child: Text('Cheque')),
+                                            child: Text('Cheque'.tr)),
                                         DropdownMenuItem(
                                             value: 'Bank Transfer',
-                                            child: Text('Bank Transfer')),
+                                            child: Text('Bank Transfer'.tr)),
                                         DropdownMenuItem(
                                             value: 'QR Payment',
-                                            child: Text('QR Payment')),
+                                            child: Text('QR Payment'.tr)),
                                       ],
                                       onChanged: (value) {
                                         if (value != null) {
@@ -1470,7 +1163,7 @@ void pendingPaymentCollectionDialog(
                                           };
                                         }
                                       },
-                                      hint: const Text('Select'),
+                                      hint: Text('Select'.tr),
                                       style: const TextStyle(
                                           fontSize: 12, color: Colors.black),
                                       icon: const Icon(Icons.arrow_drop_down,
@@ -1543,7 +1236,7 @@ void pendingPaymentCollectionDialog(
                                             controller:
                                                 receivedAmountController,
                                             decoration: InputDecoration(
-                                              hintText: 'Enter Amount',
+                                              hintText: 'Enter Amount'.tr,
                                               filled: true,
                                               fillColor: Colors.white,
                                               border: OutlineInputBorder(
@@ -1566,7 +1259,7 @@ void pendingPaymentCollectionDialog(
                                     TextField(
                                       controller: remarksController,
                                       decoration: InputDecoration(
-                                        hintText: 'Remarks',
+                                        hintText: 'Remarks'.tr,
                                         filled: true,
                                         fillColor: Colors.white,
                                         border: OutlineInputBorder(
@@ -1600,7 +1293,6 @@ void pendingPaymentCollectionDialog(
                                             return;
                                           }
 
-                                          // Build selected items ONCE — used by BOTH flows
                                           List<PendingAmount>
                                               selectedItemsList = [];
                                           for (int i = 0;
@@ -1625,13 +1317,13 @@ void pendingPaymentCollectionDialog(
                                           if (selectedItemsList.isEmpty) {
                                             showCustomToastDisplay(
                                                 context,
-                                                "Please select at least one item",
+                                                "Please select at least one item"
+                                                    .tr,
                                                 Colors.red,
                                                 Icons.error);
                                             return;
                                           }
 
-                                          // Now decide: Online Payment → QR flow, else → normal payment
                                           if (selectedPaymentMethod.value ==
                                               'QR Payment') {
                                             await _startOnlinePayment(
@@ -1653,7 +1345,6 @@ void pendingPaymentCollectionDialog(
                                             await dashboardProvider
                                                 .setTempToFilter();
 
-                                            // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
                                             await dashboardProvider
                                                 .fetchAllOrdersAtOnce();
 
@@ -1706,7 +1397,7 @@ Future<void> _startOnlinePayment(
   required String remarks,
 }) async {
   if (amount <= 0 || selectedItemsList.isEmpty) {
-    showCustomToastDisplay(context, "Invalid amount or no items selected",
+    showCustomToastDisplay(context, "Invalid amount or no items selected".tr,
         Colors.red, Icons.error);
     return;
   }
@@ -1734,8 +1425,6 @@ Future<void> _startOnlinePayment(
       totalAmount: amount,
       selectedItemsList: selectedItemsList,
       remarks: remarks,
-      // paymentType: paymentType,
-      // onPaymentSuccess: onPaymentSuccess,
     );
   } catch (error) {
     Navigator.pop(context); // if loading dialog still open
@@ -1754,18 +1443,13 @@ void _showQRPaymentModal({
   required double totalAmount,
   required List<PendingAmount> selectedItemsList,
   required String remarks,
-  // required String paymentType,
-  // required VoidCallback onPaymentSuccess,
 }) {
   Timer? pollTimer;
   bool hasSuccess = false;
-  bool isChecking = false; // Prevent overlapping calls
+  bool isChecking = false;
   int pollCount = 0;
 
-//  String? paymentIntentId;
   void handleSuccess(String intentId) async {
-    // PendingPaymentController orderController =
-    // Get.put(PendingPaymentController());
     int selectedTabIndex = 0;
     if (hasSuccess) return;
     hasSuccess = true;
@@ -1787,26 +1471,21 @@ void _showQRPaymentModal({
           remainingAmount >= itemAmount ? itemAmount : remainingAmount;
       remainingAmount -= appliedAmount;
 
-      //  pendingPaymentCollectionDialog(
-      //                   context, 'Pending Payment',collection);
-      // Call API with payment_type = "3" for Online Payment
       ApiWorker().customerPayment(
         context: context,
         checkDueDate: "",
         checkNumber: "",
         detail: remarks,
         orderId: item.orderId.toString(),
-        paymentType: "3", // ✅ Hardcoded for Online Payment
+        paymentType: "3",
         receivedAmount: appliedAmount,
         transactionDate: "",
-        transactionId: intentId, // Use session ID as transaction ID
+        transactionId: intentId,
       );
     }
 
-    // Use a small delay to ensure context is still valid
     Future.delayed(Duration.zero, () {
       if (context.mounted) {
-        // orderController.loadOrderData(chartIndex: selectedTabIndex);
         Navigator.of(context).pop();
 
         showCustomToastDisplay(
@@ -1822,15 +1501,12 @@ void _showQRPaymentModal({
         Provider.of<DashboardProvider>(context, listen: false);
     await dashboardProvider.setTempToFilter();
 
-    // DASHBOARD TOP WIDGET ONTAP DIALOG DATA
     await dashboardProvider.fetchAllOrdersAtOnce();
 
     dashboardProvider.fetchData();
-    //  orderController.loadOrderData(chartIndex: 0);
   }
 
   Future<void> checkPayment() async {
-    // Prevent overlapping API calls
     if (isChecking || hasSuccess) {
       print("⏭️ Skipping check (already checking or succeeded)");
       return;
@@ -1847,44 +1523,38 @@ void _showQRPaymentModal({
       if (result.paid == true ||
           result.paymentStatus?.toLowerCase() == "paid") {
         final intentId = result.paymentIntentId;
-        // print("💰 Payment detected as successful!");
+
         handleSuccess(intentId!);
       } else {
         print("⏳ Payment still pending...");
       }
     } catch (e) {
       print("❌ Poll #$pollCount Error: $e");
-      // Continue polling on error - don't set hasSuccess
     } finally {
       isChecking = false;
     }
   }
 
-  // Start initial aggressive polling
   pollTimer = Timer.periodic(const Duration(milliseconds: 3000), (_) async {
     if (hasSuccess) {
       pollTimer?.cancel();
-      // print("🛑 Timer cancelled - payment successful");
+
       return;
     }
 
     await checkPayment();
 
-    // After 15 attempts (~12 seconds), switch to slower polling
     if (pollCount == 15) {
-      // print("⏰ Switching to slower polling (3s interval)");
       pollTimer?.cancel();
 
-      // Create new timer for slower polling
       pollTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
         if (hasSuccess) {
           pollTimer?.cancel();
-          // print("🛑 Slow timer cancelled - payment successful");
+
           return;
         }
         await checkPayment();
 
-        // Optional: Stop after 5 minutes total
         if (pollCount > 100) {
           print("⏱️ Max polling attempts reached");
           pollTimer?.cancel();

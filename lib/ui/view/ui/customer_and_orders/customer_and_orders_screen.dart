@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
@@ -25,6 +26,7 @@ import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/auth/login_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/payment_history_popup.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/widgets/event_type_dropdown.dart';
@@ -136,11 +138,11 @@ class _TableeeState extends State<Tableee> {
         surfaceTintColor: white,
         toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
         actions: [
-             Expanded(
+          Expanded(
               child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Customers & Orders',
+              Text('Customers & Orders'.tr,
                   style: TextStyle(
                       fontSize: NkFontSize.largeFont(largeFont: 20),
                       fontWeight: FontWeight.bold)),
@@ -152,7 +154,7 @@ class _TableeeState extends State<Tableee> {
                     startDate: provider.selectedStartDate,
                     endDate: provider.selectedEndDate,
                   ),
-                   SizedBox(width: 120, child: profiloe()),
+                  SizedBox(width: 120, child: profiloe()),
                 ],
               ),
             ],
@@ -163,7 +165,6 @@ class _TableeeState extends State<Tableee> {
           // ),
           // SizedBox(width: 5,),
           // Expanded(child: calender()),
-          
         ],
       ),
       body: Stack(
@@ -178,7 +179,6 @@ class _TableeeState extends State<Tableee> {
                 SizedBox(
                   height: 5,
                 ),
-
                 TopTotalWidget(
                     scrollController: _scrollController3, provider: provider),
               ],
@@ -201,24 +201,6 @@ class _TableeeState extends State<Tableee> {
             child: BottomTotalWidget(
                 scrollController: _scrollController2, provider: provider),
           ),
-          // Positioned.fill(
-          //   child: Consumer<CustomersProvider>(
-          //     builder: (context, custProvider, child) {
-          //       if (custProvider.isLoading) {
-          //         return Container(
-          //           color: Colors.white.withOpacity(0.4), // Dims the background
-          //           child: const Center(
-          //             child: CircularProgressIndicator(
-          //               color: Colors.blue,
-          //               strokeWidth: 3.0,
-          //             ),
-          //           ),
-          //         );
-          //       }
-          //       return const SizedBox.shrink(); // Shows nothing when not loading
-          //     },
-          //   ),
-          // ),
         ],
       ),
     );
@@ -240,247 +222,211 @@ class _TableeeState extends State<Tableee> {
                       Flexible(
                         child: Row(
                           children: [
-                            // const SizedBox(width: 5),
+                            const SizedBox(width: 5),
+
+                            // 1. Conditional Standalone Year Dropdown
+                            if (provider.selectedFilter !=
+                                FilterDateEnum.range) ...[
+                              buildYearDropdownWidget(
+                                  context, dashboardProvider),
+                              const SizedBox(width: 10),
+                            ],
+
+                            // 2. Main Filter Dropdown
                             buildFilterDropdown(provider, context),
+
+                            // 3. Conditional Pickers (No internal Go buttons)
                             if (provider.selectedFilter ==
                                 FilterDateEnum.thisMonth) ...[
-                              const SizedBox(width: 5),
-                              MonthDropdown(
-                                onApplyTap: () => provider.fetchCustomerData(),
-                              ),
-                              // You can import and use MonthDropdown if needed, or keep existing behavior
-                              // For now, keeping existing range picker logic
+                              const SizedBox(width: 10),
+                              const MonthDropdown(),
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.thisWeek) ...[
-                              const SizedBox(width: 5),
-                              WeekDropdown(
-                                onApplyTap: () {
-                                  provider
-                                      .fetchCustomerData(); // This triggers the API call
-                                },
-                              )
-                            ],
-                            if (provider.selectedFilter ==
-                                FilterDateEnum.thisYear) ...[
-                              const SizedBox(width: 5),
-                              YearDropdown(
-                                onApplyTap: () {
-                                  provider.fetchCustomerData();
-                                },
-                              )
+                              const SizedBox(width: 10),
+                              const WeekDropdown(),
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.today) ...[
-                              const SizedBox(width: 5),
-                              DatePickerWidget(
-                                onApplyTap: () {
-                                  provider.fetchCustomerData();
-                                },
-                              )
+                              const SizedBox(width: 10),
+                              const DatePickerWidget(),
                             ],
                             if (provider.selectedFilter ==
                                 FilterDateEnum.range) ...[
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: GestureDetector(
-                                          onTap: () => provider.selectDate(
-                                              context, true),
-                                          child: Container(
-                                            height: 50,
-                                            width: 125,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.white,
-                                                  Colors.white,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                  color: const Color(
-                                                      0xFFE1E5E9),
-                                                  width: 1),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.08),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 4),
-                                                  spreadRadius: 0,
-                                                ),
-                                                BoxShadow(
-                                                  color: Colors.white
-                                                      .withOpacity(0.8),
-                                                  blurRadius: 0,
-                                                  offset: const Offset(-2, -2),
-                                                ),
-                                              ],
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    provider.selectedStartDate
-                                                            .isEmpty
-                                                        ? 'DD-MM-YYYY'
-                                                        : DateFormat(
-                                                                'dd-MM-yyyy')
-                                                            .format(DateTime.parse(
-                                                                provider
-                                                                    .selectedStartDate)),
-                                                    style: const TextStyle(
+                              const SizedBox(width: 10),
+                              Row(
+                                children: [
+                                  // Start Date Picker
+                                  SizedBox(
+                                    height: 50,
+                                    width: 125,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Colors.white, Colors.white],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: const Color(0xFFE1E5E9),
+                                            width: 1),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                            spreadRadius: 0,
+                                          ),
+                                          BoxShadow(
+                                            color:
+                                                Colors.white.withOpacity(0.8),
+                                            blurRadius: 0,
+                                            offset: const Offset(-2, -2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: InkWell(
+                                        onTap: () async {
+                                          bool isOnline =
+                                              await ConnectivityService()
+                                                  .isOnline();
+                                          if (!isOnline) {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "You are Offline!".tr,
+                                                red,
+                                                Icons.close);
+                                            return;
+                                          }
+                                          provider.selectDate(context, true);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  provider.selectedStartDate
+                                                          .isNotEmpty
+                                                      ? DateFormat('dd-MM-yyyy')
+                                                          .format(DateTime
+                                                              .parse(provider
+                                                                  .selectedStartDate))
+                                                      : "DD-MM-YYYY",
+                                                  style: const TextStyle(
                                                       fontSize: 13,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: Colors.black87,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
+                                                      color: Colors.black87),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
-                                                const Icon(Icons.calendar_today,
-                                                    size: 18,
-                                                    color: Colors.blue),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: GestureDetector(
-                                          onTap: () => provider.selectDate(
-                                              context, false),
-                                          child: Container(
-                                            height: 50,
-                                            width: 125,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.white,
-                                                  Colors.white,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              border: Border.all(
-                                                  color: const Color(
-                                                      0xFFE1E5E9),
-                                                  width: 1),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.08),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 4),
-                                                  spreadRadius: 0,
-                                                ),
-                                                BoxShadow(
-                                                  color: Colors.white
-                                                      .withOpacity(0.8),
-                                                  blurRadius: 0,
-                                                  offset: const Offset(-2, -2),
-                                                ),
-                                              ],
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    provider.selectedEndDate
-                                                            .isEmpty
-                                                        ? 'DD-MM-YYYY'
-                                                        : DateFormat(
-                                                                'dd-MM-yyyy')
-                                                            .format(DateTime.parse(
-                                                                provider
-                                                                    .selectedEndDate)),
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.black87,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                const Icon(Icons.calendar_today,
-                                                    size: 18,
-                                                    color: Colors.blue),
-                                              ],
-                                            ),
+                                              const Icon(Icons.calendar_today,
+                                                  size: 18,
+                                                  color: primaryColor),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: SizedBox(
-                                          height: 50,
-                                          width: 68,
-                                          child: ElevatedButton(
-                                            onPressed: () =>
-                                                provider.fetchCustomerData(),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: primaryColor,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          12.0)),
-                                              elevation: 8,
-                                              shadowColor: Colors.black.withOpacity(0.2),
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 16, vertical: 10),
-                                            ),
-                                            child: const Text('Go',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600)),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 5),
+
+                                  // End Date Picker
+                                  SizedBox(
+                                    height: 50,
+                                    width: 125,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Colors.white, Colors.white],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: const Color(0xFFE1E5E9),
+                                            width: 1),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                            spreadRadius: 0,
+                                          ),
+                                          BoxShadow(
+                                            color:
+                                                Colors.white.withOpacity(0.8),
+                                            blurRadius: 0,
+                                            offset: const Offset(-2, -2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: InkWell(
+                                        onTap: () async {
+                                          bool isOnline =
+                                              await ConnectivityService()
+                                                  .isOnline();
+                                          if (!isOnline) {
+                                            showCustomToastDisplay(
+                                                context,
+                                                "You are Offline!".tr,
+                                                red,
+                                                Icons.close);
+                                            return;
+                                          }
+                                          provider.selectDate(context, false);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  provider.selectedEndDate
+                                                          .isNotEmpty
+                                                      ? DateFormat('dd-MM-yyyy')
+                                                          .format(DateTime
+                                                              .parse(provider
+                                                                  .selectedEndDate))
+                                                      : "DD-MM-YYYY",
+                                                  style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black87),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const Icon(Icons.calendar_today,
+                                                  size: 18,
+                                                  color: primaryColor),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
+                            const SizedBox(width: 10),
+                            // 4. Unified Go Button
+                            buildGoButton(context, provider),
                           ],
                         ),
                       ),
-                      // const SizedBox(width: 10),
-                      // addCustomer(context),
-                      // const SizedBox(width: 20),
-                      // NotificationWidget(
-                      //   startDate: provider.selectedStartDate,
-                      //   endDate: provider.selectedEndDate,
-                      // ),
-                      //  SizedBox(width: 95, child: profiloe()),
                     ],
                   );
                 }
@@ -489,7 +435,6 @@ class _TableeeState extends State<Tableee> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row: Add Customer + Notification + Update
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -499,19 +444,43 @@ class _TableeeState extends State<Tableee> {
                           startDate: provider.selectedStartDate,
                           endDate: provider.selectedEndDate,
                         ),
-                        const SizedBox(width: 10),
-                         SizedBox(width: 120, child: profiloe()),
+                        // const SizedBox(width: 10),
+                        // const SizedBox(width: 120, child: UpdateAdminBt()),
                       ],
                     ),
                     const SizedBox(height: 8),
-
-                    // Filter row - horizontally scrollable
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
                           const SizedBox(width: 5),
+
+                          // 1. Conditional Standalone Year Dropdown
+                          if (provider.selectedFilter !=
+                              FilterDateEnum.range) ...[
+                            buildYearDropdownWidget(context, dashboardProvider),
+                            const SizedBox(width: 10),
+                          ],
+
+                          // 2. Main Filter Dropdown
                           buildFilterDropdown(provider, context),
+
+                          // 3. Conditional Pickers
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.thisMonth) ...[
+                            const SizedBox(width: 10),
+                            const MonthDropdown()
+                          ],
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.thisWeek) ...[
+                            const SizedBox(width: 10),
+                            const WeekDropdown()
+                          ],
+                          if (provider.selectedFilter ==
+                              FilterDateEnum.today) ...[
+                            const SizedBox(width: 10),
+                            const DatePickerWidget()
+                          ],
                           if (provider.selectedFilter ==
                               FilterDateEnum.range) ...[
                             const SizedBox(width: 10),
@@ -528,27 +497,12 @@ class _TableeeState extends State<Tableee> {
                                       provider.selectDate(context, false),
                                   child: dateBox(provider.selectedEndDate),
                                 ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  height: 36.4,
-                                  width: 68,
-                                  child: ElevatedButton(
-                                    onPressed: () =>
-                                        provider.fetchCustomerData(),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4)),
-                                    ),
-                                    child: const Text('Go',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12)),
-                                  ),
-                                ),
                               ],
                             ),
                           ],
+                          const SizedBox(width: 10),
+                          // 4. Unified Go Button
+                          buildGoButton(context, provider),
                         ],
                       ),
                     ),
@@ -569,11 +523,8 @@ class _TableeeState extends State<Tableee> {
       width: 125,
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Colors.white,
-            ],
+          gradient: const LinearGradient(
+            colors: [Colors.white, Colors.white],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -595,100 +546,189 @@ class _TableeeState extends State<Tableee> {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          child: DropdownButton<FilterDateEnum>(
-            value: provider.selectedFilter,
-            onChanged: (newValue) async {
-            bool isOnline = await ConnectivityService().isOnline();
-             if (!isOnline) {
-                   showCustomToastDisplay(
-                   context, "You are Offline!", red, Icons.close);
-                   return;
-             }
-            if (newValue != null) {
-              // This should ONLY update the variable `selectedFilter` 
-              // and call notifyListeners(). Do not fetch API data here.
-              provider.updateFilterSelection(newValue); 
-            }
-          },
-            // onChanged: (newValue) async {
-            //   bool isOnline = await ConnectivityService().isOnline();
-            //   if (!isOnline) {
-            //     showCustomToastDisplay(
-            //         context, "You are Offline!", red, Icons.close);
-            //     return;
-            //   }
-            //   if (newValue != null) {
-            //     provider.onFilterChanged(newValue);
-            //   }
-            // },
-            items: const [
-              DropdownMenuItem(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<FilterDateEnum>(
+              // Fallback to month if somehow stuck on thisYear
+              value: provider.selectedFilter == FilterDateEnum.thisYear
+                  ? FilterDateEnum.thisMonth
+                  : provider.selectedFilter,
+              onChanged: (newValue) async {
+                bool isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, "You are Offline!".tr, red, Icons.close);
+                  return;
+                }
+                if (newValue != null) {
+                  provider.onFilterChanged(newValue);
+                }
+              },
+              items: [
+                DropdownMenuItem(
                   value: FilterDateEnum.thisMonth,
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Month', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.calendar_month,
+                          size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Month'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-              DropdownMenuItem(
+                DropdownMenuItem(
                   value: FilterDateEnum.thisWeek,
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Week', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.calendar_today,
+                          size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Week'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-              DropdownMenuItem(
+                DropdownMenuItem(
                   value: FilterDateEnum.today,
                   child: Row(
                     children: [
-                      Icon(Icons.today, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Day', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.today, size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Day'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-              DropdownMenuItem(
-                  value: FilterDateEnum.thisYear,
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Year', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                ),
-              DropdownMenuItem(
+                // REMOVED FilterDateEnum.thisYear
+                DropdownMenuItem(
                   value: FilterDateEnum.range,
                   child: Row(
                     children: [
-                      Icon(Icons.date_range, size: 16, color: primaryColor),
-                      SizedBox(width: 8),
-                      Text('Range', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.date_range,
+                          size: 16, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text('Range'.tr,
+                          style: const TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-            ],
-            isExpanded: true,
-            borderRadius: BorderRadius.circular(12),
-            underline: Container(),
-            icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
-            dropdownColor: Colors.white,
-            elevation: 8,
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+              ],
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
       ),
     );
   }
+
+  /// New Standalone Blue Year Dropdown Widget
+  Widget buildYearDropdownWidget(
+      BuildContext context, DashboardProvider dashboardProvider) {
+    final int startYear = 2024;
+    final int currentYear = DateTime.now().year;
+    final int endYear = currentYear;
+
+    final List<int> years = startYear <= endYear
+        ? List.generate(endYear - startYear + 1, (index) => (startYear + index))
+        : [currentYear];
+
+    int displayYear = dashboardProvider.selectedYear != 0
+        ? dashboardProvider.selectedYear
+        : currentYear;
+
+    return SizedBox(
+      height: 50,
+      width: 100,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: years.contains(displayYear) ? displayYear : years.last,
+              icon: const Icon(Icons.keyboard_arrow_down,
+                  color: Colors.black54, size: 20),
+              dropdownColor: Colors.white,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              onChanged: (int? newValue) async {
+                bool isOnline = await ConnectivityService().isOnline();
+                if (!isOnline) {
+                  showCustomToastDisplay(
+                      context, "You are Offline!".tr, red, Icons.close);
+                  return;
+                }
+                if (newValue != null) {
+                  dashboardProvider.updateSelectedYear(newValue);
+                  // UI updates automatically, wait for Go button press to fetch data
+                }
+              },
+              items: years.map<DropdownMenuItem<int>>((int value) {
+                return DropdownMenuItem<int>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// New Unified Go Button
+  Widget buildGoButton(BuildContext context, CustomersProvider provider) {
+    return SizedBox(
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () async {
+          bool isOnline = await ConnectivityService().isOnline();
+          if (!isOnline) {
+            showCustomToastDisplay(
+                context, "You are Offline!".tr, red, Icons.close);
+            return;
+          }
+          provider.currentPage = 1;
+          provider.fetchCustomerData();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF4A72FF), // Standard blue Go Button
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          shadowColor: const Color(0xFF4A72FF).withOpacity(0.4),
+          textStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        child: Text('Go'.tr),
+      ),
+    );
+  }
+
   Widget dateBox(String date) {
     return Container(
       height: 38,
@@ -720,8 +760,6 @@ class _TableeeState extends State<Tableee> {
     );
   }
 
-
-
   Consumer<CustomersProvider> addCustomer(BuildContext context) {
     ResponsiveInfo.isMobileDimension(context);
     return Consumer<CustomersProvider>(builder: (context, provider, child) {
@@ -735,6 +773,7 @@ class _TableeeState extends State<Tableee> {
           TextEditingController stateController = TextEditingController();
           TextEditingController zipcodeController = TextEditingController();
           TextEditingController addressController = TextEditingController();
+          TextEditingController countryController = TextEditingController();
 
           TextEditingController bsNameController = TextEditingController();
 
@@ -749,6 +788,12 @@ class _TableeeState extends State<Tableee> {
           TextEditingController deliveryStateController =
               TextEditingController();
           TextEditingController deliveryZipcodeController =
+              TextEditingController();
+          TextEditingController deliveryCountryController =
+              TextEditingController();
+
+          // NEW: Delivery Contact Number Controller
+          TextEditingController deliveryContactNumController =
               TextEditingController();
 
           TextEditingController remarkController = TextEditingController();
@@ -797,8 +842,8 @@ class _TableeeState extends State<Tableee> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Text(
-                                          'Add Customer',
+                                        Text(
+                                          'Add Customer'.tr,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -809,36 +854,54 @@ class _TableeeState extends State<Tableee> {
                                       ],
                                     ),
                                   ),
-                                  // const SizedBox(height: 16.0),
                                   Padding(
                                     padding: const EdgeInsets.all(16.0),
                                     child: Column(
                                       children: [
-                                        buildInputField(bsNameController,
-                                            'Business Name', Assets.icBusiness),
-                                        buildInputField(addressController,
-                                            'Address', Assets.icLocation),
+                                        buildInputField(
+                                            bsNameController,
+                                            'Business Name'.tr,
+                                            Assets.icBusiness),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 2,
+                                              child: buildInputField(
+                                                  addressController,
+                                                  'Address'.tr,
+                                                  Assets.icLocation),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              flex: 1,
+                                              child: buildInputField(
+                                                  townController,
+                                                  'City or Suburb'.tr,
+                                                  Assets.icCity),
+                                            ),
+                                          ],
+                                        ),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: buildInputField(
-                                                  townController,
-                                                  'City or Suburb',
-                                                  Assets.icCity),
-                                            ),
-                                            const SizedBox(width: 8.0),
-                                            Expanded(
-                                              child: buildInputField(
                                                   stateController,
-                                                  'State',
+                                                  'State'.tr,
                                                   Assets.icState),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   zipcodeController,
-                                                  'Zip/Post/Pin Code',
+                                                  'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  countryController,
+                                                  'Country'.tr,
+                                                  Assets.icLocation),
                                             ),
                                           ],
                                         ),
@@ -849,7 +912,7 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                 phoneController,
-                                                'Mobile Number',
+                                                'Mobile Number'.tr,
                                                 Assets.icMobile,
                                                 length: 10,
                                               ),
@@ -858,25 +921,25 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                   emailController,
-                                                  'Email',
+                                                  'Email'.tr,
                                                   Assets.icEmail),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   telephoneController,
-                                                  'Business Reg.No',
+                                                  'Business Reg.No'.tr,
                                                   Assets.icBusinessReg),
                                             ),
                                           ],
                                         ),
-                                        const Padding(
+                                        Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 6.0),
                                           child: Align(
                                             alignment: Alignment.centerLeft,
                                             child: Text(
-                                              'Contact Details',
+                                              'Contact Details'.tr,
                                               style: TextStyle(fontSize: 18),
                                             ),
                                           ),
@@ -888,14 +951,14 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: buildInputField(
                                                   contactPersonNameController,
-                                                  'Contact Person',
+                                                  'Contact Person'.tr,
                                                   Assets.icUser),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                 contactNumController,
-                                                'Contact Number',
+                                                'Contact Number'.tr,
                                                 Assets.icPhone,
                                                 length: 10,
                                               ),
@@ -907,8 +970,8 @@ class _TableeeState extends State<Tableee> {
                                               vertical: 6.0),
                                           child: Row(
                                             children: [
-                                              const Text(
-                                                'Delivery Address    ',
+                                              Text(
+                                                'Delivery Address    '.tr,
                                                 style: TextStyle(fontSize: 18),
                                               ),
                                               Checkbox(
@@ -922,6 +985,10 @@ class _TableeeState extends State<Tableee> {
                                                               .text =
                                                           addressController
                                                               .text;
+                                                      deliveryContactNumController
+                                                              .text =
+                                                          contactNumController
+                                                              .text; // Updated
                                                       deliveryTownController
                                                               .text =
                                                           townController.text;
@@ -930,62 +997,92 @@ class _TableeeState extends State<Tableee> {
                                                           stateController.text;
                                                       deliveryZipcodeController
                                                               .text =
-                                                          zipcodeController
+                                                           zipcodeController
+                                                              .text;
+                                                      deliveryCountryController
+                                                              .text =
+                                                           countryController
                                                               .text;
                                                     } else {
                                                       deliveryAddressController
                                                           .clear();
+                                                      deliveryContactNumController
+                                                          .clear(); // Updated
                                                       deliveryTownController
                                                           .clear();
                                                       deliveryStateController
                                                           .clear();
                                                       deliveryZipcodeController
                                                           .clear();
+                                                      deliveryCountryController
+                                                          .clear();
                                                     }
                                                   });
                                                 },
                                               ),
                                               const SizedBox(width: 5),
-                                              const Text('Same as Above'),
+                                              Text('Same as Above'.tr),
                                             ],
                                           ),
                                         ),
-                                        buildInputField(
-                                            deliveryAddressController,
-                                            'Address',
-                                            Assets.icLocation),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 2,
+                                              child: buildInputField(
+                                                  deliveryAddressController,
+                                                  'Address'.tr,
+                                                  Assets.icLocation),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              flex: 1,
+                                              child: buildInputField(
+                                                  deliveryTownController,
+                                                  'City or Suburb'.tr,
+                                                  Assets.icCity),
+                                            ),
+                                          ],
+                                        ),
                                         Row(
                                           children: [
                                             Expanded(
                                               child: buildInputField(
-                                                  deliveryTownController,
-                                                  'City or Suburb',
-                                                  Assets.icCity),
-                                            ),
-                                            const SizedBox(width: 8.0),
-                                            Expanded(
-                                              child: buildInputField(
                                                   deliveryStateController,
-                                                  'State',
+                                                  'State'.tr,
                                                   Assets.icState),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
                                               child: buildInputField(
                                                   deliveryZipcodeController,
-                                                  'Zip/Post/Pin Code',
+                                                  'Zip/Post/Pin Code'.tr,
                                                   Assets.icZipcode),
+                                            ),
+                                            const SizedBox(width: 8.0),
+                                            Expanded(
+                                              child: buildInputField(
+                                                  deliveryCountryController,
+                                                  'Country'.tr,
+                                                  Assets.icLocation),
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(
+                                        // NEW: Delivery Contact Field Build
+                                        buildInputField(
+                                            deliveryContactNumController,
+                                            'Delivery Contact Number'.tr,
+                                            Assets.icPhone,
+                                            length: 10),
+                                        SizedBox(
                                           height: 30,
                                           child: Row(
                                             children: [
                                               Spacer(),
                                               SizedBox(width: 8.0),
                                               Expanded(
-                                                  child: Text("Company logo"))
+                                                  child:
+                                                      Text("Company logo".tr))
                                             ],
                                           ),
                                         ),
@@ -995,15 +1092,14 @@ class _TableeeState extends State<Tableee> {
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  color: Colors.grey
-                                                      .shade100, // Subtle background color
+                                                  color: Colors.grey.shade100,
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           8.0),
                                                   boxShadow: [
                                                     BoxShadow(
-                                                      color: Colors.grey
-                                                          .shade300, // Light shadow
+                                                      color:
+                                                          Colors.grey.shade300,
                                                       blurRadius: 6.0,
                                                       offset:
                                                           const Offset(0, 2),
@@ -1056,7 +1152,6 @@ class _TableeeState extends State<Tableee> {
                                             // Image Picker
                                             Expanded(
                                               child: GestureDetector(
-                                                // onTap: provider.pickImage,
                                                 onTap: () {
                                                   showDialog(
                                                     barrierDismissible: false,
@@ -1141,7 +1236,9 @@ class _TableeeState extends State<Tableee> {
                                                             provider.imageFile ==
                                                                     null
                                                                 ? 'Pick an image from gallery'
-                                                                : 'Image selected',
+                                                                    .tr
+                                                                : 'Image selected'
+                                                                    .tr,
                                                             style: TextStyle(
                                                               color: Colors.grey
                                                                   .shade700,
@@ -1204,6 +1301,17 @@ class _TableeeState extends State<Tableee> {
                                                     isAddingCustomer = true;
                                                   });
 
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1), () {
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        isAddingCustomer =
+                                                            false;
+                                                      });
+                                                    }
+                                                  });
+
                                                   bool isOnline =
                                                       await ConnectivityService()
                                                           .isOnline();
@@ -1219,7 +1327,6 @@ class _TableeeState extends State<Tableee> {
                                                     return;
                                                   }
 
-                                                  // Required fields
                                                   final fields = {
                                                     'Business Name':
                                                         bsNameController,
@@ -1229,6 +1336,8 @@ class _TableeeState extends State<Tableee> {
                                                     'State': stateController,
                                                     'Zip Code':
                                                         zipcodeController,
+                                                    'Country':
+                                                        countryController,
                                                     'Mobile Number':
                                                         phoneController,
                                                     'Email': emailController,
@@ -1240,13 +1349,16 @@ class _TableeeState extends State<Tableee> {
                                                         contactNumController,
                                                     'Delivery Address':
                                                         deliveryAddressController,
+                                                    'Delivery Contact Number':
+                                                        deliveryContactNumController,
                                                     'Delivery Town':
                                                         deliveryTownController,
                                                     'Delivery State':
                                                         deliveryStateController,
                                                     'Delivery Zip Code':
                                                         deliveryZipcodeController,
-                                                    'Remark': remarkController,
+                                                    'Delivery Country':
+                                                        deliveryCountryController,
                                                   };
 
                                                   // 1. Check for missing fields
@@ -1260,21 +1372,21 @@ class _TableeeState extends State<Tableee> {
                                                             false;
                                                       });
                                                       showCustomToastDisplay(
-                                                        context,
-                                                        '${entry.key} is required',
-                                                        Colors.red,
-                                                        Icons.close,
-                                                      );
+                                                          context,
+                                                          '${entry.key} is required',
+                                                          Colors.red,
+                                                          Icons.close);
                                                       return;
                                                     }
                                                   }
 
-                                                  // 2. Validate phone numbers
                                                   final phoneFields = {
                                                     'Mobile Number':
                                                         phoneController,
                                                     'Contact Number':
                                                         contactNumController,
+                                                    'Delivery Contact Number':
+                                                        deliveryContactNumController,
                                                   };
 
                                                   for (var entry
@@ -1288,16 +1400,14 @@ class _TableeeState extends State<Tableee> {
                                                             false;
                                                       });
                                                       showCustomToastDisplay(
-                                                        context,
-                                                        '${entry.key} must be 10 digits',
-                                                        Colors.red,
-                                                        Icons.close,
-                                                      );
+                                                          context,
+                                                          '${entry.key} must be 10 digits',
+                                                          Colors.red,
+                                                          Icons.close);
                                                       return;
                                                     }
                                                   }
 
-                                                  // 3. Validate email
                                                   final email = emailController
                                                       .text
                                                       .trim();
@@ -1310,28 +1420,13 @@ class _TableeeState extends State<Tableee> {
                                                       isAddingCustomer = false;
                                                     });
                                                     showCustomToastDisplay(
-                                                      context,
-                                                      'Invalid Email format',
-                                                      Colors.red,
-                                                      Icons.close,
-                                                    );
+                                                        context,
+                                                        'Invalid Email format',
+                                                        Colors.red,
+                                                        Icons.close);
                                                     return;
                                                   }
 
-                                                  // 4. Check if image was picked
-                                                  if (provider.imageFile ==
-                                                      null) {
-                                                    setState(() {
-                                                      isAddingCustomer = false;
-                                                    });
-                                                    showCustomToastDisplay(
-                                                      context,
-                                                      'Image is required',
-                                                      Colors.red,
-                                                      Icons.close,
-                                                    );
-                                                    return;
-                                                  }
                                                   if (provider.imageFile !=
                                                       null) {
                                                     bool isValid =
@@ -1353,7 +1448,10 @@ class _TableeeState extends State<Tableee> {
                                                   }
 
                                                   Map<String, dynamic> data = {
-                                                    "userid": "ADMIN",
+                                                    "userid": SessionHelper
+                                                            .loginSavedData
+                                                            ?.salesmanId ??
+                                                        '',
                                                     "salesman_id": SessionHelper
                                                             .loginSavedData
                                                             ?.salesmanId ??
@@ -1374,6 +1472,7 @@ class _TableeeState extends State<Tableee> {
                                                                 .text
                                                                 .trim()) ??
                                                         0,
+                                                    "country": countryController.text.trim(),
                                                     "mobileno": int.tryParse(
                                                             phoneController.text
                                                                 .trim()) ??
@@ -1403,6 +1502,12 @@ class _TableeeState extends State<Tableee> {
                                                         deliveryAddressController
                                                             .text
                                                             .trim(),
+                                                    "delivery_contact":
+                                                        int.tryParse(
+                                                                deliveryContactNumController
+                                                                    .text
+                                                                    .trim()) ??
+                                                            0,
                                                     "delivery_town":
                                                         deliveryTownController
                                                             .text
@@ -1417,10 +1522,11 @@ class _TableeeState extends State<Tableee> {
                                                                     .text
                                                                     .trim()) ??
                                                             0,
+                                                    "deliverycountry": deliveryCountryController.text.trim(),
                                                     "remark": remarkController
                                                         .text
                                                         .trim(),
-                                                    "status_type": 3,
+                                                    "status_type": 1,
                                                     "company_id": SessionHelper
                                                             .loginSavedData
                                                             ?.company_id ??
@@ -1432,13 +1538,50 @@ class _TableeeState extends State<Tableee> {
                                                       admin: data,
                                                       salsmanId: '',
                                                     );
+
                                                     provider
                                                         .handlePaginationClick(
                                                             1);
                                                     fetchAllCustomerPages(
                                                         context);
-                                                    Navigator.of(context).pop();
+                                                    if (context.mounted) {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    }
                                                   } catch (error) {
+                                                    if (context.mounted) {
+                                                      String errMsg =
+                                                          error.toString();
+
+                                                      final regex = RegExp(
+                                                          r'"message"\s*:\s*"([^"]+)"');
+                                                      final match = regex
+                                                          .firstMatch(errMsg);
+                                                      if (match != null &&
+                                                          match.groupCount >=
+                                                              1) {
+                                                        errMsg =
+                                                            match.group(1)!;
+                                                      } else {
+                                                        errMsg = errMsg
+                                                            .replaceAll(
+                                                                "Exception: Failed to update admin: ",
+                                                                "")
+                                                            .trim();
+                                                        errMsg = errMsg
+                                                            .replaceAll(
+                                                                "Exception: ",
+                                                                "")
+                                                            .trim();
+                                                      }
+
+                                                      showCustomToastDisplay(
+                                                          context,
+                                                          errMsg,
+                                                          Colors.red,
+                                                          Icons.error);
+                                                    }
+                                                  } finally {
                                                     setState(() {
                                                       isAddingCustomer = false;
                                                     });
@@ -1464,8 +1607,8 @@ class _TableeeState extends State<Tableee> {
                                                             Colors.white),
                                                   ),
                                                 )
-                                              : const Text(
-                                                  'Add Customer',
+                                              : Text(
+                                                  'Add Customer'.tr,
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
@@ -1483,7 +1626,7 @@ class _TableeeState extends State<Tableee> {
                   },
                 );
               },
-              text: 'Customer',
+              text: 'Customer'.tr,
             ),
           );
         },
@@ -1550,18 +1693,13 @@ class _TableeeState extends State<Tableee> {
       // Fetch first page to get totalPages
       final firstResponse = await apiService.fetchCustomer(
         salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-        customerName: provider.searchCustomerName,
+        customerName: '',
         startDate: '',
         endDate: '',
         limit: 10,
         page: 1,
-        valueFromDw: (provider.selectedFilter == FilterDateEnum.range
-            ? [
-                provider.selectedFilter.name,
-                provider.selectedStartDate,
-                provider.selectedEndDate
-              ]
-            : provider.selectedFilter.name).toString(),
+        valueFromDw: "Month",
+        selectedRange: [DateFormat('MMMM').format(DateTime.now())],
       );
       allCustomers.addAll(firstResponse.data);
       allOrderTotals.addAll(firstResponse.orderTotal);
@@ -1574,20 +1712,15 @@ class _TableeeState extends State<Tableee> {
       await customerBox.put(cacheKeyFirst, firstResponse.toJson());
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
-        final response = await apiService.fetchCustomer(
+        final response = await ApiService().fetchCustomer(
           salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          customerName: provider.searchCustomerName,
+          customerName: '',
           startDate: '',
           endDate: '',
           limit: 10,
           page: page,
-          valueFromDw:( provider.selectedFilter == FilterDateEnum.range
-              ? [
-                  provider.selectedFilter.name,
-                  provider.selectedStartDate,
-                  provider.selectedEndDate
-                ]
-              : provider.selectedFilter.name).toString(),
+          valueFromDw: "Month",
+          selectedRange: [DateFormat('MMMM').format(DateTime.now())],
         );
         allCustomers.addAll(response.data);
         allOrderTotals.addAll(response.orderTotal);
@@ -1599,15 +1732,15 @@ class _TableeeState extends State<Tableee> {
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);
       provider.setYearList(allYearsList);
-      // Build unique customerId list from all pages
-      // final allCustomerIds = allCustomers
-      //     .map((c) => c.customerId)
-      //     .where((id) => id.isNotEmpty)
-      //     .toSet()
-      //     .toList();
-      // await prefetchAndCacheAllCustomerDashboards(context, allCustomerIds);
+
+      final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
+      ApiWorker().cacheSyncImages(companyId);
     } catch (e) {
-      rethrow;
+      print("Error fetching customer pages: $e. Falling back to local cache.");
+      try {
+        final loginController = Get.find<LoginController>();
+        await loginController.loadAllCachedCustomerPages(context);
+      } catch (_) {}
     }
   }
 }
@@ -1645,7 +1778,7 @@ class TopTotalWidget extends StatelessWidget {
                 },
                 controller: searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: 'Search'.tr,
                   hintStyle: const TextStyle(color: Colors.grey),
                   fillColor: Colors.white,
                   filled: true,
@@ -1677,10 +1810,10 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Row(
                         children: [
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Sales',
+                              'Sales'.tr,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.white,
@@ -1785,8 +1918,8 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Sales',
+                      Text(
+                        'Sales'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1799,8 +1932,8 @@ class TopTotalWidget extends StatelessWidget {
                       120,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Deliveries',
+                      Text(
+                        'Deliveries'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1813,8 +1946,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Payments',
+                      Text(
+                        'Payments'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1827,8 +1960,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Bookings',
+                      Text(
+                        'Bookings'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1841,8 +1974,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Estimates',
+                      Text(
+                        'Estimates'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1855,8 +1988,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Drafts',
+                      Text(
+                        'Drafts'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1869,8 +2002,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Cancelled',
+                      Text(
+                        'Cancelled'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1883,8 +2016,8 @@ class TopTotalWidget extends StatelessWidget {
                       140,
                     ),
                     _buildTableHeader(
-                      const Text(
-                        'Visit',
+                      Text(
+                        'Visit'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -1931,7 +2064,6 @@ class BottomTotalWidget extends StatefulWidget {
 
   final ScrollController _scrollController;
   final CustomersProvider provider;
-  
 
   @override
   State<BottomTotalWidget> createState() => _BottomTotalWidgetState();
@@ -1941,7 +2073,6 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
   bool isOnline = false;
 
   bool isOfflineAndSearch = false;
-  
 
   void loadOnineAndSearchState() async {
     isOnline = await ConnectivityService().isOnline();
@@ -2093,12 +2224,14 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 item.replaceAll('...', ''));
                                             return GestureDetector(
                                               onTap: () {
-                                                provider
-                                                    .handlePaginationClick(page);
+                                                provider.handlePaginationClick(
+                                                    page);
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: Colors.transparent,
                                                   borderRadius:
@@ -2120,12 +2253,14 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 item.replaceAll('...', ''));
                                             return GestureDetector(
                                               onTap: () {
-                                                provider
-                                                    .handlePaginationClick(page);
+                                                provider.handlePaginationClick(
+                                                    page);
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: Colors.transparent,
                                                   borderRadius:
@@ -2153,8 +2288,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                               item);
                                                     },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8, vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: isCurrent
                                                       ? Colors.white
@@ -2181,13 +2318,13 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                       ),
                                     ),
                                     InkWell(
-                                      onTap:
-                                          provider.currentPage < provider.totalPages
-                                              ? () {
-                                                  provider.handlePaginationClick(
-                                                      provider.currentPage + 1);
-                                                }
-                                              : null,
+                                      onTap: provider.currentPage <
+                                              provider.totalPages
+                                          ? () {
+                                              provider.handlePaginationClick(
+                                                  provider.currentPage + 1);
+                                            }
+                                          : null,
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 5),
@@ -2208,12 +2345,13 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                         const SizedBox(width: 10),
                         Container(
                           color: Colors.grey[200],
-                          child: const Column(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Total',
+                              Text('Total'.tr,
                                   style: TextStyle(
-                                      fontSize: 17, fontWeight: FontWeight.w700)),
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700)),
                             ],
                           ),
                         ),
@@ -2229,7 +2367,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                     controller: widget._scrollController,
                     physics: const ClampingScrollPhysics(),
                     child: Container(
-                      color:Colors.grey[200],
+                      color: Colors.grey[200],
                       child: Column(
                         children: [
                           Row(
@@ -2242,10 +2380,11 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                               0.0,
                                               (sum, item) =>
                                                   sum +
-                                                  num.parse(item.previousYearSales
+                                                  num.parse(item
+                                                      .previousYearSales
                                                       .toString()))
-                                          : provider
-                                              .orderTotalList[7].previousYearSale),
+                                          : provider.orderTotalList[7]
+                                              .previousYearSale),
                                       style: const TextStyle(
                                           fontFamily: "BarlowCondensed",
                                           fontSize: 17,
@@ -2268,8 +2407,8 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.totalSales.toString()))
+                                                    num.parse(item.totalSales
+                                                        .toString()))
                                             : provider.orderTotalList[0].sales),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
@@ -2290,9 +2429,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.deliveryPrice.toString()))
-                                            : provider.orderTotalList[1].delivery),
+                                                    num.parse(item.deliveryPrice
+                                                        .toString()))
+                                            : provider
+                                                .orderTotalList[1].delivery),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2312,9 +2452,10 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.paymentPrice.toString()))
-                                            : provider.orderTotalList[2].payment),
+                                                    num.parse(item.paymentPrice
+                                                        .toString()))
+                                            : provider
+                                                .orderTotalList[2].payment),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2336,15 +2477,18 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                     sum +
                                                     num.parse(
                                                       item.orderData.preOrder
-                                                          .takeLast(
-                                                              item.preOrder.toInt())
+                                                          .takeLast(item
+                                                              .preOrder
+                                                              .toInt())
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>
-                                                                  a + b.orderTotal)
+                                                                  a +
+                                                                  b.orderTotal)
                                                           .toString(),
                                                     ))
-                                            : provider.orderTotalList[4].preOrder),
+                                            : provider
+                                                .orderTotalList[4].preOrder),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2364,9 +2508,11 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(
-                                                        item.estimatesPrice.toString()))
-                                            : provider.orderTotalList[3].estimate),
+                                                    num.parse(item
+                                                        .estimatesPrice
+                                                        .toString()))
+                                            : provider
+                                                .orderTotalList[3].estimate),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2388,11 +2534,13 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                     sum +
                                                     num.parse(
                                                       item.orderData.draft
-                                                          .takeLast(item.drafts.toInt())
+                                                          .takeLast(item.drafts
+                                                              .toInt())
                                                           .fold(
                                                               0.0,
                                                               (a, b) =>
-                                                                  a + b.orderTotal)
+                                                                  a +
+                                                                  b.orderTotal)
                                                           .toString(),
                                                     ))
                                             : provider.orderTotalList[5].draft),
@@ -2415,13 +2563,18 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 0.0,
                                                 (sum, item) =>
                                                     sum +
-                                                    num.parse(item.orderData.cancel
-                                                        .takeLast(
-                                                            item.cancelled.toInt())
-                                                        .fold(0.0,
-                                                            (a, b) => a + b.orderTotal)
+                                                    num.parse(item
+                                                        .orderData.cancel
+                                                        .takeLast(item.cancelled
+                                                            .toInt())
+                                                        .fold(
+                                                            0.0,
+                                                            (a, b) =>
+                                                                a +
+                                                                b.orderTotal)
                                                         .toString()))
-                                            : provider.orderTotalList[6].cancelled),
+                                            : provider
+                                                .orderTotalList[6].cancelled),
                                         style: const TextStyle(
                                             fontFamily: "BarlowCondensed",
                                             fontSize: 17,
@@ -2452,22 +2605,17 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                               // ),
                             ],
                           ),
-                         
                         ],
                       ),
-                      
                     ),
-                    
                   ),
-                  
                 ),
-                
               ],
             ),
             CustomHorizontalScrollbar(
-                          controller:  widget._scrollController,
-                          thumbColor: Colors.blue,
-                         )
+              controller: widget._scrollController,
+              thumbColor: Colors.blue,
+            )
           ],
         );
       },
@@ -2591,8 +2739,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
             : (fullScreenHeight(context) - (66 * 3)) / 11.5;
 
     return Consumer<CustomersProvider>(builder: (context, provider, _) {
-     if (provider.isLoading) {
-        return const Center(child: CircularProgressIndicator(color: primaryColor));
+      if (provider.isLoading) {
+        return const Center(
+            child: CircularProgressIndicator(color: primaryColor));
       } else if (provider.errorMessage.isNotEmpty) {
         return Center(
           child: Text(
@@ -2756,26 +2905,57 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           const Duration(
                                                               milliseconds:
                                                                   100));
+                                                      final dashProvider = Provider
+                                                          .of<DashboardProvider>(
+                                                              context,
+                                                              listen: false);
 
-                                                      final now =
-                                                          DateTime.now();
+                                                      int globalSelectedYear =
+                                                          dashProvider.selectedYear !=
+                                                                  0
+                                                              ? dashProvider
+                                                                  .selectedYear
+                                                              : DateTime.now()
+                                                                  .year;
+
+                                                      if (customerAndOrderController
+                                                              .selectedYear
+                                                              .value
+                                                              .isNotEmpty &&
+                                                          customerAndOrderController
+                                                                  .selectedYear
+                                                                  .value !=
+                                                              DateTime.now()
+                                                                  .year
+                                                                  .toString()) {
+                                                        globalSelectedYear = int.tryParse(
+                                                                customerAndOrderController
+                                                                    .selectedYear
+                                                                    .value) ??
+                                                            globalSelectedYear;
+                                                      }
+
                                                       final dateFormat =
                                                           DateFormat(
                                                               'yyyy-MM-dd');
-
                                                       final firstDayOfYear =
                                                           DateTime(
-                                                              now.year, 1, 1);
+                                                              globalSelectedYear,
+                                                              1,
+                                                              1);
                                                       final lastDayOfYear =
                                                           DateTime(
-                                                              now.year, 12, 31);
+                                                              globalSelectedYear,
+                                                              12,
+                                                              31);
 
                                                       Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               CustomerDachScreen(
-                                                            year: 2024,
+                                                            year:
+                                                                globalSelectedYear, // <-- This will correctly pass 2025!
                                                             startDate: dateFormat
                                                                 .format(
                                                                     firstDayOfYear),
@@ -2799,11 +2979,6 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                         ),
                                                       );
                                                     }
-                                                    // showCustomToastDisplay(
-                                                    //     context,
-                                                    //     "NEW TEST 44",
-                                                    //     Colors.deepOrange,
-                                                    //     Icons.warning);
                                                   } else {
                                                     showUpgradePlanDialog(
                                                         context);
@@ -2929,11 +3104,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
-                                               
                                                 if (customer.sales == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -2963,12 +3137,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                           child: Center(
                                             child: InkWell(
                                               onTap: () {
-                                                 print('on tappedyy');
-                                                 print('out of delivery : ${customer.orderData.outOfDiviery}');
+                                                print('on tappedyy');
+                                                print(
+                                                    'out of delivery : ${customer.orderData.outOfDiviery}');
                                                 if (customer.delivery == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -3001,7 +3176,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.payment == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -3010,7 +3185,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       customer,
                                                       customer
                                                           .orderData.payment,
-                                                      'Payment');
+                                                      'Paymentyy');
                                                 }
                                               },
                                               child: _buildDataCell(
@@ -3034,7 +3209,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.preOrder == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -3078,7 +3253,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.estimates == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -3115,7 +3290,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.drafts == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -3156,7 +3331,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                 if (customer.cancelled == 0) {
                                                   showCustomToastDisplay(
                                                       context,
-                                                      'Record Not Found',
+                                                      'Record Not Found'.tr,
                                                       red,
                                                       Icons.close);
                                                 } else {
@@ -3276,9 +3451,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-
             return AlertDialog(
-              title: const Text('Customer Check-Out'),
+              title: Text('Customer Check-Out'.tr),
               content: Text(
                   '$customerName is already checked In. Do you want to Check-out?'),
               actions: [
@@ -3289,7 +3463,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                   )
                 else ...[
                   TextButton(
-                    child: const Text('Stay'),
+                    child: Text('Stay'.tr),
                     onPressed: () {
                       shouldProceed = false;
                       Navigator.of(context).pop();
@@ -3411,8 +3585,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             shouldProceed = true;
                           }
                         }
-                      } catch (e) {
-                      }
+                      } catch (e) {}
 
                       if (context.mounted) Navigator.of(context).pop();
                     },
@@ -3503,8 +3676,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       rows: filteredOrders.isEmpty
                                           ? [
                                               const DataRow(cells: [
-                                                DataCell(
-                                                    Text('Record Not Found')),
+                                                DataCell(Text(
+                                                    'Record Not Found.tr')),
                                                 DataCell(Text('')),
                                                 DataCell(Text('')),
                                                 DataCell(Text('')),
@@ -3664,10 +3837,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                           children: [
                                                             Text(
                                                               order.orderCreatAt !=
-                                                                      null
-                                                                  ? getFormattedOrderCreatAt(order
-                                                                      .orderCreatAt
-                                                                      .toString())
+                                                                          null &&
+                                                                      order
+                                                                          .orderCreatAt
+                                                                          .toString()
+                                                                          .isNotEmpty
+                                                                  ? TimeUtils.formatTimeInZone(
+                                                                      // Reminder: If this date is formatted as DD-MM-YYYY instead of YYYY-MM-DD,
+                                                                      // you will need to swap DateTime.parse for DateFormat('dd-MM-yyyy').parse()
+                                                                      DateTime.parse(order.orderCreatAt.toString()),
+                                                                      format: 'dd-MM-yyyy')
                                                                   : 'N/A',
                                                               style: TextStyle(
                                                                 fontSize:
@@ -3681,10 +3860,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                             Text(
                                                               order.orderCreatAt !=
                                                                       null
-                                                                  ? NKDateUtils
-                                                                      .commonTimeOnlyFormat(order
-                                                                          .orderCreatAt
-                                                                          .toLocal())
+                                                                  ? TimeUtils
+                                                                      .formatTimeInZone(
+                                                                      order
+                                                                          .orderCreatAt!, // We can safely use ! here because of the null check above
+                                                                      format:
+                                                                          'hh:mm a', // Add this to keep the "Time Only" format from NKDateUtils
+                                                                    )
                                                                   : 'N/A',
                                                               style: TextStyle(
                                                                 fontSize:
@@ -3714,16 +3896,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                       ),
                                                     ),
                                                   ),
-                                                   DataCell(
+                                                  DataCell(
                                                     SizedBox(
                                                       width: flexWidth * 1.1,
                                                       child: Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
-                                                                .spaceBetween, 
+                                                                .spaceBetween,
                                                         children: [
                                                           Expanded(
-                                                            child: CustomTooltip(
+                                                            child:
+                                                                CustomTooltip(
                                                               message:
                                                                   '${formatAmount(order.orderTotal)} / '
                                                                   '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
@@ -3733,19 +3916,23 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                 '${formatAmount(order.receivableAmount ?? order.orderTotal)} / '
                                                                 '${formatAmount(order.receivedAmount)}',
                                                                 maxLines: 1,
-                                                                overflow: TextOverflow
-                                                                    .ellipsis,
-                                                                style: TextStyle(
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style:
+                                                                    TextStyle(
                                                                   fontSize:
                                                                       fontSize,
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
-                                                         
-                                                          if (order.paymentStatus != 0) ...[
+                                                          if (order
+                                                                  .paymentStatus !=
+                                                              0) ...[
                                                             PaymentHistoryButton(
-                                                                orderId: order.orderId)
+                                                                orderId: order
+                                                                    .orderId)
                                                           ],
                                                         ],
                                                       ),
@@ -3900,8 +4087,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                           12.0),
                                                                   child: Text(
                                                                     getStatusName(
-                                                                        order
-                                                                            .orderStatus),
+                                                                            order.orderStatus)
+                                                                        .tr,
                                                                     style: TextStyle(
                                                                         fontSize:
                                                                             fontSize,
@@ -3922,9 +4109,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                         horizontal:
                                                                             8.0),
                                                                     child: Text(
-                                                                      NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order
-                                                                          .deliveryDate!
-                                                                          .toIso8601String())),
+                                                                      order.deliveryDate !=
+                                                                              null
+                                                                          ? TimeUtils
+                                                                              .formatTimeInZone(
+                                                                              order.deliveryDate!,
+                                                                              format: 'dd-MM-yyyy hh:mm a',
+                                                                            )
+                                                                          : 'N/A',
                                                                       textAlign:
                                                                           TextAlign
                                                                               .center,
@@ -3939,6 +4131,24 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                             FontWeight.w400,
                                                                       ),
                                                                     ),
+                                                                    // Text(
+                                                                    //   NKDateUtils.commonFullDateTimeFormat(NKDateUtils.formatStringUTCDateTime(order
+                                                                    //       .deliveryDate!
+                                                                    //       .toIso8601String())),
+                                                                    //   textAlign:
+                                                                    //       TextAlign
+                                                                    //           .center,
+                                                                    //   maxLines:
+                                                                    //       2,
+                                                                    //   style:
+                                                                    //       TextStyle(
+                                                                    //     fontSize:
+                                                                    //         fontSize -
+                                                                    //             2,
+                                                                    //     fontWeight:
+                                                                    //         FontWeight.w400,
+                                                                    //   ),
+                                                                    // ),
                                                                   ),
                                                                 ],
                                                                 if (order
@@ -3952,9 +4162,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                                       Expanded(
                                                                         child: Container(
                                                                             color: Colors.blue,
-                                                                            child: const Center(
+                                                                            child: Center(
                                                                               child: Text(
-                                                                                'Quick Sale',
+                                                                                'Quick Sale'.tr,
                                                                                 style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 10),
                                                                               ),
                                                                             )),
@@ -4034,13 +4244,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
-                                                child: const Center(
+                                                child: Center(
                                                   child: Text(
-                                                    'Total',
+                                                    'Total'.tr,
                                                     maxLines: 2,
                                                   ),
                                                 ),
                                               )),
+
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 1,
@@ -4049,14 +4260,42 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     formatAmount(filteredOrders
                                                         .fold<double>(
                                                       0.0,
-                                                      (sum, order) =>
-                                                          sum +
-                                                          (order.orderTotal),
+                                                      (sum, order) {
+                                                        // Update starts here
+                                                        if (orderType ==
+                                                            'Payment') {
+                                                          return sum +
+                                                              (order.receivedAmount ??
+                                                                  0.0);
+                                                        } else {
+                                                          return sum +
+                                                              (order
+                                                                  .orderTotal);
+                                                        }
+                                                        // Update ends here
+                                                      },
                                                     )),
                                                     maxLines: 2,
                                                   ),
                                                 ),
                                               )),
+
+                                              // DataColumn(
+                                              //     label: SizedBox(
+                                              //   width: flexWidth * 1,
+                                              //   child: Center(
+                                              //     child: Text(
+                                              //       formatAmount(filteredOrders
+                                              //           .fold<double>(
+                                              //         0.0,
+                                              //         (sum, order) =>
+                                              //             sum +
+                                              //             (order.orderTotal),
+                                              //       )),
+                                              //       maxLines: 2,
+                                              //     ),
+                                              //   ),
+                                              // )),
                                               DataColumn(
                                                   label: SizedBox(
                                                 width: flexWidth * 0.9,
@@ -4178,16 +4417,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Customer List',
+                                                  'Customer List'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
                                             ),
                                           )),
                                           DataColumn(
-                                            //  width: flexWidth * 0.9,
+                                              //  width: flexWidth * 0.9,
                                               label: Expanded(
                                             child: Padding(
                                               padding: EdgeInsets.only(
@@ -4196,26 +4435,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Order No.',
-                                                  maxLines: 2,
-                                                ),
-                                              ),
-                                            ),
-                                          )),
-                                          DataColumn(
-                                              label: Expanded(
-                                            child: Padding(
-                                              padding: EdgeInsets.only(
-                                                  top:
-                                                      fullScreenWidth(context) >
-                                                              740
-                                                          ? 0
-                                                          : 30),
-                                              child: const Center(
-                                                child: Text(
-                                                  'Created',
+                                                  'Order No.'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -4230,9 +4452,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Created By',
+                                                  'Created'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -4247,9 +4469,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Amount',
+                                                  'Created By'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -4264,9 +4486,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Invoice',
+                                                  'Amount'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -4281,9 +4503,9 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Payment Status',
+                                                  'Invoice'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -4298,9 +4520,26 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                               740
                                                           ? 0
                                                           : 30),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  'Status',
+                                                  'Payment Status'.tr,
+                                                  maxLines: 2,
+                                                ),
+                                              ),
+                                            ),
+                                          )),
+                                          DataColumn(
+                                              label: Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      fullScreenWidth(context) >
+                                                              740
+                                                          ? 0
+                                                          : 30),
+                                              child: Center(
+                                                child: Text(
+                                                  'Status'.tr,
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -4323,19 +4562,17 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     width: flexWidth * 1.5),
                                               ),
                                               DataCell(
-                                                SizedBox(width: flexWidth * 0.9),
+                                                SizedBox(
+                                                    width: flexWidth * 0.9),
                                               ),
                                               DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1),
+                                                SizedBox(width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1),
+                                                SizedBox(width: flexWidth * 1),
                                               ),
                                               DataCell(
-                                                SizedBox(
-                                                    width: flexWidth * 1),
+                                                SizedBox(width: flexWidth * 1),
                                               ),
                                               DataCell(
                                                 SizedBox(
@@ -4431,7 +4668,6 @@ Widget _buildDataCell(String count, String amount, Color color, bool isCenter) {
             fontSize: 11,
             color: Colors.white,
             fontWeight: FontWeight.bold,
-          
           ),
         ),
       ),

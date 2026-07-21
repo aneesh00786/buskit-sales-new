@@ -26,6 +26,7 @@ class PendingPaymentController extends GetxController {
   RxDouble nearlyDueAmount = 0.0.obs;
   RxDouble dueAmount = 0.0.obs;
   RxDouble overdueAmount = 0.0.obs;
+  PaginationModel paginationModel = PaginationModel();
 
   RxList<IndividualPendingData> individualPendingPayments =
       <IndividualPendingData>[].obs;
@@ -69,7 +70,7 @@ class PendingPaymentController extends GetxController {
       var data = await _apiWorker.getPendingPaymentData(
           chartIndex: chartIndex,
           searchModel: searchModel,
-          paginationModel: PaginationModel(),
+          paginationModel:paginationModel,
           salesmanId: salesmanId,
           compId: compId,
           isLogin: isLogin);
@@ -92,16 +93,19 @@ class PendingPaymentController extends GetxController {
 
   Future<void> loadIndividualPendingPayments(String customerId) async {
     try {
+      print('api called');
       isLoading.value = true;
       
       bool isOnline = await ConnectivityService().isOnline();
 
       if (isOnline) {
+        print('Online mode: Fetching from API');
         // --- ONLINE FLOW ---
         // 1. Fetch from API
         var response = await _apiWorker.getAllPendingPaymentIndividual(
           customerId: customerId,
         );
+       
 
         if (response.data != null) {
           individualPendingPayments.assignAll(response.data);
@@ -119,6 +123,7 @@ class PendingPaymentController extends GetxController {
           individualPendingPayments.clear();
         }
       } else {
+    
         // --- OFFLINE FLOW ---
         // 3. LOAD FROM HIVE
         try {

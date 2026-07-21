@@ -103,6 +103,8 @@ class CustomerData {
   String email;
   num receivedAmount;
   String invoiceId;
+  String mobileno;
+  int hasActiveLink;
 
   CustomerData({
     required this.imageUrl,
@@ -119,6 +121,8 @@ class CustomerData {
     required this.email,
     required this.receivedAmount,
     required this.invoiceId,
+    this.mobileno = '',
+    this.hasActiveLink = 0,
   });
 
   factory CustomerData.fromJson(Map<String, dynamic> json) => CustomerData(
@@ -138,6 +142,8 @@ class CustomerData {
         email: json["email"],
         invoiceId: json["invoice_id"],
         receivedAmount: num.tryParse(json["received_amount"].toString()) ?? 0,
+        mobileno: json["mobileno"] ?? '',
+        hasActiveLink: json["has_active_link"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -155,6 +161,8 @@ class CustomerData {
         "email": email,
         "received_amount": receivedAmount,
         "invoice_id": invoiceId,
+        "mobileno": mobileno,
+        "has_active_link": hasActiveLink,
       };
 }
 
@@ -233,9 +241,10 @@ class IndividualPendingData {
   int paymentStatus;
   String customerId;
   String invoiceId;
-  int? receivableAmount;
-  final int? amountEdited;
-  int? pendingAmount;
+  num? receivableAmount;
+  final num? amountEdited;
+  num? pendingAmount;
+  int hasActiveLink;
 
   IndividualPendingData({
     required this.paymentType,
@@ -252,6 +261,7 @@ class IndividualPendingData {
     required this.amountEdited,
     required this.invoiceId,
     required this.pendingAmount,
+    this.hasActiveLink = 0,
   });
 
   factory IndividualPendingData.fromJson(Map<String, dynamic> json) =>
@@ -268,10 +278,13 @@ class IndividualPendingData {
         orderStatus: json["order_status"] ?? 0,
         paymentStatus: json["payment_status"] ?? 0,
         customerId: json["customer_id"] ?? '',
-        receivableAmount: json["receivable_amount"] ?? 0,
-        amountEdited: json['amount_edited'] ?? 0,
-        pendingAmount: json['pending_amount'] ?? 0,
+        receivableAmount:
+            num.tryParse(json["receivable_amount"].toString()) ?? 0,
+        amountEdited: num.tryParse(json['amount_edited'].toString()) ?? 0,
+        pendingAmount: num.tryParse(json['pending_amount'].toString()) ?? 0,
         invoiceId: json['invoice_id'] ?? '',
+        hasActiveLink: json["has_active_link"] ?? 0,
+        
       );
 
   Map<String, dynamic> toJson() => {
@@ -289,5 +302,6 @@ class IndividualPendingData {
         "amount_edited": amountEdited,
         "pending_amount": pendingAmount,
         "invoice_id": invoiceId,
+        "has_active_link": hasActiveLink,
       };
 }

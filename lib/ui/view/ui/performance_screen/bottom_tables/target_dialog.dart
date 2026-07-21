@@ -210,11 +210,11 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                         topRight: Radius.circular(10),
                       ),
                     ),
-                    child: const Row(
+                    child:  Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Target by Category',
+                          'Target by Category'.tr,
                           style: TextStyle(
                             color: white,
                             fontSize: 15,
@@ -241,10 +241,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                           TableRow(
                             decoration: BoxDecoration(color: Colors.grey[300]),
                             children: [
-                              _buildTableHeader('Category'),
-                              _buildTableHeader('Monthly Target'),
+                              _buildTableHeader('Category'.tr),
+                              _buildTableHeader('Monthly Target'.tr),
                               if (widget.isProjection)
-                                _buildTableHeader('Projection'),
+                                _buildTableHeader('Projection'.tr),
                             ],
                           ),
                           ..._buildCategoryRows(),
@@ -318,8 +318,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                             vertical: 10, horizontal: 30),
                       ),
                       onPressed: _saveTargets,
-                      child: const Text(
-                        'Save',
+                      child:  Text(
+                        'Save'.tr,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

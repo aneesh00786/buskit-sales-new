@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 // Widget middleTopRightComponet({
@@ -383,7 +384,7 @@ Widget middleTopRightComponet({
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              dashboardContainerHeader('Revenue'),
+              dashboardContainerHeader('Revenue'.tr),
               Padding(
                 padding: EdgeInsets.only(
                   right: fullScreenWidth(context) > 630 ? 20 : 2,
@@ -391,7 +392,7 @@ Widget middleTopRightComponet({
                 ),
                 child: InkWell(
                   onTap: () {
-                    showRevenueChartDialog(context, 'Revenue');
+                    showRevenueChartDialog(context, 'Revenue'.tr);
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -490,7 +491,7 @@ Widget middleTopRightComponet({
                       }
 
                       // Fallback if data is null
-                      return const Center(child: Text("No Data Available"));
+                      return  Center(child: Text("No Data Available".tr));
                     },
                   );
                 },
@@ -524,12 +525,13 @@ Widget _buildRevenueLegend(
               if (bookingVal != 0) {
                 showValueDialog(context, categoryPerformance, 'Booking');
               } else {
-                showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
               }
             },
             child: buildLegendItem(
               const Color(0xff1d3d63),
-              'Bookings : ${formatAmount(bookingVal)}',
+              'Bookings'.tr + ' : \u200E${formatAmount(bookingVal)}',
+              // 'Bookings'.tr + ' : ${formatAmount(bookingVal)}',
             ),
           ),
           const SizedBox(width: 10), 
@@ -539,12 +541,13 @@ Widget _buildRevenueLegend(
               if (orderVal != 0) {
                 showValueDialog(context, categoryPerformance, 'Order');
               } else {
-                showCustomToastDisplay(context, "No Record Found", red, Icons.close);
+                showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
               }
             },
             child: buildLegendItem(
               Colors.blue,
-              'Orders : ${formatAmount(orderVal)}',
+              'Orders'.tr + ' : \u200E${formatAmount(orderVal)}',
+              // 'Orders'.tr + ' : ${formatAmount(orderVal)}',
             ),
           ),
         ],

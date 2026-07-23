@@ -41,6 +41,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_dialog.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
@@ -835,6 +836,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             ),
           ),
           actions: [
+            const ChatbotTopBarButton(routeName: "/customer_dashboard"),
+            const SizedBox(width: 8),
             SizedBox(
               width: 120,
               child: Obx(() {
@@ -899,23 +902,24 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 );
               }),
             ),
+            const SizedBox(width: 10),
             InkWell(
               onTap: () {
                 showUpdateCustomerDialog(
                     context, customerId, customerName, customerImage);
               },
               child: SizedBox(
-                width: 130,
+                width: 140,
                 child: SizedBox(
-                  height: 44,
+                  height: 48,
                   width: double.infinity,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
                       children: [
                         CircleAvatar(
                           backgroundColor: const Color(0xffe6ecff),
-                          radius: 15,
+                          radius: 13,
                           child: CachedNetworkImage(
                             imageUrl:
                                 '${ApiConstants.baseUrl}uploads/$customerImage',
@@ -938,18 +942,16 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                    maxWidth: double.infinity),
-                                child: MyRegularText(
-                                  label: customerName,
-                                  fontSize: 8.8,
-                                  maxlines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              MyRegularText(
+                                label: customerName,
+                                fontSize: 8.5,
+                                maxlines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              MyRegularText(label: "Customer".tr, fontSize: 9),
+                              MyRegularText(label: "Customer".tr, fontSize: 8),
                             ],
                           ),
                         ),
@@ -958,7 +960,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 ),
               ),
-            )
+            ),
+            const SizedBox(width: 8),
           ],
         ),
         body: Consumer<CustomersProvider>(

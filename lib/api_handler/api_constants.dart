@@ -1,5 +1,5 @@
 mixin class ApiConstants {
-  static const String baseUrl1 = "https://thrivewoo.com";
+  static const String baseUrl1 = "https://test.thrivewoo.com";
   static const String baseUrl = "$baseUrl1/";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
@@ -7,6 +7,8 @@ mixin class ApiConstants {
   static const String login = "salesman_login";
   static const String sendOtp = "send_otp_staff";
   static const String verifyOtp = "verify_otp_staff";
+  static const String chatbotSalesKnowledgeBase =
+      "chatbot_sales_knowledge_base.json";
   static const String prooduct = "product";
   static const String customer = "customer";
   static const String dashboardList = "dashboard_list";

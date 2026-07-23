@@ -30,6 +30,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -105,28 +106,30 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Dashboard'.tr,
-                style: TextStyle(
-                    fontSize: NkFontSize.largeFont(largeFont: 20),
-                    fontWeight: FontWeight.bold)),
-            Row(
-              children: [
-                Consumer<DashboardProvider>(
-                  builder: (context, provider, child) {
-                    return NotificationWidget(
-                      startDate: provider.selectedStartDate,
-                      endDate: provider.selectedEndDate,
-                    );
-                  },
-                ),
-                SizedBox(width: 120, child: profiloe())
-              ],
-            ),
-          ],
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text('Dashboard'.tr,
+        style: TextStyle(
+            fontSize: NkFontSize.largeFont(largeFont: 20),
+            fontWeight: FontWeight.bold)),
+    Row(
+      children: [
+        const ChatbotTopBarButton(),
+        const SizedBox(width: 12),
+        Consumer<DashboardProvider>(
+          builder: (context, provider, child) {
+            return NotificationWidget(
+              startDate: provider.selectedStartDate,
+              endDate: provider.selectedEndDate,
+            );
+          },
         ),
-        calender(),
+        SizedBox(width: 120, child: profiloe()),
+      ],
+    ),
+  ],
+),
+calender(),
         nkSmallSizeBox(),
         Obx(() {
           if (widget.dashBoardController.isLoading.value) {
@@ -463,10 +466,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    NotificationWidget(
-                      startDate: provider.selectedStartDate,
-                      endDate: provider.selectedEndDate,
-                    ),
+                    const ChatbotTopBarButton(routeName: '/dashboard'),
+                    const SizedBox(width: 10),
                     const SizedBox(width: 10),
                     SizedBox(width: 120, child: profiloe()),
                   ],

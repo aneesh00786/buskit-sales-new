@@ -42,6 +42,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_sc
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -149,7 +150,9 @@ class _TableeeState extends State<Tableee> {
               Row(
                 children: [
                   addCustomer(context),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 12),
+                  const ChatbotTopBarButton(routeName: '/customers'),
+                  const SizedBox(width: 12),
                   NotificationWidget(
                     startDate: provider.selectedStartDate,
                     endDate: provider.selectedEndDate,
@@ -439,13 +442,13 @@ class _TableeeState extends State<Tableee> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         addCustomer(context),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
+                        const ChatbotTopBarButton(routeName: '/customers'),
+                        const SizedBox(width: 8),
                         NotificationWidget(
                           startDate: provider.selectedStartDate,
                           endDate: provider.selectedEndDate,
                         ),
-                        // const SizedBox(width: 10),
-                        // const SizedBox(width: 120, child: UpdateAdminBt()),
                       ],
                     ),
                     const SizedBox(height: 8),

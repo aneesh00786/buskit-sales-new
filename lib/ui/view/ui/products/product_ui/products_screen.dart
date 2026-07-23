@@ -1,3 +1,4 @@
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_fab_launcher.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_order_details/widgets/customer_order_details_middel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/product_ui/product_widget/product_middel_widget.dart';
@@ -27,28 +28,27 @@ class _ProductScreenState extends State<ProductScreen> {
     return OrientationBuilder(
       builder: (context, orientation) {
         return Scaffold(
-          body: 
-          Obx(() {
-            // 1. Get the raw ID
-            final rawId = productsController.customerAndOrderData.value.customerId;
-            
-            // 2. Convert to lowercase string and trim whitespace
-            final String safeId = rawId?.toString().trim().toLowerCase() ?? '';
-            
-            // 3. THE ULTIMATE STRICT CHECK: Must not be empty, and must not literally be the word "null"
-            bool hasActiveCustomer = safeId.isNotEmpty && safeId != 'null';
+          body: Stack(
+            children: [
+              Obx(() {
+                final rawId = productsController.customerAndOrderData.value.customerId;
+                final String safeId = rawId?.toString().trim().toLowerCase() ?? '';
+                bool hasActiveCustomer = safeId.isNotEmpty && safeId != 'null';
 
-            if (hasActiveCustomer) {
-              return CustomerOrderDetailMiddelWidget(
-                key: const Key("CustomerOrderDetailMiddelWidget"),
-                productsController: productsController,
-              );
-            } else {
-              return ProductMiddelWidget(
-                productsController: productsController,
-              );
-            }
-          }),
+                if (hasActiveCustomer) {
+                  return CustomerOrderDetailMiddelWidget(
+                    key: const Key("CustomerOrderDetailMiddelWidget"),
+                    productsController: productsController,
+                  );
+                } else {
+                  return ProductMiddelWidget(
+                    productsController: productsController,
+                  );
+                }
+              }),
+              const ChatbotFabLauncher(routeName: '/products', bottomMargin: 20.0, rightMargin: 20.0),
+            ],
+          ),
         );
       },
     );

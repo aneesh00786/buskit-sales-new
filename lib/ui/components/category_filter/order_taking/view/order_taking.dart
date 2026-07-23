@@ -27,6 +27,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
@@ -946,6 +947,8 @@ class _OrderTakingState extends State<OrderTaking>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
+                        const ChatbotTopBarButton(routeName: "/order_taking"),
+                        const SizedBox(width: 8),
                         Hero(
                           tag: 'product_image',
                           child: AnimatedBuilder(
@@ -1250,6 +1253,8 @@ class _OrderTakingState extends State<OrderTaking>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
+                        const ChatbotTopBarButton(routeName: "/order_taking"),
+                        const SizedBox(width: 8),
                         Hero(
                           tag: 'product_image',
                           child: AnimatedBuilder(

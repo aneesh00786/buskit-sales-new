@@ -25,6 +25,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/opt
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/widgets/visit_report_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -229,17 +230,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           ],
         ),
         actions: [
+          const ChatbotTopBarButton(routeName: '/reports'),
+          const SizedBox(width: 8),
           const NotificationWidget(
             startDate: '',
             endDate: '',
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-
-          //   ],
-          // ),
           profiloe()
         ],
       ),

@@ -8,6 +8,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/calander/widget/calender_bottom_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_top_screen.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -47,6 +48,8 @@ class _CalenderScreenState extends State<CalenderScreen> {
                 child: CustomText(content: 'Calender'.tr,fontWeight: FontWeight.bold,),
               ),
               Spacer(),
+              const ChatbotTopBarButton(routeName: '/attendance'),
+              const SizedBox(width: 8),
               const NotificationWidget(
                 startDate: '',
                 endDate: '',

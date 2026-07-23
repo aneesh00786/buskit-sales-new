@@ -9,6 +9,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -39,6 +40,9 @@ class LeadTopScreen extends StatelessWidget {
             AddLeadsScreen(
               leadsController: leadsController,
             ),
+            const SizedBox(width: 8),
+            const ChatbotTopBarButton(routeName: '/leads'),
+            const SizedBox(width: 8),
             const NotificationWidget(
               startDate: '',
               endDate: '',

@@ -1901,8 +1901,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CircleAvatar(
-                      backgroundColor: const Color.fromARGB(255, 204, 203, 203),
-                      radius: 25,
+                      backgroundColor: primaryColor.withOpacity(0.1),
+                      radius: 22,
                       child: InkWell(
                           onTap: () {
                             showDialog(
@@ -1936,8 +1936,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             padding: EdgeInsets.all(4.0),
                             child: Icon(
                               EneftyIcons.camera_outline,
-                              color: white,
-                              size: 25,
+                              color: primaryColor,
+                              size: 22,
                             ),
                           )),
                     ),
@@ -1972,14 +1972,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     CircleAvatar(
-                      backgroundColor: const Color.fromARGB(255, 167, 214, 225),
-                      radius: 25,
+                      backgroundColor: primaryColor,
+                      radius: 22,
                       child: InkWell(
                           onTap: () => _sendMessage(),
                           child: const Icon(
                             EneftyIcons.send_3_outline,
-                            size: 25,
-                            color: white,
+                            color: Colors.white,
+                            size: 22,
                           )),
                     )
                   ],

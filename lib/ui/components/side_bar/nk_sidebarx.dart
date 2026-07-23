@@ -17,6 +17,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.d
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/on_sync_widget.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
@@ -236,7 +237,11 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                     ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: SyncButtonWidget(),
+                      child: Row(
+                        children: [
+                          SyncButtonWidget(),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -414,8 +419,8 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                         Expanded(
                           child: Text(
                             _hasAlwaysPermission
-                                ? 'Background location enabled'
-                                : 'Background location disabled - tracking only when app is open',
+                                ? 'Your location will be shared continuously.'
+                                : "Location is shared only while using the app. Enable 'Always' access for background tracking.",
                             style: TextStyle(
                               color: _hasAlwaysPermission
                                   ? Colors.green.shade200

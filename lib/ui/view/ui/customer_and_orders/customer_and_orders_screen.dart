@@ -128,8 +128,11 @@ class _TableeeState extends State<Tableee> {
     super.dispose();
   }
 
+  bool showChatbotMobile = false;
+
   @override
   Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     final provider = Provider.of<CustomersProvider>(context);
     return Scaffold(
       backgroundColor: white,
@@ -137,29 +140,54 @@ class _TableeeState extends State<Tableee> {
         automaticallyImplyLeading: false,
         backgroundColor: white,
         surfaceTintColor: white,
-        toolbarHeight: (isTabletOrPhoneLandscape(context)) ? null : 100,
+        toolbarHeight: (isTabletOrPhoneLandscape(context)) 
+            ? null 
+            : (showChatbotMobile ? 110 : 80),
         actions: [
           Expanded(
-              child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Customers & Orders'.tr,
-                  style: TextStyle(
-                      fontSize: NkFontSize.largeFont(largeFont: 20),
-                      fontWeight: FontWeight.bold)),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  addCustomer(context),
-                  const SizedBox(width: 12),
-                  const ChatbotTopBarButton(routeName: '/customers'),
-                  const SizedBox(width: 12),
-                  NotificationWidget(
-                    startDate: provider.selectedStartDate,
-                    endDate: provider.selectedEndDate,
+                  Text('Customers & Orders'.tr,
+                      style: TextStyle(
+                          fontSize: NkFontSize.largeFont(largeFont: 20),
+                          fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      if (!isMobile) addCustomer(context),
+                      if (!isMobile) const SizedBox(width: 12),
+                      if (!isMobile) const ChatbotTopBarButton(routeName: '/customers'),
+                      if (isMobile)
+                        IconButton(
+                          icon: const Icon(Icons.info_outline, color: primaryColor),
+                          onPressed: () {
+                            setState(() {
+                              showChatbotMobile = !showChatbotMobile;
+                            });
+                          },
+                        ),
+                      if (!isMobile) const SizedBox(width: 12),
+                      if (!isMobile)
+                        NotificationWidget(
+                          startDate: provider.selectedStartDate,
+                          endDate: provider.selectedEndDate,
+                        ),
+                      SizedBox(width: 120, child: profiloe()),
+                    ],
                   ),
-                  SizedBox(width: 120, child: profiloe()),
                 ],
               ),
+              if (isMobile && showChatbotMobile)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                    child: const ChatbotTopBarButton(routeName: '/customers'),
+                  ),
+                ),
             ],
           )),
           // Padding(
@@ -442,8 +470,6 @@ class _TableeeState extends State<Tableee> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         addCustomer(context),
-                        const SizedBox(width: 8),
-                        const ChatbotTopBarButton(routeName: '/customers'),
                         const SizedBox(width: 8),
                         NotificationWidget(
                           startDate: provider.selectedStartDate,

@@ -16,12 +16,22 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-class LeadTopScreen extends StatelessWidget {
+class LeadTopScreen extends StatefulWidget {
   final LeadsController leadsController;
   const LeadTopScreen({super.key, required this.leadsController});
 
   @override
+  State<LeadTopScreen> createState() => _LeadTopScreenState();
+}
+
+class _LeadTopScreenState extends State<LeadTopScreen> {
+  bool showChatbotMobile = false;
+
+  @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 600;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -36,20 +46,53 @@ class LeadTopScreen extends StatelessWidget {
             SizedBox(
               width: 10,
             ),
-            const Spacer(),
-            AddLeadsScreen(
-              leadsController: leadsController,
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          AddLeadsScreen(
+                            leadsController: widget.leadsController,
+                          ),
+                          const SizedBox(width: 8),
+                          if (!isMobile) const ChatbotTopBarButton(routeName: '/leads'),
+                          if (isMobile)
+                            IconButton(
+                              icon: const Icon(Icons.info_outline, color: primaryColor),
+                              onPressed: () {
+                                setState(() {
+                                  showChatbotMobile = !showChatbotMobile;
+                                });
+                              },
+                            ),
+                          const SizedBox(width: 8),
+                          const NotificationWidget(
+                            startDate: '',
+                            endDate: '',
+                          ),
+                          profiloe(),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-            const SizedBox(width: 8),
-            const ChatbotTopBarButton(routeName: '/leads'),
-            const SizedBox(width: 8),
-            const NotificationWidget(
-              startDate: '',
-              endDate: '',
-            ),
-            profiloe(),
           ],
         ),
+        if (isMobile && showChatbotMobile)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: const ChatbotTopBarButton(routeName: "/leads"),
+            ),
+          ),
       ],
     );
   }

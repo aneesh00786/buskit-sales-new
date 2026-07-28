@@ -54,6 +54,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
   String? startDate;
   String? endDate;
   final salesmanId = SessionHelper.loginSavedData!.salesmanId!;
+  bool showChatbotMobile = false;
 
   Future<void> checkUserVerification() async {
     try {
@@ -102,6 +103,7 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -114,7 +116,16 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             fontWeight: FontWeight.bold)),
     Row(
       children: [
-        const ChatbotTopBarButton(),
+        if (!isMobile) const ChatbotTopBarButton(),
+        if (isMobile) 
+          IconButton(
+            icon: const Icon(Icons.info_outline, color: primaryColor),
+            onPressed: () {
+              setState(() {
+                showChatbotMobile = !showChatbotMobile;
+              });
+            },
+          ),
         const SizedBox(width: 12),
         Consumer<DashboardProvider>(
           builder: (context, provider, child) {
@@ -129,6 +140,14 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     ),
   ],
 ),
+if (isMobile && showChatbotMobile)
+  Align(
+    alignment: Alignment.centerRight,
+    child: Padding(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      child: const ChatbotTopBarButton(),
+    ),
+  ),
 calender(),
         nkSmallSizeBox(),
         Obx(() {
@@ -463,16 +482,7 @@ calender(),
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const ChatbotTopBarButton(routeName: '/dashboard'),
-                    const SizedBox(width: 10),
-                    const SizedBox(width: 10),
-                    SizedBox(width: 120, child: profiloe()),
-                  ],
-                ),
-                const SizedBox(height: 4),
+
 
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,

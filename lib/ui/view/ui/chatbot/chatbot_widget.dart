@@ -41,13 +41,23 @@ class ChatbotWidget extends StatelessWidget {
         enableDrag: false,
         isDismissible: false,
         backgroundColor: Colors.transparent,
-        builder: (context) => ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.85,
-            child: const ChatbotWidget(),
-          ),
-        ),
+        builder: (context) {
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+          // Prevent negative height if keyboard is unusually large on very small screens
+          final targetHeight = (MediaQuery.of(context).size.height * 0.85) - keyboardHeight;
+          final safeHeight = targetHeight > 100 ? targetHeight : 100.0;
+          
+          return Padding(
+            padding: EdgeInsets.only(bottom: keyboardHeight),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: SizedBox(
+                height: safeHeight,
+                child: const ChatbotWidget(),
+              ),
+            ),
+          );
+        },
       );
     }
   }

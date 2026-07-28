@@ -95,6 +95,8 @@ class CustomerDachScreen extends StatefulWidget {
 
 class _CustomerDachScreenState extends State<CustomerDachScreen>
     with SingleTickerProviderStateMixin {
+  bool showChatbotMobile = false;
+
   late int selectedYear;
   late TabController _tabController;
   late int _tabIndex;
@@ -571,7 +573,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               : screenHeight * 1.55,
       child: Scaffold(
         appBar: AppBar(
-          leadingWidth: 200,
+          leadingWidth: isMobile ? 150 : 200,
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
             child: Row(
@@ -826,18 +828,45 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 SizedBox(
                   width: 10,
                 ),
-                Text(
-                  "Customer dashboard".tr,
-                  style: TextStyle(
-                      fontSize: NkFontSize.largeFont(largeFont: 20),
-                      fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    isMobile ? "Customer..." : "Customer dashboard".tr,
+                    style: TextStyle(
+                        fontSize: NkFontSize.largeFont(largeFont: 20),
+                        fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
           ),
+          bottom: (isMobile && showChatbotMobile)
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(50.0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16.0, bottom: 8.0, top: 4.0),
+                      child: const ChatbotTopBarButton(routeName: "/customer_dashboard"),
+                    ),
+                  ),
+                )
+              : null,
           actions: [
-            const ChatbotTopBarButton(routeName: "/customer_dashboard"),
-            const SizedBox(width: 8),
+            Builder(
+              builder: (context) {
+                List<Widget> actionWidgets = [
+                  if (!isMobile) const ChatbotTopBarButton(routeName: "/customer_dashboard"),
+                  if (isMobile)
+                      IconButton(
+                        icon: const Icon(Icons.info_outline, color: primaryColor),
+                        onPressed: () {
+                          setState(() {
+                            showChatbotMobile = !showChatbotMobile;
+                          });
+                        },
+                      ),
+                    const SizedBox(width: 8),
             SizedBox(
               width: 120,
               child: Obx(() {
@@ -960,6 +989,26 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   ),
                 ),
               ),
+            ),
+                ];
+
+                if (isMobile) {
+                  return SizedBox(
+                    width: screenWidth - 170,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: actionWidgets,
+                      ),
+                    ),
+                  );
+                } else {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: actionWidgets,
+                  );
+                }
+              },
             ),
             const SizedBox(width: 8),
           ],
@@ -1113,9 +1162,13 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 },
                               ),
                             ),
-                            Row(
-                              children: [
-                                ElevatedButton(
+                            Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                reverse: true,
+                                child: Row(
+                                  children: [
+                                    ElevatedButton(
                                   onPressed: () {
                                     print('customer id: ${widget.cusId}');
                                     OrderIdSnackBar.show(
@@ -1184,6 +1237,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 ),
                               ],
                             ),
+                            ),
+                          ),
                           ],
                         ),
                         // Row(

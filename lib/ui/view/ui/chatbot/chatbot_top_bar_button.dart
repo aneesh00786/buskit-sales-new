@@ -5,7 +5,8 @@ import 'chatbot_widget.dart';
 
 class ChatbotTopBarButton extends StatefulWidget {
   final String routeName;
-  const ChatbotTopBarButton({Key? key, this.routeName = '/dashboard'}) : super(key: key);
+  const ChatbotTopBarButton({Key? key, this.routeName = '/dashboard'})
+      : super(key: key);
 
   @override
   State<ChatbotTopBarButton> createState() => _ChatbotTopBarButtonState();
@@ -49,7 +50,8 @@ class _ChatbotTopBarButtonState extends State<ChatbotTopBarButton>
           animation: _controller,
           builder: (context, child) {
             return InkWell(
-              onTap: () => ChatbotWidget.showChatbot(context, routeName: widget.routeName),
+              onTap: () => ChatbotWidget.showChatbot(context,
+                  routeName: widget.routeName),
               borderRadius: BorderRadius.circular(20),
               child: ScaleTransition(
                 scale: _scaleAnimation,

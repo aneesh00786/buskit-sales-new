@@ -40,6 +40,7 @@ class PerformanceScreen extends StatefulWidget {
 
 class _PerformanceScreenState extends State<PerformanceScreen>
     with SingleTickerProviderStateMixin {
+  bool showChatbotMobile = false;
   bool isActive = false;
   bool isLoadingSettings = true;
   StaffController staffController = Get.put(StaffController());
@@ -136,8 +137,9 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       _targetControllers = _targetControllers.sublist(0, count);
     }
   }
- 
-  List<String> get years => List.generate(5, (index) => (currentYear - index).toString());
+
+  List<String> get years =>
+      List.generate(5, (index) => (currentYear - index).toString());
 
   @override
   Widget build(BuildContext context) {
@@ -145,92 +147,114 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: white,
-        title: Row(
-          children: [
-            CustomText(
-              content: "Performance & Target".tr, // Change to whatever you want
-              fontWeight: FontWeight.bold,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            SizedBox(
-              height: isSmallScreen ? 29 : 38,
-              width: isSmallScreen ? 84 : 104,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.white,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                      spreadRadius: 0,
+        centerTitle: false,
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              CustomText(
+                content:
+                    "Performance & Target".tr, // Change to whatever you want
+                fontWeight: FontWeight.bold,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              SizedBox(
+                height: isSmallScreen ? 29 : 38,
+                width: isSmallScreen ? 94 : 104,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.white,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.8),
-                      blurRadius: 0,
-                      offset: const Offset(-2, -2),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                  child: DropdownButton<String>(
-                    value: selectedValue,
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          selectedValue = newValue;
-                        });
-                        staffController.loadSalesmanTargetForSelectedTab(
-                          currentYear: selectedValue,
-                          selectedTabIndex:
-                              staffController.tabController.index + 1,
-                          staffId: salesmanId,
-                        );
-                      }
-                    },
-                    items: years.map((String year) {
-                      return DropdownMenuItem<String>(
-                        value: year,
-                        child: Row(
-                          children: [
-                            Icon(Icons.calendar_view_month, size: 16, color: primaryColor),
-                            const SizedBox(width: 8),
-                            Text(year, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    isExpanded: true,
                     borderRadius: BorderRadius.circular(12),
-                    underline: Container(),
-                    icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey[600]),
-                    dropdownColor: Colors.white,
-                    elevation: 8,
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    border:
+                        Border.all(color: const Color(0xFFE1E5E9), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.8),
+                        blurRadius: 0,
+                        offset: const Offset(-2, -2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 4.0 : 12.0, vertical: 8.0),
+                    child: DropdownButton<String>(
+                      value: selectedValue,
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedValue = newValue;
+                          });
+                          staffController.loadSalesmanTargetForSelectedTab(
+                            currentYear: selectedValue,
+                            selectedTabIndex:
+                                staffController.tabController.index + 1,
+                            staffId: salesmanId,
+                          );
+                        }
+                      },
+                      items: years.map((String year) {
+                        return DropdownMenuItem<String>(
+                          value: year,
+                          child: Row(
+                            children: [
+                              Icon(Icons.calendar_view_month,
+                                  size: isSmallScreen ? 14 : 16,
+                                  color: primaryColor),
+                              SizedBox(width: isSmallScreen ? 4 : 8),
+                              Text(year,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      isExpanded: true,
+                      borderRadius: BorderRadius.circular(12),
+                      underline: Container(),
+                      icon: Icon(Icons.keyboard_arrow_down,
+                          size: 20, color: Colors.grey[600]),
+                      dropdownColor: Colors.white,
+                      elevation: 8,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
-          const ChatbotTopBarButton(routeName: '/reports'),
+          if (!isSmallScreen) const ChatbotTopBarButton(routeName: '/reports'),
+          if (isSmallScreen)
+            IconButton(
+              icon: const Icon(Icons.info_outline, color: primaryColor),
+              onPressed: () {
+                setState(() {
+                  showChatbotMobile = !showChatbotMobile;
+                });
+              },
+            ),
           const SizedBox(width: 8),
           const NotificationWidget(
             startDate: '',
@@ -238,6 +262,19 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           ),
           profiloe()
         ],
+        bottom: (isSmallScreen && showChatbotMobile)
+            ? PreferredSize(
+                preferredSize: const Size.fromHeight(50.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        right: 16.0, bottom: 8.0, top: 4.0),
+                    child: const ChatbotTopBarButton(routeName: "/reports"),
+                  ),
+                ),
+              )
+            : null,
       ),
       body: Column(
         children: [
@@ -309,9 +346,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                           padding: const EdgeInsets.symmetric(
                               vertical: 12.0, horizontal: 16.0),
                           decoration: BoxDecoration(
-                            color: isSelected 
-                                ? Colors.white
-                                : Colors.grey.shade50,
+                            color:
+                                isSelected ? Colors.white : Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: isSelected
                                 ? [
@@ -331,7 +367,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                     ),
                                   ],
                             border: Border.all(
-                              color: isSelected 
+                              color: isSelected
                                   ? primaryColor.withOpacity(0.3)
                                   : Colors.transparent,
                               width: 1,
@@ -341,15 +377,23 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                isSelected ? Icons.calendar_month : Icons.calendar_today,
+                                isSelected
+                                    ? Icons.calendar_month
+                                    : Icons.calendar_today,
                                 size: 18,
-                                color: isSelected ? primaryColor : Colors.grey[600],
+                                color: isSelected
+                                    ? primaryColor
+                                    : Colors.grey[600],
                               ),
                               const SizedBox(width: 10),
                               CustomText(
                                 content: monthName.tr,
-                                color: isSelected ? Colors.black87 : Colors.grey[700],
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected
+                                    ? Colors.black87
+                                    : Colors.grey[700],
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
                                 fontSize: 13,
                               ),
                             ],
@@ -413,7 +457,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             Get.dialog(StaffTimeSheetDialog(
                                 staffController: staffController));
                           }),
-                           
 
                 // OptionData(
                 //   title: 'Check-in/out',
@@ -439,26 +482,27 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         ? () => showCustomToastDisplay(
                             context, 'Record Not Found'.tr, red, Icons.close)
                         : () {
-                          int selectedYearInt = int.tryParse(selectedValue) ?? currentYear;
-            int selectedMonthInt = staffController.tabController.index + 1;
+                            int selectedYearInt =
+                                int.tryParse(selectedValue) ?? currentYear;
+                            int selectedMonthInt =
+                                staffController.tabController.index + 1;
                             Get.dialog(
-              StaffRouteDialog(
-                staffController: staffController,
-                selectedYear: selectedYearInt,
-                selectedMonth: selectedMonthInt,
-              ),
-            );
+                              StaffRouteDialog(
+                                staffController: staffController,
+                                selectedYear: selectedYearInt,
+                                selectedMonth: selectedMonthInt,
+                              ),
+                            );
                           }),
-                            OptionData(
+                OptionData(
                   title: 'Visit Report'.tr,
                   month: _selectedMonthName!.tr,
                   unfilteredCount: "0",
-                 count: targetContent?.visitReport?.toString() ?? '0',
+                  count: targetContent?.visitReport?.toString() ?? '0',
                   svg: "assets/icons/check-in.png",
                   svgBgColor: const Color.fromARGB(255, 211, 240, 249),
-                  onTap: (){
-                    showTileDialog(
-                          context, _selectedMonthName ?? '', 5, true);
+                  onTap: () {
+                    showTileDialog(context, _selectedMonthName ?? '', 5, true);
                   },
                 ),
                 OptionData(
@@ -473,7 +517,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       : () => showTileDialog(
                           context, _selectedMonthName ?? '', 4, true),
                 ),
-              
               ],
             );
           }),
@@ -580,8 +623,8 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     );
   }
 
-  void showTileDialog(BuildContext context, String monthName, int tabStatus, bool isFull) {
-    
+  void showTileDialog(
+      BuildContext context, String monthName, int tabStatus, bool isFull) {
     if (tabStatus == 5) {
       int monthIndex = staffController.tabController.index + 1;
 
@@ -594,19 +637,17 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             if (staffController.isVisitReportLoading.value) {
               return const Center(child: CircularProgressIndicator());
             }
-            
+
             // Once loading is false, it shows the data
-            return _buildDialogContainer(
-              isFull, 
-              VisitReportDialog(reportData: staffController.visitReportList)
-            );
+            return _buildDialogContainer(isFull,
+                VisitReportDialog(reportData: staffController.visitReportList));
           });
         },
       );
 
       // 2. Trigger the API call (Make sure loadVisitReports sets isVisitReportLoading to true at its start)
       staffController.loadVisitReports(selectedValue, monthIndex);
-      return; 
+      return;
     }
 
     // For all other tab statuses:
@@ -621,19 +662,19 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 
           Widget dialogContent;
           switch (tabStatus) {
-            case 1: 
+            case 1:
               dialogContent = buildCheckInOutDialogContent(
                   staffController.checkInOutData.value, staffController);
               break;
-            case 2: 
+            case 2:
               dialogContent = buildCheckInOutDialogContent(
                   staffController.checkInOutData.value, staffController);
               break;
-            case 3: 
+            case 3:
               dialogContent = buildVisitsDialogContent(
                   staffController.visitData.value, staffController);
               break;
-            case 4: 
+            case 4:
               dialogContent = buildCustomersDialogContent(
                   staffController.customerDatas.value, staffController);
               break;
@@ -651,36 +692,32 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   }
   // void showTileDialog(
   //     BuildContext context, String monthName, int tabStatus, bool isFull) {
-    
-    
+
   //   if (tabStatus == 5) {
-      
+
   //     int monthIndex = staffController.tabController.index + 1;
 
-     
   //     staffController.loadVisitReports(selectedValue, monthIndex).then((_) {
   //       showDialog(
   //         context: context,
   //         builder: (context) {
   //           return Obx(() {
-              
+
   //             if (staffController.isVisitReportLoading.value) {
   //               return const Center(child: CircularProgressIndicator());
   //             }
-              
-           
+
   //             return _buildDialogContainer(
-  //               isFull, 
+  //               isFull,
   //               VisitReportDialog(reportData: staffController.visitReportList)
   //             );
   //           });
   //         },
   //       );
   //     });
-  //     return; 
+  //     return;
   //   }
 
-   
   //   staffController.fetchSalesmanTopBarData(monthName, tabStatus).then((_) {
   //     showDialog(
   //       context: context,
@@ -692,19 +729,19 @@ class _PerformanceScreenState extends State<PerformanceScreen>
 
   //           Widget dialogContent;
   //           switch (tabStatus) {
-  //             case 1: 
+  //             case 1:
   //               dialogContent = buildCheckInOutDialogContent(
   //                   staffController.checkInOutData.value, staffController);
   //               break;
-  //             case 2: 
+  //             case 2:
   //               dialogContent = buildCheckInOutDialogContent(
   //                   staffController.checkInOutData.value, staffController);
   //               break;
-  //             case 3: 
+  //             case 3:
   //               dialogContent = buildVisitsDialogContent(
   //                   staffController.visitData.value, staffController);
   //               break;
-  //             case 4: 
+  //             case 4:
   //               dialogContent = buildCustomersDialogContent(
   //                   staffController.customerDatas.value, staffController);
   //               break;
@@ -719,7 +756,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   //   });
   // }
 
-  
   Widget _buildDialogContainer(bool isFull, Widget content) {
     return Padding(
       padding: isFull
@@ -731,11 +767,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: Colors.white, 
+                color: Colors.white,
               ),
               child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: content),
+                  borderRadius: BorderRadius.circular(10), child: content),
             ),
           ),
         ],

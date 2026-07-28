@@ -943,10 +943,14 @@ class _OrderTakingState extends State<OrderTaking>
                       ],
                     ),
                   ),
-                  IntrinsicWidth(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      reverse: true,
+                      child: IntrinsicWidth(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
                         const ChatbotTopBarButton(routeName: "/order_taking"),
                         const SizedBox(width: 8),
                         Hero(
@@ -1023,6 +1027,8 @@ class _OrderTakingState extends State<OrderTaking>
                           ),
                         )
                       ],
+                    ),
+                  )
                     ),
                   )
                 ],

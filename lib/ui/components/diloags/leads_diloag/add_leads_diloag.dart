@@ -1049,13 +1049,17 @@ class CustomButtonLeads extends StatelessWidget {
           borderRadius: BorderRadius.circular(4.0),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              text,
-              style: TextStyle(
-                color: primaryColor,
-                fontSize: 13,
+            Flexible(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: primaryColor,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(width: 4),

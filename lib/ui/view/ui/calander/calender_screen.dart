@@ -20,6 +20,7 @@ class CalenderScreen extends StatefulWidget {
 }
 
 class _CalenderScreenState extends State<CalenderScreen> {
+  bool showChatbotMobile = false;
   CalenderMapController calenderController = Get.put(CalenderMapController());
   HomeController homeController = Get.find<HomeController>();
   @override
@@ -39,6 +40,9 @@ class _CalenderScreenState extends State<CalenderScreen> {
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      bool isMobile = screenWidth < 600;
+
       return SafeArea(
         child: Scaffold(
           appBar: AppBar(
@@ -48,7 +52,16 @@ class _CalenderScreenState extends State<CalenderScreen> {
                 child: CustomText(content: 'Calender'.tr,fontWeight: FontWeight.bold,),
               ),
               Spacer(),
-              const ChatbotTopBarButton(routeName: '/attendance'),
+              if (!isMobile) const ChatbotTopBarButton(routeName: '/attendance'),
+              if (isMobile)
+                IconButton(
+                  icon: const Icon(Icons.info_outline, color: primaryColor),
+                  onPressed: () {
+                    setState(() {
+                      showChatbotMobile = !showChatbotMobile;
+                    });
+                  },
+                ),
               const SizedBox(width: 8),
               const NotificationWidget(
                 startDate: '',
@@ -57,6 +70,18 @@ class _CalenderScreenState extends State<CalenderScreen> {
               profiloe(),
             ],
             automaticallyImplyLeading: false,
+            bottom: (isMobile && showChatbotMobile)
+                ? PreferredSize(
+                    preferredSize: const Size.fromHeight(50.0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 16.0, bottom: 8.0, top: 4.0),
+                        child: const ChatbotTopBarButton(routeName: "/attendance"),
+                      ),
+                    ),
+                  )
+                : null,
           ),
           backgroundColor: white,
           body: Column(

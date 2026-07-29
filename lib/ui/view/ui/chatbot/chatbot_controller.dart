@@ -96,6 +96,50 @@ class ChatbotController extends GetxController {
     final trimmedText = text.trim();
     if (trimmedText.isEmpty) return;
 
+    if (trimmedText == "Yes, contact support") {
+      messages.add(
+        ChatMessageModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          text: trimmedText,
+          isUser: true,
+          timestamp: DateTime.now(),
+        ),
+      );
+      textEditingController.clear();
+      _scrollToBottom();
+      showSupportDialog();
+      return;
+    }
+
+    if (trimmedText == "No, thanks") {
+      messages.add(
+        ChatMessageModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          text: trimmedText,
+          isUser: true,
+          timestamp: DateTime.now(),
+        ),
+      );
+      textEditingController.clear();
+      _scrollToBottom();
+
+      isTyping.value = true;
+      await Future.delayed(const Duration(milliseconds: 500));
+      isTyping.value = false;
+
+      messages.add(
+        ChatMessageModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          text: "No problem! Let me know if you need help with anything else.",
+          isUser: false,
+          timestamp: DateTime.now(),
+          quickReplies: ChatbotKnowledgeBase.getConfigForRoute(currentRoute).suggestions,
+        ),
+      );
+      _scrollToBottom();
+      return;
+    }
+
     messages.add(
       ChatMessageModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -112,15 +156,29 @@ class ChatbotController extends GetxController {
     await Future.delayed(const Duration(milliseconds: 500));
     isTyping.value = false;
 
-    final answer;
+    String answer;
+    List<String>? quickReplies;
     final cleanText = trimmedText.toLowerCase();
+
     if (cleanText == 'hi' || cleanText == 'hello' || cleanText == 'hey') {
       answer = "Hello! How can I assist you today? Feel free to ask me any questions about the app's features.";
+      quickReplies = _getRelevantReplies(trimmedText);
+    } else if (cleanText.contains("support") || cleanText.contains("contact help") || cleanText == "help") {
+      answer = "I can help you contact our support team. Would you like to submit a support request?";
+      quickReplies = ["Yes, contact support", "No, thanks"];
     } else {
-      answer = ChatbotKnowledgeBase.findBestAnswer(
+      final bestAnswer = ChatbotKnowledgeBase.findBestAnswer(
         trimmedText,
         currentRoute: currentRoute,
       );
+
+      if (bestAnswer == "__NO_MATCH__") {
+        answer = "I'm sorry, I couldn't find an answer to that in our guide. Would you like to submit a support request to our team?";
+        quickReplies = ["Yes, contact support", "No, thanks"];
+      } else {
+        answer = bestAnswer;
+        quickReplies = _getRelevantReplies(trimmedText);
+      }
     }
 
     messages.add(
@@ -129,7 +187,7 @@ class ChatbotController extends GetxController {
         text: answer,
         isUser: false,
         timestamp: DateTime.now(),
-        quickReplies: _getRelevantReplies(trimmedText),
+        quickReplies: quickReplies,
       ),
     );
 
@@ -143,6 +201,61 @@ class ChatbotController extends GetxController {
         .where((q) => !queryLower.contains(q.toLowerCase()))
         .take(4)
         .toList();
+  }
+
+  void showSupportDialog() {
+    final nameCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final issueCtrl = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: const [
+            Icon(Icons.headset_mic_rounded, color: Color(0xFF6B58F2)),
+            SizedBox(width: 8),
+            Text("Submit Support Request"),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: "Your Name"),
+            ),
+            TextField(
+              controller: emailCtrl,
+              decoration: const InputDecoration(labelText: "Email Address"),
+            ),
+            TextField(
+              controller: issueCtrl,
+              maxLines: 3,
+              decoration: const InputDecoration(labelText: "Describe your inquiry"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6B58F2)),
+            onPressed: () {
+              submitSupportRequest(
+                nameCtrl.text,
+                emailCtrl.text,
+                issueCtrl.text,
+              );
+              Get.back();
+            },
+            child: const Text("Submit Ticket", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> submitSupportRequest(

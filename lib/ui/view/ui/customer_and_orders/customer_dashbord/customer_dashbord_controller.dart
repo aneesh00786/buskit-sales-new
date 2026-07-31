@@ -157,7 +157,6 @@ class CustomerDashbordController extends GetxController {
 
   List<CartesianSeries<dynamic, dynamic>> getCustomerDashbordData(
       List<CategoryPerformance> categoryData) {
-  
     return [
       for (var item in categoryData) ...[
         StackedLine100Series<Month, String>(

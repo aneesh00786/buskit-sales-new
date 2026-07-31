@@ -69,55 +69,57 @@ class ChatbotWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: backgroundColor,
-      child: Column(
-        children: [
-          // Header
-          _buildHeader(context, controller),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            _buildHeader(context, controller),
 
-          // Message List / Sync Loader
-          Expanded(
-            child: Obx(() {
-              if (controller.isSyncing.value) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(color: primaryColor),
-                      const SizedBox(height: 12),
-                      const Text(
-                        "Downloading assistant data...",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
-                      )
-                    ],
-                  ),
+            // Message List / Sync Loader
+            Expanded(
+              child: Obx(() {
+                if (controller.isSyncing.value) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: primaryColor),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Downloading assistant data...",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+
+                final messageList = controller.messages.toList();
+                final isTyping = controller.isTyping.value;
+
+                return ListView.builder(
+                  controller: controller.scrollController,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  itemCount: messageList.length + (isTyping ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == messageList.length && isTyping) {
+                      return _buildTypingIndicator();
+                    }
+                    final msg = messageList[index];
+                    return _buildMessageItem(context, msg, controller);
+                  },
                 );
-              }
+              }),
+            ),
 
-              final messageList = controller.messages.toList();
-              final isTyping = controller.isTyping.value;
-
-              return ListView.builder(
-                controller: controller.scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                itemCount: messageList.length + (isTyping ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == messageList.length && isTyping) {
-                    return _buildTypingIndicator();
-                  }
-                  final msg = messageList[index];
-                  return _buildMessageItem(context, msg, controller);
-                },
-              );
-            }),
-          ),
-
-          // Input Bar
-          _buildInputBar(context, controller),
-        ],
+            // Input Bar
+            _buildInputBar(context, controller),
+          ],
+        ),
       ),
     );
   }
@@ -458,7 +460,7 @@ class ChatbotWidget extends StatelessWidget {
               icon: const Icon(Icons.support_agent_rounded,
                   color: primaryColor),
               tooltip: "Contact Support",
-              onPressed: () => _showSupportDialog(context, controller),
+              onPressed: () => controller.showSupportDialog(),
             ),
             Expanded(
               child: Container(
@@ -498,67 +500,5 @@ class ChatbotWidget extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _showSupportDialog(
-      BuildContext context, ChatbotController controller) {
-    final nameCtrl = TextEditingController();
-    final emailCtrl = TextEditingController();
-    final issueCtrl = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: const [
-            Icon(Icons.headset_mic_rounded, color: primaryColor),
-            SizedBox(width: 8),
-            Text("Submit Support Request"),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration:
-                  const InputDecoration(labelText: "Your Name"),
-            ),
-            TextField(
-              controller: emailCtrl,
-              decoration:
-                  const InputDecoration(labelText: "Email Address"),
-            ),
-            TextField(
-              controller: issueCtrl,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                  labelText: "Describe your inquiry"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
-            onPressed: () {
-              controller.submitSupportRequest(
-                nameCtrl.text,
-                emailCtrl.text,
-                issueCtrl.text,
-              );
-              Navigator.pop(ctx);
-            },
-            child: const Text("Submit Ticket",
-                style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
+    }
 }

@@ -21,11 +21,21 @@ class ChatbotKnowledgeBase {
   static bool _hasSyncedInSession = false;
   static Map<String, ChatbotPageConfig> chatPages = _defaultChatPages;
 
+  static List<Set<String>> criticalGroups = [
+    {'customer', 'customers', 'client', 'clients'},
+    {'order', 'orders', 'booking', 'bookings'},
+    {'lead', 'leads', 'prospect', 'prospects', 'inquiry', 'inquiries'},
+    {'product', 'products', 'item', 'items', 'catalog', 'catalogue'},
+    {'performance', 'sales', 'stats', 'statistics', 'target', 'targets', 'achievement', 'achievements'},
+    {'calendar', 'schedule', 'appointment', 'appointments', 'meeting', 'meetings', 'event', 'events'},
+    {'support', 'help', 'ticket', 'inquiry', 'request', 'issue', 'issues'},
+    {'settings', 'preference', 'preferences', 'profile', 'logout', 'language', 'languages', 'password', 'login'}
+  ];
+
   // ── Public API ────────────────────────────────────────────────────────────
 
   static Future<void> initAndSync() async {
     await loadFromLocalCache();
-    // If we have no cached data, await the network sync immediately instead of calling it asynchronously.
     if (chatPages.isEmpty) {
       _hasSyncedInSession = true;
       await syncKnowledgeBaseFromServer();
@@ -115,24 +125,47 @@ class ChatbotKnowledgeBase {
       }
     }
 
-    // 3. Normalised / partial match
+    // 3. Normalised / partial match (exact matches first)
     final cleanQuery = _normalizeText(queryLower);
     for (var pageConfig in chatPages.values) {
       for (var entry in pageConfig.knowledgeBase.entries) {
         final cleanKey = _normalizeText(entry.key);
-        if (cleanKey == cleanQuery ||
-            cleanQuery.contains(cleanKey) ||
-            cleanKey.contains(cleanQuery)) {
+        if (cleanKey == cleanQuery) {
           return entry.value;
         }
       }
     }
 
-    // 4. Keyword score match
+    // Then check for containment, choosing the candidate with the closest length to prevent early returns
+    String? bestContainmentAnswer;
+    int minLengthDiff = 9999;
+    for (var pageConfig in chatPages.values) {
+      for (var entry in pageConfig.knowledgeBase.entries) {
+        final cleanKey = _normalizeText(entry.key);
+        if (cleanQuery.contains(cleanKey) || cleanKey.contains(cleanQuery)) {
+          final diff = (cleanKey.length - cleanQuery.length).abs();
+          if (diff < minLengthDiff) {
+            minLengthDiff = diff;
+            bestContainmentAnswer = entry.value;
+          }
+        }
+      }
+    }
+    if (bestContainmentAnswer != null) return bestContainmentAnswer;
+
+    // 4. Keyword score match with Critical Group Alignment & Fuzzy Matching
     String? bestMatchAnswer;
     int maxScore = 0;
     final queryWords =
         cleanQuery.split(' ').where((w) => w.length > 2).toList();
+
+    // Find which critical groups are present in the user's query with fuzzy matching
+    final activeQueryGroups = <Set<String>>[];
+    for (var group in criticalGroups) {
+      if (queryWords.any((qWord) => group.any((gWord) => _areWordsSimilar(gWord, qWord)))) {
+        activeQueryGroups.add(group);
+      }
+    }
 
     for (var pageConfig in chatPages.values) {
       for (var entry in pageConfig.knowledgeBase.entries) {
@@ -140,12 +173,45 @@ class ChatbotKnowledgeBase {
         final keyWords =
             cleanKey.split(' ').where((w) => w.length > 2).toList();
 
+        // Critical alignment check (fuzzy matched):
+        bool aligned = true;
+        for (var group in activeQueryGroups) {
+          final hasGroupWordInKey = keyWords.any((kWord) => group.any((gWord) => _areWordsSimilar(gWord, kWord)));
+          if (!hasGroupWordInKey) {
+            aligned = false;
+            break;
+          }
+        }
+        if (!aligned) continue;
+
         int score = 0;
         for (var qWord in queryWords) {
-          if (keyWords.contains(qWord)) {
+          bool directMatch = keyWords.any((kWord) => _areWordsSimilar(kWord, qWord));
+          if (directMatch) {
             score += 2;
-          } else if (cleanKey.contains(qWord)) {
-            score += 1;
+          } else {
+            bool foundSynonym = false;
+            for (var group in criticalGroups) {
+              if (group.any((gWord) => _areWordsSimilar(gWord, qWord))) {
+                if (keyWords.any((kWord) => group.any((gWord) => _areWordsSimilar(gWord, kWord)))) {
+                  score += 2;
+                  foundSynonym = true;
+                  break;
+                }
+              }
+            }
+            if (!foundSynonym) {
+              bool partialMatch = false;
+              for (var kWord in keyWords) {
+                if (kWord.contains(qWord) || qWord.contains(kWord)) {
+                   partialMatch = true;
+                   break;
+                }
+              }
+              if (partialMatch || cleanKey.contains(qWord)) {
+                score += 1;
+              }
+            }
           }
         }
 
@@ -156,9 +222,9 @@ class ChatbotKnowledgeBase {
       }
     }
 
-    if (bestMatchAnswer != null && maxScore >= 2) return bestMatchAnswer;
+    if (bestMatchAnswer != null && maxScore >= 4) return bestMatchAnswer;
 
-    return "I'd be happy to help with ThriveWoo Sales! Could you clarify what you're looking for, or select one of the suggested questions below?";
+    return "__NO_MATCH__";
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -172,6 +238,18 @@ class ChatbotKnowledgeBase {
     try {
       final Map<String, dynamic> decoded = jsonDecode(rawJson);
       final Map<String, ChatbotPageConfig> parsedPages = {};
+
+      if (decoded['criticalGroups'] is List) {
+        final List<Set<String>> parsedGroups = [];
+        for (var group in (decoded['criticalGroups'] as List)) {
+          if (group is List) {
+            parsedGroups.add(group.map((e) => e.toString()).toSet());
+          }
+        }
+        if (parsedGroups.isNotEmpty) {
+          criticalGroups = parsedGroups;
+        }
+      }
 
       decoded.forEach((key, value) {
         if (value is Map<String, dynamic>) {
@@ -204,13 +282,51 @@ class ChatbotKnowledgeBase {
   static String _normalizeText(String text) {
     return text
         .toLowerCase()
-        .replaceAll(RegExp(r'[?!.,:\-]'), '')
+        .replaceAll(RegExp(r"[?!.,:\-']"), '')
         .replaceAll(
             RegExp(
                 r'\b(the|a|an|is|are|can|does|do|how|what|why|i|to|in|of|for|on)\b'),
             '')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
+  }
+
+  static int _levenshteinDistance(String s, String t) {
+    if (s == t) return 0;
+    if (s.isEmpty) return t.length;
+    if (t.isEmpty) return s.length;
+
+    List<int> v0 = List<int>.generate(t.length + 1, (i) => i);
+    List<int> v1 = List<int>.filled(t.length + 1, 0);
+
+    for (int i = 0; i < s.length; i++) {
+      v1[0] = i + 1;
+      for (int j = 0; j < t.length; j++) {
+        int cost = (s[i] == t[j]) ? 0 : 1;
+        v1[j + 1] = _min3(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+      }
+      for (int j = 0; j < v0.length; j++) {
+        v0[j] = v1[j];
+      }
+    }
+    return v0[t.length];
+  }
+
+  static int _min3(int a, int b, int c) {
+    int m = a < b ? a : b;
+    return m < c ? m : c;
+  }
+
+  static bool _areWordsSimilar(String w1, String w2) {
+    if (w1 == w2) return true;
+    if (w1.length > 3 && w2.length > 3) {
+      if (w1.contains(w2) || w2.contains(w1)) return true;
+    }
+    final maxLen = w1.length > w2.length ? w1.length : w2.length;
+    if (maxLen <= 2) return false;
+    final allowedMistakes = maxLen <= 5 ? 1 : 2;
+    final dist = _levenshteinDistance(w1, w2);
+    return dist <= allowedMistakes;
   }
 
   static final Map<String, ChatbotPageConfig> _defaultChatPages = {};

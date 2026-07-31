@@ -1299,65 +1299,52 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
 
                             if (subscriptionController.appShowRoute.value ==
                                 'true') {
-                              if (widget.calenderMapController.routeCredit
-                                          .value !=
-                                      '0' &&
-                                  widget.calenderMapController.routeCredit
-                                          .value !=
-                                      '') {
-                                // Date check
-                                DateTime today = DateTime.now();
-                                DateTime currentDate = DateTime(
-                                    today.year, today.month, today.day);
-                                DateTime widgetDate = DateTime(
-                                    widget.dateTime.year,
-                                    widget.dateTime.month,
-                                    widget.dateTime.day);
+                              // Date check
+                              DateTime today = DateTime.now();
+                              DateTime currentDate = DateTime(
+                                  today.year, today.month, today.day);
+                              DateTime widgetDate = DateTime(
+                                  widget.dateTime.year,
+                                  widget.dateTime.month,
+                                  widget.dateTime.day);
 
-                                if (widgetDate.isAfter(currentDate)) {
-                                  showCustomToastDisplay(
-                                      context,
-                                      "Only current and working day's route can be generated".tr,
-                                      // 'This route can be accessed from $formattedDate',
-                                      Colors.orange,
-                                      Icons.warning);
-                                  return;
-                                }
-                                if (widgetDate.isBefore(currentDate)) {
-                                  showCustomToastDisplay(
-                                      context,
-                                      "Only current and working day's route can be generated".tr,
-                                      // 'This route can be accessed from $formattedDate',
-                                      Colors.orange,
-                                      Icons.warning);
-                                  return;
-                                }
-                                Get.back();
-                                await _mapController.saveCustomersToHive(
-                                    _mapController.selectedCustomers);
-                                // 2. Just Open Dialog (Pass Data Down)
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) => RouteInputDialog(
-                                    controller: _mapController,
-                                    currentAddress: _mapController
-                                        .currentLocationText.value,
-                                    currentLatLng:
-                                        _mapController.currentLatLng.value ??
-                                            const LatLng(0, 0),
-                                    // Pass the necessary lists for the logic to work inside the dialog
-                                    customerIds: widget.customerIds,
-                                    eventData: widget.eventData,
-                                  ),
-                                );
-                              } else {
+                              if (widgetDate.isAfter(currentDate)) {
                                 showCustomToastDisplay(
                                     context,
-                                    "Buy More Credits to Continue",
-                                    red,
-                                    Icons.close);
+                                    "Only current and working day's route can be generated".tr,
+                                    // 'This route can be accessed from $formattedDate',
+                                    Colors.orange,
+                                    Icons.warning);
+                                return;
                               }
+                              if (widgetDate.isBefore(currentDate)) {
+                                showCustomToastDisplay(
+                                    context,
+                                    "Only current and working day's route can be generated".tr,
+                                    // 'This route can be accessed from $formattedDate',
+                                    Colors.orange,
+                                    Icons.warning);
+                                return;
+                              }
+                              Get.back();
+                              await _mapController.saveCustomersToHive(
+                                  _mapController.selectedCustomers);
+                              // 2. Just Open Dialog (Pass Data Down)
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => RouteInputDialog(
+                                  controller: _mapController,
+                                  currentAddress: _mapController
+                                      .currentLocationText.value,
+                                  currentLatLng:
+                                      _mapController.currentLatLng.value ??
+                                          const LatLng(0, 0),
+                                  // Pass the necessary lists for the logic to work inside the dialog
+                                  customerIds: widget.customerIds,
+                                  eventData: widget.eventData,
+                                ),
+                              );
                             } else {
                               showDialog(
                                 barrierDismissible: false,

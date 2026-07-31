@@ -1,4 +1,3 @@
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
@@ -8,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:calendar_view/calendar_view.dart';
 
-
 class RouteInputDialog extends StatefulWidget {
   final CalenderMapController controller;
   final String currentAddress;
@@ -16,7 +14,6 @@ class RouteInputDialog extends StatefulWidget {
   final List<String> customerIds;
   final List<CalendarEventData<EventData>> eventData;
 
- 
   static String? savedStartText;
   static String? savedEndText;
   static LatLng? savedStartLatLng;
@@ -69,12 +66,9 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
     }
   }
 
- 
   Future<void> _loadDailyCredit() async {
-    
     try {
-      
-      int count = await widget.controller.getCurrentDailyCount(); 
+      int count = await widget.controller.getCurrentDailyCount();
       if (mounted) {
         setState(() {
           dailyCreditCount = count;
@@ -101,13 +95,12 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-           
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-               
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
@@ -118,20 +111,19 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: dailyCreditCount >= 3 ? Colors.red : Colors.black87,
+                      color:
+                          dailyCreditCount >= 3 ? Colors.red : Colors.black87,
                     ),
                   ),
                 ),
-               
                 IconButton(
                   icon: const Icon(Icons.close, size: 28),
                   onPressed: () => Navigator.pop(context),
                 )
               ],
             ),
-
             const SizedBox(height: 10),
-             Text(
+            Text(
               "Set your trip’s start location".tr,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -144,7 +136,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
               onLocationSelected: (latLng, address) => startLocation = latLng,
             ),
             const SizedBox(height: 20),
-             Text(
+            Text(
               "Set your trip’s end location".tr,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -170,7 +162,7 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                 onPressed: isLoading ? null : () => _handleShowRoute(),
                 child: isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    :  Text("Show Route".tr,
+                    : Text("Show Route".tr,
                         style: TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 1),
                             fontSize: 18,
@@ -184,54 +176,52 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
   }
 
   Future<void> _handleShowRoute() async {
-   
     if (startLocation == null || endLocation == null) return;
 
-   
     bool isStartChanged = startLocation != RouteInputDialog.savedStartLatLng;
     bool isEndChanged = endLocation != RouteInputDialog.savedEndLatLng;
     bool needsCredit = isStartChanged || isEndChanged;
 
-    
     if (needsCredit && dailyCreditCount == 2) {
       bool confirm = await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text("Warning".tr),
-          content: Text(
-              "You already generated routes twice and only one more route generation can be done today.".tr),
-          actions: [
-            TextButton(
-              onPressed: (){
-                Get.back(closeOverlays: true);
-                Get.back();
-              },
-              // onPressed: () => Navigator.pop(ctx, false), 
-              child: Text("Cancel".tr),
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text("Warning".tr),
+              content: Text(
+                  "You already generated routes twice and only one more route generation can be done today."
+                      .tr),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Get.back(closeOverlays: true);
+                    Get.back();
+                  },
+                  // onPressed: () => Navigator.pop(ctx, false),
+                  child: Text("Cancel".tr),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text("OK".tr),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true), 
-              child: Text("OK".tr),
-            ),
-          ],
-        ),
-      ) ?? false;
+          ) ??
+          false;
 
-      if (!confirm) return; 
+      if (!confirm) return;
     }
 
     setState(() => isLoading = true);
 
-    
     if (needsCredit) {
-      
       var limitResult = await widget.controller.checkAndIncrementDailyLimit();
 
       if (limitResult == -1 || limitResult == false) {
         setState(() => isLoading = false);
         showCustomToastDisplay(
             context,
-            "Daily limit reached. You cannot search new custom routes today.".tr,
+            "Daily limit reached. You cannot search new custom routes today."
+                .tr,
             Colors.red,
             Icons.block);
         return;
@@ -257,23 +247,8 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
       widget.controller.searchedLatLng.value = endLocation;
 
       // Prepare Data
-      final selectedIds = widget.controller.selectedCustomers
-          .map((c) => c.customerId)
-          .toSet();
-
-      List<String> addresses = widget.controller.selectedCustomers
-          .map((customer) => customer.address.toString())
-          .toList();
-
-      var creditResponse = await ApiWorker().debitRouteCredits(
-        amount: addresses.length * 3,
-        details: 'TESTING',
-        addresses: addresses,
-      );
-
-      await widget.controller.updateCredit(
-        creditResponse.credit.toString(),
-      );
+      final selectedIds =
+          widget.controller.selectedCustomers.map((c) => c.customerId).toSet();
 
       {
         final selectedCustomerIds = widget.controller.selectedCustomers
@@ -283,7 +258,8 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
         final selectedEventIds = widget.eventData
             .where((event) =>
                 event.event != null &&
-                selectedCustomerIds.contains(event.event!.customerId.toString()))
+                selectedCustomerIds
+                    .contains(event.event!.customerId.toString()))
             .map((event) => event.event!.eventId)
             .whereType<String>()
             .toList();
@@ -303,7 +279,6 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
       setState(() => isLoading = false);
     }
   }
-
 
   Widget _buildLocationField({
     required String hint,

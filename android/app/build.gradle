@@ -33,11 +33,11 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
-    compileSdkVersion 35
+    compileSdkVersion 36
     defaultConfig {
         applicationId "com.jrb.buskitSales"
         minSdkVersion 23
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/common/app_update_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -275,7 +276,27 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                           ),
                         ),
                       ),
-              )
+              ),
+            if (index == 9)
+              Obx(() {
+                final hasUpdate = Get.find<AppUpdateService>().isUpdateAvailable.value;
+                if (!hasUpdate) return const SizedBox.shrink();
+                return const Positioned(
+                  top: -12,
+                  left: 12,
+                  child: CircleAvatar(
+                    radius: 10,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      '1',
+                      style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                );
+              }),
           ],
         ),
       ),
@@ -332,6 +353,11 @@ Future<void> handleTabSwitchNavigation(
           context: context,
           barrierDismissible: false,
           builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            actionsAlignment: MainAxisAlignment.center,
             title: Center(
               child: SizedBox(
                 height: 100,
@@ -341,15 +367,32 @@ Future<void> handleTabSwitchNavigation(
               ),
             ),
             content: CustomText(
-              content: 'Your order has been successfully saved as Draft',
+              content: 'Your order has been successfully saved as Draft'.tr,
             ),
             actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: const Text('OK'),
+              SizedBox(
+                width: 150,
+                height: 45,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: Text(
+                    'OK'.tr,
+                    style: const TextStyle(
+                      color: Color(0xFF727CF5),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

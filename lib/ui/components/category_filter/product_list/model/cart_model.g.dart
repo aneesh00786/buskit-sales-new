@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'cart_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class CartItemAdapter extends TypeAdapter<CartItem> {
   @override
@@ -28,13 +34,25 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       promoCode: fields[14] as String?,
       promoMsg: fields[15] as String?,
       bundleItems: (fields[16] as List?)?.cast<BundleItem>(),
+      title: fields[17] as String?,
+      bundlePrice: fields[18] as String?,
+      CustomerDiscount: fields[19] as double?,
+      tieredDiscount: fields[20] as num?,
+      totalDiscountAmount: fields[21] as double?,
+      finalPrice: fields[22] as double?,
+      tierStep: fields[23] as int?,
+      catTax: fields[24] as double?,
+      taxAmount: fields[25] as double?,
+      totalTaxAmount: fields[26] as double?,
+      flatDiscount: fields[27] as num?,
+      bogoDiscount: fields[28] as num?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CartItem obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(29)
       ..writeByte(0)
       ..write(obj.detail)
       ..writeByte(1)
@@ -68,7 +86,31 @@ class CartItemAdapter extends TypeAdapter<CartItem> {
       ..writeByte(15)
       ..write(obj.promoMsg)
       ..writeByte(16)
-      ..write(obj.bundleItems);
+      ..write(obj.bundleItems)
+      ..writeByte(17)
+      ..write(obj.title)
+      ..writeByte(18)
+      ..write(obj.bundlePrice)
+      ..writeByte(19)
+      ..write(obj.CustomerDiscount)
+      ..writeByte(20)
+      ..write(obj.tieredDiscount)
+      ..writeByte(21)
+      ..write(obj.totalDiscountAmount)
+      ..writeByte(22)
+      ..write(obj.finalPrice)
+      ..writeByte(23)
+      ..write(obj.tierStep)
+      ..writeByte(24)
+      ..write(obj.catTax)
+      ..writeByte(25)
+      ..write(obj.taxAmount)
+      ..writeByte(26)
+      ..write(obj.totalTaxAmount)
+      ..writeByte(27)
+      ..write(obj.flatDiscount)
+      ..writeByte(28)
+      ..write(obj.bogoDiscount);
   }
 
   @override

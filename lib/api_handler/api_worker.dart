@@ -4861,4 +4861,24 @@ class ApiWorker with ApiConstants {
       return prefs.getString('selected_language') ?? 'en';
     }
   }
+
+  Future<Map<String, dynamic>?> fetchAppVersion(String appName) async {
+    final isConnected = await ConnectivityService().isOnline();
+    if (isConnected) {
+      try {
+        final response = await dio1.get(
+          "${ApiConstants.baseUrl}${ApiConstants.appVersion}?app=$appName",
+        );
+        if (response.statusCode == 200 && response.data != null) {
+          final resData = response.data;
+          if (resData['status'] == true && resData['data'] != null) {
+            return Map<String, dynamic>.from(resData['data']);
+          }
+        }
+      } catch (error) {
+        print('Error fetching app version: $error');
+      }
+    }
+    return null;
+  }
 }

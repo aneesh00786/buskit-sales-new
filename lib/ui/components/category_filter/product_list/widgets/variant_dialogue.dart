@@ -547,62 +547,57 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                       ),
                                     ),
                                     DataCell(
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          color: const Color.fromARGB(
-                                              255, 240, 239, 239),
-                                        ),
+                                      Center(
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          mainAxisSize: MainAxisSize.max,
+                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Container(
-                                              decoration: const BoxDecoration(
-                                                color: primaryColor,
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(5),
-                                                  bottomLeft:
-                                                      Radius.circular(5),
-                                                ),
-                                              ),
+                                            Material(
+                                              color: Colors.transparent,
                                               child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    if (localCounts[i] > 0) {
-                                                      localCounts[i]--;
-                                                    }
-                                                  });
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
+                                                onTap: localCounts[i] > 0
+                                                    ? () {
+                                                        setState(() {
+                                                          localCounts[i]--;
+                                                        });
+                                                      }
+                                                    : null,
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: Container(
+                                                  width: 30,
+                                                  height: 30,
+                                                  decoration: BoxDecoration(
+                                                    color: localCounts[i] > 0
+                                                        ? primaryColor
+                                                        : Colors.grey.shade300,
+                                                    shape: BoxShape.circle,
+                                                  ),
                                                   child: Icon(
                                                     Icons.remove,
-                                                    color: Colors.white,
-                                                    size: iconSize,
+                                                    color: localCounts[i] > 0
+                                                        ? Colors.white
+                                                        : Colors.grey.shade500,
+                                                    size: 16,
                                                   ),
                                                 ),
                                               ),
                                             ),
                                             const SizedBox(width: 8),
-                                            CustomText(
-                                              content: localCounts[i]
-                                                  .toStringAsFixed(0),
-                                              fontSize: fontSize,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Container(
-                                              decoration: const BoxDecoration(
-                                                color: primaryColor,
-                                                borderRadius: BorderRadius.only(
-                                                  topRight: Radius.circular(5),
-                                                  bottomRight:
-                                                      Radius.circular(5),
+                                            SizedBox(
+                                              width: 24,
+                                              child: Center(
+                                                child: CustomText(
+                                                  content: localCounts[i]
+                                                      .toStringAsFixed(0),
+                                                  fontSize: fontSize,
                                                 ),
                                               ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Material(
+                                              color: Colors.transparent,
                                               child: InkWell(
                                                 onTap: () {
                                                   setState(() {
@@ -646,8 +641,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                                 ),
                                                               ],
                                                             ),
-                                                            content:
-                                                                 Column(
+                                                            content: Column(
                                                               mainAxisSize:
                                                                   MainAxisSize
                                                                       .min,
@@ -686,91 +680,119 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                                               ],
                                                             ),
                                                             actions: [
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .redAccent,
-                                                                  shape:
-                                                                      RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(8),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceEvenly,
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        OutlinedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.of(
+                                                                                context)
+                                                                            .pop();
+                                                                      },
+                                                                      style: OutlinedButton
+                                                                          .styleFrom(
+                                                                        side: const BorderSide(
+                                                                            color:
+                                                                                Colors.redAccent,
+                                                                            width:
+                                                                                2),
+                                                                        shape: RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(24),
+                                                                        ),
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            vertical:
+                                                                                12),
+                                                                      ),
+                                                                      child: const Text(
+                                                                        'No',
+                                                                        style: TextStyle(
+                                                                          color:
+                                                                              Colors.redAccent,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontSize:
+                                                                              16,
+                                                                        ),
+                                                                      ),
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                child:
-                                                                    const Text(
-                                                                  'No',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
+                                                                  const SizedBox(
+                                                                      width:
+                                                                          12),
+                                                                  Expanded(
+                                                                    child:
+                                                                        OutlinedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          localCounts[
+                                                                              i]++;
+                                                                        });
+                                                                        Navigator.of(
+                                                                                context)
+                                                                            .pop();
+                                                                      },
+                                                                      style: OutlinedButton
+                                                                          .styleFrom(
+                                                                        side: const BorderSide(
+                                                                            color:
+                                                                                Colors.green,
+                                                                            width:
+                                                                                2),
+                                                                        shape: RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(24),
+                                                                        ),
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            vertical:
+                                                                                12),
+                                                                      ),
+                                                                      child: const Text(
+                                                                        'Yes',
+                                                                        style: TextStyle(
+                                                                          color:
+                                                                              Colors.green,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontSize:
+                                                                              16,
+                                                                        ),
+                                                                      ),
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              ),
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  setState(() {
-                                                                    localCounts[
-                                                                        i]++;
-                                                                  });
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .green,
-                                                                  shape:
-                                                                      RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(8),
-                                                                  ),
-                                                                ),
-                                                                child:
-                                                                    const Text(
-                                                                  'Yes',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
+                                                                ],
                                                               ),
                                                             ],
                                                           );
                                                         },
                                                       );
-                                                    } else if (detail.stock ==
-                                                        0) {
-                                                      localCounts[i]++;
                                                     } else {
                                                       localCounts[i]++;
                                                     }
                                                   });
                                                 },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
-                                                  child: Icon(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: Container(
+                                                  width: 30,
+                                                  height: 30,
+                                                  decoration: const BoxDecoration(
+                                                    color: primaryColor,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
                                                     Icons.add,
                                                     color: Colors.white,
-                                                    size: iconSize,
+                                                    size: 16,
                                                   ),
                                                 ),
                                               ),
@@ -847,7 +869,7 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                     detail: detail,
                                     isPack: isPack,
                                     productName:
-                                        widget.product.productName ?? '',
+                                        widget.product.pName ?? widget.product.productName ?? '',
                                     inclTax: widget.product.inclTax ?? '',
                                     isChcked: true,
                                     catId: widget.product.catId ?? 0,
@@ -880,6 +902,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                                  actionsAlignment: MainAxisAlignment.center,
                                   actions: [
                                     const SizedBox(height: 20),
                                     const Center(
@@ -892,12 +919,29 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                                         child: CustomText(
                                             content: "Please Select a Customer",
                                             fontSize: 18)),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: CustomText(
-                                          content: "Ok", color: primaryColor),
+                                    const SizedBox(height: 20),
+                                    SizedBox(
+                                      width: 150,
+                                      height: 45,
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(24),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "OK".tr,
+                                          style: const TextStyle(
+                                            color: Color(0xFF727CF5),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 );

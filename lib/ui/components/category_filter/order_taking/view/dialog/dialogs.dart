@@ -13,6 +13,11 @@ Future<dynamic> showSuccessFullDialog(
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+        actionsAlignment: MainAxisAlignment.center,
         title: Center(
           child: SizedBox(
             height: 100,
@@ -25,11 +30,29 @@ Future<dynamic> showSuccessFullDialog(
           fontSize: 18,
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('OK'),
+          SizedBox(
+            width: 150,
+            height: 45,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  color: Color(0xFF727CF5),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       );
@@ -43,6 +66,11 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+        actionsAlignment: MainAxisAlignment.center,
         title: Center(
           child: SizedBox(
             height: 100,
@@ -55,12 +83,30 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
           fontSize: 18,
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text('OK'),
+          SizedBox(
+            width: 150,
+            height: 45,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              child: Text(
+                'OK'.tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  color: Color(0xFF727CF5),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       );
@@ -75,6 +121,11 @@ Future<dynamic> showFaledDialogCtrl(
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+        actionsAlignment: MainAxisAlignment.center,
         title: Center(
           child: SizedBox(
             height: 200,
@@ -87,12 +138,30 @@ Future<dynamic> showFaledDialogCtrl(
           fontSize: 18,
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              CartDatabaseManager().clearCart(customerId: customerId);
-            },
-            child: const Text('OK'),
+          SizedBox(
+            width: 150,
+            height: 45,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                CartDatabaseManager().clearCart(customerId: customerId);
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              child: Text(
+                'OK'.tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  color: Color(0xFF727CF5),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
           ),
         ],
       );
@@ -104,16 +173,39 @@ Future<dynamic> offlineDialog(BuildContext context) {
   return showDialog(
     // ignore: use_build_context_synchronously
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (BuildContext dialogContext) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+      actionsAlignment: MainAxisAlignment.center,
       title: const Text('Offline Mode'),
       content: const Text(
           'The draft has been saved locally. It will be synced when the internet is available.'),
       actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('OK'),
+        SizedBox(
+          width: 150,
+          height: 45,
+          child: OutlinedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            child: Text(
+              'OK'.tr,
+              style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                color: Color(0xFF727CF5),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
         ),
       ],
     ),
@@ -124,17 +216,39 @@ Future<dynamic> offlineMode1(BuildContext context) {
   return showDialog(
     // ignore: use_build_context_synchronously
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (BuildContext dialogContext) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+      actionsAlignment: MainAxisAlignment.center,
       title: const Text('Offline Mode'),
       content: const Text(
           'The draft has been saved locally. It will be synced when the internet is available.'),
       actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.pop(context);
-          },
-          child: const Text('OK'),
+        SizedBox(
+          width: 150,
+          height: 45,
+          child: OutlinedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+            child: Text(
+              'OK'.tr,
+              style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                color: Color(0xFF727CF5),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
         ),
       ],
     ),

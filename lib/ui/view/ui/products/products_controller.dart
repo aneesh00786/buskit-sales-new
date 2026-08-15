@@ -517,13 +517,13 @@ List<BulkData> storedBulkList = [];
 
   for (var item in draftItems) {
     if (item.detail.count <= 0) continue;
-    final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+    final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
     itemMap[key] = item;
   }
 
   for (var item in cartItems) {
     if (item.detail.count <= 0) continue;
-    final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+    final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
     if (!itemMap.containsKey(key)) {
       itemMap[key] = item;
     }

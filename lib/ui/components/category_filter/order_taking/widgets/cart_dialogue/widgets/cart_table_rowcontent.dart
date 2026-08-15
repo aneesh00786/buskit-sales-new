@@ -1,4 +1,7 @@
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/model/staff_discount_model.dart';
@@ -47,6 +50,13 @@ class GroupedItemDataRows {
       final double sellingPrice =
           double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
               0.0;
+
+      double originalUnitPrice =
+          double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+      if (originalUnitPrice <= 0.0) {
+        originalUnitPrice =
+            double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+      }
 
       final double quantity =
           (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
@@ -638,31 +648,191 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
             ),
           ),
 
+          // Cell 3: Unit Price
           DataCell(
-            InkWell(
-              onTap: () {
-                _showEditPriceDialog(
-                  context,
-                  groupedItem,
-                );
-              },
-              child: Center(
-                child: Text(
-                  formatAmount(groupedItem.detail.sellPrice ?? '0'),
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Colors.blue,
-                    decorationThickness: 1.2,
-                    height: 1.4, // 👈 increases gap between text & underline
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+            Center(
+              child: (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+                  ? Text(
+                      formatAmount(groupedItem.detail.sellPrice ?? '0'),
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : InkWell(
+                      onTap: () {
+                        _showEditPriceDialog(
+                          context,
+                          groupedItem,
+                        );
+                      },
+                      child: () {
+                        double originalPrice = double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+                        if (originalPrice <= 0.0) {
+                          originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+                        }
+                        final double currentPrice = double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+                        final bool isPriceEdited = originalPrice > 0 && currentPrice != originalPrice;
+
+                        if (isPriceEdited) {
+                          return RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              children: [
+                                // Old price — struck-through in grey
+                                TextSpan(
+                                  text: formatAmount(originalPrice.toString()),
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.grey.shade500,
+                                    decoration: TextDecoration.lineThrough,
+                                    decorationColor: Colors.grey.shade500,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                // Separator
+                                TextSpan(
+                                  text: ' / ',
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.grey.shade500,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                // New price — blue & underlined
+                                TextSpan(
+                                  text: formatAmount(currentPrice.toString()),
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.blue,
+                                    decorationThickness: 1.2,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            formatAmount(groupedItem.detail.sellPrice ?? '0'),
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.blue,
+                              decorationThickness: 1.2,
+                              height: 1.4,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        }
+                      }(),
+                    ),
             ),
           ),
+
+          // Cell 4: Pack Price
+          DataCell(
+            Center(
+              child: (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
+                  ? InkWell(
+                      onTap: () {
+                        _showEditPackPriceDialog(
+                          context,
+                          groupedItem,
+                        );
+                      },
+                      child: () {
+                        final int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
+                        double originalPrice = double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+                        if (originalPrice <= 0.0) {
+                          originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+                        }
+                        final double originalPackPrice = originalPrice * pieces;
+
+                        final double currentPrice = double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+                        final double currentPackPrice = currentPrice * pieces;
+                        final bool isPriceEdited = originalPrice > 0 && currentPrice != originalPrice;
+
+                        if (isPriceEdited) {
+                          return RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              children: [
+                                // Old pack price — struck-through in grey
+                                TextSpan(
+                                  text: formatAmount(originalPackPrice.toString()),
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.grey.shade500,
+                                    decoration: TextDecoration.lineThrough,
+                                    decorationColor: Colors.grey.shade500,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                // Separator
+                                TextSpan(
+                                  text: ' / ',
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.grey.shade500,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                // New pack price — blue & underlined
+                                TextSpan(
+                                  text: formatAmount(currentPackPrice.toString()),
+                                  style: TextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.blue,
+                                    decorationThickness: 1.2,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            formatAmount(currentPackPrice.toString()),
+                            style: TextStyle(
+                              fontSize: fontSize,
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.blue,
+                              decorationThickness: 1.2,
+                              height: 1.4,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        }
+                      }(),
+                    )
+                  : Text(
+                      '-',
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+          ),
+
+          // Cell 5: Pack
           DataCell(
             TableContent(
               fontSize: fontSize,
@@ -676,28 +846,8 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   : (groupedItem.detail.packtype == null ? 'Bulk' : 'Pcs'),
             ),
           ),
-          // DataCell(TableContent(
-          //     fontSize: fontSize,
-          //     maxLines: 2,
-          //     content: (groupedItem.detail.packtype == 'Pack' ||
-          //             groupedItem.isPack == true)
-          //         ? '${groupedItem.detail.packtype} \n(${groupedItem.detail.pieces} Pcs)'
-          //         : 'Pcs')),
-          DataCell(
-            TableContent(
-                fontSize: fontSize,
-                maxLines: 1,
-                content: formatAmount(
-                  (double.tryParse(groupedItem.detail.sellPrice?.toString() ??
-                              '0') ??
-                          0.0) *
-                      ((groupedItem.detail.packtype == 'Pack' ||
-                              groupedItem.isPack == true)
-                          ? (groupedItem.detail.pieces ?? 1)
-                          : 1),
-                )),
-          ),
 
+          // Cell 6: Quantity manager
           DataCell(
             Center(
               child: ConstrainedBox(
@@ -712,6 +862,16 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   availableWidth,
                 ),
               ),
+            ),
+          ),
+
+          // Cell 7: Price (original pre-discount total)
+          DataCell(
+            TableContent(
+              fontSize: fontSize,
+              maxLines: 1,
+              content: formatAmount(
+                  (originalUnitPrice * qtyFactor * productQuantity).toString()),
             ),
           ),
 
@@ -1066,14 +1226,18 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
 }
 
 void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
+  double originalPrice =
+      double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+  if (originalPrice <= 0.0) {
+    originalPrice =
+        double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+  }
+
   final TextEditingController priceController = TextEditingController(
-    text: (double.tryParse(groupedItem.detail.sellPrice ?? '0')
-            ?.toStringAsFixed(0)) ??
-        '',
+    text: double.tryParse(groupedItem.detail.sellPrice ?? '0')?.toStringAsFixed(2) ?? '',
   );
 
   double? allowedDiscount;
-  double? minAllowedPrice;
   bool isLoading = true;
 
   showDialog(
@@ -1082,128 +1246,741 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          // 🔹 Fetch discount only once
           if (isLoading) {
             isLoading = false;
             Future.microtask(() async {
               final staffDiscount = await ApiWorker().getStaffDiscount();
-
               final String? categoryId =
                   getCategoryIdFromProductId(groupedItem.detail.productId);
-
               if (categoryId == null || staffDiscount == null) return;
-
-              final double originalPrice =
-                  double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0;
-
               final discount = getAllowedDiscountPercent(
                 staffDiscount: staffDiscount,
                 productId: groupedItem.detail.productId!,
                 categoryId: categoryId,
               );
-
               if (discount != null) {
                 setState(() {
                   allowedDiscount = discount;
-                  minAllowedPrice =
-                      originalPrice - (originalPrice * discount / 100);
                 });
               }
             });
           }
 
+          final String currencySymbol = (SessionHelper.settingsData
+                      ?.firstWhere(
+                        (setting) => setting.key == 'currency_symbol',
+                        orElse: () => AllCompanySettingsData(
+                          key: 'currency_symbol',
+                          value: '₹',
+                        ),
+                      )
+                      .value ??
+                  '₹')
+              .trim();
+
+          final double? enteredPrice =
+              double.tryParse(priceController.text);
+          final double discountPct = (enteredPrice != null &&
+                  originalPrice > 0 &&
+                  enteredPrice < originalPrice)
+              ? ((originalPrice - enteredPrice) / originalPrice) * 100
+              : 0.0;
+          final bool isPriceEdited =
+              enteredPrice != null && enteredPrice != originalPrice;
+
           return AlertDialog(
-            title: Row(
-              children: [
-                CustomText(content: 'Enter Price'),
-                SizedBox(
-                  width: 10,
-                ),
-                if (allowedDiscount != null)
-                  Text(
-                    'Max allowed discount: ${allowedDiscount!.toStringAsFixed(0)}%',
-                    style: const TextStyle(
-                      color: Colors.blue,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)),
+            contentPadding: EdgeInsets.zero,
+            titlePadding: EdgeInsets.zero,
+            content: Container(
+              width: 340,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Header ────────────────────────────────────────────────
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.deepPurple.shade700,
+                          Colors.deepPurple.shade400,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.edit_outlined,
+                                color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Edit Unit Price'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Original: ',
+                                style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 13),
+                              ),
+                              Text(
+                                formatAmount(originalPrice.toString()),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (allowedDiscount != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Max discount: ${allowedDiscount!.toStringAsFixed(0)}%  '
+                              '(Min price: ${formatAmount((originalPrice - originalPrice * allowedDiscount! / 100).toString())})',
+                              style: const TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-              ],
-            ),
-            content: TextField(
-              controller: priceController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Colors.blue,
-                    width: 1.5,
+
+                  // ── Body ──────────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'New Price'.tr,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: priceController,
+                          autofocus: true,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            prefixIcon: Center(
+                              widthFactor: 1,
+                              child: Text(
+                                currencySymbol,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepPurple.shade400,
+                                ),
+                              ),
+                            ),
+                            hintText: '0.00',
+                            filled: true,
+                            fillColor: Colors.deepPurple.shade50,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                  color: Colors.deepPurple.shade200, width: 1.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                  color: Colors.deepPurple.shade600, width: 2),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (isPriceEdited)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 14),
+                            decoration: BoxDecoration(
+                              color: discountPct > 0
+                                  ? Colors.green.shade50
+                                  : Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: discountPct > 0
+                                    ? Colors.green.shade200
+                                    : Colors.red.shade200,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  discountPct > 0
+                                      ? Icons.trending_down
+                                      : Icons.trending_up,
+                                  color: discountPct > 0
+                                      ? Colors.green.shade700
+                                      : Colors.red.shade700,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    discountPct > 0
+                                        ? 'Discount: ${discountPct.toStringAsFixed(1)}%  '
+                                            '(Saving: ${formatAmount((originalPrice - (enteredPrice ?? 0)).toString())} per unit)'
+                                        : 'Price is not less than original',
+                                    style: TextStyle(
+                                      color: discountPct > 0
+                                          ? Colors.green.shade700
+                                          : Colors.red.shade700,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.grey.shade400),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13),
+                                ),
+                                child: Text('Cancel'.tr,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Colors.deepPurple.shade600,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13),
+                                ),
+                                onPressed: () async {
+                                  final GlobalKey<CartDialogueState>
+                                      cartDialogKey =
+                                      GlobalKey<CartDialogueState>();
+
+                                  final double? newPrice =
+                                      double.tryParse(priceController.text);
+                                  if (newPrice == null || newPrice <= 0)
+                                    return;
+
+                                  if (newPrice > originalPrice) {
+                                    Get.snackbar(
+                                      'Invalid Price'.tr,
+                                      'New unit price must be less than or equal to the original price.'
+                                          .tr,
+                                      colorText: Colors.white,
+                                      backgroundColor: Colors.red,
+                                    );
+                                    return;
+                                  }
+
+                                  if (newPrice < originalPrice && allowedDiscount == null) {
+                                    Get.snackbar(
+                                      'Not Allowed',
+                                      'No discount configured for this product',
+                                      colorText: Colors.white,
+                                      backgroundColor: Colors.red,
+                                    );
+                                    return;
+                                  }
+
+                                  if (allowedDiscount != null) {
+                                    final bool isAllowed =
+                                        isPriceWithinDiscount(
+                                      originalPrice: originalPrice,
+                                      enteredPrice: newPrice,
+                                      allowedDiscountPercent: allowedDiscount!,
+                                    );
+
+                                    if (!isAllowed) {
+                                      Get.snackbar(
+                                        'Discount Limit Exceeded',
+                                        'Maximum allowed discount is $allowedDiscount%',
+                                        colorText: Colors.white,
+                                        backgroundColor: Colors.red,
+                                      );
+                                      return;
+                                    }
+                                  }
+
+                                  groupedItem.detail.sellPrice =
+                                      newPrice.toString();
+                                  groupedItem.totalPrice =
+                                      Utils().calculateTotalPrice(groupedItem,
+                                          groupedItem.detail.count.toInt());
+
+                                  Get.back(closeOverlays: true);
+                                  Get.back(closeOverlays: true);
+                                  _showCartDialog(context, cartDialogKey,
+                                      groupedItem.customerId!);
+                                },
+                                child: Text('Apply'.tr,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                    ),
                   ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(
-                    color: Colors.blue,
-                    width: 2,
-                  ),
-                ),
+                ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+          );
+        },
+      );
+    },
+  );
+}
+
+void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
+  final int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
+  double originalUnitPrice =
+      double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+  if (originalUnitPrice <= 0.0) {
+    originalUnitPrice =
+        double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+  }
+  final double originalPackPrice = originalUnitPrice * pieces;
+
+  final double currentUnitPrice =
+      double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+  final double currentPackPrice = currentUnitPrice * pieces;
+
+  final TextEditingController priceController = TextEditingController(
+    text: currentPackPrice.toStringAsFixed(2),
+  );
+
+  double? allowedDiscount;
+  bool isLoading = true;
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          if (isLoading) {
+            isLoading = false;
+            Future.microtask(() async {
+              final staffDiscount = await ApiWorker().getStaffDiscount();
+              final String? categoryId =
+                  getCategoryIdFromProductId(groupedItem.detail.productId);
+              if (categoryId == null || staffDiscount == null) return;
+              final discount = getAllowedDiscountPercent(
+                staffDiscount: staffDiscount,
+                productId: groupedItem.detail.productId!,
+                categoryId: categoryId,
+              );
+              if (discount != null) {
+                setState(() {
+                  allowedDiscount = discount;
+                });
+              }
+            });
+          }
+
+          final String currencySymbol = (SessionHelper.settingsData
+                      ?.firstWhere(
+                        (setting) => setting.key == 'currency_symbol',
+                        orElse: () => AllCompanySettingsData(
+                          key: 'currency_symbol',
+                          value: '₹',
+                        ),
+                      )
+                      .value ??
+                  '₹')
+              .trim();
+
+          final double? enteredPackPrice =
+              double.tryParse(priceController.text);
+          final double discountPct = (enteredPackPrice != null &&
+                  originalPackPrice > 0 &&
+                  enteredPackPrice < originalPackPrice)
+              ? ((originalPackPrice - enteredPackPrice) / originalPackPrice) * 100
+              : 0.0;
+          final bool isPriceEdited =
+              enteredPackPrice != null && enteredPackPrice != originalPackPrice;
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)),
+            contentPadding: EdgeInsets.zero,
+            titlePadding: EdgeInsets.zero,
+            content: Container(
+              width: 340,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
               ),
-              ElevatedButton(
-                child: const Text('Ok'),
-                onPressed: () async {
-                  final GlobalKey<CartDialogueState> cartDialogKey =
-                      GlobalKey<CartDialogueState>();
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Header ────────────────────────────────────────────────
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.deepPurple.shade700,
+                          Colors.deepPurple.shade400,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.edit_outlined,
+                                color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Edit Pack Price'.tr,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Original: ',
+                                style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 13),
+                              ),
+                              Text(
+                                formatAmount(originalPackPrice.toString()),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (allowedDiscount != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Max discount: ${allowedDiscount!.toStringAsFixed(0)}%  '
+                              '(Min price: ${formatAmount((originalPackPrice - originalPackPrice * allowedDiscount! / 100).toString())})',
+                              style: const TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
 
-                  final double? newPrice =
-                      double.tryParse(priceController.text);
-                  if (newPrice == null || newPrice <= 0) return;
+                  // ── Body ──────────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'New Pack Price'.tr,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: priceController,
+                          autofocus: true,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            prefixIcon: Center(
+                              widthFactor: 1,
+                              child: Text(
+                                currencySymbol,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepPurple.shade400,
+                                ),
+                              ),
+                            ),
+                            hintText: '0.00',
+                            filled: true,
+                            fillColor: Colors.deepPurple.shade50,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                  color: Colors.deepPurple.shade200, width: 1.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                  color: Colors.deepPurple.shade600, width: 2),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (isPriceEdited)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 14),
+                            decoration: BoxDecoration(
+                              color: discountPct > 0
+                                  ? Colors.green.shade50
+                                  : Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: discountPct > 0
+                                    ? Colors.green.shade200
+                                    : Colors.red.shade200,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  discountPct > 0
+                                      ? Icons.trending_down
+                                      : Icons.trending_up,
+                                  color: discountPct > 0
+                                      ? Colors.green.shade700
+                                      : Colors.red.shade700,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    discountPct > 0
+                                        ? 'Discount: ${discountPct.toStringAsFixed(1)}%  '
+                                            '(Saving: ${formatAmount((originalPackPrice - (enteredPackPrice ?? 0)).toString())} total)'
+                                        : 'Price is not less than original',
+                                    style: TextStyle(
+                                      color: discountPct > 0
+                                          ? Colors.green.shade700
+                                          : Colors.red.shade700,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.grey.shade400),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13),
+                                ),
+                                child: Text('Cancel'.tr,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Colors.deepPurple.shade600,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13),
+                                ),
+                                onPressed: () async {
+                                  final GlobalKey<CartDialogueState>
+                                      cartDialogKey =
+                                      GlobalKey<CartDialogueState>();
 
-                  if (allowedDiscount == null) {
-                    Get.snackbar(
-                      'Not Allowed',
-                      'No discount configured for this product',
-                      colorText: Colors.white,
-                      backgroundColor: Colors.red,
-                    );
-                    return;
-                  }
+                                  final double? newPackPrice =
+                                      double.tryParse(priceController.text);
+                                  if (newPackPrice == null || newPackPrice <= 0)
+                                    return;
 
-                  final double originalPrice =
-                      double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0;
+                                  if (newPackPrice > originalPackPrice) {
+                                    Get.snackbar(
+                                      'Invalid Price'.tr,
+                                      'New pack price must be less than or equal to the original price.'
+                                          .tr,
+                                      colorText: Colors.white,
+                                      backgroundColor: Colors.red,
+                                    );
+                                    return;
+                                  }
 
-                  final bool isAllowed = isPriceWithinDiscount(
-                    originalPrice: originalPrice,
-                    enteredPrice: newPrice,
-                    allowedDiscountPercent: allowedDiscount!,
-                  );
+                                  if (newPackPrice < originalPackPrice && allowedDiscount == null) {
+                                    Get.snackbar(
+                                      'Not Allowed',
+                                      'No discount configured for this product',
+                                      colorText: Colors.white,
+                                      backgroundColor: Colors.red,
+                                    );
+                                    return;
+                                  }
 
-                  if (!isAllowed) {
-                    Get.snackbar(
-                      'Discount Limit Exceeded',
-                      'Maximum allowed discount is $allowedDiscount%',
-                      colorText: Colors.white,
-                      backgroundColor: Colors.red,
-                    );
-                    return;
-                  }
+                                  if (allowedDiscount != null) {
+                                    final bool isAllowed =
+                                        isPriceWithinDiscount(
+                                      originalPrice: originalPackPrice,
+                                      enteredPrice: newPackPrice,
+                                      allowedDiscountPercent: allowedDiscount!,
+                                    );
 
-                  groupedItem.detail.sellPrice = newPrice.toString();
+                                    if (!isAllowed) {
+                                      Get.snackbar(
+                                        'Discount Limit Exceeded',
+                                        'Maximum allowed discount is $allowedDiscount%',
+                                        colorText: Colors.white,
+                                        backgroundColor: Colors.red,
+                                      );
+                                      return;
+                                    }
+                                  }
 
-                  Get.back(closeOverlays: true);
-                  Get.back(closeOverlays: true);
-                  _showCartDialog(
-                      context, cartDialogKey, groupedItem.customerId!);
-                },
+                                  final double computedUnitPrice = newPackPrice / pieces;
+                                  groupedItem.detail.sellPrice =
+                                      computedUnitPrice.toString();
+                                  groupedItem.totalPrice =
+                                      Utils().calculateTotalPrice(groupedItem,
+                                          groupedItem.detail.count.toInt());
+
+                                  Get.back(closeOverlays: true);
+                                  Get.back(closeOverlays: true);
+                                  _showCartDialog(context, cartDialogKey,
+                                      groupedItem.customerId!);
+                                },
+                                child: Text('Apply'.tr,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15)),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         },
       );

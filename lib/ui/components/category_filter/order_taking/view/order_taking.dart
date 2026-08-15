@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
+import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/view/bulk_screen.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/cart_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -931,12 +932,35 @@ class _OrderTakingState extends State<OrderTaking>
                         ),
                         if (widget.productsController.showDialog.value)
                           AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                            actionsAlignment: MainAxisAlignment.center,
                             title: const Text('Warning'),
                             content: Text(_dialogMessage),
                             actions: [
-                              TextButton(
-                                onPressed: widget.productsController.closeDialog,
-                                child: const Text('OK'),
+                              SizedBox(
+                                width: 150,
+                                height: 45,
+                                child: OutlinedButton(
+                                  onPressed: widget.productsController.closeDialog,
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'OK'.tr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      color: Color(0xFF727CF5),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -1012,6 +1036,25 @@ class _OrderTakingState extends State<OrderTaking>
                               ),
                             ),
                           ),
+                        ),
+                        Consumer<CustomersProvider>(
+                          builder: (context, provider, child) {
+                            if (provider.cartItemCount > 0) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: Text(
+                                  '${addCurrencySymbol()}${provider.cartTotalAmount.toStringAsFixed(2)}',
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                         const SizedBox(width: 10),
                         IntrinsicWidth(
@@ -1243,12 +1286,35 @@ class _OrderTakingState extends State<OrderTaking>
                         ),
                         if (widget.productsController.showDialog.value)
                           AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                            actionsAlignment: MainAxisAlignment.center,
                             title: const Text('Warning'),
                             content: Text(_dialogMessage),
                             actions: [
-                              TextButton(
-                                onPressed: widget.productsController.closeDialog,
-                                child: const Text('OK'),
+                              SizedBox(
+                                width: 150,
+                                height: 45,
+                                child: OutlinedButton(
+                                  onPressed: widget.productsController.closeDialog,
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'OK'.tr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      color: Color(0xFF727CF5),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -1320,6 +1386,25 @@ class _OrderTakingState extends State<OrderTaking>
                               ),
                             ),
                           ),
+                        ),
+                        Consumer<CustomersProvider>(
+                          builder: (context, provider, child) {
+                            if (provider.cartItemCount > 0) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: Text(
+                                  '${addCurrencySymbol()}${provider.cartTotalAmount.toStringAsFixed(2)}',
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                         const SizedBox(width: 10),
                         IntrinsicWidth(
@@ -1427,6 +1512,11 @@ class _OrderTakingState extends State<OrderTaking>
         context: context,
         builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            actionsAlignment: MainAxisAlignment.center,
             actions: [
               const SizedBox(height: 20),
               Padding(padding: const EdgeInsets.all(8.0), child: widget),
@@ -1436,14 +1526,33 @@ class _OrderTakingState extends State<OrderTaking>
                   fontSize: 17,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    customerSearchController.clear();
-                  });
-                },
-                child: const Text('Ok'),
+              const SizedBox(height: 15),
+              SizedBox(
+                width: 150,
+                height: 45,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      customerSearchController.clear();
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: Text(
+                    'OK'.tr,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      color: Color(0xFF727CF5),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ),
             ],
           );
@@ -1477,6 +1586,7 @@ class _OrderTakingState extends State<OrderTaking>
             await draftBox.delete(key);
           }
           for (var detail in details) {
+            final String packTypeStr = (detail['packType'] ?? detail['packtype'] ?? detail['pack_type'] ?? '') as String;
             final cartItem = CartItem(
               detail: Detail(
                 productId: detail['product_id'],
@@ -1486,10 +1596,10 @@ class _OrderTakingState extends State<OrderTaking>
                 count: (detail['quantity'] as num?)?.toDouble() ?? 0,
                 pieces: int.tryParse(detail['pack'] ?? '0'),
                 variationName: detail['variant_name'],
-                saleBy: detail['packType'],
+                saleBy: packTypeStr,
                 stock: detail['stock'] ?? 0,
                 unitType: detail['unitType'],
-                packtype: detail['packType'],
+                packtype: packTypeStr,
                 productName: detail['product_name'],
                 tax: detail['tax'],
                 inclTax: detail['incl_tax'],
@@ -1497,7 +1607,7 @@ class _OrderTakingState extends State<OrderTaking>
               productName: detail['product_name'],
               totalPrice:
                   double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
-              isPack: detail['packType'] == 'Pack',
+              isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
               customerId: customerId,
               salesmanId: salesmanId,
               catId: 0,

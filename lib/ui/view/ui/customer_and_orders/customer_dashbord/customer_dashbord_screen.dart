@@ -433,6 +433,11 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              actionsAlignment: MainAxisAlignment.center,
               title: Text('Customer Check-Out'.tr),
               content: Text('Do you want to Check-out?'.tr),
               actions: [
@@ -442,93 +447,131 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     child: CircularProgressIndicator(),
                   )
                 else ...[
-                  TextButton(
-                    child: Text('Stay'.tr),
-                    onPressed: () {
-                      shouldProceed = false;
-                      Navigator.of(context).pop();
-                    },
+                  SizedBox(
+                    width: 120,
+                    height: 45,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.grey, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      onPressed: () {
+                        shouldProceed = false;
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Stay'.tr,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   ),
-                  ElevatedButton(
-                    child: Text('Check-out and leave'.tr),
-                    onPressed: () async {
-                      setState(() => isCheckingOut = true);
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 210,
+                    height: 45,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      onPressed: () async {
+                        setState(() => isCheckingOut = true);
 
-                      if (!await handleLocationPermission(context)) {
-                        if (context.mounted) Navigator.of(context).pop();
-                        return;
-                      }
+                        if (!await handleLocationPermission(context)) {
+                          if (context.mounted) Navigator.of(context).pop();
+                          return;
+                        }
 
-                      final date =
-                          DateFormat('dd-MM-yyyy').format(DateTime.now());
-                      final time = DateFormat('yyyy-MM-dd HH:mm:ss')
-                          .format(DateTime.now());
-                      final direction = "OUT";
-                      final customerId =
-                          productsController.selectedCustomerId.value;
+                        final date =
+                            DateFormat('dd-MM-yyyy').format(DateTime.now());
+                        final time = DateFormat('yyyy-MM-dd HH:mm:ss')
+                            .format(DateTime.now());
+                        final direction = "OUT";
+                        final customerId =
+                            productsController.selectedCustomerId.value;
 
-                      try {
-                        final position = await Geolocator.getCurrentPosition(
-                          desiredAccuracy: LocationAccuracy.high,
-                        );
-                        final lat = position.latitude.toString();
-                        final long = position.longitude.toString();
-
-                        final isOnline = await ConnectivityService().isOnline();
-
-                        if (!isOnline) {
-                          await _saveCheckInOutRequestOffline(
-                            date: date,
-                            time: time,
-                            direction: direction,
-                            lat: lat,
-                            long: long,
-                            customerId: customerId,
+                        try {
+                          final position = await Geolocator.getCurrentPosition(
+                            desiredAccuracy: LocationAccuracy.high,
                           );
-                          if (context.mounted) {
-                            showCustomToastDisplay(
-                              context,
-                              'You are offline. Your check-out will sync when online.'
-                                  .tr,
-                              Colors.orange,
-                              Icons.info,
+                          final lat = position.latitude.toString();
+                          final long = position.longitude.toString();
+
+                          final isOnline = await ConnectivityService().isOnline();
+
+                          if (!isOnline) {
+                            await _saveCheckInOutRequestOffline(
+                              date: date,
+                              time: time,
+                              direction: direction,
+                              lat: lat,
+                              long: long,
+                              customerId: customerId,
                             );
-                          }
-                          await ApiWorker().saveSwitchState(false);
-                          customerOrderController.isActive.value = false;
-                          shouldProceed = true;
-                        } else {
-                          final response =
-                              await ApiWorker().updateCustomerCheckInOut(
-                            date: date,
-                            time: time,
-                            direction: direction,
-                            lat: lat,
-                            long: long,
-                            customerId: customerId,
-                          );
-
-                          if (response.statusCode != 200) {
                             if (context.mounted) {
                               showCustomToastDisplay(
                                 context,
-                                response.statusMessage.toString(),
-                                Colors.red,
-                                Icons.close,
+                                'You are offline. Your check-out will sync when online.'
+                                    .tr,
+                                Colors.orange,
+                                Icons.info,
                               );
                             }
-                          } else {
                             await ApiWorker().saveSwitchState(false);
                             customerOrderController.isActive.value = false;
                             shouldProceed = true;
-                          }
-                        }
-                      } catch (e) {
-                        //
-                      }
+                          } else {
+                            final response =
+                                await ApiWorker().updateCustomerCheckInOut(
+                              date: date,
+                              time: time,
+                              direction: direction,
+                              lat: lat,
+                              long: long,
+                              customerId: customerId,
+                            );
 
-                      if (context.mounted) Navigator.of(context).pop();
-                    },
+                            if (response.statusCode != 200) {
+                              if (context.mounted) {
+                                showCustomToastDisplay(
+                                  context,
+                                  response.statusMessage.toString(),
+                                  Colors.red,
+                                  Icons.close,
+                                  );
+                              }
+                            } else {
+                              await ApiWorker().saveSwitchState(false);
+                              customerOrderController.isActive.value = false;
+                              shouldProceed = true;
+                            }
+                          }
+                        } catch (e) {
+                          //
+                        }
+
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Check-out and leave'.tr,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          color: Color(0xFF727CF5),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ],

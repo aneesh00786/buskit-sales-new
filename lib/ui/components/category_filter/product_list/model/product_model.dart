@@ -124,6 +124,9 @@ class ProductModel {
   @HiveField(15)
   num? catTax;
 
+  @HiveField(16)
+  String? pName;
+
   ProductModel({
     this.id,
     this.productId,
@@ -141,6 +144,7 @@ class ProductModel {
     this.detail,
     this.productCode,
     this.catTax,
+    this.pName,
   });
 
   ProductModel.fromJson(Map<String, dynamic> json) {
@@ -158,6 +162,7 @@ class ProductModel {
     productId = json['product_id'];
     brandname = json['brandname'];
     productName = json['product_name'];
+    pName = json['p_name'];
     description = json['description'];
     reasonBySalesman = json['reason_by_salesman'];
     imageUrl = json['image_url'];
@@ -224,6 +229,7 @@ class ProductModel {
     data['product_id'] = productId;
     data['brandname'] = brandname;
     data['product_name'] = productName;
+    data['p_name'] = pName;
     data['description'] = description;
     data['reason_by_salesman'] = reasonBySalesman;
     data['image_url'] = imageUrl;

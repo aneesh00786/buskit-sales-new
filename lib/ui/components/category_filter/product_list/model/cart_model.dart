@@ -175,7 +175,7 @@ class CartItem extends HiveObject {
       'salesman_id': salesmanId,
       'boxType': boxType,
       'categories_id': catId,
-      'is_promo': isPromo,
+      'is_promo': (isPromo ?? false) ? 1 : 0,
       'promo_code': promoCode,
       'promo_msg': promoMsg,
       'bundle_items': bundleItems,

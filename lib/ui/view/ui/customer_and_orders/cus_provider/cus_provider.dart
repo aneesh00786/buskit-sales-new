@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
@@ -103,6 +104,7 @@ class CustomersProvider with ChangeNotifier {
   Future<ProductResponse>? _productResponse;
   Future<ProductResponse>? get productResponse => _productResponse;
   int cartItemCount = 0;
+  double cartTotalAmount = 0.0;
   List<BarChartGroupData> barGroups = [];
   Future<OrderResponse>? _orderResponse;
   Future<OrderResponse>? get orderResponse => _orderResponse;
@@ -223,6 +225,7 @@ class CustomersProvider with ChangeNotifier {
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       final count = cartItems.length;
       cartItemCount = count;
+      cartTotalAmount = Utils().calculateSubtotal(cartItems);
       notifyListeners();
       updateCartCount(customerId);
       return cartItemCount;
@@ -248,6 +251,7 @@ class CustomersProvider with ChangeNotifier {
     try {
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       cartItemCount = cartItems.length;
+      cartTotalAmount = Utils().calculateSubtotal(cartItems);
       notifyListeners();
     } catch (e) {
       //

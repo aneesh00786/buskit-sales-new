@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'product_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class ProductApiResponseAdapter extends TypeAdapter<ProductApiResponse> {
   @override
@@ -106,13 +112,15 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       stock: fields[12] as String?,
       detail: (fields[13] as List?)?.cast<Detail>(),
       productCode: fields[14] as String?,
+      catTax: fields[15] as num?,
+      pName: fields[16] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductModel obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -142,7 +150,11 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       ..writeByte(13)
       ..write(obj.detail)
       ..writeByte(14)
-      ..write(obj.productCode);
+      ..write(obj.productCode)
+      ..writeByte(15)
+      ..write(obj.catTax)
+      ..writeByte(16)
+      ..write(obj.pName);
   }
 
   @override
@@ -200,13 +212,20 @@ class DetailAdapter extends TypeAdapter<Detail> {
       totaltax: fields[32] as num?,
       productName: fields[33] as String?,
       maxDiscount: fields[34] as num?,
+      promoDiscount: fields[35] as num?,
+      customerDiscount: fields[36] as num?,
+      initialCount: fields[37] as num?,
+      bulkId: fields[38] as String?,
+      bulkDiscount: fields[39] as num?,
+      bulkTax: fields[40] as num?,
+      bulkDiscountAmount: fields[41] as num?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Detail obj) {
     writer
-      ..writeByte(33)
+      ..writeByte(40)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -272,7 +291,21 @@ class DetailAdapter extends TypeAdapter<Detail> {
       ..writeByte(33)
       ..write(obj.productName)
       ..writeByte(34)
-      ..write(obj.maxDiscount);
+      ..write(obj.maxDiscount)
+      ..writeByte(35)
+      ..write(obj.promoDiscount)
+      ..writeByte(36)
+      ..write(obj.customerDiscount)
+      ..writeByte(37)
+      ..write(obj.initialCount)
+      ..writeByte(38)
+      ..write(obj.bulkId)
+      ..writeByte(39)
+      ..write(obj.bulkDiscount)
+      ..writeByte(40)
+      ..write(obj.bulkTax)
+      ..writeByte(41)
+      ..write(obj.bulkDiscountAmount);
   }
 
   @override

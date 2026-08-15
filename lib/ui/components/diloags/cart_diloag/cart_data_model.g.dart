@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'cart_data_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class AddToCartModelAdapter extends TypeAdapter<AddToCartModel> {
   @override
@@ -71,13 +77,24 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       promoMsg: fields[11] as String?,
       isBundle: fields[12] as bool?,
       bundleDetails: fields[13] as String?,
+      customerDiscount: fields[14] as double?,
+      promoDiscount: fields[15] as num?,
+      isBulk: fields[16] as bool?,
+      bulkId: fields[17] as String?,
+      initialCount: fields[18] as num?,
+      catTax: fields[19] as double?,
+      taxAmount: fields[20] as double?,
+      itemNumbers: fields[21] as int?,
+      flatDiscount: fields[22] as num?,
+      unitPrice: fields[23] as String?,
+      bulkDiscountAmount: fields[24] as num?,
     );
   }
 
   @override
   void write(BinaryWriter writer, SendCartData obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(25)
       ..writeByte(0)
       ..write(obj.productId)
       ..writeByte(1)
@@ -105,7 +122,29 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       ..writeByte(12)
       ..write(obj.isBundle)
       ..writeByte(13)
-      ..write(obj.bundleDetails);
+      ..write(obj.bundleDetails)
+      ..writeByte(14)
+      ..write(obj.customerDiscount)
+      ..writeByte(15)
+      ..write(obj.promoDiscount)
+      ..writeByte(16)
+      ..write(obj.isBulk)
+      ..writeByte(17)
+      ..write(obj.bulkId)
+      ..writeByte(18)
+      ..write(obj.initialCount)
+      ..writeByte(19)
+      ..write(obj.catTax)
+      ..writeByte(20)
+      ..write(obj.taxAmount)
+      ..writeByte(21)
+      ..write(obj.itemNumbers)
+      ..writeByte(22)
+      ..write(obj.flatDiscount)
+      ..writeByte(23)
+      ..write(obj.unitPrice)
+      ..writeByte(24)
+      ..write(obj.bulkDiscountAmount);
   }
 
   @override

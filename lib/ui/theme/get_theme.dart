@@ -18,6 +18,19 @@ class NkGetXTheme {
       appBarTheme: appBarTheme,
       textTheme: NkGetXFontStyle.textLightTheme,
       primaryTextTheme: NkGetXFontStyle.textLightTheme,
+      dialogTheme: const DialogThemeData(
+        titleTextStyle: TextStyle(
+          fontFamily: 'Poppins_Regular',
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+          fontSize: 20,
+        ),
+        contentTextStyle: TextStyle(
+          fontFamily: 'Poppins_Regular',
+          color: Colors.black54,
+          fontSize: 16,
+        ),
+      ),
       dataTableTheme: dataTableTheme,
       dividerColor: dividerColor,
       listTileTheme:

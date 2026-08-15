@@ -98,12 +98,15 @@ class _CustomSwitchState extends State<CustomSwitch> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-          contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
-          actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+          contentPadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 20.0),
+          actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
           title: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.access_time_filled,
                 size: 25.0,
                 color: primaryColor,
@@ -111,7 +114,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
               const SizedBox(width: 8.0),
               Text(
                 title.tr,
-                style: TextStyle(
+                style: const TextStyle(
+                  fontFamily: myFont,
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -121,51 +125,60 @@ class _CustomSwitchState extends State<CustomSwitch> {
           ),
           content: Text(
             content.tr,
-            style: TextStyle(
-              fontSize: 19.0,
+            style: const TextStyle(
+              fontFamily: myFont,
+              fontSize: 18.0,
               color: Colors.black87,
             ),
           ),
           actions: [
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                side: BorderSide(color: primaryColor, width: 2.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      side: const BorderSide(color: primaryColor, width: 2.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24.0),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(
+                      'Cancel'.tr,
+                      style: const TextStyle(
+                        fontFamily: myFont,
+                        fontSize: 16.0,
+                        color: primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-                backgroundColor: Colors.white,
-                elevation: 3,
-              ),
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                'Cancel'.tr,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: primaryColor,
-                  fontWeight: FontWeight.w600,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      side: const BorderSide(color: Colors.green, width: 2.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24.0),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text(
+                      'Confirm'.tr,
+                      style: const TextStyle(
+                        fontFamily: myFont,
+                        fontSize: 16.0,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
-              ),
-              onPressed: () => Navigator.of(context).pop(true),
-              child:  Text(
-                'Confirm'.tr,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              ],
             ),
           ],
         );
@@ -187,20 +200,24 @@ class _CustomSwitchState extends State<CustomSwitch> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-              contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
-              actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-              title: Row(
+              contentPadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 20.0),
+              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              title: const Row(
                 children: [
                   Icon(
                     Icons.warning_amber_rounded,
                     size: 25.0,
                     color: primaryColor,
                   ),
-                  const SizedBox(width: 8.0),
-                   Text(
-                    'Required'.tr,
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Required',
                     style: TextStyle(
+                      fontFamily: myFont,
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -208,53 +225,62 @@ class _CustomSwitchState extends State<CustomSwitch> {
                   ),
                 ],
               ),
-              content:  Text(
+              content: Text(
                 'You are required to sign in, to proceed with customer location check-in and order taking'.tr,
-                style: TextStyle(
-                  fontSize: 19.0,
+                style: const TextStyle(
+                  fontFamily: myFont,
+                  fontSize: 18.0,
                   color: Colors.black87,
                 ),
               ),
               actions: [
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                    side: BorderSide(color: primaryColor, width: 2.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          side: const BorderSide(color: primaryColor, width: 2.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24.0),
+                          ),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(
+                          'Cancel'.tr,
+                          style: const TextStyle(
+                            fontFamily: myFont,
+                            fontSize: 16.0,
+                            color: primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                    backgroundColor: Colors.white,
-                    elevation: 3,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
-                    'Cancel'.tr,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: primaryColor,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          side: const BorderSide(color: Colors.green, width: 2.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24.0),
+                          ),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(
+                          'Check-In'.tr,
+                          style: const TextStyle(
+                            fontFamily: myFont,
+                            fontSize: 16.0,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    elevation: 4,
-                    shadowColor: primaryColor.withOpacity(0.4),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child:  Text(
-                    'Check-In'.tr,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  ],
                 ),
               ],
             );
@@ -392,52 +418,44 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        titlePadding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-                        contentPadding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
-                        actionsPadding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                        title: Row(
-                          children: [
-                            Icon(
-                              Icons.warning_amber_rounded,
-                              size: 25.0,
-                              color: primaryColor,
-                            ),
-                            const SizedBox(width: 8.0),
-                             Text(
-                              'No Customer Selected'.tr,
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        content:  Text(
-                          'Please select a customer to check-in.'.tr,
-                          style: TextStyle(
-                            fontSize: 19.0,
-                            color: Colors.black87,
+                        actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                        actionsAlignment: MainAxisAlignment.center,
+                        title: const Center(
+                          child: Icon(
+                            Icons.warning_amber_rounded,
+                            color: Colors.orange,
+                            size: 50,
                           ),
                         ),
+                        content: CustomText(
+                          content: 'Please select a customer to check-in'.tr,
+                          fontSize: 17,
+                        ),
                         actions: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
+                          SizedBox(
+                            width: 150,
+                            height: 45,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
                               ),
-                              elevation: 4,
-                              shadowColor: primaryColor.withOpacity(0.4),
-                            ),
-                            onPressed: () => Navigator.of(context).pop(),
-                            child:  Text(
-                              'OK'.tr,
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w700,
+                              child: Text(
+                                'OK'.tr,
+                                style: const TextStyle(
+                                  fontFamily: myFont,
+                                  color: Color(0xFF727CF5),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),

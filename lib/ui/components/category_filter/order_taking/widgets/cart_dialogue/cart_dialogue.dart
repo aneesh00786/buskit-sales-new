@@ -252,6 +252,7 @@ class CartDialogueState extends State<CartDialogue> {
             }
 
             for (var detail in details) {
+              final String packTypeStr = (detail['packType'] ?? detail['packtype'] ?? detail['pack_type'] ?? '') as String;
               final cartItem = CartItem(
                 detail: Detail(
                   productId: detail['product_id'],
@@ -261,14 +262,15 @@ class CartDialogueState extends State<CartDialogue> {
                   count: (detail['quantity'] as num?)?.toDouble() ?? 0,
                   pieces: int.tryParse(detail['pack'] ?? '0'),
                   variationName: detail['variant_name'],
-                  saleBy: detail['packType'],
+                  saleBy: packTypeStr,
                   stock: detail['stock'] ?? 0,
                   unitType: detail['unitType'],
+                  packtype: packTypeStr,
                 ),
                 productName: detail['variant_name'] ?? '',
                 totalPrice:
                     double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
-                isPack: detail['packType'] == 'Pack',
+                isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
                 customerId: customerId,
                 salesmanId: salesmanId,
                 catId: 0,
@@ -817,12 +819,13 @@ class CartDialogueState extends State<CartDialogue> {
           double fontSize = availableWidth / 50;
           double rowHeight = availableHeight / 14;
           // var useCredit = false.obs; // Reactive boolean for checkbox
-          return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: availableWidth,
-            ),
-            child: IntrinsicHeight(
-              child: Column(
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: availableWidth,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   GetBuilder<CustomerCreditController>(
@@ -2340,15 +2343,37 @@ class CartDialogueState extends State<CartDialogue> {
                               showDialog(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                                  actionsAlignment: MainAxisAlignment.center,
                                   title: const Icon(Icons.warning_amber_rounded,
                                       color: Colors.red, size: 60),
                                   content: Text(
                                       'Please check-in before processing the order'
                                           .tr),
                                   actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(ctx),
-                                      child: Text('OK'.tr),
+                                    SizedBox(
+                                      width: 150,
+                                      height: 45,
+                                      child: OutlinedButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(24),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'OK'.tr,
+                                          style: const TextStyle(
+                                            color: Color(0xFF727CF5),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -2644,8 +2669,9 @@ class CartDialogueState extends State<CartDialogue> {
                 ],
               ),
             ),
-          );
-        },
+          ),
+        );
+      },
       ),
     );
   }
@@ -2801,22 +2827,44 @@ class CartDialogueState extends State<CartDialogue> {
             barrierDismissible: false,
             context: context,
             builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              actionsAlignment: MainAxisAlignment.center,
               title: const Text('Offline Mode'),
               content: const Text(
                   'The order will be placed automatically when connected to the internet.'),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      Navigator.pop(context);
-                      Navigator.of(context, rootNavigator: true).pop();
-                      _clearCartItem(itemList, customerId);
-                    });
-                    if (widget.onDraftUpdated != null) {
-                      widget.onDraftUpdated!();
-                    }
-                  },
-                  child: const Text('OK'),
+                SizedBox(
+                  width: 150,
+                  height: 45,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true).pop();
+                        _clearCartItem(itemList, customerId);
+                      });
+                      if (widget.onDraftUpdated != null) {
+                        widget.onDraftUpdated!();
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    child: Text(
+                      'OK'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF727CF5),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -3117,6 +3165,11 @@ class CartDialogueState extends State<CartDialogue> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                      actionsAlignment: MainAxisAlignment.center,
                       title: Center(
                         child: SizedBox(
                           height: 100,
@@ -3130,34 +3183,51 @@ class CartDialogueState extends State<CartDialogue> {
                         fontSize: 18,
                       ),
                       actions: [
-                        TextButton(
-                          onPressed: () async {
-                            final cartProvider = Provider.of<CustomersProvider>(
-                                context,
-                                listen: false);
+                        SizedBox(
+                          width: 150,
+                          height: 45,
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              final cartProvider = Provider.of<CustomersProvider>(
+                                  context,
+                                  listen: false);
 
-                            CartDatabaseManager().addListener(() {
-                              cartProvider.updateCartCount(customerId);
-                            });
-                            if (widget.isDashboard == true) {
-                              Provider.of<DashboardProvider>(context,
-                                      listen: false)
-                                  .fetchData();
-                            } else {
-                              Provider.of<CustomersProvider>(context,
-                                      listen: false)
-                                  .fetchCustomerDashboardCountData(customerId);
-                            }
+                              CartDatabaseManager().addListener(() {
+                                cartProvider.updateCartCount(customerId);
+                              });
+                              if (widget.isDashboard == true) {
+                                Provider.of<DashboardProvider>(context,
+                                        listen: false)
+                                    .fetchData();
+                              } else {
+                                Provider.of<CustomersProvider>(context,
+                                        listen: false)
+                                    .fetchCustomerDashboardCountData(customerId);
+                              }
 
-                            setState(() {
-                              Navigator.pop(context);
-                              Navigator.of(context, rootNavigator: true).pop();
-                            });
-                            if (widget.onDraftUpdated != null) {
-                              widget.onDraftUpdated!();
-                            }
-                          },
-                          child: const Text('OK'),
+                              setState(() {
+                                Navigator.pop(context);
+                                Navigator.of(context, rootNavigator: true).pop();
+                              });
+                              if (widget.onDraftUpdated != null) {
+                                widget.onDraftUpdated!();
+                              }
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                            child: Text(
+                              'OK'.tr,
+                              style: const TextStyle(
+                                color: Color(0xFF727CF5),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     );
@@ -3169,6 +3239,11 @@ class CartDialogueState extends State<CartDialogue> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                      actionsAlignment: MainAxisAlignment.center,
                       title: Center(
                         child: SizedBox(
                           height: 200,
@@ -3182,11 +3257,28 @@ class CartDialogueState extends State<CartDialogue> {
                         fontSize: 18,
                       ),
                       actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('OK'),
+                        SizedBox(
+                          width: 150,
+                          height: 45,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                            child: Text(
+                              'OK'.tr,
+                              style: const TextStyle(
+                                color: Color(0xFF727CF5),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     );
@@ -3998,8 +4090,12 @@ class CartDialogueState extends State<CartDialogue> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
           title: CustomText(
-            content: 'Delete ${groupedItem.detail.variationName}..?',
+            content: 'Delete ${groupedItem.detail.variationName}..?'.tr,
             fontWeight: FontWeight.w700,
           ),
           actions: [
@@ -4009,24 +4105,61 @@ class CartDialogueState extends State<CartDialogue> {
                   content: 'Are you sure you want to delete..?'.tr,
                   fontSize: 17,
                 )),
+            const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                TextButton(
+                Expanded(
+                  child: OutlinedButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('No'.tr)),
-                TextButton(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      'No'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF727CF5),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
                     onPressed: () {
                       final provider = Provider.of<CustomersProvider>(context,
                           listen: false);
+                      print('delete variant called');
                       _deleteVariant(groupedItem, provider);
                       _loadCartItems();
                       widget.productsController.isCartModified.value = true;
                       Navigator.pop(context);
                     },
-                    child: Text('Yes'.tr))
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      'Yes'.tr,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             )
           ],
@@ -4038,13 +4171,14 @@ class CartDialogueState extends State<CartDialogue> {
   Future<dynamic> showVariantDeleteDialog(
       BuildContext context, String productName, bool isPreOrder, bool isDraft) {
     String customerId = widget.customerId ?? '';
-    // widget.customerOrderController!.customerId.value.isNotEmpty
-    //     ? widget.customerOrderController?.customerId.value ?? ''
-    //     : widget.productsController.selectedCustomerId.value;
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
           title: Row(
             children: [
               const Icon(Icons.warning_amber_outlined,
@@ -4052,7 +4186,7 @@ class CartDialogueState extends State<CartDialogue> {
               const SizedBox(width: 8),
               Expanded(
                 child: CustomText(
-                  content: 'Delete "$productName"?',
+                  content: 'Delete $productName..?'.tr,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
@@ -4063,42 +4197,67 @@ class CartDialogueState extends State<CartDialogue> {
             content: 'Are you sure you want to delete this item?'.tr,
             fontSize: 15,
           ),
-          actionsPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: CustomText(
-                content: 'Cancel',
-                color: primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-              onPressed: () async {
-                final provider =
-                    Provider.of<CustomersProvider>(context, listen: false);
-                _deleteProduct(productName, isPreorder: isPreOrder);
-                await provider.updateCartCount(customerId);
-                _loadCartItems();
-                Navigator.pop(context);
-                widget.productsController.isCartModified.value = true;
-                showCustomToastDisplay(
-                  context,
-                  'Item deleted successfully',
-                  Colors.green,
-                  Icons.check,
-                );
-              },
-              child: CustomText(
-                content: 'Confirm',
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      'Cancel'.tr,
+                      style: const TextStyle(
+                        color: Color(0xFF727CF5),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () async {
+                      final provider =
+                          Provider.of<CustomersProvider>(context, listen: false);
+                      _deleteProduct(productName, isPreorder: isPreOrder);
+                      await provider.updateCartCount(customerId);
+                      _loadCartItems();
+                      Navigator.pop(context);
+                      widget.productsController.isCartModified.value = true;
+                      showCustomToastDisplay(
+                        context,
+                        'Item deleted successfully',
+                        Colors.green,
+                        Icons.check,
+                      );
+                    },
+                    child: Text(
+                      'Confirm'.tr,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
           ],
         );
       },
@@ -4255,120 +4414,115 @@ class CartDialogueState extends State<CartDialogue> {
     }
 
     return Container(
-      width: availableWidth > 400 ? 80 : 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: const Color.fromARGB(255, 241, 240, 240),
-      ),
+      width: availableWidth > 400 ? 110 : 80,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(5),
-                bottomLeft: Radius.circular(5),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    if (isTieredDiscount) {
-                      // Only subtract by tierStep if it is a Promo item
-                      if (cartItem.detail.count > tierStep) {
-                        cartItem.detail.count -= tierStep;
-                      }
-                    } else {
-                      // Normal decrement by 1
-                      if (cartItem.detail.count > 1) {
-                        cartItem.detail.count--;
-                      }
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                final bool isMinCount = isTieredDiscount
+                    ? (cartItem.detail.count <= tierStep)
+                    : (cartItem.detail.count <= 1);
+                if (isMinCount) return;
+
+                setState(() {
+                  if (isTieredDiscount) {
+                    if (cartItem.detail.count > tierStep) {
+                      cartItem.detail.count -= tierStep;
                     }
+                  } else {
+                    if (cartItem.detail.count > 1) {
+                      cartItem.detail.count--;
+                    }
+                  }
 
-                    // 1. Update Total Price (Base logic)
-                    cartItem.totalPrice = Utils().calculateTotalPrice(
-                      cartItem,
-                      cartItem.detail.count.toInt(),
-                    );
+                  cartItem.totalPrice = Utils().calculateTotalPrice(
+                    cartItem,
+                    cartItem.detail.count.toInt(),
+                  );
 
-                    // 2. MANUALLY UPDATE TAX & DISCOUNT MODELS HERE
-                    updateItemCalculations();
+                  updateItemCalculations();
+                  calculateAmounts();
 
-                    // 3. Now Calculate Totals (Uses the updated taxAmount)
-                    calculateAmounts();
-
-                    CartDatabaseManager().updateCart(cartItem);
-                    CartDatabaseManager()
-                        .getCartItems(cartItem.customerId ?? '');
-                    widget.productsController.isCartModified.value = true;
-                  });
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: CustomText(
-                    color: Colors.white,
-                    content: '-',
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
+                  CartDatabaseManager().updateCart(cartItem);
+                  CartDatabaseManager()
+                      .getCartItems(cartItem.customerId ?? '');
+                  widget.productsController.isCartModified.value = true;
+                });
+              },
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: (isTieredDiscount
+                          ? (cartItem.detail.count > tierStep)
+                          : (cartItem.detail.count > 1))
+                      ? primaryColor
+                      : Colors.grey.shade300,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.remove,
+                  color: (isTieredDiscount
+                          ? (cartItem.detail.count > tierStep)
+                          : (cartItem.detail.count > 1))
+                      ? Colors.white
+                      : Colors.grey.shade500,
+                  size: 16,
                 ),
               ),
             ),
           ),
-          CustomText(
-            content: cartItem.detail.count.toStringAsFixed(0),
-            fontSize: fontSize,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(5),
-                bottomRight: Radius.circular(5),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 24,
+            child: Center(
+              child: CustomText(
+                content: cartItem.detail.count.toStringAsFixed(0),
+                fontSize: fontSize,
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    if (isTieredDiscount) {
-                      // Only add by tierStep if it is a Promo item
-                      cartItem.detail.count += tierStep;
-                    } else {
-                      // Normal increment by 1
-                      cartItem.detail.count++;
-                    }
+          ),
+          const SizedBox(width: 8),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  if (isTieredDiscount) {
+                    cartItem.detail.count += tierStep;
+                  } else {
+                    cartItem.detail.count++;
+                  }
 
-                    // 1. Update Total Price (Base logic)
-                    cartItem.totalPrice = Utils().calculateTotalPrice(
-                      cartItem,
-                      cartItem.detail.count.toInt(),
-                    );
+                  cartItem.totalPrice = Utils().calculateTotalPrice(
+                    cartItem,
+                    cartItem.detail.count.toInt(),
+                  );
 
-                    // 2. MANUALLY UPDATE TAX & DISCOUNT MODELS HERE
-                    updateItemCalculations();
+                  updateItemCalculations();
+                  calculateAmounts();
 
-                    // 3. Now Calculate Totals (Uses the updated taxAmount)
-                    calculateAmounts();
-
-                    CartDatabaseManager().updateCart(cartItem);
-                    widget.productsController.isCartModified.value = true;
-                  });
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: CustomText(
-                    color: Colors.white,
-                    content: '+',
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
+                  CartDatabaseManager().updateCart(cartItem);
+                  widget.productsController.isCartModified.value = true;
+                });
+              },
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: const BoxDecoration(
+                  color: primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 16,
                 ),
               ),
             ),

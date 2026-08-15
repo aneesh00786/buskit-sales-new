@@ -3481,6 +3481,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              actionsAlignment: MainAxisAlignment.center,
               title: Text('Customer Check-Out'.tr),
               content: Text(
                   '$customerName is already checked In. Do you want to Check-out?'),
@@ -3491,133 +3496,171 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     child: CircularProgressIndicator(),
                   )
                 else ...[
-                  TextButton(
-                    child: Text('Stay'.tr),
-                    onPressed: () {
-                      shouldProceed = false;
-                      Navigator.of(context).pop();
-                      {
-                        final cartProvider = Provider.of<CustomersProvider>(
-                            context,
-                            listen: false);
-                        final customerId =
-                            customerAndOrderController.customerId.value;
-                        customerAndOrderController.setCustomerId(
-                            customerAndOrderController.customerId.value);
-
-                        prodController.selectedCustomerName.value =
-                            customerAndOrderController
-                                .selectedCustomerName.value;
-                        prodController.selectedCustomerImageUrl.value =
-                            customerAndOrderController
-                                .selectedCustomerImage.value;
-
-                        CartDatabaseManager().getCartItems(customerId);
-                        cartProvider.getCartItemCounts(customerId);
-                        CartDatabaseManager().addListener(() {
-                          cartProvider.updateCartCount(customerId);
-                        });
-
-                        Get.to(
-                                ChangeNotifierProvider.value(
-                                  value: Provider.of<CustomersProvider>(context,
-                                      listen: false),
-                                  child: OrderTaking(
-                                    productsController: prodController,
-                                    selectedCustId: customerAndOrderController
-                                        .customerId.value,
-                                    selectedCustName: customerAndOrderController
-                                        .selectedCustomerName.value,
-                                    selectedCustImageUrl:
-                                        customerAndOrderController
-                                            .selectedCustomerImage.value,
-                                  ),
-                                ),
-                                id: 2)
-                            ?.then((value) {
-                          cartProvider
-                              .fetchCustomerDashboardCountData(customerId);
-                        });
-                      }
-                    },
-                  ),
-                  ElevatedButton(
-                    child: const Text('Check-out and Proceed'),
-                    onPressed: () async {
-                      setState(() => isCheckingOut = true);
-
-                      if (!await handleLocationPermission(context)) {
-                        if (context.mounted) Navigator.of(context).pop();
-                        return;
-                      }
-
-                      final date =
-                          DateFormat('dd-MM-yyyy').format(DateTime.now());
-                      final time = DateFormat('yyyy-MM-dd HH:mm:ss')
-                          .format(DateTime.now());
-                      final direction = "OUT";
-                      final customerId =
-                          prodController.selectedCustomerId.value;
-
-                      try {
-                        final position = await Geolocator.getCurrentPosition(
-                          desiredAccuracy: LocationAccuracy.high,
-                        );
-                        final lat = position.latitude.toString();
-                        final long = position.longitude.toString();
-
-                        final isOnline = await ConnectivityService().isOnline();
-
-                        if (!isOnline) {
-                          await _saveCheckInOutRequestOffline(
-                            date: date,
-                            time: time,
-                            direction: direction,
-                            lat: lat,
-                            long: long,
-                            customerId: customerId,
-                          );
-                          if (context.mounted) {
-                            showCustomToastDisplay(
+                  SizedBox(
+                    width: 120,
+                    height: 45,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.grey, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      onPressed: () {
+                        shouldProceed = false;
+                        Navigator.of(context).pop();
+                        {
+                          final cartProvider = Provider.of<CustomersProvider>(
                               context,
-                              'You are offline. Your check-out will sync when online.',
-                              Colors.orange,
-                              Icons.info,
-                            );
-                          }
-                          await ApiWorker().saveSwitchState(false);
-                          customerAndOrderController.isActive.value = false;
-                          shouldProceed = true;
-                        } else {
-                          final response =
-                              await ApiWorker().updateCustomerCheckInOut(
-                            date: date,
-                            time: time,
-                            direction: direction,
-                            lat: lat,
-                            long: long,
-                            customerId: customerId,
-                          );
+                              listen: false);
+                          final customerId =
+                              customerAndOrderController.customerId.value;
+                          customerAndOrderController.setCustomerId(
+                              customerAndOrderController.customerId.value);
 
-                          if (response.statusCode != 200) {
+                          prodController.selectedCustomerName.value =
+                              customerAndOrderController
+                                  .selectedCustomerName.value;
+                          prodController.selectedCustomerImageUrl.value =
+                              customerAndOrderController
+                                  .selectedCustomerImage.value;
+
+                          CartDatabaseManager().getCartItems(customerId);
+                          cartProvider.getCartItemCounts(customerId);
+                          CartDatabaseManager().addListener(() {
+                            cartProvider.updateCartCount(customerId);
+                          });
+
+                          Get.to(
+                                  ChangeNotifierProvider.value(
+                                    value: Provider.of<CustomersProvider>(context,
+                                        listen: false),
+                                    child: OrderTaking(
+                                      productsController: prodController,
+                                      selectedCustId: customerAndOrderController
+                                          .customerId.value,
+                                      selectedCustName: customerAndOrderController
+                                          .selectedCustomerName.value,
+                                      selectedCustImageUrl:
+                                          customerAndOrderController
+                                              .selectedCustomerImage.value,
+                                    ),
+                                  ),
+                                  id: 2)
+                              ?.then((value) {
+                            cartProvider
+                                .fetchCustomerDashboardCountData(customerId);
+                          });
+                        }
+                      },
+                      child: Text(
+                        'Stay'.tr,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 210,
+                    height: 45,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      onPressed: () async {
+                        setState(() => isCheckingOut = true);
+
+                        if (!await handleLocationPermission(context)) {
+                          if (context.mounted) Navigator.of(context).pop();
+                          return;
+                        }
+
+                        final date =
+                            DateFormat('dd-MM-yyyy').format(DateTime.now());
+                        final time = DateFormat('yyyy-MM-dd HH:mm:ss')
+                            .format(DateTime.now());
+                        final direction = "OUT";
+                        final customerId =
+                            prodController.selectedCustomerId.value;
+
+                        try {
+                          final position = await Geolocator.getCurrentPosition(
+                            desiredAccuracy: LocationAccuracy.high,
+                          );
+                          final lat = position.latitude.toString();
+                          final long = position.longitude.toString();
+
+                          final isOnline = await ConnectivityService().isOnline();
+
+                          if (!isOnline) {
+                            await _saveCheckInOutRequestOffline(
+                              date: date,
+                              time: time,
+                              direction: direction,
+                              lat: lat,
+                              long: long,
+                              customerId: customerId,
+                            );
                             if (context.mounted) {
                               showCustomToastDisplay(
                                 context,
-                                response.statusMessage.toString(),
-                                Colors.red,
-                                Icons.close,
+                                'You are offline. Your check-out will sync when online.',
+                                Colors.orange,
+                                Icons.info,
                               );
                             }
-                          } else {
                             await ApiWorker().saveSwitchState(false);
                             customerAndOrderController.isActive.value = false;
                             shouldProceed = true;
-                          }
-                        }
-                      } catch (e) {}
+                          } else {
+                            final response =
+                                await ApiWorker().updateCustomerCheckInOut(
+                              date: date,
+                              time: time,
+                              direction: direction,
+                              lat: lat,
+                              long: long,
+                              customerId: customerId,
+                            );
 
-                      if (context.mounted) Navigator.of(context).pop();
-                    },
+                            if (response.statusCode != 200) {
+                              if (context.mounted) {
+                                showCustomToastDisplay(
+                                  context,
+                                  response.statusMessage.toString(),
+                                  Colors.red,
+                                  Icons.close,
+                                );
+                              }
+                            } else {
+                              await ApiWorker().saveSwitchState(false);
+                              customerAndOrderController.isActive.value = false;
+                              shouldProceed = true;
+                            }
+                          }
+                        } catch (e) {}
+
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Check-out and Proceed'.tr,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          color: Color(0xFF727CF5),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ],

@@ -11,7 +11,7 @@ class DataTableColumns {
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: isBundle ? 'Bundle Name'.tr: 'Variant'.tr,
+          text: isBundle ? 'Bundle Name'.tr : 'Variant'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
@@ -25,6 +25,13 @@ class DataTableColumns {
       ),
       DataColumn(
         label: DialogTableHeaderText(
+          text: 'Pack Price'.tr,
+          fontSize: fontSize,
+          align: TextAlign.center,
+        ),
+      ),
+      DataColumn(
+        label: DialogTableHeaderText(
           text: 'Pack'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
@@ -32,14 +39,14 @@ class DataTableColumns {
       ),
       DataColumn(
         label: DialogTableHeaderText(
-          text: 'Price'.tr,
+          text: 'Quantity'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
       ),
-         DataColumn(
+      DataColumn(
         label: DialogTableHeaderText(
-          text: 'Quantity'.tr,
+          text: 'Price'.tr,
           fontSize: fontSize,
           align: TextAlign.center,
         ),
@@ -58,13 +65,6 @@ class DataTableColumns {
           align: TextAlign.center,
         ),
       ),
-      // DataColumn(
-      //   label: DialogTableHeaderText(
-      //     text: 'Quantity',
-      //     fontSize: fontSize,
-      //     align: TextAlign.center,
-      //   ),
-      // ),
       DataColumn(
         label: DialogTableHeaderText(
           text: 'Total'.tr,

@@ -1,5 +1,5 @@
 mixin class ApiConstants {
-  static const String baseUrl1 = "https://thrivewoo.com";
+  static const String baseUrl1 = "https://test.thrivewoo.com";
   static const String baseUrl = "$baseUrl1/";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";
@@ -143,4 +143,5 @@ mixin class ApiConstants {
   static const String config = "config";
   static const String createPaymentLink = "create-payment-link";
   static const String sendPaymentLink = "send-payment-link";
+  static const String appVersion = "AppVersion_GET";
 }

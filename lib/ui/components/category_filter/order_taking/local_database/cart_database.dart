@@ -99,16 +99,17 @@ class CartDatabaseManager {
                     (num.tryParse(cart['promo_discount']?.toString() ?? '0') ??
                             0)
                         .toDouble();
+                final String packTypeStr = (cart['packtype'] ?? cart['packType'] ?? cart['pack_type'] ?? '') as String;
                 final detail = Detail(
                   productId: cart['product_id'] as String? ?? '',
                   variationId: cart['variation_id'] as String? ?? '',
                   price: cart['price']?.toString() ?? '0',
                   tax: num.tryParse(cart['tax']?.toString() ?? '0') ?? 0,
-                  packtype: cart['packtype'] as String? ?? '',
+                  packtype: packTypeStr,
                   pieces: num.tryParse(cart['pieces']?.toString() ?? '0') ?? 0,
                   count: num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
                   // If it's a Bulk item, use unit_price. Otherwise, fall back to sell_price.
-                  sellPrice: (cart['packtype'] == 'Bulk')
+                  sellPrice: (packTypeStr == 'Bulk')
                       ? cart['unit_price']?.toString() ?? '0'
                       : cart['sell_price']?.toString() ?? '0',
                   // sellPrice: cart['sell_price']?.toString() ?? '0',
@@ -124,7 +125,7 @@ class CartDatabaseManager {
                       num.tryParse(cart['lowstock']?.toString() ?? '0') ?? 0,
                   fullstock:
                       num.tryParse(cart['fullstock']?.toString() ?? '0') ?? 0,
-                  saleBy: cart['packtype'] as String? ?? '',
+                  saleBy: packTypeStr,
                   unitTax:
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
 
@@ -135,15 +136,15 @@ class CartDatabaseManager {
                       num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
                   // bulkDiscountAmount:   num.tryParse(cart['discount_amount'].toString()) ?? 0,
 
-                  bulkDiscountAmount: (cart['packtype'] == 'Bulk')
+                  bulkDiscountAmount: (packTypeStr == 'Bulk')
                       ? (num.tryParse(
                               cart['discount_amount']?.toString() ?? '0') ??
                           0)
                       : 0,
-                  bulkDiscount: (cart['packtype'] == 'Bulk')
+                  bulkDiscount: (packTypeStr == 'Bulk')
                       ? (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0)
                       : 0,
-                  bulkTax: (cart['packtype'] == 'Bulk')
+                  bulkTax: (packTypeStr == 'Bulk')
                       ? (num.tryParse(cart['tax']?.toString() ?? '0') ?? 0)
                       : 0,
                 );
@@ -169,9 +170,7 @@ class CartDatabaseManager {
                   cartId: cart['cart_id'] as String? ?? '',
                   draftId: order['order_id'] as String? ?? '',
                   // Treat both 'Pack' and 'Bulk' as packed items
-                  isPack: (cart['packtype'] as String? ?? '') == "Pack" ||
-                      (cart['packtype'] as String? ?? '') == "Bulk",
-                  // isPack: (cart['packtype'] as String? ?? '') == "Pack",
+                  isPack: packTypeStr == "Pack" || packTypeStr == "Bulk",
                   catId: cart['catId'] as int? ?? 0,
                   salesmanId: order['salesman_id'] as String? ?? '',
                   isPromo: cart['is_promo'] == 1,
@@ -298,7 +297,7 @@ class CartDatabaseManager {
         final Map<String, CartItem> deduped = {};
         for (var item in customerDraftItems) {
           // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
           // final key = item.detail.variationId ?? '';
           if (deduped.containsKey(key)) {
             deduped[key]!.detail.count += item.detail.count;
@@ -323,6 +322,7 @@ class CartDatabaseManager {
           final List details = draft['details'];
           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
           for (var detail in details) {
+            final String packTypeStr = (detail['packType'] ?? detail['packtype'] ?? detail['pack_type'] ?? '') as String;
             final cartItem = CartItem(
               detail: Detail(
                 productId: detail['product_id'],
@@ -332,10 +332,10 @@ class CartDatabaseManager {
                 count: (detail['quantity'] as num?)?.toDouble() ?? 0,
                 pieces: int.tryParse(detail['pack'] ?? '0'),
                 variationName: detail['variant_name'],
-                saleBy: detail['packType'],
+                saleBy: packTypeStr,
                 stock: detail['stock'] ?? 0,
                 unitType: detail['unitType'],
-                packtype: detail['packType'],
+                packtype: packTypeStr,
                 productName: detail['product_name'],
                 tax: detail['tax'],
                 inclTax: detail['incl_tax'],
@@ -343,7 +343,7 @@ class CartDatabaseManager {
               productName: detail['product_name'],
               totalPrice:
                   double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
-              isPack: detail['packType'] == 'Pack',
+              isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
               customerId: customerId,
               salesmanId: salesmanId,
               catId: 0,
@@ -372,14 +372,14 @@ class CartDatabaseManager {
 
         for (var item in customerCartItems) {
           // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
           // final key = item.detail.variationId ?? '';
           itemMap[key] = item;
         }
 
         for (var item in customerDraftItems) {
           // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
           // final key = item.detail.variationId ?? '';
           if (!itemMap.containsKey(key)) {
             itemMap[key] = item;
@@ -388,7 +388,7 @@ class CartDatabaseManager {
 
         for (var item in customerOfflineDraftItems) {
           // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}";
+          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
           // final key = item.detail.variationId ?? '';
           if (!itemMap.containsKey(key)) {
             itemMap[key] = item;
@@ -546,6 +546,7 @@ class CartDatabaseManager {
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId &&
+        item.isPack == isPack &&
         // Check if bulk IDs match (handle nulls safely)
         (item.detail.bulkId == bulkId) &&
         (item.isPromo == false || item.isPromo == null));
@@ -575,6 +576,7 @@ class CartDatabaseManager {
                   detail: detail,
                   customerId: customerId,
                   isPromo: false,
+                  isPack: isPack,
                 ),
           );
 
@@ -688,6 +690,7 @@ class CartDatabaseManager {
         item.detail.variationName == detail.variationName &&
         item.detail.sellPrice == detail.sellPrice &&
         item.customerId == customerId &&
+        item.isPack == isPack &&
         item.isPromo == true);
 
     if (existingDraftItemIndex != -1) {
@@ -713,6 +716,7 @@ class CartDatabaseManager {
               detail: detail,
               customerId: customerId,
               isPromo: true,
+              isPack: isPack,
               promoCode: promoCode,
             ),
           );
@@ -884,16 +888,33 @@ class CartDatabaseManager {
     }
   }
 
-  void deleteCartItem(CartItem item) {
-    final key = item.key;
-    if (item.boxType == false) {
-      if (cartBox.containsKey(key)) {
+  void deleteCartItem(CartItem cartItem) {
+    try {
+      final cartKeysToRemove = cartBox.keys.where((key) {
+        final item = cartBox.get(key);
+        return item != null &&
+            item.customerId == cartItem.customerId &&
+            item.detail.variationId == cartItem.detail.variationId &&
+            item.isPromo == cartItem.isPromo &&
+            item.isPack == cartItem.isPack;
+      }).toList();
+      for (var key in cartKeysToRemove) {
         cartBox.delete(key);
       }
-    } else {
-      if (draftBox.containsKey(key)) {
+
+      final draftKeysToRemove = draftBox.keys.where((key) {
+        final item = draftBox.get(key);
+        return item != null &&
+            item.detail.variationId == cartItem.detail.variationId &&
+            item.customerId == cartItem.customerId &&
+            item.isPromo == cartItem.isPromo &&
+            item.isPack == cartItem.isPack;
+      }).toList();
+      for (var key in draftKeysToRemove) {
         draftBox.delete(key);
       }
+    } catch (e) {
+      print('Error deleting cart item: $e');
     }
   }
 
@@ -1096,11 +1117,13 @@ bool isSameCartRow(
   required Detail detail,
   required String customerId,
   required bool isPromo,
+  required bool isPack,
   String? promoCode,
 }) {
   return item.detail.variationId == detail.variationId &&
       item.customerId == customerId &&
       item.isPromo == isPromo &&
+      item.isPack == isPack &&
       item.promoCode ==
           promoCode; // Ensuring different promos don't merge either
 }

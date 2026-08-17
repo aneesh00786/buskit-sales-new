@@ -35,7 +35,9 @@ Future<dynamic> showSuccessFullDialog(
             height: 45,
             child: OutlinedButton(
               onPressed: () {
-                Navigator.pop(context);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF727CF5), width: 2),
@@ -64,7 +66,7 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
   return showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (BuildContext context) {
+    builder: (BuildContext dialogContext) {
       return AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -88,8 +90,12 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
             height: 45,
             child: OutlinedButton(
               onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
+                }
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF727CF5), width: 2),
@@ -143,7 +149,9 @@ Future<dynamic> showFaledDialogCtrl(
             height: 45,
             child: OutlinedButton(
               onPressed: () {
-                Navigator.pop(context);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
                 CartDatabaseManager().clearCart(customerId: customerId);
               },
               style: OutlinedButton.styleFrom(
@@ -188,7 +196,9 @@ Future<dynamic> offlineDialog(BuildContext context) {
           height: 45,
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(dialogContext).pop();
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop();
+              }
             },
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: Color(0xFF727CF5), width: 2),
@@ -231,7 +241,9 @@ Future<dynamic> offlineMode1(BuildContext context) {
           height: 45,
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(dialogContext).pop();
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop();
+              }
             },
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: Color(0xFF727CF5), width: 2),

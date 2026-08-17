@@ -279,7 +279,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
               ),
             if (index == 9)
               Obx(() {
-                final hasUpdate = Get.find<AppUpdateService>().isUpdateAvailable.value;
+                final hasUpdate =
+                    Get.find<AppUpdateService>().isUpdateAvailable.value;
                 if (!hasUpdate) return const SizedBox.shrink();
                 return const Positioned(
                   top: -12,
@@ -352,11 +353,12 @@ Future<void> handleTabSwitchNavigation(
         await showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (_) => AlertDialog(
+          builder: (successDialogCtx) => AlertDialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            actionsPadding:
+                const EdgeInsets.only(bottom: 20, left: 16, right: 16),
             actionsAlignment: MainAxisAlignment.center,
             title: Center(
               child: SizedBox(
@@ -375,8 +377,7 @@ Future<void> handleTabSwitchNavigation(
                 height: 45,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                    Navigator.of(context, rootNavigator: true).pop();
+                    Navigator.of(successDialogCtx).pop();
                   },
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF727CF5), width: 2),
@@ -443,13 +444,13 @@ Future<void> handleTabSwitchNavigation(
       await showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => AlertDialog(
+        builder: (errorDialogCtx) => AlertDialog(
           title: const Text('Error'),
           content: const Text('Something went wrong. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
+                Navigator.of(errorDialogCtx).pop();
               },
               child: const Text('OK'),
             ),

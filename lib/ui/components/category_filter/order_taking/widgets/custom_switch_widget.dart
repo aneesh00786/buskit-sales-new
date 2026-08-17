@@ -116,7 +116,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                 title.tr,
                 style: const TextStyle(
                   fontFamily: myFont,
-                  fontSize: 20.0,
+                  fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -127,7 +127,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
             content.tr,
             style: const TextStyle(
               fontFamily: myFont,
-              fontSize: 18.0,
+              fontSize: 14.0,
               color: Colors.black87,
             ),
           ),
@@ -149,7 +149,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                       'Cancel'.tr,
                       style: const TextStyle(
                         fontFamily: myFont,
-                        fontSize: 16.0,
+                        fontSize: 14.0,
                         color: primaryColor,
                         fontWeight: FontWeight.bold,
                       ),
@@ -171,7 +171,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                       'Confirm'.tr,
                       style: const TextStyle(
                         fontFamily: myFont,
-                        fontSize: 16.0,
+                        fontSize: 14.0,
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
@@ -218,7 +218,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                     'Required',
                     style: TextStyle(
                       fontFamily: myFont,
-                      fontSize: 20.0,
+                      fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
@@ -229,7 +229,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                 'You are required to sign in, to proceed with customer location check-in and order taking'.tr,
                 style: const TextStyle(
                   fontFamily: myFont,
-                  fontSize: 18.0,
+                  fontSize: 14.0,
                   color: Colors.black87,
                 ),
               ),
@@ -251,7 +251,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                           'Cancel'.tr,
                           style: const TextStyle(
                             fontFamily: myFont,
-                            fontSize: 16.0,
+                            fontSize: 14.0,
                             color: primaryColor,
                             fontWeight: FontWeight.bold,
                           ),
@@ -273,7 +273,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                           'Check-In'.tr,
                           style: const TextStyle(
                             fontFamily: myFont,
-                            fontSize: 16.0,
+                            fontSize: 14.0,
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
@@ -432,7 +432,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                         ),
                         content: CustomText(
                           content: 'Please select a customer to check-in'.tr,
-                          fontSize: 17,
+                          fontSize: 14,
                         ),
                         actions: [
                           SizedBox(
@@ -454,7 +454,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                                   fontFamily: myFont,
                                   color: Color(0xFF727CF5),
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),

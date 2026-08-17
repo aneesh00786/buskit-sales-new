@@ -873,6 +873,12 @@ class ApiWorker with ApiConstants {
     }
   }
   Future<List<ProductModel>> getTempProduct(String subCatId, {required int companyid}) async {
+    final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+    if (cachedProducts.isNotEmpty) {
+      print('Returning cached B2B products instantly for subCatId: $subCatId');
+      return cachedProducts;
+    }
+
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
@@ -2595,19 +2601,20 @@ class ApiWorker with ApiConstants {
     String? lat,
     String? long,
   }) async {
+    final Map<String, dynamic> requestData = {
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
+      "date": date,
+      "sales_id": SessionHelper.loginSavedData?.id,
+      "time": time,
+      "direction": direction,
+      "latitude": lat,
+      "longitude": long
+    };
+    print("POST URL: ${ApiConstants.baseUrl}${ApiConstants.updateCheckinOut}");
+    print("POST BODY: $requestData");
     var response = await dio
         .postbycustom(ApiConstants.updateCheckinOut,
-            data: FormData.fromMap(
-              {
-                "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-                "date": date,
-                "sales_id": SessionHelper.loginSavedData?.id,
-                "time": time,
-                "direction": direction,
-                "latitude": lat,
-                "longitude": long
-              },
-            ))
+            data: FormData.fromMap(requestData))
         .onError((DioException error, stackTrace) {
       return Future.error(throw DioExceptionHandler.fromDioError(error));
     });

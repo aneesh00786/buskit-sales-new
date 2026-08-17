@@ -957,7 +957,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       fontFamily: 'Poppins_Regular',
                                       color: Color(0xFF727CF5),
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ),
@@ -1079,6 +1079,18 @@ class _OrderTakingState extends State<OrderTaking>
             ),
           ),
         ),
+        if (_isDrawerOpen)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isDrawerOpen = false;
+                });
+                _drawerTimer?.cancel();
+              },
+              child: Container(color: Colors.transparent),
+            ),
+          ),
         Positioned(
           left: 0,
           top: 0,
@@ -1107,16 +1119,21 @@ class _OrderTakingState extends State<OrderTaking>
                           List<CategoryData> categories = widget.productsController.categoryData.value.data ?? [];
                           String categoryName = categories[index].categoryName ?? '';
                           String initial = categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '';
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: IconButton(
-                              icon: Text(
-                                initial,
-                                style: const TextStyle(fontSize: 16, color: primaryColor, fontWeight: FontWeight.bold),
-                              ),
-                              onPressed: () {
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
                                 _selectCategory(categoryName);
                               },
+                              child: Container(
+                                width: 50,
+                                height: 44,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  initial,
+                                  style: const TextStyle(fontSize: 16, color: primaryColor, fontWeight: FontWeight.bold),
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -1128,19 +1145,6 @@ class _OrderTakingState extends State<OrderTaking>
             ),
           ),
         ),
-        if (_isDrawerOpen)
-          
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isDrawerOpen = false;
-                });
-                _drawerTimer?.cancel();
-              },
-              child: Container(color: Colors.transparent),
-            ),
-          ),
       
         AnimatedPositioned(
           duration: const Duration(milliseconds: 300),
@@ -1311,7 +1315,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       fontFamily: 'Poppins_Regular',
                                       color: Color(0xFF727CF5),
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ),
@@ -1523,7 +1527,7 @@ class _OrderTakingState extends State<OrderTaking>
               Center(
                 child: CustomText(
                   content: message,
-                  fontSize: 17,
+                  fontSize: 14,
                 ),
               ),
               const SizedBox(height: 15),
@@ -1549,7 +1553,7 @@ class _OrderTakingState extends State<OrderTaking>
                       fontFamily: 'Poppins_Regular',
                       color: Color(0xFF727CF5),
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
                 ),

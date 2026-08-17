@@ -204,6 +204,7 @@ class _ProductGridState extends State<ProductGrid> {
         Obx(() {
           final selectedCustomerId =
               widget.productsController.selectedCustomerId.value;
+          final isProductsLoading = widget.productsController.isLoading.value;
 
           List<ProductFrequencyData> productFrequencyCustomer = widget
               .productsController.productFrequencyList
@@ -211,7 +212,7 @@ class _ProductGridState extends State<ProductGrid> {
               .toList();
 
           return Expanded(
-            child: isLoading
+            child: (isProductsLoading || isLoading)
                 ? const Center(child: CircularProgressIndicator())
                 : products.isEmpty
                     ? const Center(

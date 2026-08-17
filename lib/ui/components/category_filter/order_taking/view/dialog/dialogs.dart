@@ -27,7 +27,7 @@ Future<dynamic> showSuccessFullDialog(
         ),
         content: CustomText(
           content: message,
-          fontSize: 18,
+          fontSize: 14,
         ),
         actions: [
           SizedBox(
@@ -49,7 +49,7 @@ Future<dynamic> showSuccessFullDialog(
                   fontFamily: 'Poppins_Regular',
                   color: Color(0xFF727CF5),
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -80,7 +80,7 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
         ),
         content: CustomText(
           content: 'Your order has been successfully saved as Draft'.tr,
-          fontSize: 18,
+          fontSize: 14,
         ),
         actions: [
           SizedBox(
@@ -103,7 +103,7 @@ Future<dynamic> showSuccessFullDialogCtrl({required BuildContext context}) {
                   fontFamily: 'Poppins_Regular',
                   color: Color(0xFF727CF5),
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -135,7 +135,7 @@ Future<dynamic> showFaledDialogCtrl(
         ),
         content: CustomText(
           content: "Couldn't save the order as draft please try again.",
-          fontSize: 18,
+          fontSize: 14,
         ),
         actions: [
           SizedBox(
@@ -158,7 +158,7 @@ Future<dynamic> showFaledDialogCtrl(
                   fontFamily: 'Poppins_Regular',
                   color: Color(0xFF727CF5),
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -202,7 +202,7 @@ Future<dynamic> offlineDialog(BuildContext context) {
                 fontFamily: 'Poppins_Regular',
                 color: Color(0xFF727CF5),
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 14,
               ),
             ),
           ),
@@ -245,7 +245,7 @@ Future<dynamic> offlineMode1(BuildContext context) {
                 fontFamily: 'Poppins_Regular',
                 color: Color(0xFF727CF5),
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 14,
               ),
             ),
           ),

@@ -271,6 +271,7 @@ Future<void> updateServer(Position position) async {
     );
     int companyId = 0;
     String salesmanId = '0';
+    int userId = 0;
 
     if (loginJsonString != null && loginJsonString.isNotEmpty) {
       try {
@@ -278,6 +279,7 @@ Future<void> updateServer(Position position) async {
         final LoginData loginData = LoginData.fromJson(loginMap);
         companyId = loginData.company_id ?? 0;
         salesmanId = loginData.salesmanId ?? '0';
+        userId = loginData.id ?? 0;
       } catch (e) {
         print("Error parsing login data in background service: $e");
       }
@@ -287,10 +289,16 @@ Future<void> updateServer(Position position) async {
 
     final Map<String, dynamic> body = {
       "companyId": companyId,
+      "company_id": companyId,
       "salesmanId": salesmanId,
+      "salesman_id": salesmanId,
+      "sales_id": userId,
       "latitude": position.latitude,
       "longitude": position.longitude,
     };
+
+    print("POST URL: $url");
+    print("POST BODY: $body");
 
     final Response response = await dio.post(url, data: body);
     // print("Sent Location: ${position.latitude}, ${position.longitude}");

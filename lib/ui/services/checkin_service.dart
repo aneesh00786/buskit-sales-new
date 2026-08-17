@@ -42,17 +42,18 @@ class CheckInService {
       );
 
       var alwaysStatus = await Permission.locationAlways.status;
+      bool isBackground = false;
 
       if (!alwaysStatus.isGranted) {
         bool proceed = await _showAlwaysPermissionDialog(context, alwaysStatus.isPermanentlyDenied);
 
         if (!proceed) {
-          _startForegroundTracking();
+          isBackground = false;
         } else {
           var requestStatus = await Permission.locationAlways.request();
 
           if (requestStatus.isGranted) {
-            await _startBackgroundService();
+            isBackground = true;
           } else {
             // If the popup didn't come (or was permanently denied), redirect to settings
             if (requestStatus.isPermanentlyDenied) {
@@ -67,9 +68,9 @@ class CheckInService {
             var finalWhenInUseStatus = await Permission.locationWhenInUse.status;
 
             if (finalAlwaysStatus.isGranted) {
-              await _startBackgroundService();
+              isBackground = true;
             } else if (finalWhenInUseStatus.isGranted) {
-              _startForegroundTracking();
+              isBackground = false;
             } else {
               NkCommonFunction.showErrorSnakBar('Location permission is required to check in.');
               return; // Abort check-in entirely if they denied everything
@@ -77,10 +78,16 @@ class CheckInService {
           }
         }
       } else {
-        await _startBackgroundService();
+        isBackground = true;
       }
 
       await _completeCheckIn(context, position);
+
+      if (isBackground) {
+        await _startBackgroundService();
+      } else {
+        _startForegroundTracking();
+      }
 
     } catch (e) {
       isReturningFromSettings = false; // ✅ Clear on error too
@@ -191,7 +198,8 @@ class CheckInService {
                 child: Text(
                   'Background Tracking'.tr,
                   style: TextStyle(
-                    fontSize: 20.0,
+                    fontFamily: myFont,
+                    fontSize: 18.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
@@ -202,7 +210,8 @@ class CheckInService {
           content:  Text(
             'To track your location even when the app is closed (for accurate attendance), please allow "Always" permission.'.tr,
             style: TextStyle(
-              fontSize: 19.0,
+              fontFamily: myFont,
+              fontSize: 14.0,
               color: Colors.black87,
             ),
           ),
@@ -221,6 +230,7 @@ class CheckInService {
               child: Text(
                 'Only while using'.tr,
                 style: TextStyle(
+                  fontFamily: myFont,
                   fontSize: 14.0,
                   color: primaryColor,
                   fontWeight: FontWeight.w600,
@@ -242,6 +252,7 @@ class CheckInService {
               child: Text(
                 isPermanentlyDenied ? 'Open Settings'.tr : 'Request Always'.tr,
                 style: const TextStyle(
+                  fontFamily: myFont,
                   fontSize: 14.0,
                   fontWeight: FontWeight.w700,
                 ),

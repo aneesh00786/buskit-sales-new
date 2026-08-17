@@ -38,6 +38,7 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
+import 'package:dio/dio.dart';
 
 class NkSidebarXSideBar extends StatefulWidget {
   const NkSidebarXSideBar({
@@ -122,6 +123,12 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
 
     // Wait for permission service to initialize and get current status
     await permissionService.initialize();
+
+    // Sync permission status to backend after initialization
+    final dioForPermissionSync = Dio();
+    dioForPermissionSync.options.connectTimeout = const Duration(seconds: 10);
+    dioForPermissionSync.options.receiveTimeout = const Duration(seconds: 10);
+    permissionService.sendPermissionToBackend(dio: dioForPermissionSync);
 
     // Get current permission status after initialization
     var alwaysStatus = await Permission.locationAlways.status;

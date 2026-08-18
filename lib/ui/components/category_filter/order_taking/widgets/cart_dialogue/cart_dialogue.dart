@@ -20,6 +20,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_cart_button.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_header_container.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
@@ -284,9 +285,42 @@ class CartDialogueState extends State<CartDialogue> {
       widget.productsController.cartItems = await CartDatabaseManager()
           .getCartItems(customerId, draftsOnly: isDraftView);
 
+      if (isOnline) {
+        await ApiWorker().fetchDiscounts(SessionHelper.loginSavedData?.company_id ?? 0, SessionHelper.loginSavedData?.salesmanId ?? '');
+      }
+
+      final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
+      final discountData = discountBox.values.firstWhere(
+        (discount) => discount.customerId == customerId,
+        orElse: () => CustomerDiscountModel(),
+      );
+
       for (final item in widget.productsController.cartItems) {
+        if (isOnline) {
+            double effectiveSellingPrice = double.tryParse(item.detail.sellPrice ?? '0') ?? 0;
+            num itemCount = item.detail.count > 0 ? item.detail.count : 1;
+            double discountSellingPrice = (item.isPack == true || item.detail.packtype == 'Pack')
+                ? (effectiveSellingPrice * (item.detail.pieces ?? 1) * itemCount)
+                : (effectiveSellingPrice * itemCount);
+
+            double newCustomerDiscount = 0.0;
+            if (discountData.discounts != null) {
+                for (var discount in discountData.discounts!) {
+                    if (discount.categoriesId == item.catId.toString() &&
+                        discountSellingPrice >
+                            (double.tryParse(discount.value ?? '0') ?? 0)) {
+                        newCustomerDiscount = double.tryParse(discount.discount ?? '0') ?? 0.0;
+                        break;
+                    }
+                }
+            }
+            item.CustomerDiscount = newCustomerDiscount;
+        }
+
         // 1. Calculate Base Sell Amount (Unit Price * Pieces per Pack)
-        double sellPrice = double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0;
+        double sellPrice = (item.detail.price != null && (double.tryParse(item.detail.price!) ?? 0.0) > 0.0)
+            ? (double.tryParse(item.detail.price!) ?? (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0))
+            : (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0);
         double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
             ? (item.detail.pieces ?? 1).toDouble()
             : 1.0;

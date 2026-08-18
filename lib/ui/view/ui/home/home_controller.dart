@@ -2,6 +2,7 @@
 
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/common/app_update_service.dart';
 import 'package:busskit_salesexecutive/common/common_binding.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -423,19 +424,51 @@ class HomeController extends GetxController {
             
 
 
-              SvgPicture.asset(
-                getSidebarIcon(index ?? 0),
-                // 'assets/new_icons/ic_user.svg',
-                height: index == 9 || index == 10 ? 30 : 24,
-                width: index == 9 || index == 10 ? 30 : 24,
-                color: sidebarXController.selectedIndex == index
-                    ? index == 9 || index == 10
-                        ? null
-                        : primaryColor
-                    : index == 9 || index == 10
-                        ? null
-                        : Colors.grey,
-              ),
+              Obx(() {
+                final hasUpdate = index == 9
+                    ? Get.find<AppUpdateService>().isUpdateAvailable.value
+                    : false;
+
+                Widget icon = SvgPicture.asset(
+                  getSidebarIcon(index ?? 0),
+                  // 'assets/new_icons/ic_user.svg',
+                  height: index == 9 || index == 10 ? 30 : 24,
+                  width: index == 9 || index == 10 ? 30 : 24,
+                  color: sidebarXController.selectedIndex == index
+                      ? index == 9 || index == 10
+                          ? null
+                          : primaryColor
+                      : index == 9 || index == 10
+                          ? null
+                          : Colors.grey,
+                );
+
+                if (index == 9) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      icon,
+                      if (hasUpdate)
+                        const Positioned(
+                          top: -5,
+                          left: -5,
+                          child: CircleAvatar(
+                            radius: 8,
+                            backgroundColor: Colors.red,
+                            child: Text(
+                              '1',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }
+                return icon;
+              }),
               const SizedBox(width: 20),
               Stack(
                 clipBehavior: Clip.none,

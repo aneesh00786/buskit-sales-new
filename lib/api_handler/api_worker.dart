@@ -106,7 +106,8 @@ class ApiWorker with ApiConstants {
           final cachedData = customerBox.get(cacheKey);
           if (cachedData == null) break;
           try {
-            final response = CustomerResponseModelxx.fromJson(ApiService().ensureStringKeyedMap(cachedData));
+            final response = CustomerResponseModelxx.fromJson(
+                ApiService().ensureStringKeyedMap(cachedData));
             for (var customer in response.data) {
               if (customer.imageUrl.isNotEmpty) {
                 customerUrls.add(customer.imageUrl);
@@ -136,12 +137,16 @@ class ApiWorker with ApiConstants {
         for (final relativeUrl in uniqueCustomerUrls) {
           if (relativeUrl.isEmpty) continue;
           final singleSlashUrl = getFullImageUrl(relativeUrl);
-          final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
-          final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
+          final cleanedRelative = relativeUrl.startsWith("/")
+              ? relativeUrl.substring(1)
+              : relativeUrl;
+          final doubleSlashUrl =
+              "${ApiConstants.imageBaseUrl}/$cleanedRelative";
 
           Future(() async {
             try {
-              final isStillConnected = await ConnectivityService().isConnected();
+              final isStillConnected =
+                  await ConnectivityService().isConnected();
               if (isStillConnected) {
                 await cacheManager.getSingleFile(singleSlashUrl);
                 await cacheManager.getSingleFile(doubleSlashUrl);
@@ -154,15 +159,19 @@ class ApiWorker with ApiConstants {
         for (final relativeUrl in uniqueProductUrls) {
           if (relativeUrl.isEmpty) continue;
           final singleSlashUrl = getFullImageUrl(relativeUrl);
-          final cleanedRelative = relativeUrl.startsWith("/") ? relativeUrl.substring(1) : relativeUrl;
-          final doubleSlashUrl = "${ApiConstants.imageBaseUrl}/$cleanedRelative";
+          final cleanedRelative = relativeUrl.startsWith("/")
+              ? relativeUrl.substring(1)
+              : relativeUrl;
+          final doubleSlashUrl =
+              "${ApiConstants.imageBaseUrl}/$cleanedRelative";
 
           _logSync("Caching Product Image URL 1: $singleSlashUrl");
           _logSync("Caching Product Image URL 2: $doubleSlashUrl");
 
           Future(() async {
             try {
-              final isStillConnected = await ConnectivityService().isConnected();
+              final isStillConnected =
+                  await ConnectivityService().isConnected();
               if (isStillConnected) {
                 await cacheManager.getSingleFile(singleSlashUrl);
                 await cacheManager.getSingleFile(doubleSlashUrl);
@@ -373,7 +382,7 @@ class ApiWorker with ApiConstants {
     try {
       final response = await responsePostMethod(
           requestData: data, endPoint: ApiConstants.login);
-          debugPrint("Login Response Data: ${response.data}");
+      debugPrint("Login Response Data: ${response.data}");
       if (response.data != null) {
         final status = response.data['status'];
         final message = response.data['message'] ?? 'No message available';
@@ -872,7 +881,9 @@ class ApiWorker with ApiConstants {
       throw Exception('Failed to fetch category Promo data: $error');
     }
   }
-  Future<List<ProductModel>> getTempProduct(String subCatId, {required int companyid}) async {
+
+  Future<List<ProductModel>> getTempProduct(String subCatId,
+      {required int companyid}) async {
     final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
     if (cachedProducts.isNotEmpty) {
       print('Returning cached B2B products instantly for subCatId: $subCatId');
@@ -885,9 +896,9 @@ class ApiWorker with ApiConstants {
       try {
         print('api called correctly get temp product (B2B)');
 
-     
-        String requestUrl = "${ApiConstants.baseUrl}fetch_product_b2b?company_id=$companyid";
-        
+        String requestUrl =
+            "${ApiConstants.baseUrl}fetch_product_b2b?company_id=$companyid";
+
         print('Requesting URL: $requestUrl');
 
         final response = await dio.getbycustom(requestUrl);
@@ -895,7 +906,7 @@ class ApiWorker with ApiConstants {
         if (response.statusCode == 200) {
           final responseData = response.data;
           List<ProductModel> productsForSubCategory = [];
- 
+
           if (responseData['status'] == true && responseData['data'] != null) {
             try {
               await _cacheProductsByScid(responseData['data']);
@@ -910,14 +921,11 @@ class ApiWorker with ApiConstants {
                     productsForSubCategory.add(ProductModel.fromJson(prod));
                   }
                 }
-               
-                
-                break; 
+
+                break;
               }
             }
           }
-
-         
 
           return productsForSubCategory;
         } else {
@@ -993,7 +1001,6 @@ class ApiWorker with ApiConstants {
   //   }
   // }
 
- 
   Future<List<ProductModel>> _loadCachedProductsBySubCategory(
       String subCatId) async {
     try {
@@ -1035,17 +1042,19 @@ class ApiWorker with ApiConstants {
       return [];
     }
   }
+
   Future<List<ProductModel>> getAllProducts({required int companyId}) async {
     final isConnected = await ConnectivityService().isOnline();
 
     if (isConnected) {
       try {
         print('get all product api called (B2B)');
-        
+
         final queryParams = {"company_id": companyId};
 
         final response = await dio.getbycustom(
-          ApiConstants.fetchProduct, // Make sure this is "fetch_product_b2b" in ApiConstants
+          ApiConstants
+              .fetchProduct, // Make sure this is "fetch_product_b2b" in ApiConstants
           queryParameters: queryParams,
         );
 
@@ -1068,7 +1077,8 @@ class ApiWorker with ApiConstants {
               // Pass the raw data to the cache function
               await _cacheProductsByScid(responseData['data']);
               await _verifyProductCache();
-              print("Products cached in Hive. Triggering background image caching.");
+              print(
+                  "Products cached in Hive. Triggering background image caching.");
               cacheSyncImages(companyId);
             } catch (cacheError) {
               print("Cache saving bypassed or failed: $cacheError");
@@ -1099,7 +1109,7 @@ class ApiWorker with ApiConstants {
           apiName: 'Get All Product B2B',
           response: e is DioException ? e.response : null,
         );
-        
+
         return [];
       }
     } else {
@@ -1116,28 +1126,25 @@ class ApiWorker with ApiConstants {
   //   if (isConnected) {
   //     try {
   //       print('get all product api called');
-        
+
   //       final queryParams = {"company_id": companyId};
-       
 
   //       final response = await dio.getbycustom(ApiConstants.fetchProduct,
   //           queryParameters: queryParams);
 
   //       if (response.statusCode == 200) {
   //         final responseData = response.data;
-         
+
   //         final productApiResponse = ProductApiResponse.fromJson(responseData);
 
   //         List<ProductModel> allProducts = [];
 
-         
   //         for (var scidGroup in productApiResponse.data) {
   //           allProducts.addAll(scidGroup.products);
   //         }
 
-        
   //         await _cacheProductsByScid(productApiResponse.data);
-   
+
   //         await _verifyProductCache();
 
   //         return allProducts;
@@ -1164,11 +1171,11 @@ class ApiWorker with ApiConstants {
   //         apiName: 'Get All Product',
   //         response: e is DioException ? e.response : null,
   //       );
-        
+
   //       return [];
   //     }
   //   } else {
-     
+
   //     final cachedProducts = await _loadCachedProducts();
   //     return cachedProducts;
   //   }
@@ -1266,7 +1273,8 @@ class ApiWorker with ApiConstants {
           if (rawGroup is Map<String, dynamic>) {
             scidGroups.add(ScidProductGroup.fromJson(rawGroup));
           } else if (rawGroup is Map) {
-            scidGroups.add(ScidProductGroup.fromJson(Map<String, dynamic>.from(rawGroup)));
+            scidGroups.add(
+                ScidProductGroup.fromJson(Map<String, dynamic>.from(rawGroup)));
           }
         } catch (e) {
           print("Error parsing raw group: $e");
@@ -1897,7 +1905,7 @@ class ApiWorker with ApiConstants {
       final response = await responsePostMethod(
           requestData: requestData,
           endPoint: ApiConstants.fetchPendingPayments);
-          log("API Response for pending payments: ${response.data}");
+      log("API Response for pending payments: ${response.data}");
       if (response.statusCode == 200 && response.data != null) {
         await pendingPaymentBox.put(cacheKey, response.data);
         return PendingPaymentResponse.fromJson(response.data);
@@ -1931,7 +1939,7 @@ class ApiWorker with ApiConstants {
       final response = await responsePostMethod(
           requestData: requestData,
           endPoint: ApiConstants.getAllPendingPaymentIndividuals);
-           log("API Response for individual pending payments: ${response.data}");
+      log("API Response for individual pending payments: ${response.data}");
       if (response.statusCode == 200) {
         return IndividualPendingPaymentResponse.fromJson(response.data);
       } else {
@@ -1945,6 +1953,7 @@ class ApiWorker with ApiConstants {
       return Future.error(handledError);
     }
   }
+
   Future<PaymentLinkResponse> createPaymentLink({
     required String customerId,
     required List<String> orderIds,
@@ -1953,7 +1962,8 @@ class ApiWorker with ApiConstants {
   }) async {
     try {
       final requestData = {
-        "companyId": SessionHelper.loginSavedData?.company_id ?? 1, // Fallback to 1 as per your payload
+        "companyId": SessionHelper.loginSavedData?.company_id ??
+            1, // Fallback to 1 as per your payload
         "customer_id": customerId,
         "order_ids": orderIds,
         "amount": amount,
@@ -1962,26 +1972,27 @@ class ApiWorker with ApiConstants {
 
       // If you add this to ApiConstants, replace the string with ApiConstants.createPaymentLink
       final response = await responsePostMethod(
-        requestData: requestData,
-        endPoint:ApiConstants.createPaymentLink
-         
-      );
-      
+          requestData: requestData, endPoint: ApiConstants.createPaymentLink);
+
       log("API Response for create payment link: ${response.data}");
 
       if (response.statusCode == 200) {
         return PaymentLinkResponse.fromJson(response.data);
       } else {
-        handleExceptionMessage(response: response, apiName: "create payment link");
+        handleExceptionMessage(
+            response: response, apiName: "create payment link");
         return Future.error('API Error: ${response.statusCode}');
       }
     } on DioException catch (error) {
       final handledError = DioExceptionHandler.fromDioError(error);
       handleExceptionMessage(
-          response: error.response, apiName: "create payment link", error: error);
+          response: error.response,
+          apiName: "create payment link",
+          error: error);
       return Future.error(handledError);
     }
   }
+
   Future<bool> sendPaymentLink({
     required String token,
     required String type,
@@ -1994,31 +2005,30 @@ class ApiWorker with ApiConstants {
         "token": token,
         "type": type,
       };
-      
+
       if (type == 'email' && email != null) {
         requestData["email"] = email;
       } else if (type == 'mobile' || type == 'whatsapp') {
         // Adjust "mobile" key if your API expects something else (e.g., "phone")
-        requestData["mobile"] = mobile!; 
+        requestData["mobile"] = mobile!;
       }
       print('Request data for sending payment link: $requestData');
 
       final response = await responsePostMethod(
-        requestData: requestData,
-        endPoint: ApiConstants.sendPaymentLink
-        
-      );
+          requestData: requestData, endPoint: ApiConstants.sendPaymentLink);
 
       log("API Response for send payment link: ${response.data}");
 
       if (response.statusCode == 200 && response.data['status'] == true) {
         return true;
       } else {
-        handleExceptionMessage(response: response, apiName: "send payment link");
+        handleExceptionMessage(
+            response: response, apiName: "send payment link");
         return false;
       }
     } on DioException catch (error) {
-      handleExceptionMessage(response: error.response, apiName: "send payment link", error: error);
+      handleExceptionMessage(
+          response: error.response, apiName: "send payment link", error: error);
       return false;
     }
   }

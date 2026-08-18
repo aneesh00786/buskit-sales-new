@@ -64,9 +64,9 @@ class GroupedItemDataRows {
                   (groupedItem.detail.count.toDouble())
               : groupedItem.detail.count.toDouble();
 
-      double sellPrice =
-          double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
-              0.0;
+      double sellPrice = (groupedItem.detail.price != null && (double.tryParse(groupedItem.detail.price!.toString()) ?? 0.0) > 0.0)
+          ? (double.tryParse(groupedItem.detail.price!.toString()) ?? (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0))
+          : (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0);
       int qtyFactor =
           (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
               ? (groupedItem.detail.pieces?.toInt() ?? 1)

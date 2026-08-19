@@ -424,26 +424,17 @@ class HomeController extends GetxController {
             
 
 
-              Obx(() {
-                final hasUpdate = index == 9
-                    ? Get.find<AppUpdateService>().isUpdateAvailable.value
-                    : false;
-
-                Widget icon = SvgPicture.asset(
-                  getSidebarIcon(index ?? 0),
-                  // 'assets/new_icons/ic_user.svg',
-                  height: index == 9 || index == 10 ? 30 : 24,
-                  width: index == 9 || index == 10 ? 30 : 24,
-                  color: sidebarXController.selectedIndex == index
-                      ? index == 9 || index == 10
-                          ? null
-                          : primaryColor
-                      : index == 9 || index == 10
-                          ? null
-                          : Colors.grey,
-                );
-
-                if (index == 9) {
+              if (index == 9)
+                Obx(() {
+                  final hasUpdate = Get.find<AppUpdateService>().isUpdateAvailable.value;
+                  Widget icon = SvgPicture.asset(
+                    getSidebarIcon(index ?? 0),
+                    height: 30,
+                    width: 30,
+                    color: sidebarXController.selectedIndex == index
+                        ? null
+                        : null,
+                  );
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
@@ -466,9 +457,20 @@ class HomeController extends GetxController {
                         ),
                     ],
                   );
-                }
-                return icon;
-              }),
+                })
+              else
+                SvgPicture.asset(
+                  getSidebarIcon(index ?? 0),
+                  height: index == 10 ? 30 : 24,
+                  width: index == 10 ? 30 : 24,
+                  color: sidebarXController.selectedIndex == index
+                      ? index == 10
+                          ? null
+                          : primaryColor
+                      : index == 10
+                          ? null
+                          : Colors.grey,
+                ),
               const SizedBox(width: 20),
               Stack(
                 clipBehavior: Clip.none,

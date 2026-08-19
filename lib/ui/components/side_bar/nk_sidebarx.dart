@@ -272,6 +272,16 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                         imageUrl: widget.userDetails.imagePath ?? '',
                         height: ResponsiveInfo.isMobile() ? 50 : 75,
                         width: ResponsiveInfo.isMobile() ? 50 : 75,
+                        errorWidget: (context, url, error) {
+                          return Container(
+                            color: Colors.grey.shade300,
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.grey.shade600,
+                              size: ResponsiveInfo.isMobile() ? 30 : 45,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),

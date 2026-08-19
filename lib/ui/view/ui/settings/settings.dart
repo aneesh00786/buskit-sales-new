@@ -185,7 +185,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           if (hasUpdate)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                              padding: const EdgeInsets.only(
+                                  top: 8.0, bottom: 8.0, left: 4.0, right: 16.0),
                               child: _buildUpdateAppButton(),
                             ),
                         ],
@@ -1292,59 +1293,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildUpdateAppButton() {
-    return Center(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        ElevatedButton.icon(
+          onPressed: () {
+            Get.find<AppUpdateService>().checkForUpdates();
+          },
+          icon: const Icon(Icons.system_update_alt, size: 18),
+          label: Text(
+            'Update App'.tr,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade600,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Get.find<AppUpdateService>().checkForUpdates();
-              },
-              icon: const Icon(EneftyIcons.refresh_circle_outline, size: 18),
-              label: Text(
-                'Update App'.tr,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: Colors.white,
-                shadowColor: Colors.transparent,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          Positioned(
-            top: -5,
-            right: -5,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              child: const Text(
-                '1',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+        ),
+        // Badge indicator showing 1 available update
+        Positioned(
+          top: -6,
+          right: -8,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE53935),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFE53935).withOpacity(0.4),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
+              ],
+            ),
+            child: const Text(
+              '1',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+                height: 1.2,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

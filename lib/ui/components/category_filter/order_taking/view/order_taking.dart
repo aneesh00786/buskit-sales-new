@@ -107,7 +107,6 @@ class _OrderTakingState extends State<OrderTaking>
 
   @override
   void initState() {
-
     {
       final cartProvider =
           Provider.of<CustomersProvider>(context, listen: false);
@@ -292,8 +291,7 @@ class _OrderTakingState extends State<OrderTaking>
     // log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: 
-       AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         shadowColor: Colors.transparent,
@@ -307,20 +305,19 @@ class _OrderTakingState extends State<OrderTaking>
         leading: homeController.selectedIndex.value == 2
             ? SizedBox.shrink()
             : SingleChildScrollView(
-                child: 
-                IconButton(
-                   onPressed: () async {
-                     widget.productsController.handleBackNavigation(
+                child: IconButton(
+                  onPressed: () async {
+                    widget.productsController.handleBackNavigation(
                       context: context,
                       isDirectDialogue: widget.isDirectDialogue,
-                       isFromOrder: widget.isFromOrder,
+                      isFromOrder: widget.isFromOrder,
                       isFromCalender: widget.isFromCalender,
                       // isFromProducts: widget.isFromProducts,
                       customerId:
                           widget.productsController.selectedCustomerId.value,
                       homeController: homeController,
                     );
-                   
+
                     await Provider.of<CustomersProvider>(context, listen: false)
                         .fetchOrdersForCustomDash(
                       OrderStatus.draft,
@@ -542,43 +539,40 @@ class _OrderTakingState extends State<OrderTaking>
                                 ),
 
                                 Expanded(
-                            child: InkWell(
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                bottomRight: Radius.circular(10),
-                              ),
-                              onTap: () {
-                                setState(() => selectedIndex = 2);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: selectedIndex == 2
-                                      ? skyBlueColor
-                                      : Colors.white,
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                    bottomRight: Radius.circular(10),
+                                  child: InkWell(
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                    onTap: () {
+                                      setState(() => selectedIndex = 2);
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: selectedIndex == 2
+                                            ? skyBlueColor
+                                            : Colors.white,
+                                        borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(10),
+                                          bottomRight: Radius.circular(10),
+                                        ),
+                                      ),
+                                      alignment: Alignment.center,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      child: Text(
+                                        "Bulk".tr,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: selectedIndex == 2
+                                              ? Colors.white
+                                              : Colors.black87,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                alignment: Alignment.center,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                child: Text(
-                                  "Bulk".tr,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: selectedIndex == 2
-                                        ? Colors.white
-                                        : Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                                
-
-                                
                               ],
                             ),
                           ),
@@ -676,44 +670,43 @@ class _OrderTakingState extends State<OrderTaking>
                                   ),
                                 ),
                               ),
-                              
                             ),
 
                             Expanded(
-                        child: InkWell(
-                          borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
-                          ),
-                          onTap: () {
-                            setState(() => selectedIndex = 2);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: selectedIndex == 2
-                                  ? skyBlueColor
-                                  : Colors.white,
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                bottomRight: Radius.circular(10),
+                              child: InkWell(
+                                borderRadius: const BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
+                                ),
+                                onTap: () {
+                                  setState(() => selectedIndex = 2);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: selectedIndex == 2
+                                        ? skyBlueColor
+                                        : Colors.white,
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: Text(
+                                    "Bulk".tr,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: selectedIndex == 2
+                                          ? Colors.white
+                                          : Colors.black87,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                            alignment: Alignment.center,
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              "Bulk".tr,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: selectedIndex == 2
-                                    ? Colors.white
-                                    : Colors.black87,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                           ],
                         ),
                       ),
@@ -782,7 +775,7 @@ class _OrderTakingState extends State<OrderTaking>
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                           MyRegularText(
+                                          MyRegularText(
                                             label: "Customer".tr,
                                             fontSize: 9,
                                           ),
@@ -801,641 +794,801 @@ class _OrderTakingState extends State<OrderTaking>
                 )
               ],
       ),
-    
-      body: 
-      Obx(() {
-  if (selectedIndex == 0) {
-    if (widget.productsController.categoryData.value.data == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 76),
-            Expanded(
-              child: Stack(
+      body: selectedIndex == 0
+          ? Obx(() {
+              if (widget.productsController.categoryData.value.data == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return Stack(
+                alignment: Alignment.topCenter,
                 children: [
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(width: 60),
+                      const SizedBox(height: 76),
                       Expanded(
-                        child: ProductGrid(
-                          optionName: _selectedOption,
-                          productsController: widget.productsController,
-                          id: _id,
-                          playAddToCartAnimation: playAddToCartAnimation,
+                        child: Stack(
+                          children: [
+                            Row(
+                              children: [
+                                const SizedBox(width: 60),
+                                Expanded(
+                                  child: ProductGrid(
+                                    optionName: _selectedOption,
+                                    productsController:
+                                        widget.productsController,
+                                    id: _id,
+                                    playAddToCartAnimation:
+                                        playAddToCartAnimation,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 10),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Obx(
-          () => Padding(
-            padding: EdgeInsets.only(
-              left: widget.productsController.selectedCustomerName.isEmpty ? 45 : 0,
-              top: 10,
-              right: 20,
-            ),
-            child: Consumer<CustomersProvider>(
-              builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: isTabletOrPhoneLandscape(context)
-                        ? MediaQuery.of(context).size.width * 0.40
-                        : MediaQuery.of(context).size.width * 0.3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomSearchBar(
-                          text: "Search customer...".tr,
-                          controller: customerSearchController,
-                          onChange: (value) {
-                            filterCustomers(value);
-                          },
-                          icon: EneftyIcons.profile_outline,
-                        ),
-                        Expanded(
-                          child: isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : customerSearchController.text.isNotEmpty
-                                  ? filteredCustomers.isEmpty
-                                      ? Align(
-                                          alignment: Alignment.topCenter,
-                                          child: Material(
-                                            child: Container(
-                                              width: 300,
-                                              decoration: const BoxDecoration(color: Colors.white),
-                                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                              child: const Text(
-                                                'No customers found.',
-                                                style: TextStyle(fontSize: 16),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: filteredCustomers.length,
-                                          itemBuilder: (context, index) {
-                                            CustomerAndOrderData customer = filteredCustomers[index];
-                                            return Container(
-                                              color: Colors.white,
-                                              child: ListTile(
-                                                leading: CircleAvatar(
-                                                  backgroundImage: NetworkImage(
-                                                    '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 70,
+                      top: 10,
+                      right: 20,
+                    ),
+                    child: Consumer<CustomersProvider>(
+                      builder: (context, provider, child) => Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: isTabletOrPhoneLandscape(context)
+                                ? MediaQuery.of(context).size.width * 0.43
+                                : MediaQuery.of(context).size.width * 0.3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomSearchBar(
+                                  text: "Search customer...".tr,
+                                  controller: customerSearchController,
+                                  onChange: (value) {
+                                    filterCustomers(value);
+                                  },
+                                  icon: EneftyIcons.profile_outline,
+                                ),
+                                Expanded(
+                                  child: isLoading
+                                      ? const Center(
+                                          child: CircularProgressIndicator())
+                                      : customerSearchController.text.isNotEmpty
+                                          ? filteredCustomers.isEmpty
+                                              ? Align(
+                                                  alignment:
+                                                      Alignment.topCenter,
+                                                  child: Material(
+                                                    child: Container(
+                                                      width: 300,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                              color:
+                                                                  Colors.white),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 10,
+                                                          horizontal: 20),
+                                                      child: const Text(
+                                                        'No customers found.',
+                                                        style: TextStyle(
+                                                            fontSize: 16),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                                title: Text(customer.businessName ?? ''),
-                                                subtitle: Text(customer.customerId ?? ''),
-                                                onTap: () async {
-                                                  await provider.updateCartCount(customer.customerId ?? '');
-                                                  if (customerAndOrderController.isActive.value == true) {
-                                                    _showWarningDialog(
-                                                      context,
-                                                      'Please check out from the current customer',
-                                                      const Center(
-                                                        child: Icon(
-                                                          Icons.warning_amber_outlined,
-                                                          size: 40,
-                                                          color: Colors.orange,
+                                                )
+                                              : ListView.builder(
+                                                  shrinkWrap: true,
+                                                  itemCount:
+                                                      filteredCustomers.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    CustomerAndOrderData
+                                                        customer =
+                                                        filteredCustomers[
+                                                            index];
+                                                    return Container(
+                                                      color: Colors.white,
+                                                      child: ListTile(
+                                                        leading: CircleAvatar(
+                                                          backgroundImage:
+                                                              NetworkImage(
+                                                            '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                                                          ),
                                                         ),
+                                                        title: Text(customer
+                                                                .businessName ??
+                                                            ''),
+                                                        subtitle: Text(customer
+                                                                .customerId ??
+                                                            ''),
+                                                        onTap: () async {
+                                                          await provider
+                                                              .updateCartCount(
+                                                                  customer.customerId ??
+                                                                      '');
+                                                          if (customerAndOrderController
+                                                                  .isActive
+                                                                  .value ==
+                                                              true) {
+                                                            _showWarningDialog(
+                                                              context,
+                                                              'Please check out from the current customer',
+                                                              const Center(
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .warning_amber_outlined,
+                                                                  size: 40,
+                                                                  color: Colors
+                                                                      .orange,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          } else {
+                                                            customerAndOrderController
+                                                                .setCustomerId(
+                                                                    customer.customerId ??
+                                                                        '');
+                                                            widget
+                                                                .productsController
+                                                                .updateSelectedCustomer(
+                                                              id: customer
+                                                                      .customerId ??
+                                                                  '',
+                                                              imageUrl: customer
+                                                                      .imageUrl ??
+                                                                  '',
+                                                              name: customer
+                                                                      .businessName ??
+                                                                  '',
+                                                            );
+                                                            widget
+                                                                .productsController
+                                                                .selectedCustomerId
+                                                                .value = customer
+                                                                    .customerId ??
+                                                                '';
+                                                            customerSearchController
+                                                                .clear();
+                                                          }
+                                                        },
                                                       ),
                                                     );
-                                                  } else {
-                                                    customerAndOrderController.setCustomerId(customer.customerId ?? '');
-                                                    widget.productsController.updateSelectedCustomer(
-                                                      id: customer.customerId ?? '',
-                                                      imageUrl: customer.imageUrl ?? '',
-                                                      name: customer.businessName ?? '',
-                                                    );
-                                                    widget.productsController.selectedCustomerId.value = customer.customerId ?? '';
-                                                    customerSearchController.clear();
-                                                  }
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        )
-                                  : const SizedBox.shrink(),
-                        ),
-                        if (widget.productsController.showDialog.value)
-                          AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-                            actionsAlignment: MainAxisAlignment.center,
-                            title: const Text('Warning'),
-                            content: Text(_dialogMessage),
-                            actions: [
-                              SizedBox(
-                                width: 150,
-                                height: 45,
-                                child: OutlinedButton(
-                                  onPressed: widget.productsController.closeDialog,
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Color(0xFF727CF5), width: 2),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'OK'.tr,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      color: Color(0xFF727CF5),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
+                                                  },
+                                                )
+                                          : const SizedBox.shrink(),
                                 ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      reverse: true,
-                      child: IntrinsicWidth(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                        const ChatbotTopBarButton(routeName: "/order_taking"),
-                        const SizedBox(width: 8),
-                        Hero(
-                          tag: 'product_image',
-                          child: AnimatedBuilder(
-                            animation: animationController,
-                            builder: (context, child) {
-                              return Transform.translate(
-                                offset: Offset(0, animation.value),
-                                child: child,
-                              );
-                            },
-                            child: Consumer<CustomersProvider>(
-                              builder: (context, provider, child) => IconButton(
-                                onPressed: () {
-                                  _showCartDialog(cartDialogKey);
-                                },
-                                icon: Stack(
-                                  children: [
-                                    const Icon(Icons.shopping_cart_outlined, size: 30),
-                                    if (isCartCountLoading)
-                                      const Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                if (widget.productsController.showDialog.value)
+                                  AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    actionsPadding: const EdgeInsets.only(
+                                        bottom: 20, left: 16, right: 16),
+                                    actionsAlignment: MainAxisAlignment.center,
+                                    title: const Text('Warning'),
+                                    content: Text(_dialogMessage),
+                                    actions: [
+                                      SizedBox(
+                                        width: 150,
+                                        height: 45,
+                                        child: OutlinedButton(
+                                          onPressed: widget
+                                              .productsController.closeDialog,
+                                          style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(
+                                                color: Color(0xFF727CF5),
+                                                width: 2),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'OK'.tr,
+                                            style: const TextStyle(
+                                              fontFamily: 'Poppins_Regular',
+                                              color: Color(0xFF727CF5),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
                                           ),
                                         ),
-                                      )
-                                    else if (provider.cartItemCount > 0)
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                                          child: Center(
-                                            child: Text(
-                                              '${provider.cartItemCount}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                reverse: true,
+                                child: IntrinsicWidth(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      const ChatbotTopBarButton(
+                                          routeName: "/order_taking"),
+                                      const SizedBox(width: 8),
+                                      Hero(
+                                        tag: 'product_image',
+                                        child: AnimatedBuilder(
+                                          animation: animationController,
+                                          builder: (context, child) {
+                                            return Transform.translate(
+                                              offset:
+                                                  Offset(0, animation.value),
+                                              child: child,
+                                            );
+                                          },
+                                          child: Consumer<CustomersProvider>(
+                                            builder:
+                                                (context, provider, child) =>
+                                                    IconButton(
+                                              onPressed: () {
+                                                _showCartDialog(cartDialogKey);
+                                              },
+                                              icon: Stack(
+                                                children: [
+                                                  const Icon(
+                                                      Icons
+                                                          .shopping_cart_outlined,
+                                                      size: 30),
+                                                  if (isCartCountLoading)
+                                                    const Positioned(
+                                                      right: 0,
+                                                      top: 0,
+                                                      child: SizedBox(
+                                                        width: 16,
+                                                        height: 16,
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          valueColor:
+                                                              AlwaysStoppedAnimation<
+                                                                      Color>(
+                                                                  Colors.red),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  else if (provider
+                                                          .cartItemCount >
+                                                      0)
+                                                    Positioned(
+                                                      right: 0,
+                                                      top: 0,
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(2),
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          color: Colors.red,
+                                                          shape:
+                                                              BoxShape.circle,
+                                                        ),
+                                                        constraints:
+                                                            const BoxConstraints(
+                                                                minWidth: 16,
+                                                                minHeight: 16),
+                                                        child: Center(
+                                                          child: Text(
+                                                            '${provider.cartItemCount}',
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Consumer<CustomersProvider>(
-                          builder: (context, provider, child) {
-                            if (provider.cartItemCount > 0) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: Text(
-                                  '${addCurrencySymbol()}${provider.cartTotalAmount.toStringAsFixed(2)}',
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryColor,
+                                      Consumer<CustomersProvider>(
+                                        builder: (context, provider, child) {
+                                          if (provider.cartItemCount > 0) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4.0),
+                                              child: Text(
+                                                '${addCurrencySymbol()}${provider.cartTotalAmount.toStringAsFixed(2)}',
+                                                maxLines: 1,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: primaryColor,
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          return const SizedBox.shrink();
+                                        },
+                                      ),
+                                      const SizedBox(width: 10),
+                                      IntrinsicWidth(
+                                        child: CustomSwitch(
+                                          initialValue:
+                                              customerAndOrderController
+                                                  .isActive.value,
+                                          onChanged: (value) {
+                                            print(
+                                                'customer id in check out switch:${widget.selectedCustId.toString()}');
+                                            customerAndOrderController
+                                                .isActive.value = value;
+                                          },
+                                          active: customerAndOrderController
+                                              .isActive.value,
+                                          selectedName: widget
+                                              .productsController
+                                              .selectedCustomerName
+                                              .value,
+                                          customerId: widget.productsController
+                                              .selectedCustomerId.value
+                                              .toString(),
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        const SizedBox(width: 10),
-                        IntrinsicWidth(
-                          child: CustomSwitch(
-                            initialValue: customerAndOrderController.isActive.value,
-                            onChanged: (value) {
-                              print('customer id in check out switch:${widget.selectedCustId.toString()}');
-                              customerAndOrderController.isActive.value = value;
-                            },
-                            active: customerAndOrderController.isActive.value,
-                            selectedName: widget.productsController.selectedCustomerName.value,
-                            customerId:  widget.productsController.selectedCustomerId.value.toString(),
-                          ),
-                        )
-                      ],
+                                )),
+                          )
+                        ],
+                      ),
                     ),
-                  )
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (_isDrawerOpen)
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isDrawerOpen = false;
-                });
-                _drawerTimer?.cancel();
-              },
-              child: Container(color: Colors.transparent),
-            ),
-          ),
-        Positioned(
-          left: 0,
-          top: 0,
-          bottom: 0,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 60),
-            child: Container(
-              width: 50,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              color: primaryColor.withOpacity(0.2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.menu, size: 20, color: primaryColor),
-                    onPressed: _toggleDrawer,
                   ),
-                  const SizedBox(height: 20),
-                  Expanded(
+                  if (_isDrawerOpen)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isDrawerOpen = false;
+                          });
+                          _drawerTimer?.cancel();
+                        },
+                        child: Container(color: Colors.transparent),
+                      ),
+                    ),
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: ListView.builder(
-                        itemCount: widget.productsController.categoryData.value.data?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          List<CategoryData> categories = widget.productsController.categoryData.value.data ?? [];
-                          String categoryName = categories[index].categoryName ?? '';
-                          String initial = categoryName.isNotEmpty ? categoryName[0].toUpperCase() : '';
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                _selectCategory(categoryName);
-                              },
-                              child: Container(
-                                width: 50,
-                                height: 44,
-                                alignment: Alignment.center,
-                                child: Text(
-                                  initial,
-                                  style: const TextStyle(fontSize: 16, color: primaryColor, fontWeight: FontWeight.bold),
+                      padding: const EdgeInsets.only(top: 75),
+                      child: Container(
+                        width: 50,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        color: primaryColor.withOpacity(0.2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.menu,
+                                  size: 20, color: primaryColor),
+                              onPressed: _toggleDrawer,
+                            ),
+                            const SizedBox(height: 20),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: ListView.builder(
+                                  itemCount: widget.productsController
+                                          .categoryData.value.data?.length ??
+                                      0,
+                                  itemBuilder: (context, index) {
+                                    List<CategoryData> categories = widget
+                                            .productsController
+                                            .categoryData
+                                            .value
+                                            .data ??
+                                        [];
+                                    String categoryName =
+                                        categories[index].categoryName ?? '';
+                                    String initial = categoryName.isNotEmpty
+                                        ? categoryName[0].toUpperCase()
+                                        : '';
+                                    return Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () {
+                                          _selectCategory(categoryName);
+                                        },
+                                        child: Container(
+                                          width: 50,
+                                          height: 44,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            initial,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                color: primaryColor,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             ),
-                          );
-                        },
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    top: 0,
+                    bottom: 0,
+                    left: _isDrawerOpen ? 50 : -_drawerWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 75),
+                      child: Container(
+                        width: _drawerWidth,
+                        color: Colors.white,
+                        child: CategoryList(
+                          productsController: widget.productsController,
+                          categories: widget
+                              .productsController.categoryData.value.data!
+                              .map((entry) {
+                            return CategoryItem(
+                              title: entry.categoryName ?? '',
+                              options: entry.subCategoryItem ?? [],
+                            );
+                          }).toList(),
+                          onOptionSelected: (selectedSubcategoryId) {
+                            _fetchProductsByCategory(selectedSubcategoryId);
+                          },
+                          onDrawerToggle: _toggleDrawer,
+                          selectedCategory: _selectedCategory,
+                        ),
                       ),
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-        ),
-      
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 300),
-          top: 0,
-          bottom: 0,
-          left: _isDrawerOpen ? 50 : -_drawerWidth,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 60),
-            child: Container(
-              width: _drawerWidth,
-              color: Colors.white,
-              child: CategoryList(
-                
-                productsController: widget.productsController,
-                categories: widget.productsController.categoryData.value.data!
-                    .map((entry) {
-                  return CategoryItem(
-                    title: entry.categoryName ?? '',
-                    options: entry.subCategoryItem ?? [],
-                  );
-                }).toList(),
-                onOptionSelected: (selectedSubcategoryId) {
-                  _fetchProductsByCategory(selectedSubcategoryId);
-                },
-                onDrawerToggle: _toggleDrawer,
-                selectedCategory: _selectedCategory,
-              ),
-              
-            ),
-          ),
-        ),
-      
-      ],
-    );
-  } else {
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Column(
-          children: [
-            SizedBox(height: 76),
-            Expanded(
-              child: selectedIndex == 1
-                  ? PromotionScreen(controller: widget.productsController)
-                  : selectedIndex == 2
-                      ? BulkScreen()
-                      : SizedBox.shrink(),
-            ),
-          ],
-        ),
-        Obx(
-          () => Padding(
-            padding: EdgeInsets.only(
-              left: widget.productsController.selectedCustomerName.isEmpty ? 40 : 0,
-              top: 10,
-              right: 20,
-            ),
-            child: Consumer<CustomersProvider>(
-              builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: isTabletOrPhoneLandscape(context)
-                        ? MediaQuery.of(context).size.width * 0.40
-                        : MediaQuery.of(context).size.width * 0.25,
-                    child: Column(
+              );
+            })
+          : Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Column(
+                  children: [
+                    SizedBox(height: 76),
+                    Expanded(
+                      child: selectedIndex == 1
+                          ? PromotionScreen(
+                              controller: widget.productsController)
+                          : selectedIndex == 2
+                              ? BulkScreen()
+                              : SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 70,
+                    top: 10,
+                    right: 20,
+                  ),
+                  child: Consumer<CustomersProvider>(
+                    builder: (context, provider, child) => Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CustomSearchBar(
-                          text: "Search customer...".tr,
-                          controller: customerSearchController,
-                          onChange: (value) {
-                            filterCustomers(value);
-                          },
-                          icon: EneftyIcons.profile_outline,
-                        ),
-                        Expanded(
-                          child: isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : customerSearchController.text.isNotEmpty
-                                  ? filteredCustomers.isEmpty
-                                      ? Align(
-                                          alignment: Alignment.topCenter,
-                                          child: Material(
-                                            child: Container(
-                                              width: 300,
-                                              decoration: const BoxDecoration(color: Colors.white),
-                                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                              child: const Text(
-                                                'No customers found.',
-                                                style: TextStyle(fontSize: 16),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : ListView.builder(
-                                          shrinkWrap: true,
-                                          itemCount: filteredCustomers.length,
-                                          itemBuilder: (context, index) {
-                                            CustomerAndOrderData customer = filteredCustomers[index];
-                                            return Container(
-                                              color: Colors.white,
-                                              child: ListTile(
-                                                leading: CircleAvatar(
-                                                  backgroundImage: NetworkImage(
-                                                    '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
+                        SizedBox(
+                          width: isTabletOrPhoneLandscape(context)
+                              ? MediaQuery.of(context).size.width * 0.43
+                              : MediaQuery.of(context).size.width * 0.25,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomSearchBar(
+                                text: "Search customer...".tr,
+                                controller: customerSearchController,
+                                onChange: (value) {
+                                  filterCustomers(value);
+                                },
+                                icon: EneftyIcons.profile_outline,
+                              ),
+                              Expanded(
+                                child: isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator())
+                                    : customerSearchController.text.isNotEmpty
+                                        ? filteredCustomers.isEmpty
+                                            ? Align(
+                                                alignment: Alignment.topCenter,
+                                                child: Material(
+                                                  child: Container(
+                                                    width: 300,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                            color:
+                                                                Colors.white),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 10,
+                                                        horizontal: 20),
+                                                    child: const Text(
+                                                      'No customers found.',
+                                                      style: TextStyle(
+                                                          fontSize: 16),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
                                                   ),
                                                 ),
-                                                title: Text(customer.businessName ?? ''),
-                                                subtitle: Text(customer.customerId ?? ''),
-                                                onTap: () async {
-                                                  await provider.updateCartCount(customer.customerId ?? '');
-                                                  if (customerAndOrderController.isActive.value == true) {
-                                                    _showWarningDialog(
-                                                      context,
-                                                      'Please check out from the current customer',
-                                                      const Center(
-                                                        child: Icon(
-                                                          Icons.warning_amber_outlined,
-                                                          size: 40,
-                                                          color: Colors.orange,
+                                              )
+                                            : ListView.builder(
+                                                shrinkWrap: true,
+                                                itemCount:
+                                                    filteredCustomers.length,
+                                                itemBuilder: (context, index) {
+                                                  CustomerAndOrderData
+                                                      customer =
+                                                      filteredCustomers[index];
+                                                  return Container(
+                                                    color: Colors.white,
+                                                    child: ListTile(
+                                                      leading: CircleAvatar(
+                                                        backgroundImage:
+                                                            NetworkImage(
+                                                          '${ApiConstants.imageBaseUrlss}/${customer.imageUrl}',
                                                         ),
                                                       ),
-                                                    );
-                                                  } else {
-                                                    customerAndOrderController.setCustomerId(customer.customerId ?? '');
-                                                    widget.productsController.updateSelectedCustomer(
-                                                      id: customer.customerId ?? '',
-                                                      imageUrl: customer.imageUrl ?? '',
-                                                      name: customer.businessName ?? '',
-                                                    );
-                                                    widget.productsController.selectedCustomerId.value = customer.customerId ?? '';
-                                                    customerSearchController.clear();
-                                                  }
+                                                      title: Text(customer
+                                                              .businessName ??
+                                                          ''),
+                                                      subtitle: Text(
+                                                          customer.customerId ??
+                                                              ''),
+                                                      onTap: () async {
+                                                        await provider
+                                                            .updateCartCount(
+                                                                customer.customerId ??
+                                                                    '');
+                                                        if (customerAndOrderController
+                                                                .isActive
+                                                                .value ==
+                                                            true) {
+                                                          _showWarningDialog(
+                                                            context,
+                                                            'Please check out from the current customer',
+                                                            const Center(
+                                                              child: Icon(
+                                                                Icons
+                                                                    .warning_amber_outlined,
+                                                                size: 40,
+                                                                color: Colors
+                                                                    .orange,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          customerAndOrderController
+                                                              .setCustomerId(
+                                                                  customer.customerId ??
+                                                                      '');
+                                                          widget
+                                                              .productsController
+                                                              .updateSelectedCustomer(
+                                                            id: customer
+                                                                    .customerId ??
+                                                                '',
+                                                            imageUrl: customer
+                                                                    .imageUrl ??
+                                                                '',
+                                                            name: customer
+                                                                    .businessName ??
+                                                                '',
+                                                          );
+                                                          widget
+                                                              .productsController
+                                                              .selectedCustomerId
+                                                              .value = customer
+                                                                  .customerId ??
+                                                              '';
+                                                          customerSearchController
+                                                              .clear();
+                                                        }
+                                                      },
+                                                    ),
+                                                  );
                                                 },
-                                              ),
-                                            );
-                                          },
-                                        )
-                                  : const SizedBox.shrink(),
-                        ),
-                        if (widget.productsController.showDialog.value)
-                          AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-                            actionsAlignment: MainAxisAlignment.center,
-                            title: const Text('Warning'),
-                            content: Text(_dialogMessage),
-                            actions: [
-                              SizedBox(
-                                width: 150,
-                                height: 45,
-                                child: OutlinedButton(
-                                  onPressed: widget.productsController.closeDialog,
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Color(0xFF727CF5), width: 2),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'OK'.tr,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      color: Color(0xFF727CF5),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
+                                              )
+                                        : const SizedBox.shrink(),
                               ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                  IntrinsicWidth(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        const ChatbotTopBarButton(routeName: "/order_taking"),
-                        const SizedBox(width: 8),
-                        Hero(
-                          tag: 'product_image',
-                          child: AnimatedBuilder(
-                            animation: animationController,
-                            builder: (context, child) {
-                              return Transform.translate(
-                                offset: Offset(0, animation.value),
-                                child: child,
-                              );
-                            },
-                            child: Consumer<CustomersProvider>(
-                              builder: (context, provider, child) => IconButton(
-                                onPressed: () {
-                                  _showCartDialog(cartDialogKey);
-                                },
-                                icon: Stack(
-                                  children: [
-                                    const Icon(Icons.shopping_cart_outlined, size: 30),
-                                    if (isCartCountLoading)
-                                      const Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                              if (widget.productsController.showDialog.value)
+                                AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  actionsPadding: const EdgeInsets.only(
+                                      bottom: 20, left: 16, right: 16),
+                                  actionsAlignment: MainAxisAlignment.center,
+                                  title: const Text('Warning'),
+                                  content: Text(_dialogMessage),
+                                  actions: [
+                                    SizedBox(
+                                      width: 150,
+                                      height: 45,
+                                      child: OutlinedButton(
+                                        onPressed: widget
+                                            .productsController.closeDialog,
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(
+                                              color: Color(0xFF727CF5),
+                                              width: 2),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(24),
                                           ),
                                         ),
-                                      )
-                                    else if (provider.cartItemCount > 0)
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                                          child: Center(
-                                            child: Text(
-                                              '${provider.cartItemCount}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+                                        child: Text(
+                                          'OK'.tr,
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins_Regular',
+                                            color: Color(0xFF727CF5),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
                                           ),
                                         ),
                                       ),
+                                    ),
                                   ],
                                 ),
-                              ),
-                            ),
+                            ],
                           ),
                         ),
-                        Consumer<CustomersProvider>(
-                          builder: (context, provider, child) {
-                            if (provider.cartItemCount > 0) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: Text(
-                                  '${addCurrencySymbol()}${provider.cartTotalAmount.toStringAsFixed(2)}',
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryColor,
+                        const SizedBox(width: 20),
+                        IntrinsicWidth(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              const ChatbotTopBarButton(
+                                  routeName: "/order_taking"),
+                              const SizedBox(width: 8),
+                              Hero(
+                                tag: 'product_image',
+                                child: AnimatedBuilder(
+                                  animation: animationController,
+                                  builder: (context, child) {
+                                    return Transform.translate(
+                                      offset: Offset(0, animation.value),
+                                      child: child,
+                                    );
+                                  },
+                                  child: Consumer<CustomersProvider>(
+                                    builder: (context, provider, child) =>
+                                        IconButton(
+                                      onPressed: () {
+                                        _showCartDialog(cartDialogKey);
+                                      },
+                                      icon: Stack(
+                                        children: [
+                                          const Icon(
+                                              Icons.shopping_cart_outlined,
+                                              size: 30),
+                                          if (isCartCountLoading)
+                                            const Positioned(
+                                              right: 0,
+                                              top: 0,
+                                              child: SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(Colors.red),
+                                                ),
+                                              ),
+                                            )
+                                          else if (provider.cartItemCount > 0)
+                                            Positioned(
+                                              right: 0,
+                                              top: 0,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(2),
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.red,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        minWidth: 16,
+                                                        minHeight: 16),
+                                                child: Center(
+                                                  child: Text(
+                                                    '${provider.cartItemCount}',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        const SizedBox(width: 10),
-                        IntrinsicWidth(
-                          child: CustomSwitch(
-                            initialValue: customerAndOrderController.isActive.value,
-                            onChanged: (value) {
-                               print('customer id in check out switch:${widget.selectedCustId.toString()}');
-                              customerAndOrderController.isActive.value = value;
-                            },
-                            active: customerAndOrderController.isActive.value,
-                            selectedName: widget.productsController.selectedCustomerName.value,
-                            customerId: widget.productsController.selectedCustomerId.value.toString(),
+                              ),
+                              Consumer<CustomersProvider>(
+                                builder: (context, provider, child) {
+                                  if (provider.cartItemCount > 0) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4.0),
+                                      child: Text(
+                                        '${addCurrencySymbol()}${provider.cartTotalAmount.toStringAsFixed(2)}',
+                                        maxLines: 1,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: primaryColor,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              IntrinsicWidth(
+                                child: CustomSwitch(
+                                  initialValue:
+                                      customerAndOrderController.isActive.value,
+                                  onChanged: (value) {
+                                    print(
+                                        'customer id in check out switch:${widget.selectedCustId.toString()}');
+                                    customerAndOrderController.isActive.value =
+                                        value;
+                                  },
+                                  active:
+                                      customerAndOrderController.isActive.value,
+                                  selectedName: widget.productsController
+                                      .selectedCustomerName.value,
+                                  customerId: widget.productsController
+                                      .selectedCustomerId.value
+                                      .toString(),
+                                ),
+                              )
+                            ],
                           ),
                         )
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ),
-      ],
-    );
-  }
-}),
-     
     );
   }
 
@@ -1519,7 +1672,8 @@ class _OrderTakingState extends State<OrderTaking>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            actionsPadding:
+                const EdgeInsets.only(bottom: 20, left: 16, right: 16),
             actionsAlignment: MainAxisAlignment.center,
             actions: [
               const SizedBox(height: 20),
@@ -1590,7 +1744,10 @@ class _OrderTakingState extends State<OrderTaking>
             await draftBox.delete(key);
           }
           for (var detail in details) {
-            final String packTypeStr = (detail['packType'] ?? detail['packtype'] ?? detail['pack_type'] ?? '') as String;
+            final String packTypeStr = (detail['packType'] ??
+                detail['packtype'] ??
+                detail['pack_type'] ??
+                '') as String;
             final cartItem = CartItem(
               detail: Detail(
                 productId: detail['product_id'],

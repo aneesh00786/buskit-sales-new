@@ -371,8 +371,20 @@ class CartDialogueState extends State<CartDialogue> {
         double bulkDiscountAmt =
             (item.detail.bulkDiscountAmount ?? 0).toDouble();
 
-        // Add them to the total discount amount
+        // Add bulk discount amount to total discount amount
         totalDiscountAmount += bulkDiscountAmt;
+
+        // Edit-price discount (salesman unit price override)
+        double editPriceDiscountAmount = 0.0;
+        if (item.detail.displayPrice != null) {
+          final double origSell = double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+          final double currentSell = double.tryParse(item.detail.displayPrice!) ?? origSell;
+          final double diff = (origSell * pieces) - (currentSell * pieces);
+          if (diff > 0) {
+            editPriceDiscountAmount = diff * productQuantity;
+          }
+        }
+        totalDiscountAmount += editPriceDiscountAmount;
 
         item.totalDiscountAmount = totalDiscountAmount;
 
@@ -1357,16 +1369,19 @@ class CartDialogueState extends State<CartDialogue> {
                               .flatDiscountByCustomer[cid] ??
                           0.0;
 
-                      // Sum up the existing % discount amounts
-                      final double finalTotalDiscount =
-                          flatDisc + totalDiscount;
-
-                      // Also add the edit-price discount (displayPrice override)
-                      // (Not applicable in Sales App)
-                      const double editPriceDiscount = 0.0;
+                      // Sum up all discount amounts (percentage + edit-price + bulk)
+                      // across all checked order items
+                      final double itemsDiscount =
+                          widget.productsController.orderItems.fold(
+                        0.0,
+                        (sum, item) {
+                          if (item.isChecked != true) return sum;
+                          return sum + (item.totalDiscountAmount ?? 0.0);
+                        },
+                      );
 
                       final double totalDisplayDiscount =
-                          finalTotalDiscount + editPriceDiscount;
+                          flatDisc + itemsDiscount;
 
                       return Container(
                         width: double.infinity,
@@ -2927,7 +2942,12 @@ class CartDialogueState extends State<CartDialogue> {
                     unitPrice: e.sellPrice.toString(),
                     isBulk: false,
                     originalUnitPrice: e.sellPrice.toString(),
-                    originalPackPrice: ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString(),
+                    originalPackPrice: (() {
+                       final double? apiPP = double.tryParse(e.sellingPackPrice?.toString() ?? '');
+                       return (apiPP != null && apiPP > 0)
+                           ? apiPP.toString()
+                           : ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString();
+                     })(),
                     editedAmount: 0.0,
                     customerDiscountPercentage: item.CustomerDiscount,
                   );
@@ -2955,7 +2975,12 @@ class CartDialogueState extends State<CartDialogue> {
                     unitPrice: e.sellPrice.toString(),
                     isBulk: false,
                     originalUnitPrice: e.sellPrice.toString(),
-                    originalPackPrice: ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString(),
+                    originalPackPrice: (() {
+                       final double? apiPP = double.tryParse(e.sellingPackPrice?.toString() ?? '');
+                       return (apiPP != null && apiPP > 0)
+                           ? apiPP.toString()
+                           : ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString();
+                     })(),
                     editedAmount: 0.0,
                     customerDiscountPercentage: item.CustomerDiscount,
                   );
@@ -3059,7 +3084,12 @@ class CartDialogueState extends State<CartDialogue> {
                   promoDiscount: combinedPromoDiscount,
                   unitPrice: effectiveUnitPrice,
                   originalUnitPrice: e.sellPrice.toString(),
-                  originalPackPrice: ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString(),
+                  originalPackPrice: (() {
+                    final double? apiPP = double.tryParse(e.sellingPackPrice?.toString() ?? '');
+                    return (apiPP != null && apiPP > 0)
+                        ? apiPP.toString()
+                        : ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString();
+                  })(),
                   editedAmount: editPriceDiscountAmt,
                   customerDiscountPercentage: item.CustomerDiscount,
                 );

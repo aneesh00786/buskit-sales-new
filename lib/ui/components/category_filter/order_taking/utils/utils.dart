@@ -18,11 +18,27 @@ class Utils {
         }
         int pieces = item.detail.pieces?.toInt() ?? 1;
         double count = item.detail.count.toDouble();
-        double totalCount = item.isPack == true ? count * pieces : count;
-        sellingPrice = (item.detail.inclTax == "incl_tax" || item.detail.inclTax == "N.A")
-            ? sellingPrice
-            : sellingPrice + tax;
-        double itemTotal = sellingPrice * totalCount;
+
+        double itemTotal;
+        if (item.isPack == true) {
+          // Use API selling_pack_price if available (avoids unit_price × pieces mismatch)
+          final double? apiPackPrice = double.tryParse(
+              item.detail.sellingPackPrice?.toString() ?? '');
+          final double packPrice = (apiPackPrice != null && apiPackPrice > 0)
+              ? apiPackPrice
+              : sellingPrice * pieces;
+          final double packPriceWithTax = (item.detail.inclTax == "incl_tax" ||
+                  item.detail.inclTax == "N.A")
+              ? packPrice
+              : packPrice + (tax * pieces);
+          itemTotal = packPriceWithTax * count;
+        } else {
+          final double priceWithTax = (item.detail.inclTax == "incl_tax" ||
+                  item.detail.inclTax == "N.A")
+              ? sellingPrice
+              : sellingPrice + tax;
+          itemTotal = priceWithTax * count;
+        }
         return sum + itemTotal;
       }
       return sum;

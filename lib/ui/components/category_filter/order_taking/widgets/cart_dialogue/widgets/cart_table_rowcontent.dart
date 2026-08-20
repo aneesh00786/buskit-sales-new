@@ -77,7 +77,18 @@ class GroupedItemDataRows {
               ? (groupedItem.detail.pieces?.toInt() ?? 1)
               : 1;
 
-      double baseSellAmount = sellPrice * qtyFactor;
+      // If the item is sold by Pack and the API provides a dedicated
+      // selling_pack_price, use it directly instead of sellPrice * pieces.
+      // This avoids the unit_price × pieces mismatch.
+      final double? apiSellingPackPrice = (groupedItem.isPack == true ||
+              groupedItem.detail.packtype == 'Pack')
+          ? (double.tryParse(
+              groupedItem.detail.sellingPackPrice?.toString() ?? ''))
+          : null;
+
+      double baseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+          ? apiSellingPackPrice   // use API pack price directly
+          : sellPrice * qtyFactor; // fallback: unit price × pieces
 
       double productQuantity = groupedItem.detail.count.toDouble();
 
@@ -117,8 +128,7 @@ class GroupedItemDataRows {
 
       // ── Edit-price discount (salesman price override) ──────────────────
       // When a salesman edits the unit price, the difference between the original
-      // sell price and the new displayPrice is an implicit discount. We keep
-      // it separate so it never pollutes the existing percentage-based logic.
+      // sell price and the new displayPrice is an implicit discount.
       final double originalSellPrice =
           double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
               0.0;
@@ -130,21 +140,25 @@ class GroupedItemDataRows {
               priceDiff * qtyFactor * productQuantity;
         }
       }
-      // Total discount shown includes the edit-price discount
+
+      // Include editPriceDiscountAmount in totalDiscountAmount stored on the item
+      // so that the bottom Discount line (which sums item.totalDiscountAmount) reflects it.
+      groupedItem.totalDiscountAmount = percentageDiscountAmount + editPriceDiscountAmount;
+
+      // Total discount shown in the Disc column includes all discounts
       double displayDiscountAmount = totalDiscountAmount + editPriceDiscountAmount;
       print('edit price discount amount: $editPriceDiscountAmount');
       print('display discount amount: $displayDiscountAmount');
-  
-      // groupedItem.totalDiscountAmount = totalDiscountAmount;
+
 double bulkTaxPercentage = (groupedItem.detail.bulkTax ?? 0).toDouble();
 print('bulktax percentage from detail: $bulkTaxPercentage');
      double taxPercentage = bulkTaxPercentage > 0 
           ? bulkTaxPercentage 
           : (groupedItem.catTax ?? 0).toDouble();
           print('final tax percentage used: $taxPercentage');
-      // print('tax perecntage in the row content :$taxPercentage');
+      // priceAfterDiscount includes both percentage-based and edit-price discounts
       double priceAfterDiscount =
-          (baseSellAmount * productQuantity) - totalDiscountAmount;
+          (baseSellAmount * productQuantity) - totalDiscountAmount - editPriceDiscountAmount;
 
       double tax;
       if (groupedItem.detail.inclTax == "N.A") {
@@ -162,12 +176,16 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
 
       double finalPrice;
 
-      // 1. Check if finalPrice is already calculated/assigned
-      if (groupedItem.finalPrice != null && groupedItem.finalPrice! > 0) {
+      // When displayPrice is set (price was edited), always recalculate —
+      // never use the cached finalPrice which may be from the original price.
+      final bool priceWasEdited = groupedItem.detail.displayPrice != null;
+
+      // 1. Use cached finalPrice only if price was NOT edited
+      if (!priceWasEdited && groupedItem.finalPrice != null && groupedItem.finalPrice! > 0) {
         print('Using existing final price: ${groupedItem.finalPrice}');
         finalPrice = groupedItem.finalPrice!;
       } else {
-        // 2. If no finalPrice exists, run your current calculation condition
+        // 2. Recalculate
         if (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A") {
           print('its inclusive tax or N.A');
           finalPrice = priceAfterDiscount;
@@ -175,8 +193,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
           print('its not inclusive tax');
           finalPrice = priceAfterDiscount + tax;
         }
-        
-        // 3. Assign the newly calculated price back to groupedItem
+        // 3. Store the recalculated price
         groupedItem.finalPrice = finalPrice;
       }
 
@@ -780,10 +797,17 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         if (originalPrice <= 0.0) {
                           originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
                         }
-                        final double originalPackPrice = originalPrice * pieces;
+                        // Use API selling_pack_price if available, else calculate
+                        final double? apiPackPrice = double.tryParse(
+                            groupedItem.detail.sellingPackPrice?.toString() ?? '');
+                        final double originalPackPrice = (apiPackPrice != null && apiPackPrice > 0)
+                            ? apiPackPrice
+                            : originalPrice * pieces;
 
                         final double currentPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
-                        final double currentPackPrice = currentPrice * pieces;
+                        final double currentPackPrice = groupedItem.detail.displayPrice != null
+                            ? currentPrice * pieces  // edited price still computed
+                            : originalPackPrice;     // unedited: use API pack price
                         final bool isPriceEdited = groupedItem.detail.displayPrice != null;
 
                         if (isPriceEdited) {
@@ -1724,11 +1748,18 @@ void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
     originalUnitPrice =
         double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
   }
-  final double originalPackPrice = originalUnitPrice * pieces;
+  // Use API selling_pack_price if available, else fallback to unitPrice * pieces
+  final double? apiPackPrice = double.tryParse(
+      groupedItem.detail.sellingPackPrice?.toString() ?? '');
+  final double originalPackPrice = (apiPackPrice != null && apiPackPrice > 0)
+      ? apiPackPrice
+      : originalUnitPrice * pieces;
 
-  final double currentUnitPrice =
-      double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
-  final double currentPackPrice = currentUnitPrice * pieces;
+  // Current pack price: if user already edited, use displayPrice * pieces;
+  // otherwise use the API pack price (or computed fallback).
+  final double currentPackPrice = groupedItem.detail.displayPrice != null
+      ? (double.tryParse(groupedItem.detail.displayPrice!) ?? originalPackPrice) * pieces
+      : originalPackPrice;
 
   final TextEditingController priceController = TextEditingController(
     text: currentPackPrice.toStringAsFixed(2),

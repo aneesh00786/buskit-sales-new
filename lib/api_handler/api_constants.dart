@@ -1,5 +1,5 @@
 mixin class ApiConstants {
-  static const String baseUrl1 = "https://thrivewoo.com";
+  static const String baseUrl1 = "http://localhost:3000";
   static const String baseUrl = "$baseUrl1/";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";

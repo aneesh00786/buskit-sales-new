@@ -64,9 +64,14 @@ class GroupedItemDataRows {
                   (groupedItem.detail.count.toDouble())
               : groupedItem.detail.count.toDouble();
 
-      double sellPrice = (groupedItem.detail.price != null && (double.tryParse(groupedItem.detail.price!.toString()) ?? 0.0) > 0.0)
-          ? (double.tryParse(groupedItem.detail.price!.toString()) ?? (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0))
-          : (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0);
+      double sellPrice = groupedItem.detail.displayPrice != null
+          ? (double.tryParse(groupedItem.detail.displayPrice!) ??
+              (double.tryParse(
+                      groupedItem.detail.sellPrice?.toString() ?? '0') ??
+                  0.0))
+          : (groupedItem.detail.price != null && (double.tryParse(groupedItem.detail.price!.toString()) ?? 0.0) > 0.0)
+              ? (double.tryParse(groupedItem.detail.price!.toString()) ?? (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0))
+              : (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0);
       int qtyFactor =
           (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
               ? (groupedItem.detail.pieces?.toInt() ?? 1)
@@ -109,6 +114,26 @@ class GroupedItemDataRows {
     
       double totalDiscountAmount = percentageDiscountAmount + flatDiscount  + bulkDiscountAmount   ;
       print('total discount amount$totalDiscountAmount');
+
+      // ── Edit-price discount (salesman price override) ──────────────────
+      // When a salesman edits the unit price, the difference between the original
+      // sell price and the new displayPrice is an implicit discount. We keep
+      // it separate so it never pollutes the existing percentage-based logic.
+      final double originalSellPrice =
+          double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
+              0.0;
+      double editPriceDiscountAmount = 0.0;
+      if (groupedItem.detail.displayPrice != null) {
+        final double priceDiff = originalSellPrice - sellPrice; // always ≥ 0
+        if (priceDiff > 0) {
+          editPriceDiscountAmount =
+              priceDiff * qtyFactor * productQuantity;
+        }
+      }
+      // Total discount shown includes the edit-price discount
+      double displayDiscountAmount = totalDiscountAmount + editPriceDiscountAmount;
+      print('edit price discount amount: $editPriceDiscountAmount');
+      print('display discount amount: $displayDiscountAmount');
   
       // groupedItem.totalDiscountAmount = totalDiscountAmount;
 double bulkTaxPercentage = (groupedItem.detail.bulkTax ?? 0).toDouble();
@@ -653,7 +678,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
             Center(
               child: (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
                   ? Text(
-                      formatAmount(groupedItem.detail.sellPrice ?? '0'),
+                      formatAmount(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0'),
                       style: TextStyle(
                         fontSize: fontSize,
                         color: Colors.black87,
@@ -674,8 +699,8 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         if (originalPrice <= 0.0) {
                           originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
                         }
-                        final double currentPrice = double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0.0;
-                        final bool isPriceEdited = originalPrice > 0 && currentPrice != originalPrice;
+                        final double currentPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+                        final bool isPriceEdited = groupedItem.detail.displayPrice != null;
 
                         if (isPriceEdited) {
                           return RichText(
@@ -757,9 +782,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         }
                         final double originalPackPrice = originalPrice * pieces;
 
-                        final double currentPrice = double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+                        final double currentPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
                         final double currentPackPrice = currentPrice * pieces;
-                        final bool isPriceEdited = originalPrice > 0 && currentPrice != originalPrice;
+                        final bool isPriceEdited = groupedItem.detail.displayPrice != null;
 
                         if (isPriceEdited) {
                           return RichText(
@@ -883,10 +908,10 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   child: TableContent(
                     maxLines: 1,
                     fontSize: fontSize,
-                    content: formatAmount(totalDiscountAmount),
+                    content: formatAmount(displayDiscountAmount),
                   ),
                 ),
-                if (totalDiscountAmount > 0)
+                if (displayDiscountAmount > 0)
                   InkWell(
                     child: const Icon(
                       Icons.info_outline,
@@ -1026,8 +1051,79 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                   const SizedBox(height: 12),
                                 ],
 
+                                // Edit-price discount (salesman price override)
+                                if (editPriceDiscountAmount > 0) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.teal.shade50,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: Colors.teal.shade200),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit_outlined,
+                                            color: Colors.teal.shade700,
+                                            size: 18),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Price Edit Discount'.tr,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    color:
+                                                        Colors.teal.shade700,
+                                                    fontSize: 13),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Original: ${formatAmount(originalSellPrice.toString())}',
+                                                    style: TextStyle(
+                                                        color: Colors
+                                                            .grey.shade600,
+                                                        fontSize: 12,
+                                                        decoration: TextDecoration
+                                                            .lineThrough),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    '→ ${formatAmount(sellPrice.toString())}',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.teal.shade700,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          '-${formatAmount(editPriceDiscountAmount.toString())}',
+                                          style: TextStyle(
+                                              color: Colors.teal.shade700,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+
                                 if (CustomerDiscount == 0 &&
-                                    tieredDiscount == 0)
+                                    tieredDiscount == 0 &&
+                                    editPriceDiscountAmount == 0)
                                    Padding(
                                     padding: EdgeInsets.all(20),
                                     child: Text(
@@ -1060,13 +1156,28 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        "${totalDiscountPercent.toStringAsFixed(1)}%",
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                         () {
+                                           final double originalBaseAmount =
+                                               originalSellPrice *
+                                                   qtyFactor *
+                                                   productQuantity;
+                                           final double editPricePercent =
+                                               originalBaseAmount > 0
+                                                   ? (editPriceDiscountAmount /
+                                                           originalBaseAmount) *
+                                                       100
+                                                   : 0.0;
+                                           final double totalSavedPercent =
+                                               totalDiscountPercent +
+                                                   editPricePercent;
+                                           return '${totalSavedPercent.toStringAsFixed(1)}%';
+                                         }(),
+                                         style: const TextStyle(
+                                           color: Colors.white,
+                                           fontSize: 32,
+                                           fontWeight: FontWeight.bold,
+                                         ),
+                                       ),
                                     ],
                                   ),
                                 ),
@@ -1234,7 +1345,7 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
   }
 
   final TextEditingController priceController = TextEditingController(
-    text: double.tryParse(groupedItem.detail.sellPrice ?? '0')?.toStringAsFixed(2) ?? '',
+    text: double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0')?.toStringAsFixed(2) ?? '',
   );
 
   double? allowedDiscount;
@@ -1570,16 +1681,18 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
                                     }
                                   }
 
-                                  groupedItem.detail.sellPrice =
+                                  groupedItem.detail.displayPrice =
                                       newPrice.toString();
                                   groupedItem.totalPrice =
                                       Utils().calculateTotalPrice(groupedItem,
                                           groupedItem.detail.count.toInt());
 
-                                  Get.back(closeOverlays: true);
-                                  Get.back(closeOverlays: true);
-                                  _showCartDialog(context, cartDialogKey,
-                                      groupedItem.customerId!);
+                                  final cartState =
+                                      context.findAncestorStateOfType<CartDialogueState>();
+                                  if (cartState != null) {
+                                    cartState.refreshCart();
+                                  }
+                                  Get.back();
                                 },
                                 child: Text('Apply'.tr,
                                     style: const TextStyle(
@@ -1614,7 +1727,7 @@ void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
   final double originalPackPrice = originalUnitPrice * pieces;
 
   final double currentUnitPrice =
-      double.tryParse(groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+      double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
   final double currentPackPrice = currentUnitPrice * pieces;
 
   final TextEditingController priceController = TextEditingController(
@@ -1955,16 +2068,18 @@ void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
                                   }
 
                                   final double computedUnitPrice = newPackPrice / pieces;
-                                  groupedItem.detail.sellPrice =
+                                  groupedItem.detail.displayPrice =
                                       computedUnitPrice.toString();
                                   groupedItem.totalPrice =
                                       Utils().calculateTotalPrice(groupedItem,
                                           groupedItem.detail.count.toInt());
 
-                                  Get.back(closeOverlays: true);
-                                  Get.back(closeOverlays: true);
-                                  _showCartDialog(context, cartDialogKey,
-                                      groupedItem.customerId!);
+                                  final cartState =
+                                      context.findAncestorStateOfType<CartDialogueState>();
+                                  if (cartState != null) {
+                                    cartState.refreshCart();
+                                  }
+                                  Get.back();
                                 },
                                 child: Text('Apply'.tr,
                                     style: const TextStyle(
@@ -1993,8 +2108,9 @@ bool isPriceWithinDiscount({
   required double enteredPrice,
   required double allowedDiscountPercent,
 }) {
-  final minAllowedPrice =
-      originalPrice - (originalPrice * allowedDiscountPercent / 100);
+  final minAllowedPrice = double.parse(
+      (originalPrice - (originalPrice * allowedDiscountPercent / 100))
+          .toStringAsFixed(2));
 
   return enteredPrice >= minAllowedPrice;
 }

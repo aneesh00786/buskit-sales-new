@@ -79,6 +79,12 @@ class CartDialogue extends StatefulWidget {
 }
 
 class CartDialogueState extends State<CartDialogue> {
+  void refreshCart() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   late RxBool useCredit; // Reactive checkbox state
   late var customerCredit;
   late var currentCustomerCredit;
@@ -1292,40 +1298,49 @@ class CartDialogueState extends State<CartDialogue> {
                         ),
                       ),
                     ),
-                    Obx(() {
+                                     Obx(() {
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
                       var customerCredit =
                           _customercreditctrl.customerCredit.value ?? 0.0;
-
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
+                      print('customer credit in my cart:$customerCredit');
+                      final double flatDisc = widget.productsController
+                              .flatDiscountByCustomer[cid] ??
                           0.0;
                       print('flat discount:$flatDisc');
-                      // final double baseAmount = orderSubtotal - flatDisc;
+
+                      // Subtotal = original price BEFORE any discount
+                      // (always uses sellPrice, never displayPrice)
                       double baseAmount =
                           widget.productsController.orderItems.fold(
                         0.0,
                         (sum, item) {
-                          if (!item.isChecked!) return sum;
-                          return sum + (item.finalPrice ?? item.totalPrice);
+                          if (item.isChecked != true) return sum;
+                          final double origPrice = double.tryParse(
+                                  item.detail.sellPrice?.toString() ?? '0') ??
+                              0.0;
+                          final int qtyFactor = (item.detail.packtype ==
+                                      'Pack' ||
+                                  item.isPack == true)
+                              ? (item.detail.pieces?.toInt() ?? 1)
+                              : 1;
+                          final double qty = item.detail.count.toDouble();
+                          return sum + (origPrice * qtyFactor * qty);
                         },
                       );
 
-                      // print('base amount:$baseAmount');
+                      print('base amount (pre-discount):$baseAmount');
                       final double finalBeforeCredit =
                           baseAmount.clamp(0.0, double.infinity);
 
-                      // print('final before credit:$finalBeforeCredit');
+                      print('final before credit:$finalBeforeCredit');
                       final double payableAmount = useCredit.value
                           ? (finalBeforeCredit - customerCredit)
                               .clamp(0.0, double.infinity)
                           : finalBeforeCredit;
-                      // print('payble amount:$payableAmount');
-                      //thi is the portion of orders//
+                      print('payble amount:$payableAmount');
                       return CartTotalWidget(
                         title: 'Subtotal'.tr,
-                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
                         content: payableAmount,
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -1336,188 +1351,68 @@ class CartDialogueState extends State<CartDialogue> {
 
                     const SizedBox(height: 5.0),
                     Obx(() {
-                      // 1. Get the flat discount (if you still want to include it)
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
+                      final double flatDisc = widget.productsController
+                              .flatDiscountByCustomer[cid] ??
                           0.0;
 
-                      // 2. Combine flat discount with the locally calculated item-level discount state
+                      // Sum up the existing % discount amounts
                       final double finalTotalDiscount =
                           flatDisc + totalDiscount;
 
+                      // Also add the edit-price discount (displayPrice override)
+                      // (Not applicable in Sales App)
+                      const double editPriceDiscount = 0.0;
+
+                      final double totalDisplayDiscount =
+                          finalTotalDiscount + editPriceDiscount;
+
                       return Container(
-                        height: 40,
                         width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Discount'.tr,
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                // Display the calculated total discount
-                                content: formatAmount(finalTotalDiscount),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomText(
+                              content: 'Discount'.tr,
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            CustomText(
+                              content: formatAmount(totalDisplayDiscount),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
                         ),
                       );
                     }),
-//                     Obx(() {
-//   // 1. Get the flat discount (if you still want to include it)
-//   final String cid = widget.productsController.selectedCustomerId.value;
-//   final double flatDisc =
-//       widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
-
-//   // 2. Calculate the sum of item-level discounts
-//   double itemLevelDiscount = widget.productsController.orderItems.fold(
-//     0.0,
-//     (sum, item) {
-//       // Skip unchecked items to match your subtotal logic
-//       if (item.isChecked != true) return sum;
-
-//       // Add the item's total discount amount (handling nulls)
-//       return sum + (item.totalDiscountAmount ?? 0.0);
-//     },
-//   );
-
-//   // 3. Combine them for the total discount to display
-//   final double totalDiscount = flatDisc + itemLevelDiscount;
-
-//   // Optional: If you want to hide the widget when there is no discount
-//   // if (totalDiscount <= 0) return const SizedBox.shrink();
-
-//   return Container(
-//     height: 40,
-//     width: double.infinity,
-//     padding: const EdgeInsets.all(10),
-//     child: Padding(
-//       padding: const EdgeInsets.only(right: 10, left: 10),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           CustomText(
-//             content: 'Discount',
-//             fontSize: 16,
-//             color: Colors.black,
-//             fontWeight: FontWeight.w600,
-//           ),
-//           CustomText(
-//             // Display the calculated total discount
-//             content: formatAmount(totalDiscount),
-//             fontSize: 16,
-//             color: Colors.black, // You might want Colors.red or green for discount
-//             fontWeight: FontWeight.w600,
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-// }),
-
                     Obx(() {
-                      // ignore: unused_local_variable
                       final String trigger1 =
                           widget.productsController.selectedCustomerId.value;
-                      // ignore: unused_local_variable
                       final int trigger2 =
                           widget.productsController.orderItems.length;
 
-                      // 2. Calculate Subtotal (Active items only)
-                      double taxableAmount =
-                          widget.productsController.orderItems.fold(
-                        0.0,
-                        (sum, item) {
-                          if (item.isChecked != true) return sum;
-                          return sum +
-                              (item.finalPrice ?? item.totalPrice ?? 0.0);
-                        },
-                      );
-
-                      // 3. Calculate Tax (Example: 15% of subtotal)
-                      // CHANGE 0.15 to your actual tax rate variable if you have one
-                      double calculatedTax = taxableAmount * 0.15;
                       orderTaxe = Utils().calculateTotalTax(
                           widget.productsController.orderItems);
 
-                      return Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Tax'.tr,
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                // Use the locally calculated tax, NOT the static 'orderTaxe' variable
-                                content: formatAmount(orderTaxe),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      return const SizedBox.shrink(); // Tax shown as a note below Final Amount
                     }),
-
-                    // Container(
-                    //   height: 40,
-                    //   width: double.infinity,
-                    //   padding: const EdgeInsets.all(10),
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(right: 10, left: 10),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //       children: [
-                    //         CustomText(
-                    //           content: 'Tax',
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //         CustomText(
-                    //           content: formatAmount(orderTaxx),
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-
                     const Divider(),
-
                     Obx(() {
                       final String cid =
                           widget.productsController.selectedCustomerId.value;
                       var customerCredit =
                           _customercreditctrl.customerCredit.value ?? 0.0;
                       print('customer credit in my cart:$customerCredit');
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
+                      final double flatDisc = widget.productsController
+                              .flatDiscountByCustomer[cid] ??
                           0.0;
                       print('flat discount:$flatDisc');
-                      // final double baseAmount = orderSubtotal - flatDisc;
                       double baseAmount =
                           widget.productsController.orderItems.fold(
                         0.0,
@@ -1527,24 +1422,12 @@ class CartDialogueState extends State<CartDialogue> {
                         },
                       );
 
-                      // 👇 SUBTRACT THE CART-LEVEL FLAT DISCOUNT HERE 👇
+                      // Subtract the cart-level flat discount
                       baseAmount = baseAmount - flatDisc;
 
                       print('base amount:$baseAmount');
                       final double finalBeforeCredit =
                           baseAmount.clamp(0.0, double.infinity);
-                      // double baseAmount =
-                      //     widget.productsController.orderItems.fold(
-                      //   0.0,
-                      //   (sum, item) {
-                      //     if (!item.isChecked!) return sum;
-                      //     return sum + (item.finalPrice ?? item.totalPrice);
-                      //   },
-                      // );
-
-                      // print('base amount:$baseAmount');
-                      // final double finalBeforeCredit =
-                      //     baseAmount.clamp(0.0, double.infinity);
 
                       print('final before credit:$finalBeforeCredit');
                       final double payableAmount = useCredit.value
@@ -1552,15 +1435,71 @@ class CartDialogueState extends State<CartDialogue> {
                               .clamp(0.0, double.infinity)
                           : finalBeforeCredit;
                       print('payble amount:$payableAmount');
-                      //thi is the portion of orders//
                       return CartTotalWidget(
                         title: 'Final Amount'.tr,
-                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
                         content: payableAmount,
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color2:
                             payableAmount <= 0 ? Colors.green : primaryColor,
+                      );
+                    }),
+                    // Tax note — shown below Final Amount, matching invoice style
+                    Builder(builder: (context) {
+                      orderTaxe = Utils().calculateTotalTax(
+                          widget.productsController.orderItems);
+
+                      // Compute the effective average tax % across checked items
+                      double totalBase = 0;
+                      double totalTaxAmt = 0;
+                      for (final item in widget.productsController.orderItems) {
+                        if (item.isChecked != true) continue;
+                        final int qtyFactor =
+                            (item.isPack == true ||
+                                    item.detail.packtype == 'Pack')
+                                ? (item.detail.pieces?.toInt() ?? 1)
+                                : 1;
+                        final double sellPx = double.tryParse(
+                                    item.detail.sellPrice ??
+                                    '0') ??
+                            0.0;
+                        final double base =
+                            sellPx * qtyFactor * item.detail.count;
+                        totalBase += base;
+                        totalTaxAmt += item.taxAmount?.toDouble() ?? 0.0;
+                      }
+                      final double avgTaxPct =
+                          totalBase > 0 ? (totalTaxAmt / totalBase) * 100 : 0;
+
+                      if (orderTaxe <= 0) return const SizedBox.shrink();
+
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.deepPurple.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            children: [
+                              const TextSpan(text: 'TAX - GST : '),
+                              TextSpan(
+                                  text:
+                                      '${avgTaxPct.toStringAsFixed(0)}% : '),
+                              TextSpan(
+                                  text: formatAmount(orderTaxe),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                text:
+                                    '   TOTAL : ${formatAmount(orderTaxe)}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     }),
                   ],
@@ -1953,9 +1892,30 @@ class CartDialogueState extends State<CartDialogue> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: filteredOptions.map((option) {
-                            totalQuickController.text = isOrder
-                                ? '\$${orderSubtotal.toStringAsFixed(2)} '
-                                : '\$${preorderSubtotal.toStringAsFixed(2)}';
+                            if (totalQuickController.text.isEmpty) {
+                              final String cid = widget.productsController.selectedCustomerId.value;
+                              final double flatDisc = widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
+                              double discountedSubtotal = widget.productsController.orderItems.fold(
+                                0.0,
+                                (sum, item) {
+                                  if (item.isChecked != true) return sum;
+                                  return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
+                                },
+                              );
+                              discountedSubtotal = (discountedSubtotal - flatDisc).clamp(0.0, double.infinity);
+
+                              double discountedPreorderSubtotal = widget.productsController.preorderItems.fold(
+                                0.0,
+                                (sum, item) {
+                                  if (item.isChecked != true) return sum;
+                                  return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
+                                },
+                              );
+
+                              totalQuickController.text = isOrder
+                                  ? '\$${discountedSubtotal.toStringAsFixed(2)} '
+                                  : '\$${discountedPreorderSubtotal.toStringAsFixed(2)}';
+                            }
 
                             return Padding(
                               padding:
@@ -2966,6 +2926,10 @@ class CartDialogueState extends State<CartDialogue> {
                     promoDiscount: combinedPromoDiscount,
                     unitPrice: e.sellPrice.toString(),
                     isBulk: false,
+                    originalUnitPrice: e.sellPrice.toString(),
+                    originalPackPrice: ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString(),
+                    editedAmount: 0.0,
+                    customerDiscountPercentage: item.CustomerDiscount,
                   );
                 } else {
                   // --- Standard Promo Logic ---
@@ -2990,6 +2954,10 @@ class CartDialogueState extends State<CartDialogue> {
                     promoDiscount: combinedPromoDiscount,
                     unitPrice: e.sellPrice.toString(),
                     isBulk: false,
+                    originalUnitPrice: e.sellPrice.toString(),
+                    originalPackPrice: ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString(),
+                    editedAmount: 0.0,
+                    customerDiscountPercentage: item.CustomerDiscount,
                   );
                 }
               } else {
@@ -3042,13 +3010,42 @@ class CartDialogueState extends State<CartDialogue> {
                   }
                 }
 
+                // ── Edit-price discount for non-promo items ───────────────────
+                // When the salesman overrides the unit price via displayPrice, the
+                // difference relative to the original sellPrice is an implicit
+                // discount. We add it on top of the existing combinedDiscount
+                // so the backend receives the full discount amount.
+                double editPriceDiscountAmt = 0.0;
+                if (e.displayPrice != null) {
+                  final double origPrice =
+                      double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0;
+                  final double newPrice =
+                      double.tryParse(e.displayPrice!) ?? origPrice;
+                  final int itemQtyFactor =
+                      (e.packtype == 'Pack' || item.isPack == true)
+                          ? (e.pieces?.toInt() ?? 1)
+                          : 1;
+                  final double priceDiff = origPrice - newPrice;
+                  if (priceDiff > 0) {
+                    editPriceDiscountAmt =
+                        priceDiff * itemQtyFactor * e.count.toDouble();
+                  }
+                }
+                final double totalCombinedDiscount =
+                    combinedDiscount + editPriceDiscountAmt;
+
+                // Use displayPrice as the unit_price when it has been edited,
+                // so the backend stores the overridden price.
+                final String effectiveUnitPrice =
+                    e.displayPrice ?? e.sellPrice.toString();
+
                 return SendCartData(
                   productId: e.productId ?? '',
                   variantId: e.variationId ?? '',
                   pack: packValue,
                   price: finalPrice,
                   packType: isBulkItem ? 'Bulk' : displayPackType,
-                  discount: combinedDiscount,
+                  discount: totalCombinedDiscount,
                   quantity: e.count.toInt(),
                   variantName: e.variationName ?? '',
 
@@ -3060,7 +3057,11 @@ class CartDialogueState extends State<CartDialogue> {
 
                   customerDiscount: item.CustomerDiscount,
                   promoDiscount: combinedPromoDiscount,
-                  unitPrice: e.sellPrice.toString(),
+                  unitPrice: effectiveUnitPrice,
+                  originalUnitPrice: e.sellPrice.toString(),
+                  originalPackPrice: ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString(),
+                  editedAmount: editPriceDiscountAmt,
+                  customerDiscountPercentage: item.CustomerDiscount,
                 );
               }
             }).toList()),
@@ -3940,7 +3941,7 @@ class CartDialogueState extends State<CartDialogue> {
                     ? (e.detail.pieces).toString()
                     : e.detail.count.toString(),
                 'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                'price': e.detail.sellPrice.toString(),
+                'price': (e.detail.displayPrice ?? e.detail.sellPrice).toString(),
                 'discount': '0',
                 'quantity': e.detail.count.toInt(),
                 'tax': e.detail.tax?.toInt(),
@@ -3951,7 +3952,7 @@ class CartDialogueState extends State<CartDialogue> {
                         ? (e.detail.pieces ?? 0) * e.detail.count
                         : 1),
                 'discountPrice':
-                    (((double.tryParse(e.detail.sellPrice?.toString() ?? '0') ??
+                    (((double.tryParse((e.detail.displayPrice ?? e.detail.sellPrice)?.toString() ?? '0') ??
                                 0.0) *
                             ((double.tryParse(
                                         e.detail.discount?.toString() ?? '0') ??
@@ -3963,7 +3964,7 @@ class CartDialogueState extends State<CartDialogue> {
                             : e.detail.count.toDouble())),
                 'totalPrice': e.detail.totalPrice,
                 'isPack': e.isPack,
-                  'unitPrice': e.detail.sellPrice.toString(),
+                  'unitPrice': (e.detail.displayPrice ?? e.detail.sellPrice).toString(),
           'maxDiscount': e.detail.maxDiscount?.toInt(),
           'isPromo': e.isPromo ?? false,
           'isBundle': isBundle,

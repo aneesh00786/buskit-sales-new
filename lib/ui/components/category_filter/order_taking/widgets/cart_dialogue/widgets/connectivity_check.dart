@@ -320,6 +320,10 @@ class ConnectivityService {
       // Bulk Details
       isBulk: e['isBulk'] ?? false,
       bulkId: e['bulkId'],
+      originalUnitPrice: e['original_unit_price']?.toString() ?? e['unitPrice']?.toString() ?? e['price']?.toString() ?? '0.0',
+      originalPackPrice: e['original_pack_price']?.toString() ?? '0.0',
+      editedAmount: e['edited_amount'] != null ? double.tryParse(e['edited_amount'].toString()) : 0.0,
+      customerDiscountPercentage: e['customer_discount_percentage'] != null ? double.tryParse(e['customer_discount_percentage'].toString()) : 0.0,
     );
   }).toList(),
   total: order['order_price']?.toString() ?? '0.0',
@@ -473,17 +477,35 @@ class ConnectivityService {
 
             final draftConvertedList = customerDraftItems.map((item) {
               final detail = item.detail;
-                final double combinedDiscount = (item.totalDiscountAmount ?? 0).toDouble() +
-      (item.flatDiscount ?? 0).toDouble() +
-      (item.bogoDiscount ?? 0).toDouble() +
-      (detail.bulkDiscountAmount ?? 0).toDouble();
-      
-  final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
-      (item.flatDiscount ?? 0) +
-      (item.bogoDiscount ?? 0);
+              
+              double editPriceDiscountAmt = 0.0;
+              if (detail.displayPrice != null) {
+                final double origPrice =
+                    double.tryParse(detail.sellPrice?.toString() ?? '0') ?? 0.0;
+                final double newPrice =
+                    double.tryParse(detail.displayPrice!) ?? origPrice;
+                final int itemQtyFactor =
+                    (detail.saleBy == 'Pack' || item.isPack == true)
+                        ? (detail.pieces?.toInt() ?? 1)
+                        : 1;
+                final double priceDiff = origPrice - newPrice;
+                if (priceDiff > 0) {
+                  editPriceDiscountAmt =
+                      priceDiff * itemQtyFactor * detail.count.toDouble();
+                }
+              }
 
-  bool isBundle = item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
-  bool isBulkItem = detail.bulkId != null && detail.bulkId!.isNotEmpty;
+              final double combinedDiscount = (item.totalDiscountAmount ?? 0).toDouble() +
+                  (item.flatDiscount ?? 0).toDouble() +
+                  (item.bogoDiscount ?? 0).toDouble() +
+                  (detail.bulkDiscountAmount ?? 0).toDouble();
+                  
+              final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
+                  (item.flatDiscount ?? 0) +
+                  (item.bogoDiscount ?? 0);
+
+              bool isBundle = item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
+              bool isBulkItem = detail.bulkId != null && detail.bulkId!.isNotEmpty;
 
               return SendCartData(
                 productId: detail.productId ?? '',
@@ -512,6 +534,10 @@ class ConnectivityService {
     bulkId: detail.bulkId,
     itemNumbers: isBulkItem ? detail.pieces?.toInt() : null,
     bulkDiscountAmount: detail.bulkDiscountAmount,
+    originalUnitPrice: detail.sellPrice?.toString() ?? '0.0',
+    originalPackPrice: ((double.tryParse(detail.sellPrice?.toString() ?? '0') ?? 0.0) * (detail.pieces?.toInt() ?? 1)).toString(),
+    editedAmount: editPriceDiscountAmt,
+    customerDiscountPercentage: item.CustomerDiscount,
               );
             }).toList();
 
@@ -541,6 +567,10 @@ class ConnectivityService {
         bulkId: e['bulkId'],
         itemNumbers: e['itemNumbers'] != null ? num.tryParse(e['itemNumbers'].toString())?.toInt() : null,
         bulkDiscountAmount: e['bulkDiscountAmount'] != null ? num.tryParse(e['bulkDiscountAmount'].toString())?.toDouble() : null,
+        originalUnitPrice: e['original_unit_price']?.toString() ?? e['unitPrice']?.toString() ?? e['price']?.toString() ?? '0.0',
+        originalPackPrice: e['original_pack_price']?.toString() ?? '0.0',
+        editedAmount: e['edited_amount'] != null ? double.tryParse(e['edited_amount'].toString()) : 0.0,
+        customerDiscountPercentage: e['customer_discount_percentage'] != null ? double.tryParse(e['customer_discount_percentage'].toString()) : 0.0,
                   );
                 }).toList() ??
                 [];

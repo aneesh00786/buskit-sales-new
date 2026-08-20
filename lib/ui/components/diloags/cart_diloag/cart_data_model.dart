@@ -119,6 +119,18 @@ class SendCartData extends HiveObject {
   @HiveField(24)
   num? bulkDiscountAmount;
 
+  @HiveField(25)
+  String? originalUnitPrice;
+
+  @HiveField(26)
+  String? originalPackPrice;
+
+  @HiveField(27)
+  double? editedAmount;
+
+  @HiveField(28)
+  double? customerDiscountPercentage;
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -145,6 +157,10 @@ class SendCartData extends HiveObject {
     this.flatDiscount,
     this.unitPrice,
     this.bulkDiscountAmount,
+    this.originalUnitPrice,
+    this.originalPackPrice,
+    this.editedAmount,
+    this.customerDiscountPercentage,
   });
 
   Map<String, dynamic> toJson() {
@@ -172,6 +188,10 @@ class SendCartData extends HiveObject {
       'flat_discount': flatDiscount,
       'unit_price': unitPrice,
       'bulk_discount_amount': bulkDiscountAmount,
+      'original_unit_price': originalUnitPrice,
+      'original_pack_price': originalPackPrice,
+      'edited_amount': editedAmount,
+      'customer_discount_percentage': customerDiscountPercentage,
     };
 
     if (isBundle == true) {

@@ -727,6 +727,12 @@ class ApiWorker with ApiConstants {
       'companyId': SessionHelper.loginSavedData?.company_id ?? 0,
       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
     };
+
+    print('------------------ API REQUEST (Badge Count) ------------------');
+    print('Endpoint: ${ApiConstants.baseUrl}${ApiConstants.recentOrderCount}');
+    print('Payload: ${jsonEncode(requestData)}');
+    print('---------------------------------------------------------------');
+
     bool isOnline = await ConnectivityService().isOnline();
     final cacheKey = 'recent_order_count_${startDate ?? ''}_${endDate ?? ''}';
     if (isOnline) {
@@ -2050,6 +2056,11 @@ class ApiWorker with ApiConstants {
         "companyId": companyId,
         "salesmanid": SessionHelper.loginSavedData?.salesmanId ?? '',
       };
+
+      print('------------------ API REQUEST ------------------');
+      print('Endpoint: ${ApiConstants.baseUrl}${ApiConstants.getRecentOrdersData}');
+      print('Payload: ${jsonEncode(requestData)}');
+      print('-------------------------------------------------');
 
       final response = await responsePostMethod(
         endPoint: ApiConstants.getRecentOrdersData,

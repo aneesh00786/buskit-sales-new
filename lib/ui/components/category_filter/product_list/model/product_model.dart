@@ -280,6 +280,9 @@ class Detail {
   @HiveField(9)
   String? sellPrice;
 
+  // Non-Hive field for display purposes only when edited by superAdmin / salesman
+  String? displayPrice;
+
   @HiveField(10)
   num? tax;
 

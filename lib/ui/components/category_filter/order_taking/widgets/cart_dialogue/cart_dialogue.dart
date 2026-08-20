@@ -82,6 +82,14 @@ class CartDialogueState extends State<CartDialogue> {
   void refreshCart() {
     if (mounted) {
       setState(() {});
+      try {
+        final cid = widget.productsController.selectedCustomerId.value;
+        if (cid.isNotEmpty) {
+          final cusProvider =
+              Provider.of<CustomersProvider>(context, listen: false);
+          cusProvider.updateCartCount(cid);
+        }
+      } catch (_) {}
     }
   }
 
@@ -833,6 +841,13 @@ class CartDialogueState extends State<CartDialogue> {
   bool _needsRefresh = true;
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final cusProvider =
+            Provider.of<CustomersProvider>(context, listen: false);
+        cusProvider.updateCartTotalFromItems(widget.productsController.orderItems);
+      } catch (_) {}
+    });
     if (_needsRefresh) {
       _needsRefresh = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {

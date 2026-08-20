@@ -45,6 +45,42 @@ class Utils {
     });
   }
 
+  double calculateCartNetTotal(List<CartItem> items) {
+    return items.fold(0.0, (sum, item) {
+      if (item.isChecked == true) {
+        if (item.finalPrice != null && item.finalPrice! > 0) {
+          return sum + item.finalPrice!;
+        }
+        double basePrice;
+        if (item.isPack == true) {
+          final double? apiPackPrice = double.tryParse(
+              item.detail.sellingPackPrice?.toString() ?? '');
+          if (apiPackPrice != null && apiPackPrice > 0) {
+            basePrice = apiPackPrice;
+          } else {
+            double sell = double.tryParse(item.detail.displayPrice ??
+                    item.detail.sellPrice?.toString() ??
+                    '0') ??
+                0.0;
+            int pcs = item.detail.pieces?.toInt() ?? 1;
+            basePrice = sell * pcs;
+          }
+        } else {
+          basePrice = double.tryParse(item.detail.displayPrice ??
+                  item.detail.sellPrice?.toString() ??
+                  '0') ??
+              0.0;
+        }
+
+        double count = item.detail.count.toDouble();
+        double disc = item.totalDiscountAmount ?? 0.0;
+        double net = (basePrice * count) - disc;
+        return sum + (net > 0 ? net : 0.0);
+      }
+      return sum;
+    });
+  }
+
   double calculateTotalDiscount(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {
       if (item.isChecked == true) {

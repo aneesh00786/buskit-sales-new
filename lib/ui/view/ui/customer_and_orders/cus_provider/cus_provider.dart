@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/utils/utils.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_controller.dart';
@@ -225,7 +226,7 @@ class CustomersProvider with ChangeNotifier {
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       final count = cartItems.length;
       cartItemCount = count;
-      cartTotalAmount = Utils().calculateSubtotal(cartItems);
+      cartTotalAmount = Utils().calculateCartNetTotal(cartItems);
       notifyListeners();
       updateCartCount(customerId);
       return cartItemCount;
@@ -247,11 +248,19 @@ class CustomersProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
+  void updateCartTotalFromItems(List<CartItem> cartItems) {
+    try {
+      cartItemCount = cartItems.length;
+      cartTotalAmount = Utils().calculateCartNetTotal(cartItems);
+      notifyListeners();
+    } catch (_) {}
+  }
+
   Future<void> updateCartCount(String customerId) async {
     try {
       final cartItems = await CartDatabaseManager().getCartItems(customerId);
       cartItemCount = cartItems.length;
-      cartTotalAmount = Utils().calculateSubtotal(cartItems);
+      cartTotalAmount = Utils().calculateCartNetTotal(cartItems);
       notifyListeners();
     } catch (e) {
       //

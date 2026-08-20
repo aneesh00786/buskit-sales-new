@@ -195,6 +195,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
         }
         // 3. Store the recalculated price
         groupedItem.finalPrice = finalPrice;
+        try {
+          groupedItem.save();
+        } catch (_) {}
       }
 
       // double finalPrice;
@@ -1710,6 +1713,9 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
                                   groupedItem.totalPrice =
                                       Utils().calculateTotalPrice(groupedItem,
                                           groupedItem.detail.count.toInt());
+                                  try {
+                                    groupedItem.save();
+                                  } catch (_) {}
 
                                   final cartState =
                                       context.findAncestorStateOfType<CartDialogueState>();

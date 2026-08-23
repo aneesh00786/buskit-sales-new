@@ -38,6 +38,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/subscription/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -135,6 +136,11 @@ class CartDialogueState extends State<CartDialogue> {
   final TextEditingController remarkController = TextEditingController();
   bool _isLoading = true;
   bool isDraft = true;
+
+  final ScrollController _mainVerticalScrollController = ScrollController();
+  final ScrollController _mainHorizontalScrollController = ScrollController();
+  final ScrollController _preVerticalScrollController = ScrollController();
+  final ScrollController _preHorizontalScrollController = ScrollController();
 
   ScrollController _scrollController1 = ScrollController();
   ScrollController _scrollController2 = ScrollController();
@@ -267,7 +273,10 @@ class CartDialogueState extends State<CartDialogue> {
             }
 
             for (var detail in details) {
-              final String packTypeStr = (detail['packType'] ?? detail['packtype'] ?? detail['pack_type'] ?? '') as String;
+              final String packTypeStr = (detail['packType'] ??
+                  detail['packtype'] ??
+                  detail['pack_type'] ??
+                  '') as String;
               final cartItem = CartItem(
                 detail: Detail(
                   productId: detail['product_id'],
@@ -300,10 +309,13 @@ class CartDialogueState extends State<CartDialogue> {
           .getCartItems(customerId, draftsOnly: isDraftView);
 
       if (isOnline) {
-        await ApiWorker().fetchDiscounts(SessionHelper.loginSavedData?.company_id ?? 0, SessionHelper.loginSavedData?.salesmanId ?? '');
+        await ApiWorker().fetchDiscounts(
+            SessionHelper.loginSavedData?.company_id ?? 0,
+            SessionHelper.loginSavedData?.salesmanId ?? '');
       }
 
-      final discountBox = await Hive.openBox<CustomerDiscountModel>('discounts');
+      final discountBox =
+          await Hive.openBox<CustomerDiscountModel>('discounts');
       final discountData = discountBox.values.firstWhere(
         (discount) => discount.customerId == customerId,
         orElse: () => CustomerDiscountModel(),
@@ -311,29 +323,34 @@ class CartDialogueState extends State<CartDialogue> {
 
       for (final item in widget.productsController.cartItems) {
         if (isOnline) {
-            double effectiveSellingPrice = double.tryParse(item.detail.sellPrice ?? '0') ?? 0;
-            num itemCount = item.detail.count > 0 ? item.detail.count : 1;
-            double discountSellingPrice = (item.isPack == true || item.detail.packtype == 'Pack')
-                ? (effectiveSellingPrice * (item.detail.pieces ?? 1) * itemCount)
-                : (effectiveSellingPrice * itemCount);
+          double effectiveSellingPrice =
+              double.tryParse(item.detail.sellPrice ?? '0') ?? 0;
+          num itemCount = item.detail.count > 0 ? item.detail.count : 1;
+          double discountSellingPrice = (item.isPack == true ||
+                  item.detail.packtype == 'Pack')
+              ? (effectiveSellingPrice * (item.detail.pieces ?? 1) * itemCount)
+              : (effectiveSellingPrice * itemCount);
 
-            double newCustomerDiscount = 0.0;
-            if (discountData.discounts != null) {
-                for (var discount in discountData.discounts!) {
-                    if (discount.categoriesId == item.catId.toString() &&
-                        discountSellingPrice >
-                            (double.tryParse(discount.value ?? '0') ?? 0)) {
-                        newCustomerDiscount = double.tryParse(discount.discount ?? '0') ?? 0.0;
-                        break;
-                    }
-                }
+          double newCustomerDiscount = 0.0;
+          if (discountData.discounts != null) {
+            for (var discount in discountData.discounts!) {
+              if (discount.categoriesId == item.catId.toString() &&
+                  discountSellingPrice >
+                      (double.tryParse(discount.value ?? '0') ?? 0)) {
+                newCustomerDiscount =
+                    double.tryParse(discount.discount ?? '0') ?? 0.0;
+                break;
+              }
             }
-            item.CustomerDiscount = newCustomerDiscount;
+          }
+          item.CustomerDiscount = newCustomerDiscount;
         }
 
         // 1. Calculate Base Sell Amount (Unit Price * Pieces per Pack)
-        double sellPrice = (item.detail.price != null && (double.tryParse(item.detail.price!) ?? 0.0) > 0.0)
-            ? (double.tryParse(item.detail.price!) ?? (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0))
+        double sellPrice = (item.detail.price != null &&
+                (double.tryParse(item.detail.price!) ?? 0.0) > 0.0)
+            ? (double.tryParse(item.detail.price!) ??
+                (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0))
             : (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0);
         double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
             ? (item.detail.pieces ?? 1).toDouble()
@@ -385,8 +402,10 @@ class CartDialogueState extends State<CartDialogue> {
         // Edit-price discount (salesman unit price override)
         double editPriceDiscountAmount = 0.0;
         if (item.detail.displayPrice != null) {
-          final double origSell = double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final double currentSell = double.tryParse(item.detail.displayPrice!) ?? origSell;
+          final double origSell =
+              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+          final double currentSell =
+              double.tryParse(item.detail.displayPrice!) ?? origSell;
           final double diff = (origSell * pieces) - (currentSell * pieces);
           if (diff > 0) {
             editPriceDiscountAmount = diff * productQuantity;
@@ -475,7 +494,9 @@ class CartDialogueState extends State<CartDialogue> {
               : 1.0;
           final sellPrice =
               double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final unitTax = item.detail.inclTax == "N.A" ? 0.0 : (item.detail.tax?.toDouble() ?? 0.0);
+          final unitTax = item.detail.inclTax == "N.A"
+              ? 0.0
+              : (item.detail.tax?.toDouble() ?? 0.0);
           final inclTax = item.detail.inclTax;
 
           // 1. Calculate the taxAmount for the fold function to use
@@ -558,12 +579,14 @@ class CartDialogueState extends State<CartDialogue> {
         _isLoading = false;
       });
 
-      if (widget.productsController.orderItems.isNotEmpty) {
-        isOrder = true;
-        _selectedValue = _options[0];
-      } else if (widget.productsController.preorderItems.isNotEmpty) {
-        isOrder = false;
-        _selectedValue = _options[2];
+      if (_selectedValue == null) {
+        if (widget.productsController.orderItems.isNotEmpty) {
+          isOrder = true;
+          _selectedValue = _options[0];
+        } else if (widget.productsController.preorderItems.isNotEmpty) {
+          isOrder = false;
+          _selectedValue = _options[2];
+        }
       }
       setOptions();
     } catch (e) {
@@ -841,13 +864,6 @@ class CartDialogueState extends State<CartDialogue> {
   bool _needsRefresh = true;
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      try {
-        final cusProvider =
-            Provider.of<CustomersProvider>(context, listen: false);
-        cusProvider.updateCartTotalFromItems(widget.productsController.orderItems);
-      } catch (_) {}
-    });
     if (_needsRefresh) {
       _needsRefresh = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -865,17 +881,14 @@ class CartDialogueState extends State<CartDialogue> {
     final Size screenSize = MediaQuery.of(context).size;
     final double width = screenSize.width;
     final double height = screenSize.height;
-    double dialogHeight;
-    if (width > 1200) {
-      dialogHeight = height * 0.8;
-    } else if (width > 650) {
-      dialogHeight = height * 0.7;
-    } else {
-      dialogHeight = height * 0.5;
-    }
+    final bool isLandscape = width > 750 && width > height;
+
     return Dialog(
       backgroundColor: Colors.white,
-      insetPadding: EdgeInsets.zero,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isLandscape ? 20 : 10,
+        vertical: isLandscape ? 16 : 12,
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
@@ -883,1820 +896,1374 @@ class CartDialogueState extends State<CartDialogue> {
         builder: (context, constraints) {
           double availableWidth = constraints.maxWidth;
           double availableHeight = constraints.maxHeight;
-          double fontSize = availableWidth / 50;
-          double rowHeight = availableHeight / 14;
-          // var useCredit = false.obs; // Reactive boolean for checkbox
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: availableWidth,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                mainAxisSize: MainAxisSize.min,
+          double fontSize = availableWidth / 55;
+          if (fontSize < 11) fontSize = 11;
+          if (fontSize > 15) fontSize = 15;
+          double rowHeight = 52.0;
+
+          if (isLandscape) {
+            // === MODERN SPLIT-VIEW FOR TABLET / DESKTOP LANDSCAPE ===
+            return SizedBox(
+              width: width * 0.94,
+              height: height * 0.92,
+              child: Column(
                 children: [
-                  GetBuilder<CustomerCreditController>(
-                    builder: (creditCtrl) {
-                      // Auto-fetch credit when dialog opens (only if not already loaded)
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        final customerId =
-                            widget.productsController.selectedCustomerId.value;
-
-                        if (customerId.isNotEmpty &&
-                                creditCtrl.allCustomers.isEmpty || // First time
-                            !creditCtrl.allCustomers
-                                .any((c) => c.customerId == customerId)) {
-                          creditCtrl.fetchCustomerCredit(
-                            companyId:
-                                SessionHelper.loginSavedData?.company_id ?? 1,
-                            salesmanId:
-                                SessionHelper.loginSavedData?.salesmanId,
-                            searchedCustomerId: customerId,
-                          );
-                        }
-                      });
-
-                      final credit = creditCtrl.customerCredit.value;
-                      final isLoading = creditCtrl.isLoading.value;
-                      customerCredit = credit;
-                      return DialogueHedingWidget(
-                        height: height,
-                        width: width,
-                        title: 'My Cart'.tr,
-                        creditWidget: Obx(() {
-                          final latestCredit =
-                              customerCreditController.customerCredit.value;
-
-                          return isLoading
-                              ? Text(
-                                  'Credit: Loading...'.tr,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600),
-                                )
-                              : RichText(
-                                  text: TextSpan(
-                                    style: const TextStyle(
-                                      fontFamily: fontFamilyName,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text: 'Credit: '.tr,
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      TextSpan(
-                                        text: formatAmount(
-                                            latestCredit.toStringAsFixed(2)),
-                                        style: TextStyle(
-                                          color: latestCredit > 0
-                                              ? Colors.green.shade700
-                                              : Colors.grey.shade600,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                        }),
-                      );
-                    },
-                  ),
-                  if (widget.productsController.orderItems.isNotEmpty ||
-                      widget.productsController.preorderItems.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 16),
-                      child: SizedBox(
-                        height: 40,
-                        child: Row(
-                          children: [
-                            if (widget.productsController.orderItems.isNotEmpty)
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: primaryColor),
-                                        color: isOrder ? primaryColor : white,
-                                        borderRadius: widget.productsController
-                                                .preorderItems.isNotEmpty
-                                            ? const BorderRadius.only(
-                                                topLeft: Radius.circular(20),
-                                                bottomLeft: Radius.circular(20),
-                                              )
-                                            : BorderRadius.circular(20),
-                                      ),
-                                      child: InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            isOrder = true;
-                                            _selectedValue = _options[0];
-                                          });
-                                          setOptions();
-                                        },
-                                        child: Center(
-                                          child: CustomText(
-                                            content: 'ORDERS'.tr,
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                isOrder ? white : primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 16,
-                                          minHeight: 16,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '${widget.productsController.orderItems.length}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            if (widget
-                                .productsController.preorderItems.isNotEmpty)
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: primaryColor),
-                                        color: !isOrder ? primaryColor : white,
-                                        borderRadius: widget.productsController
-                                                .orderItems.isNotEmpty
-                                            ? const BorderRadius.only(
-                                                topRight: Radius.circular(20),
-                                                bottomRight:
-                                                    Radius.circular(20),
-                                              )
-                                            : BorderRadius.circular(20),
-                                      ),
-                                      child: InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            isOrder = false;
-                                            _selectedValue = _options[2];
-                                          });
-                                          setOptions();
-                                        },
-                                        child: Center(
-                                          child: CustomText(
-                                            content: 'BOOKINGS',
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                isOrder ? primaryColor : white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 16,
-                                          minHeight: 16,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '${widget.productsController.preorderItems.length}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    Container(),
-                  ],
-                  if (isOrder) ...[
-                    (widget.productsController.orderItems.isEmpty)
-                        ? SizedBox(
-                            height: 100,
-                            child: Center(
-                              child: CustomText(
-                                content: 'Your cart is empty.',
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: black,
-                              ),
-                            ),
-                          )
-                        : Flexible(
-                            child: SizedBox(
-                              height: dialogHeight * 0.5,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      physics: ClampingScrollPhysics(),
-                                      scrollDirection: Axis.vertical,
-                                      controller: _scrollController4,
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        controller: _scrollController1,
-                                        child: SizedBox(
-                                          height: double.maxFinite,
-                                          width: isPhonePortrait(context)
-                                              ? fullScreenWidth(context) * 2
-                                              : fullScreenWidth(context) * 1.15,
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Column(
-                                                  children: widget
-                                                      .productsController
-                                                      .orderItems
-                                                      .where((item) =>
-                                                          (item.detail.stock ??
-                                                              0) >
-                                                          0)
-                                                      .map((item) =>
-                                                          item.productName)
-                                                      .toSet()
-                                                      .toList()
-                                                      .map((productName) {
-                                                    List<CartItem> groupedItems = widget
-                                                        .productsController
-                                                        .orderItems
-                                                        .where((item) =>
-                                                            item.productName ==
-                                                                productName &&
-                                                            (item.detail.stock ??
-                                                                    0) >
-                                                                0)
-                                                        .toList();
-
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 20),
-                                                      child: _buildGroupedItems(
-                                                        productName:
-                                                            productName,
-                                                        groupedItems:
-                                                            groupedItems,
-                                                        availableWidth:
-                                                            availableWidth,
-                                                        fontSize: fontSize,
-                                                        rowHeight: rowHeight,
-                                                        context: context,
-                                                        productQuantityManager:
-                                                            productQuantityManager,
-                                                        deleteConfirmationDialogue:
-                                                            deleteConfirmationDialogue,
-                                                        isPreOrder: false,
-                                                        calCulateAmount:
-                                                            calculateAmounts,
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 0,
-                                    child: ScrollbarTheme(
-                                        data: ScrollbarThemeData(
-                                          thumbColor: WidgetStateProperty
-                                              .resolveWith<Color>((states) {
-                                            if (states.contains(
-                                                WidgetState.dragged)) {
-                                              return primaryColor
-                                                  .withOpacity(0.5);
-                                            }
-                                            return primaryColor
-                                                .withOpacity(0.5);
-                                          }),
-                                          trackColor: WidgetStateProperty.all(
-                                              primaryColor.withOpacity(0.2)),
-                                          trackBorderColor:
-                                              WidgetStateProperty.all(
-                                                  primaryColor
-                                                      .withOpacity(0.2)),
-                                          thickness:
-                                              WidgetStateProperty.all(10),
-                                          radius: const Radius.circular(10),
-                                          minThumbLength: 50,
-                                          thumbVisibility:
-                                              WidgetStateProperty.all(true),
-                                          trackVisibility:
-                                              WidgetStateProperty.all(true),
-                                        ),
-                                        child: Scrollbar(
-                                            thickness: 6,
-                                            thumbVisibility: true,
-                                            trackVisibility: true,
-                                            controller: _scrollController3,
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.vertical,
-                                              controller: _scrollController3,
-                                              child: Column(
-                                                children: widget
-                                                    .productsController
-                                                    .orderItems
-                                                    .where((item) =>
-                                                        (item.detail.stock ??
-                                                            0) >
-                                                        0)
-                                                    .map((item) =>
-                                                        item.productName)
-                                                    .toSet()
-                                                    .toList()
-                                                    .map((productName) {
-                                                  List<CartItem> groupedItems =
-                                                      widget.productsController
-                                                          .orderItems
-                                                          .where((item) =>
-                                                              item.productName ==
-                                                                  productName &&
-                                                              (item.detail.stock ??
-                                                                      0) >
-                                                                  0)
-                                                          .toList();
-
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 20),
-                                                    child: _buildGroupedItems(
-                                                      productName: productName,
-                                                      groupedItems:
-                                                          groupedItems,
-                                                      availableWidth:
-                                                          availableWidth,
-                                                      fontSize: fontSize,
-                                                      rowHeight: rowHeight,
-                                                      context: context,
-                                                      productQuantityManager:
-                                                          productQuantityManager,
-                                                      deleteConfirmationDialogue:
-                                                          deleteConfirmationDialogue,
-                                                      isPreOrder: false,
-                                                      calCulateAmount:
-                                                          calculateAmounts,
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ))),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    ScrollbarTheme(
-                      data: ScrollbarThemeData(
-                        thumbColor:
-                            WidgetStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(WidgetState.dragged)) {
-                            return primaryColor.withOpacity(0.5);
-                          }
-                          return primaryColor.withOpacity(0.5);
-                        }),
-                        trackColor: WidgetStateProperty.all(
-                            primaryColor.withOpacity(0.2)),
-                        trackBorderColor: WidgetStateProperty.all(
-                            primaryColor.withOpacity(0.2)),
-                        thickness: WidgetStateProperty.all(6),
-                        radius: const Radius.circular(10),
-                        minThumbLength: 50,
-                        thumbVisibility: WidgetStateProperty.all(true),
-                        trackVisibility: WidgetStateProperty.all(true),
-                      ),
-                      child: Scrollbar(
-                        thumbVisibility: true,
-                        trackVisibility: true,
-                        thickness: 6,
-                        controller: _scrollController2,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _scrollController2,
-                          child: Container(
-                            width: isPhonePortrait(context)
-                                ? fullScreenWidth(context) * 2
-                                : fullScreenWidth(context) * 1.15,
-                          ),
-                        ),
-                      ),
-                    ),
-                                     Obx(() {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      var customerCredit =
-                          _customercreditctrl.customerCredit.value ?? 0.0;
-                      print('customer credit in my cart:$customerCredit');
-                      final double flatDisc = widget.productsController
-                              .flatDiscountByCustomer[cid] ??
-                          0.0;
-                      print('flat discount:$flatDisc');
-
-                      // Subtotal = original price BEFORE any discount
-                      // (always uses sellPrice, never displayPrice)
-                      double baseAmount =
-                          widget.productsController.orderItems.fold(
-                        0.0,
-                        (sum, item) {
-                          if (item.isChecked != true) return sum;
-                          final double origPrice = double.tryParse(
-                                  item.detail.sellPrice?.toString() ?? '0') ??
-                              0.0;
-                          final int qtyFactor = (item.detail.packtype ==
-                                      'Pack' ||
-                                  item.isPack == true)
-                              ? (item.detail.pieces?.toInt() ?? 1)
-                              : 1;
-                          final double qty = item.detail.count.toDouble();
-                          return sum + (origPrice * qtyFactor * qty);
-                        },
-                      );
-
-                      print('base amount (pre-discount):$baseAmount');
-                      final double finalBeforeCredit =
-                          baseAmount.clamp(0.0, double.infinity);
-
-                      print('final before credit:$finalBeforeCredit');
-                      final double payableAmount = useCredit.value
-                          ? (finalBeforeCredit - customerCredit)
-                              .clamp(0.0, double.infinity)
-                          : finalBeforeCredit;
-                      print('payble amount:$payableAmount');
-                      return CartTotalWidget(
-                        title: 'Subtotal'.tr,
-                        content: payableAmount,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color2:
-                            payableAmount <= 0 ? Colors.green : primaryColor,
-                      );
-                    }),
-
-                    const SizedBox(height: 5.0),
-                    Obx(() {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      final double flatDisc = widget.productsController
-                              .flatDiscountByCustomer[cid] ??
-                          0.0;
-
-                      // Sum up all discount amounts (percentage + edit-price + bulk)
-                      // across all checked order items
-                      final double itemsDiscount =
-                          widget.productsController.orderItems.fold(
-                        0.0,
-                        (sum, item) {
-                          if (item.isChecked != true) return sum;
-                          return sum + (item.totalDiscountAmount ?? 0.0);
-                        },
-                      );
-
-                      final double totalDisplayDiscount =
-                          flatDisc + itemsDiscount;
-
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Discount'.tr,
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(totalDisplayDiscount),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    Obx(() {
-                      final String trigger1 =
-                          widget.productsController.selectedCustomerId.value;
-                      final int trigger2 =
-                          widget.productsController.orderItems.length;
-
-                      orderTaxe = Utils().calculateTotalTax(
-                          widget.productsController.orderItems);
-
-                      return const SizedBox.shrink(); // Tax shown as a note below Final Amount
-                    }),
-                    const Divider(),
-                    Obx(() {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      var customerCredit =
-                          _customercreditctrl.customerCredit.value ?? 0.0;
-                      print('customer credit in my cart:$customerCredit');
-                      final double flatDisc = widget.productsController
-                              .flatDiscountByCustomer[cid] ??
-                          0.0;
-                      print('flat discount:$flatDisc');
-                      double baseAmount =
-                          widget.productsController.orderItems.fold(
-                        0.0,
-                        (sum, item) {
-                          if (!item.isChecked!) return sum;
-                          return sum + (item.finalPrice ?? item.totalPrice);
-                        },
-                      );
-
-                      // Subtract the cart-level flat discount
-                      baseAmount = baseAmount - flatDisc;
-
-                      print('base amount:$baseAmount');
-                      final double finalBeforeCredit =
-                          baseAmount.clamp(0.0, double.infinity);
-
-                      print('final before credit:$finalBeforeCredit');
-                      final double payableAmount = useCredit.value
-                          ? (finalBeforeCredit - customerCredit)
-                              .clamp(0.0, double.infinity)
-                          : finalBeforeCredit;
-                      print('payble amount:$payableAmount');
-                      return CartTotalWidget(
-                        title: 'Final Amount'.tr,
-                        content: payableAmount,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color2:
-                            payableAmount <= 0 ? Colors.green : primaryColor,
-                      );
-                    }),
-                    // Tax note — shown below Final Amount, matching invoice style
-                    Builder(builder: (context) {
-                      orderTaxe = Utils().calculateTotalTax(
-                          widget.productsController.orderItems);
-
-                      // Compute the effective average tax % across checked items
-                      double totalBase = 0;
-                      double totalTaxAmt = 0;
-                      for (final item in widget.productsController.orderItems) {
-                        if (item.isChecked != true) continue;
-                        final int qtyFactor =
-                            (item.isPack == true ||
-                                    item.detail.packtype == 'Pack')
-                                ? (item.detail.pieces?.toInt() ?? 1)
-                                : 1;
-                        final double sellPx = double.tryParse(
-                                    item.detail.sellPrice ??
-                                    '0') ??
-                            0.0;
-                        final double base =
-                            sellPx * qtyFactor * item.detail.count;
-                        totalBase += base;
-                        totalTaxAmt += item.taxAmount?.toDouble() ?? 0.0;
-                      }
-                      final double avgTaxPct =
-                          totalBase > 0 ? (totalTaxAmt / totalBase) * 100 : 0;
-
-                      if (orderTaxe <= 0) return const SizedBox.shrink();
-
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.deepPurple.shade700,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            children: [
-                              const TextSpan(text: 'TAX - GST : '),
-                              TextSpan(
-                                  text:
-                                      '${avgTaxPct.toStringAsFixed(0)}% : '),
-                              TextSpan(
-                                  text: formatAmount(orderTaxe),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                text:
-                                    '   TOTAL : ${formatAmount(orderTaxe)}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                  if (!isOrder) ...[
-                    (widget.productsController.preorderItems.isEmpty)
-                        ? SizedBox(
-                            height: 100,
-                            child: Center(
-                              child: CustomText(
-                                content: 'No bookings items available.',
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: black,
-                              ),
-                            ),
-                          )
-                        : Flexible(
-                            child: SizedBox(
-                              height: dialogHeight * 0.5,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      physics: ClampingScrollPhysics(),
-                                      scrollDirection: Axis.vertical,
-                                      controller: _scrollController4,
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        controller: _scrollController1,
-                                        child: SizedBox(
-                                          // color: red,
-                                          height: double.maxFinite,
-                                          width: isPhonePortrait(context)
-                                              ? fullScreenWidth(context) * 2
-                                              : fullScreenWidth(context) * 1.15,
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Column(
-                                                  children: widget
-                                                      .productsController
-                                                      .preorderItems
-                                                      .where((item) =>
-                                                          item.detail.stock ==
-                                                              0 ||
-                                                          item.detail.stock ==
-                                                              null)
-                                                      .map((item) =>
-                                                          item.productName)
-                                                      .toSet()
-                                                      .toList()
-                                                      .map((productName) {
-                                                    List<CartItem>
-                                                        groupedItems = widget
-                                                            .productsController
-                                                            .preorderItems
-                                                            .where((item) =>
-                                                                item.productName ==
-                                                                productName)
-                                                            .toList();
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 20),
-                                                      child: _buildGroupedItems(
-                                                        productName:
-                                                            productName,
-                                                        groupedItems:
-                                                            groupedItems,
-                                                        availableWidth:
-                                                            availableWidth,
-                                                        fontSize: fontSize,
-                                                        rowHeight: rowHeight,
-                                                        context: context,
-                                                        productQuantityManager:
-                                                            productQuantityManager,
-                                                        deleteConfirmationDialogue:
-                                                            deleteConfirmationDialogue,
-                                                        isPreOrder: true,
-                                                        calCulateAmount:
-                                                            calculateAmounts,
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 0,
-                                    child: ScrollbarTheme(
-                                        data: ScrollbarThemeData(
-                                          thumbColor: WidgetStateProperty
-                                              .resolveWith<Color>((states) {
-                                            if (states.contains(
-                                                WidgetState.dragged)) {
-                                              return primaryColor
-                                                  .withOpacity(0.5);
-                                            }
-                                            return primaryColor
-                                                .withOpacity(0.5);
-                                          }),
-                                          trackColor: WidgetStateProperty.all(
-                                              primaryColor.withOpacity(0.2)),
-                                          trackBorderColor:
-                                              WidgetStateProperty.all(
-                                                  primaryColor
-                                                      .withOpacity(0.2)),
-                                          thickness:
-                                              WidgetStateProperty.all(10),
-                                          radius: const Radius.circular(10),
-                                          minThumbLength: 50,
-                                          thumbVisibility:
-                                              WidgetStateProperty.all(true),
-                                          trackVisibility:
-                                              WidgetStateProperty.all(true),
-                                        ),
-                                        child: Scrollbar(
-                                            thickness: 6,
-                                            thumbVisibility: true,
-                                            trackVisibility: true,
-                                            controller: _scrollController3,
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.vertical,
-                                              controller: _scrollController3,
-                                              child: Column(
-                                                children: widget
-                                                    .productsController
-                                                    .preorderItems
-                                                    .where((item) =>
-                                                        item.detail.stock ==
-                                                            0 ||
-                                                        item.detail.stock ==
-                                                            null)
-                                                    .map((item) =>
-                                                        item.productName)
-                                                    .toSet()
-                                                    .toList()
-                                                    .map((productName) {
-                                                  List<CartItem> groupedItems =
-                                                      widget.productsController
-                                                          .preorderItems
-                                                          .where((item) =>
-                                                              item.productName ==
-                                                              productName)
-                                                          .toList();
-
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 20),
-                                                    child: _buildGroupedItems(
-                                                      productName: productName,
-                                                      groupedItems:
-                                                          groupedItems,
-                                                      availableWidth:
-                                                          availableWidth,
-                                                      fontSize: fontSize,
-                                                      rowHeight: rowHeight,
-                                                      context: context,
-                                                      productQuantityManager:
-                                                          productQuantityManager,
-                                                      deleteConfirmationDialogue:
-                                                          deleteConfirmationDialogue,
-                                                      isPreOrder: false,
-                                                      calCulateAmount:
-                                                          calculateAmounts,
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ))),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    ScrollbarTheme(
-                      data: ScrollbarThemeData(
-                        thumbColor:
-                            WidgetStateProperty.resolveWith<Color>((states) {
-                          if (states.contains(WidgetState.dragged)) {
-                            return primaryColor.withOpacity(0.5);
-                          }
-                          return primaryColor.withOpacity(0.5);
-                        }),
-                        trackColor: WidgetStateProperty.all(
-                            primaryColor.withOpacity(0.2)),
-                        trackBorderColor: WidgetStateProperty.all(
-                            primaryColor.withOpacity(0.2)),
-                        thickness: WidgetStateProperty.all(6),
-                        radius: const Radius.circular(10),
-                        minThumbLength: 50,
-                        thumbVisibility: WidgetStateProperty.all(true),
-                        trackVisibility: WidgetStateProperty.all(true),
-                      ),
-                      child: Scrollbar(
-                        thumbVisibility: true,
-                        trackVisibility: true,
-                        thickness: 6,
-                        controller: _scrollController2,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _scrollController2,
-                          child: Container(
-                            width: isPhonePortrait(context)
-                                ? fullScreenWidth(context) * 2
-                                : fullScreenWidth(context) * 1.15,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      color: lightPrimaryColor,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Subtotal'.tr,
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(preorderSubtotal),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5.0),
-                    // Container(
-                    //   height: 40,
-                    //   width: double.infinity,
-                    //   padding: const EdgeInsets.all(10),
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(right: 10, left: 10),
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //       children: [
-                    //         CustomText(
-                    //           content: 'Discount',
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //         CustomText(
-                    //           content: formatAmount(totalDiscountPreorder),
-                    //           fontSize: 16,
-                    //           color: Colors.black,
-                    //           fontWeight: FontWeight.w600,
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-                    // Flat discount (cart-level)
-                    Builder(builder: (context) {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
-                          0.0;
-                      // if (flatDisc <= 0) return const SizedBox.shrink();
-                      return Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 10, left: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                content: 'Discount'.tr,
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              CustomText(
-                                content: formatAmount(flatDisc),
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: 'Tax'.tr,
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            CustomText(
-                              content: formatAmount(preorderTax),
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Divider(),
-                    Obx(() {
-                      final String cid =
-                          widget.productsController.selectedCustomerId.value;
-                      var customerCredit =
-                          _customercreditctrl.customerCredit.value ?? 0.0;
-                      print('customer credit in my cart:$customerCredit');
-                      final double flatDisc = widget
-                              .productsController.flatDiscountByCustomer[cid] ??
-                          0.0;
-                      print('flat discount:$flatDisc');
-                      // final double baseAmount = orderSubtotal - flatDisc;
-                      double baseAmount =
-                          widget.productsController.orderItems.fold(
-                        0.0,
-                        (sum, item) {
-                          if (!item.isChecked!) return sum;
-                          return sum + (item.finalPrice ?? item.totalPrice);
-                        },
-                      );
-
-                      print('base amount:$baseAmount');
-                      final double finalBeforeCredit =
-                          baseAmount.clamp(0.0, double.infinity);
-
-                      print('final before credit:$finalBeforeCredit');
-                      final double payableAmount = useCredit.value
-                          ? (finalBeforeCredit - customerCredit)
-                              .clamp(0.0, double.infinity)
-                          : finalBeforeCredit;
-                      print('payble amount:$payableAmount');
-                      return CartTotalWidget(
-                        title: 'Final Amount'.tr,
-
-                        //  payableAmount <= 0 ? 'Amount Paid by Credit' : 'Final Payable Amount',
-                        // this is the portion of preorder//
-                        content: preorderSubtotal,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color2:
-                            payableAmount <= 0 ? Colors.green : primaryColor,
-                      );
-                    }),
-                  ],
-                  SizedBox(
-                    height: _selectedValue == "Quick Sale"
-                        ? (_dropdownValue == "Cheque" ||
-                                _dropdownValue == "Bank Transfer"
-                            ? 210
-                            : (_dropdownValue == null ||
-                                    _dropdownValue == "Cash"
-                                ? 140
-                                : 60))
-                        : 60,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: filteredOptions.map((option) {
-                            if (totalQuickController.text.isEmpty) {
-                              final String cid = widget.productsController.selectedCustomerId.value;
-                              final double flatDisc = widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
-                              double discountedSubtotal = widget.productsController.orderItems.fold(
-                                0.0,
-                                (sum, item) {
-                                  if (item.isChecked != true) return sum;
-                                  return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
-                                },
-                              );
-                              discountedSubtotal = (discountedSubtotal - flatDisc).clamp(0.0, double.infinity);
-
-                              double discountedPreorderSubtotal = widget.productsController.preorderItems.fold(
-                                0.0,
-                                (sum, item) {
-                                  if (item.isChecked != true) return sum;
-                                  return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
-                                },
-                              );
-
-                              totalQuickController.text = isOrder
-                                  ? '\$${discountedSubtotal.toStringAsFixed(2)} '
-                                  : '\$${discountedPreorderSubtotal.toStringAsFixed(2)}';
-                            }
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Radio<String>(
-                                    splashRadius: 20,
-                                    activeColor: Colors.green,
-                                    value: option,
-                                    groupValue: _selectedValue,
-                                    onChanged: (value) {
-                                      if (value == _options[1]) {
-                                        if (subscriptionController
-                                                .appQuickSale.value ==
-                                            "true") {
-                                          setState(() {
-                                            _selectedValue = value!;
-                                            _dropdownValue = null;
-                                            totalQuickController.clear();
-                                          });
-                                        } else {
-                                          showUpgradePlanDialog(context);
-                                        }
-                                      } else {
-                                        setState(() {
-                                          _selectedValue = value!;
-                                          _dropdownValue = null;
-                                          totalQuickController.clear();
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  Text(option.tr),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        if (_selectedValue == "Quick Sale")
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 16.0, left: 40, right: 40),
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            height: 50,
-                                            width: 130,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.black),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Center(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 5.0),
-                                                child: DropdownButtonFormField<
-                                                    String>(
-                                                  hint: const Text(
-                                                      "Payment method"),
-                                                  value: _dropdownValue,
-                                                  onChanged:
-                                                      (String? newValue) {
-                                                    setState(() {
-                                                      _dropdownValue =
-                                                          newValue!;
-                                                      switch (_dropdownValue) {
-                                                        case 'Cash':
-                                                          paymentType = 0;
-                                                          break;
-                                                        case 'Cheque':
-                                                          paymentType = 1;
-                                                          break;
-                                                        case 'Bank Transfer':
-                                                          paymentType = 2;
-                                                          break;
-                                                        default:
-                                                          paymentType = null;
-                                                      }
-                                                    });
-                                                  },
-                                                  items: <String>[
-                                                    'Cash',
-                                                    'Cheque',
-                                                    'Bank Transfer',
-                                                  ].map<
-                                                          DropdownMenuItem<
-                                                              String>>(
-                                                      (String value) {
-                                                    return DropdownMenuItem<
-                                                        String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return 'Please select a payment method';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  decoration:
-                                                      const InputDecoration
-                                                          .collapsed(
-                                                          hintText: ''),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 8),
-                                      SizedBox(
-                                        width: 150,
-                                        child: MyFormField(
-                                          controller: totalQuickController,
-                                          labelText: "Total Amount",
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 10,
-                                                    horizontal: 8),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                  color: Colors.blue, width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            border: const OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                          ),
-                                          validator: (value) {
-                                            if (value == null ||
-                                                value.isEmpty) {
-                                              return 'Please enter the total amount';
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      if (_dropdownValue == "Cheque" ||
-                                          _dropdownValue == "Bank Transfer")
-                                        SizedBox(
-                                          width: 150,
-                                          child: TextFormField(
-                                            controller:
-                                                chequeOrTransactionNumberController,
-                                            decoration: InputDecoration(
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8),
-                                              labelText:
-                                                  _dropdownValue == "Cheque"
-                                                      ? "Cheque Number"
-                                                      : "Transaction Number",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.blue,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Please enter the number';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                        ),
-                                      if (_dropdownValue == "Cash" ||
-                                          _dropdownValue == null)
-                                        SizedBox(
-                                          width: 200,
-                                          child: TextFormField(
-                                            controller: remarkController,
-                                            decoration: InputDecoration(
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8),
-                                              labelText: "Remark",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.blue,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Please provide a remark';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                        ),
-                                      const SizedBox(width: 8),
-                                      if (_dropdownValue == "Cheque" ||
-                                          _dropdownValue == "Bank Transfer")
-                                        Expanded(
-                                          child: TextFormField(
-                                            controller: dateController,
-                                            readOnly: true,
-                                            decoration: InputDecoration(
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8),
-                                              labelText: "Date",
-                                              suffixIcon: IconButton(
-                                                icon: const Icon(
-                                                    Icons.calendar_today),
-                                                onPressed: () async {
-                                                  DateTime? pickedDate =
-                                                      await showDatePicker(
-                                                    context: context,
-                                                    initialDate: DateTime.now(),
-                                                    firstDate: DateTime(2000),
-                                                    lastDate: DateTime(2100),
-                                                  );
-                                                  if (pickedDate != null) {
-                                                    setState(() {
-                                                      dateController
-                                                          .text = DateFormat(
-                                                              'dd/MM/yyyy')
-                                                          .format(pickedDate);
-                                                    });
-                                                  }
-                                                },
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.blue,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Please select a date';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  if (_dropdownValue == "Cheque" ||
-                                      _dropdownValue == "Bank Transfer")
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 250,
-                                          child: TextFormField(
-                                            controller: remarkController,
-                                            decoration: InputDecoration(
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8),
-                                              labelText: "Remark",
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.blue,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.black,
-                                                    width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Please provide a remark';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
+                  _buildHeaderSection(height, width),
+                  const SizedBox(height: 8),
+                  Expanded(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        CustomCartButton(
-                          text: 'Continue Shopping'.tr,
-                          size: width > 1200 ? 14 : 10,
-                          color: primaryColor,
-                          onTap: () {
-                            if (widget.isFromCustomerDach == true ||
-                                widget.isDashboard == true) {
-                              widget.onContinueShopping!();
-                              Navigator.pop(context);
-                              Navigator.of(context, rootNavigator: true).pop();
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
-                        const SizedBox(width: 30),
-                        CustomCartButton(
-                          text: 'Save & Send'.tr,
-                          size: width > 1200 ? 14 : 10,
-                          color: const Color(0xff5bc0de),
-
-//
-
-                          onTap: () async {
-                            final cartProvider = Provider.of<CustomersProvider>(
-                                context,
-                                listen: false);
-                            final hasCheckInOutPermission =
-                                subscriptionController
-                                        .customerCheckInOut.value ==
-                                    "true";
-                            final isCheckedIn = widget.active == true;
-
-                            if (!(isCheckedIn || !hasCheckInOutPermission)) {
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-                                  actionsAlignment: MainAxisAlignment.center,
-                                  title: const Icon(Icons.warning_amber_rounded,
-                                      color: Colors.red, size: 60),
-                                  content: Text(
-                                      'Please check-in before processing the order'
-                                          .tr),
-                                  actions: [
-                                    SizedBox(
-                                      width: 150,
-                                      height: 45,
-                                      child: OutlinedButton(
-                                        onPressed: () => Navigator.pop(ctx),
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(color: Color(0xFF727CF5), width: 2),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(24),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'OK'.tr,
-                                          style: const TextStyle(
-                                            color: Color(0xFF727CF5),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                        // LEFT PANEL (66%): Tabs + Scrollable Products Table
+                        Expanded(
+                          flex: 66,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildTabSwitcherSection(),
+                              const SizedBox(height: 6),
+                              Expanded(
+                                child: _buildItemsList(
+                                  context: context,
+                                  availableWidth: availableWidth * 0.66,
+                                  fontSize: fontSize,
+                                  rowHeight: rowHeight,
+                                  isLandscape: true,
                                 ),
-                              );
-                              return;
-                            }
-
-                            final sanitizedText = totalQuickController.text
-                                .replaceAll(RegExp(r'[^\d.]'), '')
-                                .trim();
-                            if (sanitizedText.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Invalid amount entered'),
-                                    backgroundColor: Colors.red),
-                              );
-                              return;
-                            }
-
-                            final double userEnteredAmount =
-                                double.parse(sanitizedText);
-                            final String customerId = widget.customerId ??
-                                widget.productsController.selectedCustomerId
-                                    .value;
-
-                            // Calculate base amount after flat discount
-                            final String cid = widget
-                                .productsController.selectedCustomerId.value;
-                            final double flatDisc = widget.productsController
-                                    .flatDiscountByCustomer[cid] ??
-                                0.0;
-                            final double subtotal =
-                                isOrder ? orderSubtotal : preorderSubtotal;
-                            final double baseAmount = (subtotal - flatDisc)
-                                .clamp(0.0, double.infinity);
-
-                            // Use the correct total: prefer calculated baseAmount, but allow manual override in Quick Sale
-                            final double originalTotal =
-                                _selectedValue == "Quick Sale"
-                                    ? userEnteredAmount
-                                    : baseAmount;
-
-                            final availableCredit =
-                                _customercreditctrl.customerCredit.value ?? 0.0;
-
-                            // Show Credit Popup Only If Needed
-
-                            bool? useCreditResult = false;
-
-                            bool isEligibleForCreditPopup =
-                                _selectedValue == 'Sale Order' ||
-                                    _selectedValue == 'Quick Sale';
-
-                            if (isEligibleForCreditPopup &&
-                                availableCredit > 0 &&
-                                originalTotal > 0) {
-                              useCreditResult = await showCreditUsageDialog(
-                                context: context,
-                                availableCredit: availableCredit,
-                                amountToPayBeforeCredit: originalTotal,
-                              );
-
-                              if (useCreditResult == null) return;
-                            }
-                            // bool? useCreditResult = false;
-                            // if (availableCredit > 0 && originalTotal > 0) {
-                            //   useCreditResult = await showCreditUsageDialog(
-                            //     context: context,
-                            //     availableCredit: availableCredit,
-                            //     amountToPayBeforeCredit: originalTotal,
-                            //   );
-
-                            //   if (useCreditResult == null)
-                            //     return; // User closed dialog → cancel order
-                            //   // useCreditConfirmed = result;
-                            // }
-
-                            // Get cart & draft IDs
-                            final cartDetails = await CartDatabaseManager()
-                                .getDraftAndCartIdsFromApi(customerId);
-                            await Future.delayed(
-                                const Duration(milliseconds: 500));
-                            final firstOrder = cartDetails.isNotEmpty
-                                ? cartDetails.last
-                                : {'cart_id': '', 'draft_id': ''};
-                            final cartIdPrefs = firstOrder['cart_id'] ?? '';
-                            final draftIdPrefs = firstOrder['draft_id'] ?? '';
-
-                            // Quick Sale form validation
-                            if (_selectedValue == "Quick Sale") {
-                              if (!(_formKey.currentState?.validate() ??
-                                  false)) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Please fill all required fields'),
-                                      backgroundColor: Colors.red),
-                                );
-                                return;
-                              }
-                            }
-
-                            // Call processSaveAndSend with:
-                            // - ORIGINAL total (before credit)
-                            // - useCreditConfirmed from popup
-                            if (widget
-                                .productsController.storedBulkList.isEmpty) {
-                              print(
-                                  'SaveAndSend: Bulk list is empty. Fetching API now...');
-                              await widget.productsController.fetchBulkData();
-                            }
-                            print(
-                                'bulk list before saveAndSend: ${widget.productsController.storedBulkList.map((e) => 'ID: ${e.id}, BulkID: ${e.bulkId}, Price: ${e.volumePrice}').toList()}');
-                            await processSaveAndSend(
+                              ),
+                            ],
+                          ),
+                        ),
+                        // VERTICAL DIVIDER
+                        const VerticalDivider(
+                          width: 1,
+                          thickness: 1,
+                          color: Color(0xFFE2E8F0),
+                        ),
+                        // RIGHT PANEL (34%): Sticky Order Summary & Actions Card
+                        Expanded(
+                          flex: 34,
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(16),
+                              border:
+                                  Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 12),
+                            child: _buildSummaryAndActions(
                               context: context,
-                              finalAmount:
-                                  originalTotal, // ← Important: send original amount
-                              useCreditConfirmed: useCreditResult ??
-                                  false, // ← Decision from popup
-                              paymentType: paymentType,
-                              cartId: cartIdPrefs,
-                              draftId: draftIdPrefs,
-                              bulkDataList:
-                                  widget.productsController.storedBulkList,
-                            );
-
-                            cartProvider.getCartItemCounts(customerId);
-                          },
-                          // onTap: () async {
-                          //   final cartProvider = Provider.of<CustomersProvider>(
-                          //       context,
-                          //       listen: false);
-                          //   final hasCheckInOutPermission =
-                          //       subscriptionController
-                          //               .customerCheckInOut.value ==
-                          //           "true";
-                          //   final isCheckedIn = widget.active == true;
-
-                          //   if (isCheckedIn ||
-                          //       (!isCheckedIn && !hasCheckInOutPermission)) {
-                          //     final sanitizedText = totalQuickController.text
-                          //         .replaceAll(RegExp(r'[^\d.]'), '')
-                          //         .trim();
-                          //     if (sanitizedText.isEmpty) {
-                          //       ScaffoldMessenger.of(context).showSnackBar(
-                          //         const SnackBar(
-                          //           backgroundColor: Colors.red,
-                          //           content: Text('Invalid amount entered'),
-                          //           duration: Duration(seconds: 3),
-                          //         ),
-                          //       );
-                          //       return;
-                          //     }
-
-                          //     final finalAmount = double.parse(sanitizedText);
-                          //     final customerId = widget.customerId ??
-                          //         widget.productsController.selectedCustomerId
-                          //             .value;
-
-                          //     num amountPaidByCredit = 0.0;
-                          //     if (useCredit.value &&
-                          //         _customercreditctrl.customerCredit.value >
-                          //             0) {
-                          //       final String cid = widget.productsController
-                          //           .selectedCustomerId.value;
-                          //       final flatDisc = widget.productsController
-                          //               .flatDiscountByCustomer[cid] ??
-                          //           0.0;
-                          //       final baseAmount = (isOrder
-                          //               ? orderSubtotal
-                          //               : preorderSubtotal) -
-                          //           flatDisc;
-                          //       final finalBeforeCredit =
-                          //           baseAmount.clamp(0.0, double.infinity);
-                          //       final availableCredit =
-                          //           _customercreditctrl.customerCredit.value ??
-                          //               0.0;
-                          //       amountPaidByCredit =
-                          //           finalBeforeCredit > availableCredit
-                          //               ? availableCredit
-                          //               : finalBeforeCredit;
-                          //       final newCreditBalance =
-                          //           (availableCredit - amountPaidByCredit)
-                          //               .clamp(0.0, double.infinity);
-
-                          //       // === UPDATE CREDIT IN DATABASE / API ===
-                          //       try {
-                          //         final String currentCustomerId = widget
-                          //             .productsController
-                          //             .selectedCustomerId
-                          //             .value;
-
-                          //         await _customercreditctrl
-                          //             .updateCustomerCreditLocally(
-                          //           customerId: customerId,
-                          //           newCreditAmount: newCreditBalance,
-                          //         );
-
-                          //         // Get.snackbar(
-                          //         //   "Credit Updated",
-                          //         //   "Used ${formatAmount(amountPaidByCredit)} credit. Remaining: ${formatAmount(newCreditBalance)}",
-                          //         //   snackPosition: SnackPosition.BOTTOM,
-                          //         //   backgroundColor:
-                          //         //       Colors.green.withOpacity(0.8),
-                          //         //   colorText: Colors.white,
-                          //         // );
-                          //       } catch (e) {
-                          //         Get.snackbar(
-                          //             "Error", "Failed to update credit: $e",
-                          //             backgroundColor: Colors.red);
-                          //         return; // Stop processing if credit update fails
-                          //       }
-                          //     }
-
-                          //     final cartDetails = await CartDatabaseManager()
-                          //         .getDraftAndCartIdsFromApi(customerId);
-                          //     await Future.delayed(const Duration(seconds: 1));
-                          //     final firstOrder = cartDetails.isNotEmpty
-                          //         ? cartDetails.last
-                          //         : {'cart_id': '', 'draft_id': ''};
-                          //     final cartIdPrefs = firstOrder['cart_id'] ?? '';
-                          //     final draftIdPrefs = firstOrder['draft_id'] ?? '';
-                          //     // log('Existing cart ID $existingCartId');
-                          //     // log('Existing Draft ID $existingDraftId');
-                          //     if (_selectedValue == "Quick Sale") {
-                          //       if (_formKey.currentState?.validate() ??
-                          //           false) {
-                          //         await processSaveAndSend(
-                          //           finalAmount: finalAmount,
-                          //           paymentType: paymentType,
-                          //           context: context,
-                          //           cartId: cartIdPrefs,
-                          //           draftId: draftIdPrefs,
-                          //         );
-                          //         cartProvider.getCartItemCounts(customerId);
-                          //       } else {
-                          //         ScaffoldMessenger.of(context).showSnackBar(
-                          //           const SnackBar(
-                          //             backgroundColor: Colors.red,
-                          //             content: Text(
-                          //                 'Please fill all required fields'),
-                          //             duration: Duration(seconds: 3),
-                          //           ),
-                          //         );
-                          //       }
-                          //     } else {
-                          //       await processSaveAndSend(
-                          //         finalAmount: finalAmount,
-                          //         context: context,
-                          //         cartId: cartIdPrefs,
-                          //         draftId: draftIdPrefs,
-                          //       );
-                          //       cartProvider.getCartItemCounts(customerId);
-                          //     }
-                          //   } else {
-                          //     showDialog(
-                          //       context: context,
-                          //       barrierDismissible: false,
-                          //       builder: (BuildContext context) {
-                          //         return AlertDialog(
-                          //           title: const Center(
-                          //             child: Icon(
-                          //               Icons.warning_amber_rounded,
-                          //               color: Colors.red,
-                          //               size: 60,
-                          //             ),
-                          //           ),
-                          //           content: CustomText(
-                          //             content:
-                          //                 'Please check-in before processing the order',
-                          //             fontSize: 18,
-                          //           ),
-                          //           actions: [
-                          //             TextButton(
-                          //               onPressed: () {
-                          //                 Navigator.pop(context);
-                          //                 Navigator.of(context,
-                          //                         rootNavigator: true)
-                          //                     .pop();
-                          //               },
-                          //               child: const Text('OK'),
-                          //             ),
-                          //           ],
-                          //         );
-                          //       },
-                          //     );
-                          //   }
-                          // },
+                              isLandscape: true,
+                              width: width,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
+            );
+          } else {
+            // === RESPONSIVE SINGLE-COLUMN FOR PORTRAIT ===
+            return SizedBox(
+              width: width * 0.96,
+              height: height * 0.88,
+              child: Column(
+                children: [
+                  _buildHeaderSection(height, width),
+                  const SizedBox(height: 6),
+                  _buildTabSwitcherSection(),
+                  const SizedBox(height: 6),
+                  Expanded(
+                    child: _buildItemsList(
+                      context: context,
+                      availableWidth: availableWidth,
+                      fontSize: fontSize,
+                      rowHeight: rowHeight,
+                      isLandscape: false,
+                    ),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: _buildSummaryAndActions(
+                      context: context,
+                      isLandscape: false,
+                      width: width,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection(double height, double width) {
+    return GetBuilder<CustomerCreditController>(
+      builder: (creditCtrl) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final customerId = widget.productsController.selectedCustomerId.value;
+          if (customerId.isNotEmpty &&
+              (creditCtrl.allCustomers.isEmpty ||
+                  !creditCtrl.allCustomers
+                      .any((c) => c.customerId == customerId))) {
+            creditCtrl.fetchCustomerCredit(
+              companyId: SessionHelper.loginSavedData?.company_id ?? 1,
+              salesmanId: SessionHelper.loginSavedData?.salesmanId,
+              searchedCustomerId: customerId,
+            );
+          }
+        });
+
+        final credit = creditCtrl.customerCredit.value;
+        final isLoading = creditCtrl.isLoading.value;
+        customerCredit = credit;
+        return DialogueHedingWidget(
+          height: height,
+          width: width,
+          title: 'My Cart'.tr,
+          orderCount: widget.productsController.orderItems.length,
+          preorderCount: widget.productsController.preorderItems.length,
+          isOrder: isOrder,
+          onTabChanged: (val) {
+            setState(() {
+              isOrder = val;
+              _selectedValue = isOrder ? _options[0] : _options[2];
+            });
+            setOptions();
+          },
+          creditWidget: isLoading
+              ? Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Loading...'.tr,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: credit > 0
+                        ? const Color(0xFFECFDF5)
+                        : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: credit > 0
+                          ? const Color(0xFFA7F3D0)
+                          : const Color(0xFFE2E8F0),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 20,
+                        color: credit > 0
+                            ? const Color(0xFF059669)
+                            : const Color(0xFF64748B),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Credit: '.tr,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: credit > 0
+                              ? const Color(0xFF047857)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                      Text(
+                        formatAmount(credit.toStringAsFixed(2)),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: credit > 0
+                              ? const Color(0xFF059669)
+                              : const Color(0xFF334155),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         );
       },
+    );
+  }
+
+  Widget _buildTabSwitcherSection() {
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildItemsList({
+    required BuildContext context,
+    required double availableWidth,
+    required double fontSize,
+    required double rowHeight,
+    required bool isLandscape,
+  }) {
+    if (isOrder) {
+      if (widget.productsController.orderItems.isEmpty) {
+        return Center(
+          child: CustomText(
+            content: 'Your cart is empty.'.tr,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: black,
+          ),
+        );
+      }
+
+      final productNames = widget.productsController.orderItems
+          .where((item) => (item.detail.stock ?? 0) > 0)
+          .map((item) => item.productName)
+          .toSet()
+          .toList();
+
+      return RawScrollbar(
+        controller: _mainVerticalScrollController,
+        thumbVisibility: true,
+        thickness: 6,
+        radius: const Radius.circular(8),
+        thumbColor: const Color(0xFF5B50EC),
+        notificationPredicate: (notification) => notification.depth == 1,
+        child: RawScrollbar(
+          controller: _mainHorizontalScrollController,
+          thumbVisibility: true,
+          thickness: 6,
+          radius: const Radius.circular(8),
+          thumbColor: const Color(0xFF5B50EC),
+          child: SingleChildScrollView(
+            controller: _mainHorizontalScrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: SingleChildScrollView(
+              controller: _mainVerticalScrollController,
+              scrollDirection: Axis.vertical,
+              physics: const BouncingScrollPhysics(),
+          child: IntrinsicWidth(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: availableWidth > 750 ? availableWidth : 750,
+              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: productNames.map((productName) {
+                List<CartItem> groupedItems = widget
+                    .productsController.orderItems
+                    .where((item) =>
+                        item.productName == productName &&
+                        (item.detail.stock ?? 0) > 0)
+                    .toList();
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildGroupedItems(
+                    productName: productName,
+                    groupedItems: groupedItems,
+                    availableWidth: availableWidth,
+                    fontSize: fontSize,
+                    rowHeight: rowHeight,
+                    context: context,
+                    productQuantityManager: productQuantityManager,
+                    deleteConfirmationDialogue: deleteConfirmationDialogue,
+                    isPreOrder: false,
+                    calCulateAmount: calculateAmounts,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
       ),
+    ),
+  ),
+);
+    } else {
+      if (widget.productsController.preorderItems.isEmpty) {
+        return Center(
+          child: CustomText(
+            content: 'No bookings items available.'.tr,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: black,
+          ),
+        );
+      }
+
+      final preorderNames = widget.productsController.preorderItems
+          .where((item) => item.detail.stock == 0 || item.detail.stock == null)
+          .map((item) => item.productName)
+          .toSet()
+          .toList();
+
+      return RawScrollbar(
+        controller: _preVerticalScrollController,
+        thumbVisibility: true,
+        thickness: 6,
+        radius: const Radius.circular(8),
+        thumbColor: const Color(0xFF5B50EC),
+        notificationPredicate: (notification) => notification.depth == 1,
+        child: RawScrollbar(
+          controller: _preHorizontalScrollController,
+          thumbVisibility: true,
+          thickness: 6,
+          radius: const Radius.circular(8),
+          thumbColor: const Color(0xFF5B50EC),
+          child: SingleChildScrollView(
+            controller: _preHorizontalScrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            child: SingleChildScrollView(
+              controller: _preVerticalScrollController,
+              scrollDirection: Axis.vertical,
+              physics: const BouncingScrollPhysics(),
+          child: IntrinsicWidth(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: availableWidth > 750 ? availableWidth : 750,
+              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: preorderNames.map((productName) {
+                List<CartItem> groupedItems = widget
+                    .productsController.preorderItems
+                    .where((item) => item.productName == productName)
+                    .toList();
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildGroupedItems(
+                    productName: productName,
+                    groupedItems: groupedItems,
+                    availableWidth: availableWidth,
+                    fontSize: fontSize,
+                    rowHeight: rowHeight,
+                    context: context,
+                    productQuantityManager: productQuantityManager,
+                    deleteConfirmationDialogue: deleteConfirmationDialogue,
+                    isPreOrder: true,
+                    calCulateAmount: calculateAmounts,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+);
+    }
+  }
+
+  Widget _buildSummaryAndActions({
+    required BuildContext context,
+    required bool isLandscape,
+    required double width,
+  }) {
+    final String cid = widget.productsController.selectedCustomerId.value;
+    final double flatDisc =
+        widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
+    var customerCredit = _customercreditctrl.customerCredit.value ?? 0.0;
+
+    const Color brandPurple = Color(0xFF5B50EC);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (isLandscape)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: brandPurple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.receipt_long_rounded,
+                      size: 18, color: brandPurple),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Order Summary'.tr,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: fontFamilyName,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        // 1. FINANCIAL BREAKDOWN CARD
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF1F5F9)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // 1.1 SUBTOTAL
+              Builder(builder: (context) {
+                double baseAmount = 0.0;
+                if (isOrder) {
+                  baseAmount = widget.productsController.orderItems.fold(
+                    0.0,
+                    (sum, item) {
+                      if (item.isChecked != true) return sum;
+                      final double origPrice = double.tryParse(
+                              item.detail.sellPrice?.toString() ?? '0') ??
+                          0.0;
+                      final int qtyFactor = (item.detail.packtype == 'Pack' ||
+                              item.isPack == true)
+                          ? (item.detail.pieces?.toInt() ?? 1)
+                          : 1;
+                      final double qty = item.detail.count.toDouble();
+                      return sum + (origPrice * qtyFactor * qty);
+                    },
+                  );
+                } else {
+                  baseAmount = preorderSubtotal;
+                }
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEEF2FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.layers_outlined,
+                              size: 20,
+                              color: brandPurple,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Text(
+                          'Subtotal'.tr,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: fontFamilyName,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      formatAmount(baseAmount),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: fontFamilyName,
+                        color: brandPurple,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+
+              const Divider(height: 22, thickness: 1, color: Color(0xFFF1F5F9)),
+
+              // 1.2 DISCOUNT
+              Builder(builder: (context) {
+                double itemsDiscount = 0.0;
+                if (isOrder) {
+                  itemsDiscount = widget.productsController.orderItems.fold(
+                    0.0,
+                    (sum, item) {
+                      if (item.isChecked != true) return sum;
+                      return sum + (item.totalDiscountAmount ?? 0.0);
+                    },
+                  );
+                }
+                final double totalDisplayDiscount = flatDisc + itemsDiscount;
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEEF2FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.local_offer_outlined,
+                              size: 20,
+                              color: brandPurple,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Text(
+                          'Discount'.tr,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: fontFamilyName,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      formatAmount(totalDisplayDiscount),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: fontFamilyName,
+                        color: totalDisplayDiscount > 0
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFF0F172A),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+
+              // 1.3 TAX SUMMARY (if > 0)
+              Builder(builder: (context) {
+                orderTaxe = Utils()
+                    .calculateTotalTax(widget.productsController.orderItems);
+
+                double totalBase = 0;
+                double totalTaxAmt = 0;
+                for (final item in widget.productsController.orderItems) {
+                  if (item.isChecked != true) continue;
+                  final int qtyFactor =
+                      (item.isPack == true || item.detail.packtype == 'Pack')
+                          ? (item.detail.pieces?.toInt() ?? 1)
+                          : 1;
+                  final double sellPx =
+                      double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0;
+                  final double base = sellPx * qtyFactor * item.detail.count;
+                  totalBase += base;
+                  totalTaxAmt += item.taxAmount?.toDouble() ?? 0.0;
+                }
+                final double avgTaxPct =
+                    totalBase > 0 ? (totalTaxAmt / totalBase) * 100 : 0;
+
+                if (orderTaxe <= 0) return const SizedBox.shrink();
+
+                return Column(
+                  children: [
+                    const Divider(
+                        height: 22, thickness: 1, color: Color(0xFFF1F5F9)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEEF2FF),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.receipt_outlined,
+                                  size: 20,
+                                  color: brandPurple,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Text(
+                              'Tax (GST ${avgTaxPct.toStringAsFixed(0)}%)'.tr,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF64748B),
+                                fontFamily: fontFamilyName,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          formatAmount(orderTaxe),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: brandPurple,
+                            fontFamily: fontFamilyName,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              }),
+
+              const Divider(height: 22, thickness: 1, color: Color(0xFFF1F5F9)),
+
+              // 1.4 FINAL AMOUNT
+              Builder(builder: (context) {
+                double baseAmount = 0.0;
+                if (isOrder) {
+                  baseAmount = widget.productsController.orderItems.fold(
+                    0.0,
+                    (sum, item) {
+                      if (!item.isChecked!) return sum;
+                      return sum + (item.finalPrice ?? item.totalPrice);
+                    },
+                  );
+                  baseAmount =
+                      (baseAmount - flatDisc).clamp(0.0, double.infinity);
+                } else {
+                  baseAmount = preorderSubtotal;
+                }
+
+                final double finalBeforeCredit =
+                    baseAmount.clamp(0.0, double.infinity);
+                final double payableAmount = useCredit.value
+                    ? (finalBeforeCredit - customerCredit)
+                        .clamp(0.0, double.infinity)
+                    : finalBeforeCredit;
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEEF2FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.account_balance_wallet_outlined,
+                              size: 20,
+                              color: brandPurple,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Text(
+                          'Final Amount'.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: fontFamilyName,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      formatAmount(payableAmount),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: fontFamilyName,
+                        color: brandPurple,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // 2. ORDER TYPE SELECTOR (Sale Order, Quick Sale, Estimate in 1 Row)
+        Row(
+          children: filteredOptions.map((option) {
+            if (totalQuickController.text.isEmpty) {
+              final String cid =
+                  widget.productsController.selectedCustomerId.value;
+              final double flatDisc =
+                  widget.productsController.flatDiscountByCustomer[cid] ?? 0.0;
+              double discountedSubtotal =
+                  widget.productsController.orderItems.fold(
+                0.0,
+                (sum, item) {
+                  if (item.isChecked != true) return sum;
+                  return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
+                },
+              );
+              discountedSubtotal =
+                  (discountedSubtotal - flatDisc).clamp(0.0, double.infinity);
+
+              double discountedPreorderSubtotal =
+                  widget.productsController.preorderItems.fold(
+                0.0,
+                (sum, item) {
+                  if (item.isChecked != true) return sum;
+                  return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
+                },
+              );
+
+              totalQuickController.text = isOrder
+                  ? '\$${discountedSubtotal.toStringAsFixed(2)} '
+                  : '\$${discountedPreorderSubtotal.toStringAsFixed(2)}';
+            }
+            final isSelected = _selectedValue == option;
+            IconData optionIcon;
+            if (option == "Sale Order" || option == _options[0]) {
+              optionIcon = Icons.article_outlined;
+            } else if (option == "Quick Sale" || option == _options[1]) {
+              optionIcon = Icons.bolt_rounded;
+            } else {
+              optionIcon = Icons.article_outlined;
+            }
+
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      if (option == _options[1]) {
+                        if (subscriptionController.appQuickSale.value ==
+                            "true") {
+                          setState(() {
+                            _selectedValue = option;
+                            _dropdownValue = null;
+                            paymentType = null;
+                            totalQuickController.clear();
+                          });
+                        } else {
+                          showUpgradePlanDialog(context);
+                        }
+                      } else {
+                        setState(() {
+                          _selectedValue = option;
+                          _dropdownValue = null;
+                          totalQuickController.clear();
+                        });
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 11, horizontal: 8),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected ? const Color(0xFFF0FDF4) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFF22C55E)
+                              : const Color(0xFFE2E8F0),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSelected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            size: 16,
+                            color: isSelected
+                                ? const Color(0xFF22C55E)
+                                : const Color(0xFF94A3B8),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            optionIcon,
+                            size: 16,
+                            color: isSelected
+                                ? const Color(0xFF22C55E)
+                                : const Color(0xFF64748B),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              option.tr,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                                fontFamily: fontFamilyName,
+                                color: isSelected
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFF475569),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+
+        // 3. QUICK SALE INPUTS (Sleek Form Card)
+        if (_selectedValue == "Quick Sale" ||
+            _selectedValue == _options[1]) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                              size: 18, color: Color(0xFF64748B)),
+                          hint: Text("Payment".tr,
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontFamily: fontFamilyName,
+                                  color: Color(0xFF64748B))),
+                          value: _dropdownValue,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _dropdownValue = newValue!;
+                              switch (_dropdownValue) {
+                                case 'Cash':
+                                  paymentType = 0;
+                                  break;
+                                case 'Cheque':
+                                  paymentType = 1;
+                                  break;
+                                case 'Bank Transfer':
+                                  paymentType = 2;
+                                  break;
+                                default:
+                                  paymentType = null;
+                              }
+                            });
+                          },
+                          items: <String>[
+                            'Cash',
+                            'Cheque',
+                            'Bank Transfer',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value,
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontFamily: fontFamilyName,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1E293B))),
+                            );
+                          }).toList(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a payment method';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    flex: 2,
+                    child: SizedBox(
+                      height: 44,
+                      child: TextFormField(
+                        controller: totalQuickController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,2}')),
+                        ],
+                        style: const TextStyle(
+                            fontSize: 13, fontFamily: fontFamilyName),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the total amount';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 10),
+                          labelText: "Amount".tr,
+                          labelStyle: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: fontFamilyName,
+                              color: Color(0xFF64748B)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFCBD5E1)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                            borderSide: const BorderSide(
+                                color: brandPurple, width: 1.5),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_dropdownValue == "Cheque" ||
+                      _dropdownValue == "Bank Transfer") ...[
+                    const SizedBox(width: 6),
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 44,
+                        child: TextFormField(
+                          controller: chequeOrTransactionNumberController,
+                          style: const TextStyle(
+                              fontSize: 13, fontFamily: fontFamilyName),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter the number';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 10),
+                            labelText: _dropdownValue == "Cheque"
+                                ? "Cheque Number"
+                                : "Txn Number",
+                            labelStyle: const TextStyle(
+                                fontSize: 13,
+                                fontFamily: fontFamilyName,
+                                color: Color(0xFF64748B)),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(9),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFFCBD5E1)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(9),
+                              borderSide: const BorderSide(
+                                  color: brandPurple, width: 1.5),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 44,
+                        child: TextFormField(
+                          controller: dateController,
+                          readOnly: true,
+                          style: const TextStyle(
+                              fontSize: 13, fontFamily: fontFamilyName),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a date';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 8),
+                            labelText: "Date",
+                            labelStyle: const TextStyle(
+                                fontSize: 13,
+                                fontFamily: fontFamilyName,
+                                color: Color(0xFF64748B)),
+                            suffixIcon: IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(Icons.calendar_today_rounded,
+                                  size: 15, color: Color(0xFF64748B)),
+                              onPressed: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (pickedDate != null) {
+                                  setState(() {
+                                    dateController.text =
+                                        DateFormat('dd/MM/yyyy')
+                                            .format(pickedDate);
+                                  });
+                                }
+                              },
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(9),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFFCBD5E1)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(9),
+                              borderSide: const BorderSide(
+                                  color: brandPurple, width: 1.5),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 6),
+                  Expanded(
+                    flex: 3,
+                    child: SizedBox(
+                      height: 44,
+                      child: TextFormField(
+                        controller: remarkController,
+                        style: const TextStyle(
+                            fontSize: 13, fontFamily: fontFamilyName),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please provide a remark';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 10),
+                          labelText: "Remark",
+                          labelStyle: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: fontFamilyName,
+                              color: Color(0xFF64748B)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFCBD5E1)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                            borderSide: const BorderSide(
+                                color: brandPurple, width: 1.5),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 14),
+
+        // 4. ACTION BUTTONS (Continue Shopping & Save & Send)
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 48,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.shopping_cart_outlined,
+                      size: 18, color: brandPurple),
+                  label: Text(
+                    'Continue Shopping'.tr,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: brandPurple,
+                      fontSize: 14.5,
+                      fontFamily: fontFamilyName,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  onPressed: () {
+                    if (widget.isFromCustomerDach == true ||
+                        widget.isDashboard == true) {
+                      widget.onContinueShopping!();
+                      Navigator.pop(context);
+                      Navigator.of(context, rootNavigator: true).pop();
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: brandPurple, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.save_outlined,
+                      size: 18, color: Colors.white),
+                  label: Text(
+                    'Save & Send'.tr,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: fontFamilyName,
+                      color: Colors.white,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                  onPressed: () async {
+                    final cartProvider =
+                        Provider.of<CustomersProvider>(context, listen: false);
+                    final hasCheckInOutPermission =
+                        subscriptionController.customerCheckInOut.value ==
+                            "true";
+                    final isCheckedIn = widget.active == true;
+
+                    if (!(isCheckedIn || !hasCheckInOutPermission)) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext ctx) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          title: const Icon(Icons.warning_amber_rounded,
+                              color: Colors.red, size: 60),
+                          content: Text(
+                              'Please check-in before processing the order'.tr),
+                          actions: [
+                            SizedBox(
+                              width: 150,
+                              height: 45,
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                      color: Color(0xFF727CF5), width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                ),
+                                child: Text(
+                                  'OK'.tr,
+                                  style: const TextStyle(
+                                    color: Color(0xFF727CF5),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (_selectedValue == "Quick Sale" &&
+                        totalQuickController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Please enter amount'),
+                            backgroundColor: Colors.red),
+                      );
+                      return;
+                    }
+
+                    final sanitizedText = totalQuickController.text
+                        .replaceAll(RegExp(r'[^\d.]'), '')
+                        .trim();
+                    final double userEnteredAmount =
+                        double.tryParse(sanitizedText) ?? 0.0;
+                    final String customerId = widget.customerId ??
+                        widget.productsController.selectedCustomerId.value;
+
+                    final String cid =
+                        widget.productsController.selectedCustomerId.value;
+                    final double flatDisc =
+                        widget.productsController.flatDiscountByCustomer[cid] ??
+                            0.0;
+                    final double subtotal =
+                        isOrder ? orderSubtotal : preorderSubtotal;
+                    final double baseAmount =
+                        (subtotal - flatDisc).clamp(0.0, double.infinity);
+
+                    final double originalTotal = _selectedValue == "Quick Sale"
+                        ? userEnteredAmount
+                        : baseAmount;
+
+                    final availableCredit =
+                        _customercreditctrl.customerCredit.value ?? 0.0;
+
+                    bool? useCreditResult = false;
+                    bool isEligibleForCreditPopup =
+                        _selectedValue == 'Sale Order' ||
+                            _selectedValue == 'Quick Sale';
+
+                    if (isEligibleForCreditPopup &&
+                        availableCredit > 0 &&
+                        originalTotal > 0) {
+                      useCreditResult = await showCreditUsageDialog(
+                        context: context,
+                        availableCredit: availableCredit,
+                        amountToPayBeforeCredit: originalTotal,
+                      );
+                      if (useCreditResult == null) return;
+                    }
+
+                    final cartDetails = await CartDatabaseManager()
+                        .getDraftAndCartIdsFromApi(customerId);
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    final firstOrder = cartDetails.isNotEmpty
+                        ? cartDetails.last
+                        : {'cart_id': '', 'draft_id': ''};
+                    final cartIdPrefs = firstOrder['cart_id'] ?? '';
+                    final draftIdPrefs = firstOrder['draft_id'] ?? '';
+
+                    if (_selectedValue == "Quick Sale") {
+                      if (!(_formKey.currentState?.validate() ?? false)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Please fill all required fields'),
+                              backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+                    }
+
+                    if (widget.productsController.storedBulkList.isEmpty) {
+                      await widget.productsController.fetchBulkData();
+                    }
+
+                    await processSaveAndSend(
+                      context: context,
+                      finalAmount: originalTotal,
+                      useCreditConfirmed: useCreditResult ?? false,
+                      paymentType: paymentType,
+                      cartId: cartIdPrefs,
+                      draftId: draftIdPrefs,
+                      bulkDataList: widget.productsController.storedBulkList,
+                    );
+
+                    cartProvider.getCartItemCounts(customerId);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: brandPurple,
+                    elevation: 2,
+                    shadowColor: brandPurple.withOpacity(0.4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -2714,80 +2281,138 @@ class CartDialogueState extends State<CartDialogue> {
     required bool isPreOrder,
     required Function calCulateAmount,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Row(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // PRODUCT GROUP HEADER BAR
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(13),
+                topRight: Radius.circular(13),
+              ),
+              border: Border(
+                bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+              ),
+            ),
+            child: Row(
               children: [
-                CustomHeaderContainer(
-                  text:
-                      productName.startsWith('Bundle') ? "Bundle" : productName,
-                  fontSize: isPhonePortrait(context) ? 14 : fontSize,
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Icon(
+                    Icons.inventory_2_outlined,
+                    size: 15,
+                    color: primaryColor,
+                  ),
                 ),
-                const Spacer(),
-                SizedBox(
-                  width: 50,
-                  child: Center(
-                    child: IconButton(
-                      onPressed: () {
-                        showVariantDeleteDialog(
-                          context,
-                          productName,
-                          !isOrder,
-                          false,
-                        );
-                      },
-                      icon: const Icon(
-                        EneftyIcons.trash_bold,
-                        size: 28,
-                        color: Colors.red,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    productName.startsWith('Bundle') ? "Bundle" : productName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${groupedItems.length} items',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Material(
+                  color: const Color(0xFFFEF2F2),
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () {
+                      showVariantDeleteDialog(
+                        context,
+                        productName,
+                        !isOrder,
+                        false,
+                      );
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: Icon(
+                        Icons.delete_outline_rounded,
+                        size: 32,
+                        color: Color(0xFFEF4444),
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            Container(
-              height: 3.5,
-              color: lightPrimaryColor,
-              width: double.infinity,
+          ),
+          // PRODUCT TABLE
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(13),
+              bottomRight: Radius.circular(13),
             ),
-          ],
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: DataTable(
-                  headingRowHeight: 30,
-                  dataRowHeight: rowHeight,
-                  horizontalMargin: 5,
-                  columnSpacing: 15,
-                  columns: DataTableColumns.getColumns(
-                      isPhonePortrait(context) ? 12 : fontSize,
-                      isBundle: productName.startsWith('Bundle')),
-                  rows: GroupedItemDataRows.getRows(
-                    groupedItems: groupedItems,
-                    fontSize:
-                        isPhonePortrait(context) ? 12 : availableWidth / 55,
-                    availableWidth: isPhonePortrait(context)
-                        ? fullScreenWidth(context) * 2
-                        : availableWidth,
-                    context: context,
-                    productQuantityManager: productQuantityManager,
-                    deleteConfirmationDialogue: deleteConfirmationDialogue,
-                    calculateAmount: calCulateAmount,
-                  ),
-                ),
+            child: DataTable(
+              headingRowHeight: 34,
+              dataRowMinHeight: 44,
+              dataRowMaxHeight: 60,
+              horizontalMargin: 8,
+              columnSpacing: 14,
+              headingRowColor:
+                  MaterialStateProperty.all(const Color(0xFFF8FAFC)),
+              columns: DataTableColumns.getColumns(
+                  isPhonePortrait(context) ? 12 : fontSize,
+                  isBundle: productName.startsWith('Bundle')),
+              rows: GroupedItemDataRows.getRows(
+                groupedItems: groupedItems,
+                fontSize: isPhonePortrait(context) ? 12 : availableWidth / 55,
+                availableWidth: isPhonePortrait(context)
+                    ? fullScreenWidth(context) * 2
+                    : availableWidth,
+                context: context,
+                productQuantityManager: productQuantityManager,
+                deleteConfirmationDialogue: deleteConfirmationDialogue,
+                calculateAmount: calCulateAmount,
               ),
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -2854,7 +2479,8 @@ class CartDialogueState extends State<CartDialogue> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              actionsPadding:
+                  const EdgeInsets.only(bottom: 20, left: 16, right: 16),
               actionsAlignment: MainAxisAlignment.center,
               title: const Text('Offline Mode'),
               content: const Text(
@@ -2875,7 +2501,8 @@ class CartDialogueState extends State<CartDialogue> {
                       }
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                      side:
+                          const BorderSide(color: Color(0xFF727CF5), width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -2958,11 +2585,15 @@ class CartDialogueState extends State<CartDialogue> {
                     isBulk: false,
                     originalUnitPrice: e.sellPrice.toString(),
                     originalPackPrice: (() {
-                       final double? apiPP = double.tryParse(e.sellingPackPrice?.toString() ?? '');
-                       return (apiPP != null && apiPP > 0)
-                           ? apiPP.toString()
-                           : ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString();
-                     })(),
+                      final double? apiPP =
+                          double.tryParse(e.sellingPackPrice?.toString() ?? '');
+                      return (apiPP != null && apiPP > 0)
+                          ? apiPP.toString()
+                          : ((double.tryParse(e.sellPrice?.toString() ?? '0') ??
+                                      0.0) *
+                                  (e.pieces?.toInt() ?? 1))
+                              .toString();
+                    })(),
                     editedAmount: 0.0,
                     customerDiscountPercentage: item.CustomerDiscount,
                   );
@@ -2991,11 +2622,15 @@ class CartDialogueState extends State<CartDialogue> {
                     isBulk: false,
                     originalUnitPrice: e.sellPrice.toString(),
                     originalPackPrice: (() {
-                       final double? apiPP = double.tryParse(e.sellingPackPrice?.toString() ?? '');
-                       return (apiPP != null && apiPP > 0)
-                           ? apiPP.toString()
-                           : ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString();
-                     })(),
+                      final double? apiPP =
+                          double.tryParse(e.sellingPackPrice?.toString() ?? '');
+                      return (apiPP != null && apiPP > 0)
+                          ? apiPP.toString()
+                          : ((double.tryParse(e.sellPrice?.toString() ?? '0') ??
+                                      0.0) *
+                                  (e.pieces?.toInt() ?? 1))
+                              .toString();
+                    })(),
                     editedAmount: 0.0,
                     customerDiscountPercentage: item.CustomerDiscount,
                   );
@@ -3100,10 +2735,14 @@ class CartDialogueState extends State<CartDialogue> {
                   unitPrice: effectiveUnitPrice,
                   originalUnitPrice: e.sellPrice.toString(),
                   originalPackPrice: (() {
-                    final double? apiPP = double.tryParse(e.sellingPackPrice?.toString() ?? '');
+                    final double? apiPP =
+                        double.tryParse(e.sellingPackPrice?.toString() ?? '');
                     return (apiPP != null && apiPP > 0)
                         ? apiPP.toString()
-                        : ((double.tryParse(e.sellPrice?.toString() ?? '0') ?? 0.0) * (e.pieces?.toInt() ?? 1)).toString();
+                        : ((double.tryParse(e.sellPrice?.toString() ?? '0') ??
+                                    0.0) *
+                                (e.pieces?.toInt() ?? 1))
+                            .toString();
                   })(),
                   editedAmount: editPriceDiscountAmt,
                   customerDiscountPercentage: item.CustomerDiscount,
@@ -3248,7 +2887,8 @@ class CartDialogueState extends State<CartDialogue> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                      actionsPadding: const EdgeInsets.only(
+                          bottom: 20, left: 16, right: 16),
                       actionsAlignment: MainAxisAlignment.center,
                       title: Center(
                         child: SizedBox(
@@ -3268,9 +2908,9 @@ class CartDialogueState extends State<CartDialogue> {
                           height: 45,
                           child: OutlinedButton(
                             onPressed: () async {
-                              final cartProvider = Provider.of<CustomersProvider>(
-                                  context,
-                                  listen: false);
+                              final cartProvider =
+                                  Provider.of<CustomersProvider>(context,
+                                      listen: false);
 
                               CartDatabaseManager().addListener(() {
                                 cartProvider.updateCartCount(customerId);
@@ -3282,19 +2922,22 @@ class CartDialogueState extends State<CartDialogue> {
                               } else {
                                 Provider.of<CustomersProvider>(context,
                                         listen: false)
-                                    .fetchCustomerDashboardCountData(customerId);
+                                    .fetchCustomerDashboardCountData(
+                                        customerId);
                               }
 
                               setState(() {
                                 Navigator.pop(context);
-                                Navigator.of(context, rootNavigator: true).pop();
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
                               });
                               if (widget.onDraftUpdated != null) {
                                 widget.onDraftUpdated!();
                               }
                             },
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                              side: const BorderSide(
+                                  color: Color(0xFF727CF5), width: 2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
                               ),
@@ -3322,7 +2965,8 @@ class CartDialogueState extends State<CartDialogue> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+                      actionsPadding: const EdgeInsets.only(
+                          bottom: 20, left: 16, right: 16),
                       actionsAlignment: MainAxisAlignment.center,
                       title: Center(
                         child: SizedBox(
@@ -3345,7 +2989,8 @@ class CartDialogueState extends State<CartDialogue> {
                               Navigator.pop(context);
                             },
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                              side: const BorderSide(
+                                  color: Color(0xFF727CF5), width: 2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
                               ),
@@ -3959,69 +3604,73 @@ class CartDialogueState extends State<CartDialogue> {
       // finalAmount,
       'paymentType': paymentType,
       'order_status': status,
-      'cart_list': processedItems
-          .map((e)  {
-             final double combinedDiscount = (e.totalDiscountAmount ?? 0).toDouble() +
-            (e.flatDiscount ?? 0).toDouble() +
-            (e.bogoDiscount ?? 0).toDouble();
+      'cart_list': processedItems.map((e) {
+        final double combinedDiscount =
+            (e.totalDiscountAmount ?? 0).toDouble() +
+                (e.flatDiscount ?? 0).toDouble() +
+                (e.bogoDiscount ?? 0).toDouble();
 
         final num combinedPromoDiscount = (e.tieredDiscount ?? 0) +
             (e.flatDiscount ?? 0) +
             (e.bogoDiscount ?? 0);
 
         bool isBundle = e.promoMsg != null && e.promoMsg!.startsWith("Bundle");
-        
-        bool isBulkItem = (e.detail.bulkId != null && e.detail.bulkId!.isNotEmpty) ||
-            (e.detail.variationName?.contains('[BULK_ID:') == true);
+
+        bool isBulkItem =
+            (e.detail.bulkId != null && e.detail.bulkId!.isNotEmpty) ||
+                (e.detail.variationName?.contains('[BULK_ID:') == true);
 
         return {
-                'product_id': e.detail.productId,
-                'product_name': e.productName,
-                'variant_id': e.detail.variationId,
-                'variant_name': e.detail.variationName,
-                'pack': e.detail.saleBy == 'Pack'
-                    ? (e.detail.count * (e.detail.pieces ?? 1)).toString()
-                    : e.detail.count.toString(),
-                'perPack': e.detail.saleBy == 'Pack'
-                    ? (e.detail.pieces).toString()
-                    : e.detail.count.toString(),
-                'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
-                'price': (e.detail.displayPrice ?? e.detail.sellPrice).toString(),
-                'discount': '0',
-                'quantity': e.detail.count.toInt(),
-                'tax': e.detail.tax?.toInt(),
-                'unitTax': e.detail.unitTax?.toInt(),
-                'inclTax': e.detail.inclTax,
-                'totalTax': (e.detail.tax ?? 0) *
-                    (e.isPack == true || e.detail.packtype == 'Pack'
-                        ? (e.detail.pieces ?? 0) * e.detail.count
-                        : 1),
-                'discountPrice':
-                    (((double.tryParse((e.detail.displayPrice ?? e.detail.sellPrice)?.toString() ?? '0') ??
-                                0.0) *
-                            ((double.tryParse(
-                                        e.detail.discount?.toString() ?? '0') ??
-                                    0.0) /
-                                100)) *
-                        ((e.isPack == true || e.detail.packtype == 'Pack')
-                            ? (e.detail.pieces?.toDouble() ?? 1) *
-                                e.detail.count.toDouble()
-                            : e.detail.count.toDouble())),
-                'totalPrice': e.detail.totalPrice,
-                'isPack': e.isPack,
-                  'unitPrice': (e.detail.displayPrice ?? e.detail.sellPrice).toString(),
+          'product_id': e.detail.productId,
+          'product_name': e.productName,
+          'variant_id': e.detail.variationId,
+          'variant_name': e.detail.variationName,
+          'pack': e.detail.saleBy == 'Pack'
+              ? (e.detail.count * (e.detail.pieces ?? 1)).toString()
+              : e.detail.count.toString(),
+          'perPack': e.detail.saleBy == 'Pack'
+              ? (e.detail.pieces).toString()
+              : e.detail.count.toString(),
+          'packType': e.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+          'price': (e.detail.displayPrice ?? e.detail.sellPrice).toString(),
+          'discount': '0',
+          'quantity': e.detail.count.toInt(),
+          'tax': e.detail.tax?.toInt(),
+          'unitTax': e.detail.unitTax?.toInt(),
+          'inclTax': e.detail.inclTax,
+          'totalTax': (e.detail.tax ?? 0) *
+              (e.isPack == true || e.detail.packtype == 'Pack'
+                  ? (e.detail.pieces ?? 0) * e.detail.count
+                  : 1),
+          'discountPrice': (((double.tryParse(
+                          (e.detail.displayPrice ?? e.detail.sellPrice)
+                                  ?.toString() ??
+                              '0') ??
+                      0.0) *
+                  ((double.tryParse(e.detail.discount?.toString() ?? '0') ??
+                          0.0) /
+                      100)) *
+              ((e.isPack == true || e.detail.packtype == 'Pack')
+                  ? (e.detail.pieces?.toDouble() ?? 1) *
+                      e.detail.count.toDouble()
+                  : e.detail.count.toDouble())),
+          'totalPrice': e.detail.totalPrice,
+          'isPack': e.isPack,
+          'unitPrice': (e.detail.displayPrice ?? e.detail.sellPrice).toString(),
           'maxDiscount': e.detail.maxDiscount?.toInt(),
           'isPromo': e.isPromo ?? false,
           'isBundle': isBundle,
           'promoCode': e.promoCode ?? '',
-          'promoMsg': isBundle ? "Bundle: ${e.detail.variationName}" : (e.promoMsg ?? ''),
+          'promoMsg': isBundle
+              ? "Bundle: ${e.detail.variationName}"
+              : (e.promoMsg ?? ''),
           'bundleDetails': isBundle ? "Bundle: ${e.detail.variationName}" : '',
           'customerDiscount': e.CustomerDiscount ?? 0.0,
           'promoDiscount': combinedPromoDiscount,
           'isBulk': isBulkItem,
           'bulkId': e.detail.bulkId ?? '',
-     }; })
-          .toList(),
+        };
+      }).toList(),
       if (isQuickSale) ...{
         'paymentDetail': remarkController.text.trim(),
         'transactionNumber': chequeOrTransactionNumberController.text.trim(),
@@ -4173,7 +3822,8 @@ class CartDialogueState extends State<CartDialogue> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+          actionsPadding:
+              const EdgeInsets.only(bottom: 20, left: 16, right: 16),
           title: CustomText(
             content: 'Delete ${groupedItem.detail.variationName}..?'.tr,
             fontWeight: FontWeight.w700,
@@ -4195,7 +3845,8 @@ class CartDialogueState extends State<CartDialogue> {
                       Navigator.pop(context);
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                      side:
+                          const BorderSide(color: Color(0xFF727CF5), width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -4258,7 +3909,8 @@ class CartDialogueState extends State<CartDialogue> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+          actionsPadding:
+              const EdgeInsets.only(bottom: 20, left: 16, right: 16),
           title: Row(
             children: [
               const Icon(Icons.warning_amber_outlined,
@@ -4285,7 +3937,8 @@ class CartDialogueState extends State<CartDialogue> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                      side:
+                          const BorderSide(color: Color(0xFF727CF5), width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -4312,8 +3965,8 @@ class CartDialogueState extends State<CartDialogue> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () async {
-                      final provider =
-                          Provider.of<CustomersProvider>(context, listen: false);
+                      final provider = Provider.of<CustomersProvider>(context,
+                          listen: false);
                       _deleteProduct(productName, isPreorder: isPreOrder);
                       await provider.updateCartCount(customerId);
                       _loadCartItems();
@@ -4486,7 +4139,8 @@ class CartDialogueState extends State<CartDialogue> {
       cartItem.taxAmount = tax;
 
       // 5. Update Final Price
-      if (cartItem.detail.inclTax == "incl_tax" || cartItem.detail.inclTax == "N.A") {
+      if (cartItem.detail.inclTax == "incl_tax" ||
+          cartItem.detail.inclTax == "N.A") {
         cartItem.finalPrice = priceAfterDiscount;
       } else {
         cartItem.finalPrice = priceAfterDiscount + tax;
@@ -4528,8 +4182,7 @@ class CartDialogueState extends State<CartDialogue> {
                   calculateAmounts();
 
                   CartDatabaseManager().updateCart(cartItem);
-                  CartDatabaseManager()
-                      .getCartItems(cartItem.customerId ?? '');
+                  CartDatabaseManager().getCartItems(cartItem.customerId ?? '');
                   widget.productsController.isCartModified.value = true;
                 });
               },

@@ -11,7 +11,9 @@ import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dar
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
-import 'package:enefty_icons/enefty_icons.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/cart_table_heading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -213,7 +215,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
       return DataRow(
         cells: [
           DataCell(
-            SizedBox(
+            SizedBox(width: CartColumnWidths.checkbox, child: SizedBox(
               width: 30,
               child: StatefulBuilder(
                 builder: (context, setState) {
@@ -228,21 +230,66 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   );
                 },
               ),
-            ),
+            ),),
           ),
 
           DataCell(
-            Column(
+            SizedBox(width: CartColumnWidths.variant, child: Row(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                TableContent(
-                  content:
-                      '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
-                  fontSize: fontSize,
-                  maxLines: groupedItem.promoCode == null ? 2 : 1,
+                // Product / Variant Image Thumbnail
+                Container(
+                  width: 44,
+                  height: 44,
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: (groupedItem.detail.imageUrl != null &&
+                          groupedItem.detail.imageUrl!.isNotEmpty)
+                      ? CachedNetworkImage(
+                          imageUrl: (groupedItem.detail.imageUrl!.startsWith('http://') ||
+                                  groupedItem.detail.imageUrl!.startsWith('https://'))
+                              ? groupedItem.detail.imageUrl!
+                              : '${ApiConstants.imageBaseUrl}/${groupedItem.detail.imageUrl}',
+                          fit: BoxFit.contain,
+                          placeholder: (context, url) => const Center(
+                            child: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Image.asset(
+                            'assets/images/Image-not-found.png',
+                            fit: BoxFit.contain,
+                          ),
+                        )
+                      : Image.asset(
+                          'assets/images/Image-not-found.png',
+                          fit: BoxFit.contain,
+                        ),
                 ),
-                if (groupedItem.promoCode != null &&
-                    groupedItem.promoMsg != null) ...[
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TableContent(
+                      content:
+                          '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
+                      fontSize: fontSize,
+                      align: TextAlign.start,
+                      maxLines: groupedItem.promoCode == null ? 2 : 1,
+                    ),
+                    if (groupedItem.promoCode != null &&
+                        groupedItem.promoMsg != null) ...[
                   InkWell(
                     onTap: () {
                       if (groupedItem.promoMsg!.startsWith("Bundle")) {
@@ -687,21 +734,25 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         ),
                       ),
                     ),
-                  )
-                ]
+                  ),
+                ],
               ],
             ),
+          ],
+        ),),
           ),
 
           // Cell 3: Unit Price
           DataCell(
-            Center(
+            SizedBox(width: CartColumnWidths.unitPrice, child: Center(
               child: (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
                   ? Text(
                       formatAmount(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0'),
                       style: TextStyle(
-                        fontSize: fontSize,
-                        color: Colors.black87,
+                        fontFamily: fontFamilyName,
+                        fontSize: fontSize >= 13.0 ? fontSize : 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF1E293B),
                         height: 1.4,
                       ),
                       maxLines: 1,
@@ -721,6 +772,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         }
                         final double currentPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
                         final bool isPriceEdited = groupedItem.detail.displayPrice != null;
+                        final double cellFontSize = fontSize >= 13.0 ? fontSize : 13.5;
 
                         if (isPriceEdited) {
                           return RichText(
@@ -732,7 +784,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 TextSpan(
                                   text: formatAmount(originalPrice.toString()),
                                   style: TextStyle(
-                                    fontSize: fontSize,
+                                    fontFamily: fontFamilyName,
+                                    fontSize: cellFontSize,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.grey.shade500,
                                     decoration: TextDecoration.lineThrough,
                                     decorationColor: Colors.grey.shade500,
@@ -743,7 +797,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 TextSpan(
                                   text: ' / ',
                                   style: TextStyle(
-                                    fontSize: fontSize,
+                                    fontFamily: fontFamilyName,
+                                    fontSize: cellFontSize,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.grey.shade500,
                                     height: 1.4,
                                   ),
@@ -752,10 +808,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 TextSpan(
                                   text: formatAmount(currentPrice.toString()),
                                   style: TextStyle(
-                                    fontSize: fontSize,
-                                    color: Colors.blue,
+                                    fontFamily: fontFamilyName,
+                                    fontSize: cellFontSize,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF2563EB),
                                     decoration: TextDecoration.underline,
-                                    decorationColor: Colors.blue,
+                                    decorationColor: const Color(0xFF2563EB),
                                     decorationThickness: 1.2,
                                     height: 1.4,
                                   ),
@@ -767,10 +825,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                           return Text(
                             formatAmount(groupedItem.detail.sellPrice ?? '0'),
                             style: TextStyle(
-                              fontSize: fontSize,
-                              color: Colors.blue,
+                              fontFamily: fontFamilyName,
+                              fontSize: cellFontSize,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF2563EB),
                               decoration: TextDecoration.underline,
-                              decorationColor: Colors.blue,
+                              decorationColor: const Color(0xFF2563EB),
                               decorationThickness: 1.2,
                               height: 1.4,
                             ),
@@ -780,12 +840,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         }
                       }(),
                     ),
-            ),
+            ),),
           ),
 
           // Cell 4: Pack Price
           DataCell(
-            Center(
+            SizedBox(width: CartColumnWidths.packPrice, child: Center(
               child: (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
                   ? InkWell(
                       onTap: () {
@@ -812,6 +872,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                             ? currentPrice * pieces  // edited price still computed
                             : originalPackPrice;     // unedited: use API pack price
                         final bool isPriceEdited = groupedItem.detail.displayPrice != null;
+                        final double cellFontSize = fontSize >= 13.0 ? fontSize : 13.5;
 
                         if (isPriceEdited) {
                           return RichText(
@@ -823,7 +884,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 TextSpan(
                                   text: formatAmount(originalPackPrice.toString()),
                                   style: TextStyle(
-                                    fontSize: fontSize,
+                                    fontFamily: fontFamilyName,
+                                    fontSize: cellFontSize,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.grey.shade500,
                                     decoration: TextDecoration.lineThrough,
                                     decorationColor: Colors.grey.shade500,
@@ -834,7 +897,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 TextSpan(
                                   text: ' / ',
                                   style: TextStyle(
-                                    fontSize: fontSize,
+                                    fontFamily: fontFamilyName,
+                                    fontSize: cellFontSize,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.grey.shade500,
                                     height: 1.4,
                                   ),
@@ -843,10 +908,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                 TextSpan(
                                   text: formatAmount(currentPackPrice.toString()),
                                   style: TextStyle(
-                                    fontSize: fontSize,
-                                    color: Colors.blue,
+                                    fontFamily: fontFamilyName,
+                                    fontSize: cellFontSize,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF2563EB),
                                     decoration: TextDecoration.underline,
-                                    decorationColor: Colors.blue,
+                                    decorationColor: const Color(0xFF2563EB),
                                     decorationThickness: 1.2,
                                     height: 1.4,
                                   ),
@@ -858,10 +925,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                           return Text(
                             formatAmount(currentPackPrice.toString()),
                             style: TextStyle(
-                              fontSize: fontSize,
-                              color: Colors.blue,
+                              fontFamily: fontFamilyName,
+                              fontSize: cellFontSize,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF2563EB),
                               decoration: TextDecoration.underline,
-                              decorationColor: Colors.blue,
+                              decorationColor: const Color(0xFF2563EB),
                               decorationThickness: 1.2,
                               height: 1.4,
                             ),
@@ -874,19 +943,21 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   : Text(
                       '-',
                       style: TextStyle(
-                        fontSize: fontSize,
-                        color: Colors.black87,
+                        fontFamily: fontFamilyName,
+                        fontSize: fontSize >= 13.0 ? fontSize : 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF64748B),
                         height: 1.4,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-            ),
+            ),),
           ),
 
           // Cell 5: Pack
           DataCell(
-            TableContent(
+            SizedBox(width: CartColumnWidths.pack, child: TableContent(
               fontSize: fontSize,
               maxLines: 2,
               content: (groupedItem.detail.packtype == 'Pack' ||
@@ -896,12 +967,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   ? '${groupedItem.detail.packtype ?? 'Bulk'} \n(${groupedItem.detail.pieces ?? 0} Pcs)'
                   // If it's not a pack, check if packtype is null. If so, show 'Bulk', otherwise 'Pcs'
                   : (groupedItem.detail.packtype == null ? 'Bulk' : 'Pcs'),
-            ),
+            ),),
           ),
 
           // Cell 6: Quantity manager
           DataCell(
-            Center(
+            SizedBox(width: CartColumnWidths.quantity, child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
                 child: productQuantityManager(
@@ -914,31 +985,30 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                   availableWidth,
                 ),
               ),
-            ),
+            ),),
           ),
 
           // Cell 7: Price (original pre-discount total)
           DataCell(
-            TableContent(
+            SizedBox(width: CartColumnWidths.price, child: TableContent(
               fontSize: fontSize,
               maxLines: 1,
               content: formatAmount(
                   (originalUnitPrice * qtyFactor * productQuantity).toString()),
-            ),
+            ),),
           ),
 
           DataCell(
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            SizedBox(width: CartColumnWidths.disc, child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: TableContent(
-                    maxLines: 1,
-                    fontSize: fontSize,
-                    content: formatAmount(displayDiscountAmount),
-                  ),
+                TableContent(
+                  maxLines: 1,
+                  fontSize: fontSize,
+                  content: formatAmount(displayDiscountAmount),
                 ),
-                if (displayDiscountAmount > 0)
+                if (displayDiscountAmount > 0) ...[
+                  const SizedBox(width: 4),
                   InkWell(
                     child: const Icon(
                       Icons.info_outline,
@@ -946,6 +1016,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                       color: Colors.blueGrey,
                     ),
                     onTap: () {
+                      final double quantity = productQuantity;
                       // Original selling price per unit
                       final double basePricePerUnit = double.tryParse(
                               groupedItem.detail.sellPrice?.toString() ??
@@ -1245,117 +1316,48 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         ),
                       );
                     },
-//
                   ),
+                ],
               ],
-            ),
+            ),),
           ),
           DataCell(
-            TableContent(
+            SizedBox(width: CartColumnWidths.tax, child: TableContent(
                 maxLines: 1,
                 fontSize: fontSize,
                 content: groupedItem.detail.inclTax == "N.A"
                     ? formatAmount(0)
-                    : formatAmount(tax)),
+                    : formatAmount(tax)),),
           ),
-
-          //  DataCell(
-          //   Center(
-          //     child: ConstrainedBox(
-          //       constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
-          //       child: productQuantityManager(
-          //         groupedItem,
-          //         (groupedItem.detail.inclTax == 'incl_tax'
-          //             ? groupedItem.totalPrice.toString()
-          //             : (groupedItem.totalPrice + (groupedItem.detail.tax ?? 0))
-          //                 .toString()),
-          //         fontSize,
-          //         availableWidth,
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
           DataCell(
-            Center(
+            SizedBox(width: CartColumnWidths.total, child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
-                child: Builder(builder: (context) {
-                  // Recalculate total price for promo items to ensure it's always up-to-date
-                  double displayTotal = groupedItem.totalPrice;
-
-                  if (groupedItem.isPromo ?? false) {
-                    double basePrice =
-                        double.tryParse(groupedItem.detail.sellPrice ?? '0') ??
-                            0;
-                    int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
-                    num count = groupedItem.detail.count;
-                    num tax = groupedItem.detail.inclTax == "N.A" ? 0 : (groupedItem.detail.tax ?? 0);
-                    double discountPercentage =
-                        groupedItem.detail.discount?.toDouble() ?? 0;
-                    double? maxDiscount =
-                        groupedItem.detail.maxDiscount?.toDouble();
-
-                    // Calculate total quantity and base price
-                    num totalCount =
-                        groupedItem.isPack == true ? count * pieces : count;
-                    double totalBasePrice = basePrice * totalCount;
-
-                    // Calculate discount with max discount cap
-                    double uncappedDiscountAmount =
-                        totalBasePrice * (discountPercentage / 100);
-                    double actualDiscountAmount = uncappedDiscountAmount;
-
-                    if (maxDiscount != null &&
-                        maxDiscount > 0 &&
-                        uncappedDiscountAmount > maxDiscount) {
-                      actualDiscountAmount = maxDiscount;
-                    }
-
-                    // Calculate effective discount percentage and apply to price and tax
-                    double effectiveDiscountPercentage = totalBasePrice > 0
-                        ? (actualDiscountAmount / totalBasePrice) * 100
-                        : 0;
-                    double effectiveSellingPrice =
-                        basePrice * (1 - effectiveDiscountPercentage / 100);
-                    tax = tax * (1 - effectiveDiscountPercentage / 100);
-
-                    double priceWithTax =
-                        (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A")
-                            ? effectiveSellingPrice
-                            : effectiveSellingPrice + tax;
-
-                    displayTotal = priceWithTax * totalCount;
-                  }
-
-                  return CustomText(
-                    content: formatAmount(finalPrice),
-                    textAlign: TextAlign.right,
-                    fontSize: fontSize,
-                    maxLine: 1,
-                  );
-                }),
+                child: TableContent(
+                  content: formatAmount(finalPrice),
+                  fontSize: fontSize,
+                  maxLines: 1,
+                ),
               ),
-            ),
+            ),),
           ),
           DataCell(
-            Center(
+            SizedBox(width: CartColumnWidths.delete, child: Center(
               child: SizedBox(
                 width: 30,
                 child: IconButton(
                   icon: const Icon(
-                    EneftyIcons.trash_outline,
+                    Icons.delete_outline,
                     color: Colors.red,
-                    size: 25,
+                    size: 22,
                   ),
                   onPressed: () {
-                    print('delete on tapped');
                     deleteConfirmationDialogue(
                         context, groupedItem, groupedItems);
                   },
                 ),
               ),
-            ),
+            ),),
           ),
         ],
       );
@@ -2285,21 +2287,24 @@ class TableContent extends StatelessWidget {
   double fontSize;
   String content;
   int maxLines;
+  TextAlign align;
   TableContent(
       {super.key,
       required this.fontSize,
       required this.content,
+      this.align = TextAlign.center,
       this.maxLines = 2});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
+        constraints: const BoxConstraints(minWidth: 40, maxWidth: 140),
         child: CustomText(
           content: content,
-          textAlign: TextAlign.center,
-          fontSize: fontSize,
+          textAlign: align,
+          fontSize: fontSize >= 13.0 ? fontSize : 13.5,
+          fontWeight: FontWeight.w600,
           maxLine: maxLines,
         ),
       ),

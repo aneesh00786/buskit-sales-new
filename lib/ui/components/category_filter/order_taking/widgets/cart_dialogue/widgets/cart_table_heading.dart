@@ -2,82 +2,124 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+class CartColumnWidths {
+  static const double checkbox = 30;
+  static const double variant = 150;
+  static const double unitPrice = 75;
+  static const double packPrice = 75;
+  static const double pack = 75;
+  static const double quantity = 110;
+  static const double price = 75;
+  static const double disc = 65;
+  static const double tax = 55;
+  static const double total = 75;
+  static const double delete = 40;
+}
+
+
+class _HeaderText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final TextAlign align;
+
+  const _HeaderText({
+    required this.text,
+    this.fontSize = 12.0,
+    this.align = TextAlign.center,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      textAlign: align,
+      style: TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.w600,
+        fontSize: fontSize,
+        fontFamily: 'Poppins_Regular',
+      ),
+    );
+  }
+}
+
 class DataTableColumns {
   static List<DataColumn> getColumns(double fontSize,
       {bool isBundle = false}) {
+    final double headerFontSize = fontSize >= 15.0 ? fontSize : 15.0;
     return [
       const DataColumn(
-        label: SizedBox(width: 30),
+        label: SizedBox(width: CartColumnWidths.checkbox),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.variant, child: _HeaderText(
           text: isBundle ? 'Bundle Name'.tr : 'Variant'.tr,
-          fontSize: fontSize,
-          align: TextAlign.center,
-        ),
+          fontSize: headerFontSize,
+          align: TextAlign.start,
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.unitPrice, child: _HeaderText(
           text: 'Unit Price'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.packPrice, child: _HeaderText(
           text: 'Pack Price'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.pack, child: _HeaderText(
           text: 'Pack'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.quantity, child: _HeaderText(
           text: 'Quantity'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.price, child: _HeaderText(
           text: 'Price'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.disc, child: _HeaderText(
           text: 'Disc'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.tax, child: _HeaderText(
           text: 'Tax'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.total, child: _HeaderText(
           text: 'Total'.tr,
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
       DataColumn(
-        label: DialogTableHeaderText(
+        label: SizedBox(width: CartColumnWidths.delete, child: _HeaderText(
           text: '',
-          fontSize: fontSize,
+          fontSize: headerFontSize,
           align: TextAlign.center,
-        ),
+        ),),
       ),
     ];
   }

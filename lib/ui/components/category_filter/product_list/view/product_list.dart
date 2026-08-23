@@ -349,17 +349,25 @@ class _ProductGridState extends State<ProductGrid> {
                                     Container(
                                       clipBehavior: Clip.antiAlias,
                                       decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey.shade300),
-                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.06),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          )
+                                        ],
                                       ),
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
                                           Container(
-                                            color: const Color.fromARGB(
-                                                255, 247, 247, 247),
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(255, 250, 250, 250),
+                                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                                            ),
                                             height: imageHeight,
                                             width: double.maxFinite,
                                             child: product.imageUrl != null
@@ -385,7 +393,7 @@ class _ProductGridState extends State<ProductGrid> {
                                                     'assets/images/Image-not-found.png'),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                                             child: Text(
                                               product.productName ?? '',
                                               maxLines: 2,
@@ -414,13 +422,14 @@ class _ProductGridState extends State<ProductGrid> {
                                                       padding: const EdgeInsets.symmetric(
                                                           horizontal: 6, vertical: 3),
                                                       decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(30),
-                                                        color: Colors.yellow[700],
+                                                        borderRadius: BorderRadius.circular(6),
+                                                        color: Colors.orange.shade100,
+                                                        border: Border.all(color: Colors.orange.shade300)
                                                       ),
                                                       child: CustomText(
                                                         content: 'Low'.tr, // Count removed
                                                         fontSize: 7,
-                                                        color: Colors.white,
+                                                        color: Colors.orange.shade900,
                                                         fontWeight: FontWeight.w600,
                                                       ),
                                                     ),
@@ -431,13 +440,14 @@ class _ProductGridState extends State<ProductGrid> {
                                                       padding: const EdgeInsets.symmetric(
                                                           horizontal: 6, vertical: 3),
                                                       decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(30),
-                                                        color: Colors.red.shade800,
+                                                        borderRadius: BorderRadius.circular(6),
+                                                        color: Colors.red.shade50,
+                                                        border: Border.all(color: Colors.red.shade200)
                                                       ),
                                                       child: CustomText(
                                                         content: 'Nill'.tr, // Count removed
                                                         fontSize: 7,
-                                                        color: Colors.white,
+                                                        color: Colors.red.shade700,
                                                         fontWeight: FontWeight.w600,
                                                       ),
                                                     ),

@@ -841,10 +841,7 @@ class _OrderTakingState extends State<OrderTaking>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            width: isTabletOrPhoneLandscape(context)
-                                ? MediaQuery.of(context).size.width * 0.43
-                                : MediaQuery.of(context).size.width * 0.3,
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1010,18 +1007,14 @@ class _OrderTakingState extends State<OrderTaking>
                             ),
                           ),
                           const SizedBox(width: 20),
-                          Expanded(
-                            child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                reverse: true,
-                                child: IntrinsicWidth(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      const ChatbotTopBarButton(
-                                          routeName: "/order_taking"),
-                                      const SizedBox(width: 8),
+                          IntrinsicWidth(
+                            child: Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceAround,
+                              children: [
+                                const ChatbotTopBarButton(
+                                    routeName: "/order_taking"),
+                                const SizedBox(width: 8),
                                       Hero(
                                         tag: 'product_image',
                                         child: AnimatedBuilder(
@@ -1151,8 +1144,7 @@ class _OrderTakingState extends State<OrderTaking>
                                       )
                                     ],
                                   ),
-                                )),
-                          )
+                                ),
                         ],
                       ),
                     ),
@@ -1176,16 +1168,21 @@ class _OrderTakingState extends State<OrderTaking>
                     child: Padding(
                       padding: const EdgeInsets.only(top: 75),
                       child: Container(
-                        width: 50,
+                        width: 55,
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        color: primaryColor.withOpacity(0.2),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            right: BorderSide(color: Colors.grey.shade200, width: 1),
+                          )
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             IconButton(
                               icon: const Icon(Icons.menu,
-                                  size: 20, color: primaryColor),
+                                  size: 22, color: Colors.black87),
                               onPressed: _toggleDrawer,
                             ),
                             const SizedBox(height: 20),
@@ -1208,22 +1205,30 @@ class _OrderTakingState extends State<OrderTaking>
                                     String initial = categoryName.isNotEmpty
                                         ? categoryName[0].toUpperCase()
                                         : '';
+                                    final bool isSelected = _selectedCategory == categoryName;
                                     return Material(
                                       color: Colors.transparent,
                                       child: InkWell(
                                         onTap: () {
                                           _selectCategory(categoryName);
                                         },
-                                        child: Container(
-                                          width: 50,
-                                          height: 44,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            initial,
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                color: primaryColor,
-                                                fontWeight: FontWeight.bold),
+                                        child: Center(
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            margin: const EdgeInsets.only(bottom: 6),
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: isSelected ? primaryColor : Colors.transparent,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Text(
+                                              initial,
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: isSelected ? Colors.white : Colors.black87,
+                                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -1262,6 +1267,11 @@ class _OrderTakingState extends State<OrderTaking>
                           },
                           onDrawerToggle: _toggleDrawer,
                           selectedCategory: _selectedCategory,
+                          onCategoryExpanded: (categoryName) {
+                            setState(() {
+                              _selectedCategory = categoryName;
+                            });
+                          },
                         ),
                       ),
                     ),
@@ -1296,10 +1306,7 @@ class _OrderTakingState extends State<OrderTaking>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: isTabletOrPhoneLandscape(context)
-                              ? MediaQuery.of(context).size.width * 0.43
-                              : MediaQuery.of(context).size.width * 0.25,
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1418,8 +1425,8 @@ class _OrderTakingState extends State<OrderTaking>
                                                 },
                                               )
                                         : const SizedBox.shrink(),
-                              ),
-                              if (widget.productsController.showDialog.value)
+                            ),
+                            if (widget.productsController.showDialog.value)
                                 AlertDialog(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),

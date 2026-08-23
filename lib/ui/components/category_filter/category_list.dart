@@ -21,6 +21,7 @@ class CategoryList extends StatefulWidget {
   final Function(String) onOptionSelected;
   final VoidCallback onDrawerToggle;
   final String selectedCategory;
+  final Function(String)? onCategoryExpanded;
 
   const CategoryList({
     super.key,
@@ -29,6 +30,7 @@ class CategoryList extends StatefulWidget {
     required this.onOptionSelected,
     required this.onDrawerToggle,
     required this.selectedCategory,
+    this.onCategoryExpanded,
   });
 
   @override
@@ -78,8 +80,15 @@ class _CategoryListState extends State<CategoryList> {
         padding: const EdgeInsets.all(10),
         width: MediaQuery.of(context).size.width * 0.3,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade500),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -115,11 +124,9 @@ class _CategoryListState extends State<CategoryList> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            // _expandedIndex = isExpanded ? -1 : index;
-                            if (isExpanded) {
-                              _expandedIndex = -1;
-                            } else {
+                            if (!isExpanded) {
                               _expandedIndex = index;
+                              if (widget.onCategoryExpanded != null) widget.onCategoryExpanded!(category.categoryName ?? '');
                               // Auto-select the first subcategory when expanding
                               if (category.subCategoryItem != null &&
                                   category.subCategoryItem!.isNotEmpty) {
@@ -134,19 +141,23 @@ class _CategoryListState extends State<CategoryList> {
                                   firstSubCategory.id.toString(),
                                   firstSubCategory.subCategory ?? '',
                                 );
-                                // Optionally, do not close the drawer here. Remove the next line if you want the drawer to stay open.
-                                // widget.onDrawerToggle();
                               }
                             }
                           });
                         },
                         child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.shade300),
+                            color: isExpanded ? primaryColor : Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: isExpanded ? [
+                              BoxShadow(
+                                color: primaryColor.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              )
+                            ] : null,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -156,17 +167,14 @@ class _CategoryListState extends State<CategoryList> {
                                 style: GoogleFonts.poppins(
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.w600,
+                                  color: isExpanded ? Colors.white : Colors.black87,
                                 ),
                               ),
-                              isExpanded
-                                  ? const Icon(
-                                      Icons.keyboard_arrow_up,
-                                      size: 16,
-                                    )
-                                  : const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      size: 16,
-                                    ),
+                              Icon(
+                                isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                size: 18,
+                                color: isExpanded ? Colors.white : Colors.grey.shade600,
+                              ),
                             ],
                           ),
                         ),
@@ -175,7 +183,7 @@ class _CategoryListState extends State<CategoryList> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: category.subCategoryItem!.map((option) {
                               return GestureDetector(
                                 onTap: () {
@@ -194,22 +202,31 @@ class _CategoryListState extends State<CategoryList> {
                                   widget.onDrawerToggle();
                                 },
                                 child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 7.0, left: 10, right: 10),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
+                                  padding: const EdgeInsets.only(bottom: 4.0),
+                                  child: Obx(() {
+                                    final isSelected = widget.productsController.selectedSubCategoryId.value == option.id;
+                                    return Container(
+                                    padding: const EdgeInsets.only(left: 32, right: 14, top: 12, bottom: 12),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(5),
+                                      color: isSelected ? Colors.white : Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: isSelected ? primaryColor.withOpacity(0.3) : Colors.transparent,
+                                        width: 1,
+                                      )
                                     ),
                                     child: Text(
                                       option.subCategory ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.poppins(
                                         fontSize: 12.0,
-                                        color: Colors.black,
+                                        color: isSelected ? primaryColor : Colors.black87,
+                                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                       ),
                                     ),
-                                  ),
+                                  );
+                                  }),
                                 ),
                               );
                             }).toList(),

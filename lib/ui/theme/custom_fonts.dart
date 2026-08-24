@@ -179,20 +179,40 @@ class CustomButton extends StatelessWidget {
 }
 
 Widget dashboardContainerHeader(String text) {
-  return Container(
-    decoration: BoxDecoration(
-      color: primaryColor.withOpacity(0.2),
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(25),
-        bottomRight: Radius.circular(25),
-      ),
-    ),
-    padding: const EdgeInsets.only(right: 20, left: 20, top: 5, bottom: 5),
-    child: Text(
-      text,
-      style: cardHeadingTextStyle,
-      maxLines: 1,
-      softWrap: false,
+  return Padding(
+    padding: const EdgeInsets.only(left: 16.0, top: 12.0, bottom: 8.0),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: primaryColor.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.space_dashboard_rounded,
+              size: 16,
+              color: primaryColor,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+            letterSpacing: -0.4,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     ),
   );
 }

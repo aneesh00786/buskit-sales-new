@@ -46,10 +46,13 @@ Widget topSellingProductWidget(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                dashboardContainerHeader("Frequently Ordered Products".tr),
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: dashboardContainerHeader("Frequently Ordered Products".tr),
+                ),
+                const SizedBox(width: 5),
                 Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                  padding: const EdgeInsets.only(right: 5, top: 2),
                   child: InkWell(
                     onTap: () {
                       if (subscriptionController

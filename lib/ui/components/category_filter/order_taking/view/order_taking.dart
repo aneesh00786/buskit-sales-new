@@ -431,13 +431,20 @@ class _OrderTakingState extends State<OrderTaking>
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              widget.productsController
+                                            MyRegularText(
+                                              label: widget.productsController
                                                   .selectedCustomerName.value,
+                                              fontSize: 8.5,
+                                              maxlines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                              ),
                                             ),
-                                            const MyRegularText(
-                                              label: "Customer",
-                                              fontSize: 9,
+                                            MyRegularText(
+                                              label: "Customer".tr,
+                                              fontSize: 8,
                                             ),
                                           ],
                                         ),

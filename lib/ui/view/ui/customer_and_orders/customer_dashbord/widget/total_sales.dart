@@ -127,36 +127,7 @@ Widget totalSalse(BuildContext context) {
                         ),
                       ],
                     ),
-                    Positioned(
-                      top: 0,
-                      right: -10,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            right: fullScreenWidth(context) > 630 ? 20 : 2,
-                            top: 2),
-                        child: InkWell(
-                          onTap: () {
-                            showCustomerRevenueChartDialog(
-                              context,
-                              "Revenue",
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: primaryColor.withOpacity(0.3)),
-                            child: const Padding(
-                              padding: EdgeInsets.all(5.0),
-                              child: Icon(
-                                Icons.open_in_new,
-                                size: 17,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
+                    
                   ],
                 ),
               );

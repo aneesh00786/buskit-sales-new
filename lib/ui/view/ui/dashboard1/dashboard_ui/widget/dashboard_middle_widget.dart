@@ -108,15 +108,10 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = fullScreenWidth(context);
-    double screenHeight = fullScreenHeight(context);
     bool isMobile = screenWidth < 600;
 
     return SizedBox(
-      height: isMobile
-          ? null
-          : MediaQuery.of(context).orientation == Orientation.portrait
-              ? screenHeight * 0.9
-              : screenHeight * 2,
+      height: null,
       child: isMobile
           ? SingleChildScrollView(
               child: Column(
@@ -158,52 +153,46 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             )
           : Column(
               children: [
-                Flexible(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Flexible(
-                          child: middleTopLeftComponet(
-                              context: context,
-                              staffProjection: staffProjection,
-                              targetType: targetType)),
-                      const SizedBox(
-                        width: 4.7,
-                      ),
-                      Flexible(child: middleTopRightComponet(context: context))
-                    ],
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                        child: middleTopLeftComponet(
+                            context: context,
+                            staffProjection: staffProjection,
+                            targetType: targetType)),
+                    const SizedBox(
+                      width: 4.7,
+                    ),
+                    Flexible(child: middleTopRightComponet(context: context))
+                  ],
                 ),
                 const SizedBox(
                   height: 4.7,
                 ),
-                Flexible(
-                  child: Row(
-                    children: [
-                      const Flexible(child: CommunicationsDisplayWidget()),
-                      const SizedBox(
-                        width: 4.7,
-                      ),
-                      Flexible(
-                          child: topSellingProductWidget(
-                              context: context,
-                              subscriptionController: subscriptionController))
-                    ],
-                  ),
+                Row(
+                  children: [
+                    const Flexible(child: CommunicationsDisplayWidget()),
+                    const SizedBox(
+                      width: 4.7,
+                    ),
+                    Flexible(
+                        child: topSellingProductWidget(
+                            context: context,
+                            subscriptionController: subscriptionController))
+                  ],
                 ),
                 const SizedBox(
                   height: 4.7,
                 ),
-                Flexible(
-                  child: Row(
-                    children: [
-                      Flexible(child: collectionChart(context)),
-                      const SizedBox(
-                        width: 4.7,
-                      ),
-                      Flexible(child: orderDeliveryChart(context))
-                    ],
-                  ),
+                Row(
+                  children: [
+                    Flexible(child: collectionChart(context)),
+                    const SizedBox(
+                      width: 4.7,
+                    ),
+                    Flexible(child: orderDeliveryChart(context))
+                  ],
                 ),
               ],
             ),
@@ -232,10 +221,13 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                dashboardContainerHeader('Collection'.tr),
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: dashboardContainerHeader('Collection'.tr),
+                ),
+                const SizedBox(width: 5),
                 Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                  padding: const EdgeInsets.only(right: 5, top: 2),
                   child: InkWell(
                     onTap: () {
                       showCollectionChartDialog(
@@ -789,10 +781,13 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                dashboardContainerHeader('Order Status'.tr),
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: dashboardContainerHeader('Order Status'.tr),
+                ),
+                const SizedBox(width: 5),
                 Padding(
-                  padding: EdgeInsets.only(
-                      right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                  padding: const EdgeInsets.only(right: 5, top: 2),
                   child: InkWell(
                     onTap: () {
                       if (subscriptionController.orderStatusGraph.value ==

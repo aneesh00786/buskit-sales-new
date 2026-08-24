@@ -3,6 +3,7 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/dashboard_card.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/orders_payment_heading.dart';
@@ -36,24 +37,15 @@ const double totalTableWidth = colDateWidth +
     colDueWidth +
     colSelectWidth;
 
-MyCommnonContainer OrdersPayments(
+Widget OrdersPayments(
   BuildContext context,
   List<RecentOrder> recentOrders,
   SubscriptionController subscriptionController,
   String customerEmail,
   String customerMobile,
 ) {
-  return MyCommnonContainer(
-    boxShadow: [
-      BoxShadow(
-        color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-        blurRadius: 5,
-        offset: const Offset(4, 4),
-      ),
-    ],
-    borderRadius: 25,
+  return DashboardCard(
     height: 300,
-    isCommonBorder: true,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -63,25 +55,7 @@ MyCommnonContainer OrdersPayments(
           children: [
             Row(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.2),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                  ),
-                  // padding: const EdgeInsets.only(
-                  //     right: 20, left: 20, top: 5, bottom: 5),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: Text(
-                    'Orders & Payment/s'.tr,
-                    style: cardHeadingTextStyle,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
+                dashboardContainerHeader('Orders & Payments'.tr),
                 const SizedBox(width: 7),
                 SizedBox(
                   height: 25,
@@ -131,8 +105,7 @@ MyCommnonContainer OrdersPayments(
               ],
             ),
             Padding(
-              padding: EdgeInsets.only(
-                  right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+              padding: const EdgeInsets.only(top: 2),
               child: InkWell(
                 onTap: () {
                   showCustomDialog(
@@ -171,7 +144,6 @@ MyCommnonContainer OrdersPayments(
               double fontSize = 11;
 
               return Scrollbar(
-                thumbVisibility: true, // Shows the horizontal scrollbar
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal, // Horizontal Scroll
                   physics: const BouncingScrollPhysics(),

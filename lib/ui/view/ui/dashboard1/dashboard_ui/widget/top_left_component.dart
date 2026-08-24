@@ -55,31 +55,7 @@ Widget middleTopLeftComponet({
             children: [
               Flexible(
                 fit: FlexFit.tight,
-                child: IntrinsicWidth(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.2),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        bottomRight: Radius.circular(25),
-                      ),
-                    ),
-                    padding: const EdgeInsets.only(
-                        right: 20, left: 20, top: 5, bottom: 5),
-                    child: Text(
-                      displayText,
-                      style: const TextStyle(
-                        fontFamily: fontFamilyName,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: true,
-                    ),
-                  ),
-                ),
+                child: dashboardContainerHeader(displayText),
               ),
               const SizedBox(width: 5),
               Padding(

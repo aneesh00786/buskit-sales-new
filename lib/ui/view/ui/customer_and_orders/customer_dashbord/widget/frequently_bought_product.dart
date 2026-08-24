@@ -5,6 +5,7 @@ import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/dashboard_card.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
@@ -19,18 +20,9 @@ Widget Frequently(
       BuildContext context, List<FrequantliyProductList> frequentProductLists,SubscriptionController subscriptionController) {
     frequentProductLists
         .sort((a, b) => b.count.length.compareTo(a.count.length));
-    return MyCommnonContainer(
-      boxShadow: [
-        BoxShadow(
-          color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-          blurRadius: 5,
-          offset: const Offset(4, 4),
-        ),
-      ],
-      borderRadius: 25,
-      height: 320,
-      isCommonBorder: true,
-      margin: EdgeInsets.zero,
+    return DashboardCard(
+      height: 300,
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -38,10 +30,9 @@ Widget Frequently(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              dashboardContainerHeader("Frequently Ordered Products".tr),
+              dashboardContainerHeader('Frequently Bought Products'.tr),
               Padding(
-                padding: EdgeInsets.only(
-                    right: fullScreenWidth(context) > 630 ? 20 : 2, top: 2),
+                padding: const EdgeInsets.only(top: 2),
                 child: InkWell(
                   onTap: () {
                     // print('frequently on tapped');

@@ -1,6 +1,7 @@
+import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 // ignore_for_file: library_private_types_in_public_api
 
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
 import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
@@ -40,36 +41,85 @@ class _CommunicationsDisplayWidgetState
           padding: EdgeInsets.zero,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Stack(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 224, 224, 226)
-                        .withOpacity(0.2),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      topRight: Radius.circular(25),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 8),
+                  child: dashboardContainerHeader("Communication".tr),
+                ),
+                if (subscriptionController.communication.value == 'true')
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2, right: 10),
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            backgroundColor: white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Container(
+                                  height: MediaQuery.of(context).size.height * 0.85,
+                                  width: MediaQuery.of(context).size.width * 0.9,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: const BoxDecoration(
+                                          color: primaryColor,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            topRight: Radius.circular(10),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Communication'.tr,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontFamily: 'Poppins_Regular',
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            dialogCloseButton1(context, red),
+                                          ],
+                                        ),
+                                      ),
+                                      const Expanded(child: ChatScreen()),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: primaryColor.withOpacity(0.3)),
+                        child: const Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Icon(
+                            Icons.open_in_new,
+                            size: 17,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.2),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                  ),
-                  padding: const EdgeInsets.only(
-                      right: 20, left: 20, top: 5, bottom: 5),
-                  child:  Text(
-                    "Communication".tr,
-                    style: cardHeadingTextStyle,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
               ],
             ),
             if (subscriptionController.communication.value != 'true') ...[

@@ -46,7 +46,7 @@ class _ProductScreenState extends State<ProductScreen> {
                   );
                 }
               }),
-              const ChatbotFabLauncher(routeName: '/products', bottomMargin: 20.0, rightMargin: 20.0),
+              // const ChatbotFabLauncher(routeName: '/products', bottomMargin: 20.0, rightMargin: 20.0),
             ],
           ),
         );

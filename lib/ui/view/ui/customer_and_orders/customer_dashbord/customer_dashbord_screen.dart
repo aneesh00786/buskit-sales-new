@@ -8,6 +8,8 @@ import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/measurements/responsive_info.dart';
 import 'package:busskit_salesexecutive/routes/routes.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/category_line_chart/category_line_chart.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/dashboard_card.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_dashbord/widget/message/customer_revenue_chart_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/order_taking.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
@@ -615,6 +617,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               ? screenHeight * 0.9
               : screenHeight * 1.55,
       child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
           leadingWidth: isMobile ? 150 : 200,
           leading: Padding(
@@ -744,13 +747,36 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                            ],                                    ),
                                   ],
                                 ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: InkWell(
+                                  onTap: () {
+                                    showCustomerRevenueChartDialog(
+                                      context,
+                                      "Revenue",
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: primaryColor.withOpacity(0.1)),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(6.0),
+                                      child: Icon(
+                                        Icons.open_in_new,
+                                        size: 16,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                                 content: Padding(
                                   padding: EdgeInsets.only(top: 15.0),
                                   child: Text(
@@ -855,16 +881,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       Navigator.pop(context);
                     }
                   },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: primaryColor)),
-                    child: const Icon(
-                      EneftyIcons.arrow_left_3_outline,
-                      color: primaryColor,
-                      size: 20,
-                    ),
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.black87,
+                    size: 20,
                   ),
                 ),
 
@@ -989,27 +1009,37 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: const Color(0xffe6ecff),
-                          radius: 13,
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                '${ApiConstants.baseUrl}uploads/$customerImage',
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                            imageBuilder: (context, imageProvider) => Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
+                        (customerImage == null || customerImage.isEmpty)
+                          ? const CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.blueGrey,
+                              child: Icon(Icons.person, color: Colors.white),
+                            )
+                          : CircleAvatar(
+                              backgroundColor: const Color(0xffe6ecff),
+                              radius: 20,
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    '${ApiConstants.baseUrl}uploads/$customerImage',
+                                placeholder: (context, url) =>
+                                    const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                                errorWidget: (context, url, error) =>
+                                    const CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: Colors.blueGrey,
+                                      child: Icon(Icons.person, color: Colors.white),
+                                    ),
+                                imageBuilder: (context, imageProvider) => Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
                         const SizedBox(width: 4.5),
                         Expanded(
                           child: Column(
@@ -1091,12 +1121,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 ? Column(
                                     children: [
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: Category(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: OrdersPayments(
                                           context,
                                           recentOrders ?? [],
@@ -1107,12 +1137,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: TabTab(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: Frequently(
                                             context,
                                             frequentProductLists ?? [],
@@ -1211,7 +1241,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 reverse: true,
                                 child: Row(
                                   children: [
-                                    ElevatedButton(
+                                    ElevatedButton.icon(
                                   onPressed: () {
                                     print('customer id: ${widget.cusId}');
                                     OrderIdSnackBar.show(
@@ -1222,20 +1252,28 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         const Color.fromARGB(255, 38, 165, 42),
+                                    elevation: 0,
+                                    minimumSize: const Size(130, 42),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
                                   ),
-                                  child: Text(
+                                  icon: const Icon(Icons.assignment_return_outlined, size: 16, color: Colors.white),
+                                  label: Text(
                                     'Sales Return'.tr,
-                                    style: const TextStyle(color: Colors.white),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: fontFamilyName,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(
                                   width:
                                       10, // Adds a small gap between the two buttons
                                 ),
-                                ElevatedButton(
+                                ElevatedButton.icon(
                                   onPressed: () {
                                     if (subscriptionController
                                             .orderTakingFromDashboard.value !=
@@ -1259,18 +1297,17 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: primaryColor,
-                                    shadowColor: WidgetStateColor.transparent,
-                                    minimumSize: const Size(145, 40),
+                                    elevation: 0,
+                                    minimumSize: const Size(140, 42),
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(4.0),
-                                        side: const BorderSide(
-                                            color: primaryColor)),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
                                   ),
-                                  child: Text(
+                                  icon: const Icon(Icons.shopping_bag_outlined, size: 16, color: Colors.white),
+                                  label: Text(
                                     'Order Taking'.tr,
                                     style: const TextStyle(
-                                        color: white,
+                                        color: Colors.white,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 0.3,
@@ -1436,12 +1473,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 ? Column(
                                     children: [
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: Category(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: OrdersPayments(
                                             context,
                                             recentOrders ?? [],
@@ -1451,12 +1488,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: TabTab(context),
                                       ),
                                       const SizedBox(height: 4.7),
                                       SizedBox(
-                                        height: screenWidth * 0.7,
+                                        height: 350,
                                         child: Frequently(
                                             context,
                                             frequentProductLists ?? [],
@@ -1519,31 +1556,20 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Widget Category(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
+      child: DashboardCard(
         height: 300,
-        width: double.infinity,
-        isCommonBorder: true,
         child: Consumer<CustomersProvider>(builder: (context, provider, child) {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  children: [
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                     dashboardContainerHeader('Category Sales'.tr),
-                    const Spacer(),
+                    
                     Padding(
-                      padding: EdgeInsets.only(
-                          right: fullScreenWidth(context) > 630 ? 20 : 2,
-                          top: 2),
+                      padding: const EdgeInsets.only(top: 2),
                       child: InkWell(
                         onTap: () {
                           showCustomerCategoryChartDialog(
@@ -1632,18 +1658,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
   Widget TabTab(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
+      child: DashboardCard(
         height: 320,
-        width: double.infinity,
-        isCommonBorder: true,
         child: Consumer<CustomersProvider>(builder: (context, provider, child) {
           return FutureBuilder<CustomerTotalSaleResponse>(
               future: provider.customerTotalSaleResponseFuture,
@@ -1658,13 +1674,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         clipBehavior: Clip.none,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              SizedBox(
-                                width: 240,
-                                height: 30,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     GestureDetector(
                                       onTap: () {
@@ -1672,30 +1685,21 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           _tabIndex = 0;
                                         });
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.only(
-                                            right: 20,
-                                            left: 20,
-                                            top: 5,
-                                            bottom: 5),
-                                        decoration: _tabIndex == 0
-                                            ? BoxDecoration(
-                                                color: primaryColor
-                                                    .withOpacity(0.2),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(25),
-                                                  bottomRight:
-                                                      Radius.circular(25),
-                                                ),
-                                              )
-                                            : null,
-                                        child: Text(
-                                          'Revenue'.tr,
-                                          style: _tabIndex == 0
-                                              ? cardHeadingTextStyle
-                                              : tabTextStyle,
-                                        ),
+                                      child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _tabIndex == 0 ? primaryColor.withOpacity(0.1) : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            'Revenue'.tr,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: _tabIndex == 0 ? Colors.black87 : Colors.grey.shade500,
+                                            ),
+                                          ),
                                       ),
                                     ),
                                     GestureDetector(
@@ -1704,35 +1708,49 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           _tabIndex = 1;
                                         });
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.only(
-                                            right: 20,
-                                            left: 20,
-                                            top: 5,
-                                            bottom: 5),
-                                        decoration: _tabIndex == 1
-                                            ? BoxDecoration(
-                                                color: const Color(0xff5bc0de)
-                                                    .withOpacity(0.2),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(25),
-                                                  bottomRight:
-                                                      Radius.circular(25),
-                                                ),
-                                              )
-                                            : null,
-                                        child: Text(
-                                          'Customer Offer'.tr,
-                                          style: _tabIndex == 1
-                                              ? cardHeadingTextStyle
-                                              : tabTextStyle,
-                                        ),
+                                      child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _tabIndex == 1 ? const Color(0xff5bc0de).withOpacity(0.1) : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            'Customer Offer'.tr,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: _tabIndex == 1 ? Colors.black87 : Colors.grey.shade500,
+                                            ),
+                                          ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: InkWell(
+                                  onTap: () {
+                                    showCustomerRevenueChartDialog(
+                                      context,
+                                      "Revenue",
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: primaryColor.withOpacity(0.1)),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(6.0),
+                                      child: Icon(
+                                        Icons.open_in_new,
+                                        size: 16,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ],
@@ -1755,13 +1773,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         clipBehavior: Clip.none,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              SizedBox(
-                                width: 240,
-                                height: 30,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     GestureDetector(
                                       onTap: () {
@@ -1769,30 +1784,21 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           _tabIndex = 0;
                                         });
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.only(
-                                            right: 20,
-                                            left: 20,
-                                            top: 5,
-                                            bottom: 5),
-                                        decoration: _tabIndex == 0
-                                            ? BoxDecoration(
-                                                color: primaryColor
-                                                    .withOpacity(0.2),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(25),
-                                                  bottomRight:
-                                                      Radius.circular(25),
-                                                ),
-                                              )
-                                            : null,
-                                        child: Text(
-                                          'Revenue'.tr,
-                                          style: _tabIndex == 0
-                                              ? cardHeadingTextStyle
-                                              : tabTextStyle,
-                                        ),
+                                      child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _tabIndex == 0 ? primaryColor.withOpacity(0.1) : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            'Revenue'.tr,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: _tabIndex == 0 ? Colors.black87 : Colors.grey.shade500,
+                                            ),
+                                          ),
                                       ),
                                     ),
                                     GestureDetector(
@@ -1801,35 +1807,49 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           _tabIndex = 1;
                                         });
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.only(
-                                            right: 20,
-                                            left: 20,
-                                            top: 5,
-                                            bottom: 5),
-                                        decoration: _tabIndex == 1
-                                            ? BoxDecoration(
-                                                color: const Color(0xff5bc0de)
-                                                    .withOpacity(0.2),
-                                                borderRadius:
-                                                    const BorderRadius.only(
-                                                  topLeft: Radius.circular(25),
-                                                  bottomRight:
-                                                      Radius.circular(25),
-                                                ),
-                                              )
-                                            : null,
-                                        child: Text(
-                                          'Customer Offer'.tr,
-                                          style: _tabIndex == 1
-                                              ? cardHeadingTextStyle
-                                              : tabTextStyle,
-                                        ),
+                                      child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: _tabIndex == 1 ? const Color(0xff5bc0de).withOpacity(0.1) : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            'Customer Offer'.tr,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: _tabIndex == 1 ? Colors.black87 : Colors.grey.shade500,
+                                            ),
+                                          ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: InkWell(
+                                  onTap: () {
+                                    showCustomerRevenueChartDialog(
+                                      context,
+                                      "Revenue",
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: primaryColor.withOpacity(0.1)),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(6.0),
+                                      child: Icon(
+                                        Icons.open_in_new,
+                                        size: 16,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ],

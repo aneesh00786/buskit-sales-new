@@ -384,12 +384,13 @@ Widget middleTopRightComponet({
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              dashboardContainerHeader('Revenue'.tr),
+              Flexible(
+                fit: FlexFit.tight,
+                child: dashboardContainerHeader('Revenue'.tr),
+              ),
+              const SizedBox(width: 5),
               Padding(
-                padding: EdgeInsets.only(
-                  right: fullScreenWidth(context) > 630 ? 20 : 2,
-                  top: 2,
-                ),
+                padding: const EdgeInsets.only(right: 5, top: 2),
                 child: InkWell(
                   onTap: () {
                     showRevenueChartDialog(context, 'Revenue'.tr);

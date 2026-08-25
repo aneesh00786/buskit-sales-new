@@ -265,8 +265,9 @@ Widget customerOrderDialogueMainDash({
                             headers[0],
                             style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               fontSize: 13,
+                              fontFamily: 'Poppins_Regular',
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -281,8 +282,9 @@ Widget customerOrderDialogueMainDash({
                                   label,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w600,
                                     fontSize: 13,
+                                    fontFamily: 'Poppins_Regular',
                                   ),
                                   textAlign: TextAlign.center,
                                 ),

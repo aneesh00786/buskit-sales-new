@@ -1840,14 +1840,14 @@ class TopTotalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
                               'Sales'.tr,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w600,
+                                fontFamily: fontFamilyName,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -1924,8 +1924,8 @@ class TopTotalWidget extends StatelessWidget {
                                                     ? 8.0
                                                     : 12.0,
                                                 color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: myFont,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: fontFamilyName,
                                               ),
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
@@ -1949,11 +1949,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Sales'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1963,11 +1963,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Deliveries'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1977,11 +1977,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Payments'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1991,11 +1991,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Bookings'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -2005,11 +2005,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Estimates'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -2019,11 +2019,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Drafts'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -2033,11 +2033,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Cancelled'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -2047,11 +2047,11 @@ class TopTotalWidget extends StatelessWidget {
                     _buildTableHeader(
                       Text(
                         'Visit'.tr,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w600,
+                          fontFamily: fontFamilyName,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

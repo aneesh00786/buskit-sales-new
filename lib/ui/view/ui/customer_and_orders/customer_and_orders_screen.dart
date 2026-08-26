@@ -1800,24 +1800,45 @@ class TopTotalWidget extends StatelessWidget {
           width: 300,
           child: _buildTableHeader(
             Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (query) {
-                  provider.updateSearchQuery(query);
-                },
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search'.tr,
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(3.2),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 9.5,
-                    vertical: 9.5,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Container(
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: TextField(
+                    onChanged: (query) {
+                      provider.updateSearchQuery(query);
+                    },
+                    controller: searchController,
+                    textAlignVertical: TextAlignVertical.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontFamily: fontFamilyName,
+                      color: Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixIcon: const Icon(Icons.search, size: 18, color: Colors.grey),
+                      prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 38),
+                      hintText: 'Search customer...'.tr,
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 12.5,
+                        fontFamily: fontFamilyName,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.only(right: 10),
+                    ),
                   ),
                 ),
               ),
@@ -1838,21 +1859,21 @@ class TopTotalWidget extends StatelessWidget {
                   children: [
                     _buildTableHeader(
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Sales'.tr,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: fontFamilyName,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            'Sales'.tr,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: fontFamilyName,
+                              letterSpacing: 0.3,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(width: 6),
                           Obx(() {
                             // Build unique list of years first
                             customerAndOrderController.years.value = provider
@@ -1876,67 +1897,67 @@ class TopTotalWidget extends StatelessWidget {
                                   '';
                             }
 
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 20, top: 20),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(2.0),
-                                ),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (subscriptionController
-                                            .customerYearComparison.value !=
-                                        'true') {
-                                      showUpgradePlanDialog(context);
-                                    }
-                                  },
-                                  child: AbsorbPointer(
-                                    absorbing: subscriptionController
-                                            .customerYearComparison.value !=
-                                        'true',
-                                    child: DropdownButton<String>(
-                                      iconSize: 14,
-                                      value: customerAndOrderController
-                                              .selectedYear.value.isNotEmpty
-                                          ? customerAndOrderController
-                                              .selectedYear.value
-                                          : null,
-                                      onChanged: (String? newValue) {
-                                        if (newValue != null) {
-                                          customerAndOrderController
-                                              .updateSelectedYear(newValue);
-                                        }
-                                      },
-                                      items: customerAndOrderController.years
-                                          .map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 4.0),
-                                            child: Text(
-                                              value,
-                                              style: TextStyle(
-                                                fontSize: value.length > 4
-                                                    ? 8.0
-                                                    : 12.0,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: fontFamilyName,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
+                            return Container(
+                              height: 28,
+                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(6),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 3,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (subscriptionController
+                                          .customerYearComparison.value !=
+                                      'true') {
+                                    showUpgradePlanDialog(context);
+                                  }
+                                },
+                                child: AbsorbPointer(
+                                  absorbing: subscriptionController
+                                          .customerYearComparison.value !=
+                                      'true',
+                                  child: DropdownButton<String>(
+                                    icon: const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.black87),
+                                    iconSize: 14,
+                                    value: customerAndOrderController
+                                            .selectedYear.value.isNotEmpty
+                                        ? customerAndOrderController
+                                            .selectedYear.value
+                                        : null,
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        customerAndOrderController
+                                            .updateSelectedYear(newValue);
+                                      }
+                                    },
+                                    items: customerAndOrderController.years
+                                        .map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: fontFamilyName,
                                           ),
-                                        );
-                                      }).toList(),
-                                      dropdownColor: Colors.white,
-                                      isExpanded: false,
-                                      underline: Container(),
-                                    ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      );
+                                    }).toList(),
+                                    dropdownColor: Colors.white,
+                                    isExpanded: false,
+                                    underline: const SizedBox(),
                                   ),
                                 ),
                               ),
@@ -1950,12 +1971,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Sales'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       120,
@@ -1964,12 +1986,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Deliveries'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       140,
@@ -1978,12 +2001,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Payments'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       140,
@@ -1992,12 +2016,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Bookings'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       140,
@@ -2006,12 +2031,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Estimates'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       140,
@@ -2020,12 +2046,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Drafts'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       140,
@@ -2034,12 +2061,13 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Cancelled'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       140,
@@ -2048,15 +2076,17 @@ class TopTotalWidget extends StatelessWidget {
                       Text(
                         'Visit'.tr,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontFamily: fontFamilyName,
+                          letterSpacing: 0.3,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       180,
+                      showBorder: false,
                     ),
                     // _buildTableHeader(
                     //   const Center(
@@ -4691,12 +4721,22 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
   }
 }
 
-Widget _buildTableHeader(Widget child, double width) {
+Widget _buildTableHeader(Widget child, double width, {bool showBorder = true}) {
   return Container(
-    height: 58,
+    height: 54,
     width: width,
     alignment: Alignment.center,
-    color: primaryColor,
+    decoration: BoxDecoration(
+      color: primaryColor,
+      border: showBorder
+          ? Border(
+              right: BorderSide(
+                color: Colors.white.withOpacity(0.18),
+                width: 0.8,
+              ),
+            )
+          : null,
+    ),
     child: child,
   );
 }

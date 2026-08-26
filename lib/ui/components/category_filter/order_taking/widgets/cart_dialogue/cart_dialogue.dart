@@ -19,6 +19,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_totalamount_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_cart_button.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_header_container.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
@@ -346,23 +347,49 @@ class CartDialogueState extends State<CartDialogue> {
           item.CustomerDiscount = newCustomerDiscount;
         }
 
-        // 1. Calculate Base Sell Amount (Unit Price * Pieces per Pack)
-        double sellPrice = (item.detail.price != null &&
-                (double.tryParse(item.detail.price!) ?? 0.0) > 0.0)
-            ? (double.tryParse(item.detail.price!) ??
-                (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0))
-            : (double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0);
-        double pieces = (item.isPack == true || item.detail.packtype == 'Pack')
-            ? (item.detail.pieces ?? 1).toDouble()
-            : 1.0;
+        // 1. Calculate Base Sell Amount (Original Pre-Discount & Pre-Edit)
+        double originalUnitPrice =
+            double.tryParse(item.detail.sellPrice?.toString() ?? '') ?? 0.0;
+        if (originalUnitPrice <= 0.0) {
+          originalUnitPrice =
+              double.tryParse(item.detail.price?.toString() ?? '') ?? 0.0;
+        }
+        int qtyFactor = (item.isPack == true || item.detail.packtype == 'Pack')
+            ? (item.detail.pieces?.toInt() ?? 1)
+            : 1;
 
-        // This matches your 'baseSellAmount' from the correct file
-        double baseSellAmount = sellPrice * pieces;
+        final double? apiSellingPackPrice = (item.isPack == true ||
+                item.detail.packtype == 'Pack')
+            ? (double.tryParse(
+                item.detail.sellingPackPrice?.toString() ?? ''))
+            : null;
+
+        final double originalBaseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+            ? apiSellingPackPrice
+            : originalUnitPrice * qtyFactor;
+
+        double currentBaseSellAmount = originalBaseSellAmount;
+        if (item.detail.displayPrice != null) {
+          final double editedUnitPrice =
+              double.tryParse(item.detail.displayPrice!) ?? originalUnitPrice;
+          currentBaseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+              ? (double.tryParse(item.detail.displayPrice!) ?? originalBaseSellAmount)
+              : editedUnitPrice * qtyFactor;
+        }
 
         // 2. Get Quantity
         double productQuantity = item.detail.count.toDouble();
 
-        // 3. Get Discount Percentages
+        // 3. Edit-price discount (salesman price override)
+        double editPriceDiscountAmount = 0.0;
+        if (item.detail.displayPrice != null) {
+          final double diff = originalBaseSellAmount - currentBaseSellAmount;
+          if (diff > 0) {
+            editPriceDiscountAmount = diff * productQuantity;
+          }
+        }
+
+        // 4. Get Discount Percentages
         double customerDiscount =
             (item.CustomerDiscount != null && item.CustomerDiscount! > 0)
                 ? item.CustomerDiscount!
@@ -379,106 +406,55 @@ class CartDialogueState extends State<CartDialogue> {
             (item.detail.bulkDiscount != null && item.detail.bulkDiscount! > 0)
                 ? item.detail.bulkDiscount
                 : 0;
-        print('bulk discount in load cart items:${item.detail.bulkDiscount}');
 
         double totalDiscountPercent =
             customerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
 
-        // 4. Calculate Total Discount Amount
-        // Logic: (Base Price * Quantity) * Percentage
-        // 4. Calculate Total Discount Amount
-        // Logic: (Base Price * Quantity) * Percentage
-        double totalDiscountAmount =
-            (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+        // 5. Calculate Total Discount Amount
+        double percentageDiscountAmount =
+            (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
 
-        // 👇 ADD THESE LINES TO INCLUDE FIXED DISCOUNTS 👇
-        // double flatDiscount = (item.flatDiscount ?? 0).toDouble();
         double bulkDiscountAmt =
             (item.detail.bulkDiscountAmount ?? 0).toDouble();
 
-        // Add bulk discount amount to total discount amount
-        totalDiscountAmount += bulkDiscountAmt;
-
-        // Edit-price discount (salesman unit price override)
-        double editPriceDiscountAmount = 0.0;
-        if (item.detail.displayPrice != null) {
-          final double origSell =
-              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final double currentSell =
-              double.tryParse(item.detail.displayPrice!) ?? origSell;
-          final double diff = (origSell * pieces) - (currentSell * pieces);
-          if (diff > 0) {
-            editPriceDiscountAmount = diff * productQuantity;
-          }
-        }
-        totalDiscountAmount += editPriceDiscountAmount;
+        double totalDiscountAmount =
+            percentageDiscountAmount + bulkDiscountAmt + editPriceDiscountAmount;
 
         item.totalDiscountAmount = totalDiscountAmount;
 
-        // 5. Calculate Price After Discount
+        // 6. Calculate Price After Discount
         double priceAfterDiscount =
-            (baseSellAmount * productQuantity) - totalDiscountAmount;
-        // double totalDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+            (originalBaseSellAmount * productQuantity) - totalDiscountAmount;
+        if (priceAfterDiscount < 0) priceAfterDiscount = 0.0;
 
-        // item.totalDiscountAmount = totalDiscountAmount;
-
-        // // 5. Calculate Price After Discount
-        // double priceAfterDiscount = (baseSellAmount * productQuantity) - totalDiscountAmount;
-        print(
-            'price after discount in the load cart items:$priceAfterDiscount');
-        // 6. Calculate Tax
+        // 7. Calculate Tax strictly from priceAfterDiscount
         double bulkTaxPercentage = (item.detail.bulkTax ?? 0).toDouble();
-        print('bulk tax perecnatge in the load cart items:$bulkTaxPercentage');
         double taxPercentage = bulkTaxPercentage > 0
             ? bulkTaxPercentage
             : (item.catTax ?? 0).toDouble();
-        print('tax perrecntage in the load cart items:$taxPercentage');
-        double calculatedTax = 0.0;
 
+        double calculatedTax = 0.0;
         if (item.detail.inclTax == "N.A") {
           calculatedTax = 0.0;
-        } else if (taxPercentage > 0) {
-          // Scenario A: Use Category Tax Percentage on the Discounted Price
-          calculatedTax = priceAfterDiscount * (taxPercentage / 100);
-          print('tax in the if case in the load cart items:$calculatedTax');
-        } else {
-          // Scenario B: Fallback to Unit Tax (for Promo Variants)
-          // We must apply the discount to the unit tax as well
-          double totalRawTax =
-              (item.detail.tax ?? 0).toDouble() * productQuantity * pieces;
-          print('tala row tax:$totalRawTax');
-          print('itemn.detail.tax:${item.detail.tax}');
-          print('producrt quantity:$productQuantity');
-          print('pieses:$pieces');
-          // Apply the same discount percentage to the tax
-          // If discount is 10%, we only charge 90% of the tax
-          print(
-              'total discountperecentage in the cart load :$totalDiscountPercent');
-          calculatedTax = totalRawTax * (1 - (totalDiscountPercent / 100.0));
-          print(
-              'calculated tax in the else case in the load cart items:$calculatedTax');
-        }
-        if (item.detail.inclTax == "N.A") {
           item.taxAmount = 0.0;
-        } else if (bulkTaxPercentage <= 0) {
+        } else if (taxPercentage > 0) {
+          calculatedTax = priceAfterDiscount * (taxPercentage / 100);
           item.taxAmount = calculatedTax;
         } else {
-          print('Skipped assigning item.taxAmount because bulk tax is active');
-          // item.taxAmount will remain null or 0, forcing the UI to calculate it dynamically
+          double totalRawTax =
+              (item.detail.tax ?? 0).toDouble() * productQuantity * qtyFactor;
+          calculatedTax = totalRawTax * (1 - (totalDiscountPercent / 100.0));
+          item.taxAmount = calculatedTax;
         }
 
-        // item.taxAmount = calculatedTax;
-
-        // 7. Final Price Logic (Inclusive vs Exclusive)
+        // 8. Final Price Logic
         if (item.detail.inclTax == "incl_tax" || item.detail.inclTax == "N.A") {
           item.finalPrice = priceAfterDiscount;
-          print('final price in load cart items:${item.finalPrice}');
-          // For consistency with other parts of the app that rely on totalPrice
-          item.totalPrice = (baseSellAmount * productQuantity);
+          item.totalPrice = (originalBaseSellAmount * productQuantity);
         } else {
           item.finalPrice = priceAfterDiscount + calculatedTax;
-          item.totalPrice = (baseSellAmount * productQuantity) + calculatedTax;
-        }
+          item.totalPrice = (originalBaseSellAmount * productQuantity) + calculatedTax;
+        }     
       }
 
       await setCartToOrderAndPreorder();
@@ -488,23 +464,31 @@ class CartDialogueState extends State<CartDialogue> {
         for (var item in items) {
           item.isChecked = true; // Required by your fold function
 
-          final count = item.detail.count;
-          final pieces = (item.isPack == true || item.detail.packtype == 'Pack')
-              ? (item.detail.pieces ?? 1).toDouble()
-              : 1.0;
-          final sellPrice =
-              double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
-          final unitTax = item.detail.inclTax == "N.A"
-              ? 0.0
-              : (item.detail.tax?.toDouble() ?? 0.0);
+          final double sellPrice = item.detail.displayPrice != null
+              ? (double.tryParse(item.detail.displayPrice!) ??
+                  (double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0))
+              : (double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0);
+          final double effectiveSellPrice = sellPrice > 0.0
+              ? sellPrice
+              : (double.tryParse(item.detail.price?.toString() ?? '0') ?? 0.0);
+          final int qtyFactor = (item.isPack == true || item.detail.packtype == 'Pack')
+              ? (item.detail.pieces?.toInt() ?? 1)
+              : 1;
+
+          final double? apiSellingPackPrice = (item.isPack == true ||
+                  item.detail.packtype == 'Pack')
+              ? (double.tryParse(item.detail.sellingPackPrice?.toString() ?? ''))
+              : null;
+
+          final double baseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+              ? apiSellingPackPrice
+              : effectiveSellPrice * qtyFactor;
+
+          final double count = item.detail.count.toDouble();
           final inclTax = item.detail.inclTax;
 
-          // 1. Calculate the taxAmount for the fold function to use
-          // taxAmount = unitTax * total Quantity
-          // item.taxAmount = unitTax * pieces * count;
-
           // 2. Calculate Total Price (Base Price + Tax if not inclusive)
-          double basePrice = count * pieces * sellPrice;
+          double basePrice = count * baseSellAmount;
           if (inclTax != 'incl_tax' && inclTax != 'N.A') {
             item.totalPrice = basePrice + (item.taxAmount ?? 0.0);
           } else {
@@ -1347,26 +1331,43 @@ class CartDialogueState extends State<CartDialogue> {
             children: [
               // 1.1 SUBTOTAL
               Builder(builder: (context) {
-                double baseAmount = 0.0;
-                if (isOrder) {
-                  baseAmount = widget.productsController.orderItems.fold(
-                    0.0,
-                    (sum, item) {
-                      if (item.isChecked != true) return sum;
-                      final double origPrice = double.tryParse(
-                              item.detail.sellPrice?.toString() ?? '0') ??
-                          0.0;
-                      final int qtyFactor = (item.detail.packtype == 'Pack' ||
-                              item.isPack == true)
-                          ? (item.detail.pieces?.toInt() ?? 1)
-                          : 1;
-                      final double qty = item.detail.count.toDouble();
-                      return sum + (origPrice * qtyFactor * qty);
-                    },
-                  );
-                } else {
-                  baseAmount = preorderSubtotal;
-                }
+                final currentItems = isOrder
+                    ? widget.productsController.orderItems
+                    : widget.productsController.preorderItems;
+
+                final double baseAmount = currentItems.fold(
+                  0.0,
+                  (sum, item) {
+                    if (item.isChecked != true) return sum;
+
+                    double originalUnitPrice =
+                        double.tryParse(item.detail.sellPrice?.toString() ?? '') ?? 0.0;
+                    if (originalUnitPrice <= 0.0) {
+                      originalUnitPrice =
+                          double.tryParse(item.detail.price?.toString() ?? '') ?? 0.0;
+                    }
+
+                    final int qtyFactor =
+                        (item.detail.packtype == 'Pack' || item.isPack == true)
+                            ? (item.detail.pieces?.toInt() ?? 1)
+                            : 1;
+
+                    final double? apiSellingPackPrice = (item.isPack == true ||
+                            item.detail.packtype == 'Pack')
+                        ? (double.tryParse(
+                            item.detail.sellingPackPrice?.toString() ?? ''))
+                        : null;
+
+                    final double originalBaseSellAmount =
+                        (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+                            ? apiSellingPackPrice
+                            : originalUnitPrice * qtyFactor;
+
+                    final double productQuantity = item.detail.count.toDouble();
+
+                    return sum + (originalBaseSellAmount * productQuantity);
+                  },
+                );
 
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1392,10 +1393,10 @@ class CartDialogueState extends State<CartDialogue> {
                         Text(
                           'Subtotal'.tr,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.5,
                             fontWeight: FontWeight.w600,
                             fontFamily: fontFamilyName,
-                            color: Color(0xFF0F172A),
+                            color: Color(0xFF1E293B),
                           ),
                         ),
                       ],
@@ -1403,10 +1404,11 @@ class CartDialogueState extends State<CartDialogue> {
                     Text(
                       formatAmount(baseAmount),
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 19,
                         fontWeight: FontWeight.w700,
                         fontFamily: fontFamilyName,
                         color: brandPurple,
+                        letterSpacing: -0.3,
                       ),
                     ),
                   ],
@@ -1417,17 +1419,17 @@ class CartDialogueState extends State<CartDialogue> {
 
               // 1.2 DISCOUNT
               Builder(builder: (context) {
-                double itemsDiscount = 0.0;
-                if (isOrder) {
-                  itemsDiscount = widget.productsController.orderItems.fold(
-                    0.0,
-                    (sum, item) {
-                      if (item.isChecked != true) return sum;
-                      return sum + (item.totalDiscountAmount ?? 0.0);
-                    },
-                  );
-                }
-                final double totalDisplayDiscount = flatDisc + itemsDiscount;
+                final currentItems = isOrder
+                    ? widget.productsController.orderItems
+                    : widget.productsController.preorderItems;
+
+                final double totalDiscount = currentItems.fold(
+                  0.0,
+                  (sum, item) {
+                    if (item.isChecked != true) return sum;
+                    return sum + (item.totalDiscountAmount ?? 0.0);
+                  },
+                );
 
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1453,57 +1455,146 @@ class CartDialogueState extends State<CartDialogue> {
                         Text(
                           'Discount'.tr,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 15.5,
                             fontWeight: FontWeight.w600,
                             fontFamily: fontFamilyName,
-                            color: Color(0xFF0F172A),
+                            color: Color(0xFF1E293B),
                           ),
                         ),
                       ],
                     ),
                     Text(
-                      formatAmount(totalDisplayDiscount),
-                      style: TextStyle(
-                        fontSize: 18,
+                      formatAmount(totalDiscount),
+                      style: const TextStyle(
+                        fontSize: 19,
                         fontWeight: FontWeight.w700,
                         fontFamily: fontFamilyName,
-                        color: totalDisplayDiscount > 0
-                            ? const Color(0xFFDC2626)
-                            : const Color(0xFF0F172A),
+                        color: Color(0xFF1E293B),
+                        letterSpacing: -0.3,
                       ),
                     ),
                   ],
                 );
               }),
 
-              // 1.3 TAX SUMMARY (if > 0)
-              Builder(builder: (context) {
-                orderTaxe = Utils()
-                    .calculateTotalTax(widget.productsController.orderItems);
+              const Divider(height: 22, thickness: 1, color: Color(0xFFF1F5F9)),
 
-                double totalBase = 0;
-                double totalTaxAmt = 0;
-                for (final item in widget.productsController.orderItems) {
+              // 1.3 FINAL AMOUNT & TAX BREAKDOWN LINE BELOW IT
+              Builder(builder: (context) {
+                final currentItems = isOrder
+                    ? widget.productsController.orderItems
+                    : widget.productsController.preorderItems;
+
+                double baseAmount = currentItems.fold(
+                  0.0,
+                  (sum, item) {
+                    if (item.isChecked != true) return sum;
+                    return sum + (item.finalPrice ?? item.totalPrice ?? 0.0);
+                  },
+                );
+                if (isOrder) {
+                  baseAmount =
+                      (baseAmount - flatDisc).clamp(0.0, double.infinity);
+                }
+
+                final double finalBeforeCredit =
+                    baseAmount.clamp(0.0, double.infinity);
+                final double payableAmount = useCredit.value
+                    ? (finalBeforeCredit - customerCredit)
+                        .clamp(0.0, double.infinity)
+                    : finalBeforeCredit;
+
+                final Map<String, double> taxPortions = {};
+                final Map<String, double> taxRates = {};
+                double totalTaxAmt = 0.0;
+
+                for (final item in currentItems) {
                   if (item.isChecked != true) continue;
-                  final int qtyFactor =
-                      (item.isPack == true || item.detail.packtype == 'Pack')
+                  final double itemTax = item.taxAmount?.toDouble() ?? 0.0;
+                  if (itemTax <= 0) continue;
+                  totalTaxAmt += itemTax;
+
+                  CategoryData? catData;
+                  if (widget.productsController.categoryData.value.data !=
+                      null) {
+                    final allCats =
+                        widget.productsController.categoryData.value.data!;
+                    if (item.catId != null && item.catId! > 0) {
+                      for (final c in allCats) {
+                        if (c.id.toString() == item.catId.toString()) {
+                          catData = c;
+                          break;
+                        }
+                      }
+                    }
+                    if (catData == null &&
+                        item.catTax != null &&
+                        item.catTax! > 0) {
+                      for (final c in allCats) {
+                        if (c.categoryTax != null &&
+                            c.categoryTax!.isNotEmpty) {
+                          final double sum = c.categoryTax!.fold(0.0,
+                              (s, t) => s + (t.tax ?? 0).toDouble());
+                          if ((sum - item.catTax!).abs() < 0.01) {
+                            catData = c;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+
+                  if (catData != null &&
+                      catData.categoryTax != null &&
+                      catData.categoryTax!.isNotEmpty) {
+                    final double sumTaxRates = catData.categoryTax!.fold(
+                        0.0, (sum, t) => sum + (t.tax ?? 0).toDouble());
+                    for (final t in catData.categoryTax!) {
+                      final double rate = (t.tax ?? 0).toDouble();
+                      if (rate <= 0) continue;
+                      final double portion = (sumTaxRates > 0)
+                          ? (itemTax * (rate / sumTaxRates))
+                          : 0.0;
+                      final String tName = (t.taxName != null &&
+                              t.taxName!.trim().isNotEmpty)
+                          ? t.taxName!.trim().toUpperCase()
+                          : 'GST';
+                      taxPortions[tName] = (taxPortions[tName] ?? 0.0) + portion;
+                      taxRates[tName] = rate;
+                    }
+                  } else {
+                    double taxPct = (item.catTax != null && item.catTax! > 0)
+                        ? item.catTax!
+                        : ((item.detail.bulkTax ?? 0) > 0
+                            ? (item.detail.bulkTax!).toDouble()
+                            : 0.0);
+
+                    if (taxPct <= 0) {
+                      final int qtyFactor = (item.isPack == true ||
+                              item.detail.packtype == 'Pack')
                           ? (item.detail.pieces?.toInt() ?? 1)
                           : 1;
-                  final double sellPx =
-                      double.tryParse(item.detail.sellPrice ?? '0') ?? 0.0;
-                  final double base = sellPx * qtyFactor * item.detail.count;
-                  totalBase += base;
-                  totalTaxAmt += item.taxAmount?.toDouble() ?? 0.0;
-                }
-                final double avgTaxPct =
-                    totalBase > 0 ? (totalTaxAmt / totalBase) * 100 : 0;
+                      final double sellPx =
+                          double.tryParse(item.detail.sellPrice ?? '0') ??
+                              0.0;
+                      final double base =
+                          sellPx * qtyFactor * item.detail.count;
+                      if (base > 0) {
+                        taxPct = ((itemTax / base) * 100).roundToDouble();
+                      }
+                    }
 
-                if (orderTaxe <= 0) return const SizedBox.shrink();
+                    final String tName = 'GST';
+                    taxPortions[tName] = (taxPortions[tName] ?? 0.0) + itemTax;
+                    taxRates[tName] = taxPct > 0 ? taxPct : 0.0;
+                  }
+                }
+
+                final double totalTaxPercent = taxRates.values.fold(0.0, (sum, r) => sum + r);
 
                 return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Divider(
-                        height: 22, thickness: 1, color: Color(0xFFF1F5F9)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -1518,7 +1609,7 @@ class CartDialogueState extends State<CartDialogue> {
                               ),
                               child: const Center(
                                 child: Icon(
-                                  Icons.receipt_outlined,
+                                  Icons.account_balance_wallet_outlined,
                                   size: 20,
                                   color: brandPurple,
                                 ),
@@ -1526,99 +1617,53 @@ class CartDialogueState extends State<CartDialogue> {
                             ),
                             const SizedBox(width: 14),
                             Text(
-                              'Tax (GST ${avgTaxPct.toStringAsFixed(0)}%)'.tr,
+                              'Final Amount'.tr,
                               style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF64748B),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
                                 fontFamily: fontFamilyName,
-                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0F172A),
                               ),
                             ),
                           ],
                         ),
                         Text(
-                          formatAmount(orderTaxe),
+                          formatAmount(payableAmount),
                           style: const TextStyle(
-                            fontSize: 16,
-                            color: brandPurple,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
                             fontFamily: fontFamilyName,
-                            fontWeight: FontWeight.w700,
+                            color: brandPurple,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                );
-              }),
-
-              const Divider(height: 22, thickness: 1, color: Color(0xFFF1F5F9)),
-
-              // 1.4 FINAL AMOUNT
-              Builder(builder: (context) {
-                double baseAmount = 0.0;
-                if (isOrder) {
-                  baseAmount = widget.productsController.orderItems.fold(
-                    0.0,
-                    (sum, item) {
-                      if (!item.isChecked!) return sum;
-                      return sum + (item.finalPrice ?? item.totalPrice);
-                    },
-                  );
-                  baseAmount =
-                      (baseAmount - flatDisc).clamp(0.0, double.infinity);
-                } else {
-                  baseAmount = preorderSubtotal;
-                }
-
-                final double finalBeforeCredit =
-                    baseAmount.clamp(0.0, double.infinity);
-                final double payableAmount = useCredit.value
-                    ? (finalBeforeCredit - customerCredit)
-                        .clamp(0.0, double.infinity)
-                    : finalBeforeCredit;
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEEF2FF),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.account_balance_wallet_outlined,
-                              size: 20,
+                    if (totalTaxAmt > 0) ...[
+                      const SizedBox(height: 6),
+                      Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          Text(
+                            'TAX - ${taxPortions.entries.map((entry) {
+                              final rate = taxRates[entry.key] ?? 0.0;
+                              final rateStr = rate % 1 == 0 ? rate.toInt().toString() : rate.toString();
+                              return '${entry.key} : $rateStr% : ${formatAmount(entry.value)}';
+                            }).join('   ')}   TOTAL : ${totalTaxPercent % 1 == 0 ? totalTaxPercent.toInt() : totalTaxPercent}% : ${formatAmount(totalTaxAmt)}',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
                               color: brandPurple,
+                              fontFamily: fontFamilyName,
+                              letterSpacing: 0.2,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 14),
-                        Text(
-                          'Final Amount'.tr,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: fontFamilyName,
-                            color: Color(0xFF0F172A),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      formatAmount(payableAmount),
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: fontFamilyName,
-                        color: brandPurple,
-                        letterSpacing: -0.5,
+                        ],
                       ),
-                    ),
+                    ],
                   ],
                 );
               }),
@@ -4072,17 +4117,51 @@ class CartDialogueState extends State<CartDialogue> {
 
     // --- Helper function to update Item values locally ---
     void updateItemCalculations() {
-      // 1. Calculate Base Amount (Price * Pack Pieces)
-      double sellPriceVal =
-          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+      // 1. Calculate Base Amount (Original Pre-Discount & Pre-Edit)
+      double originalUnitPrice =
+          double.tryParse(cartItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+      if (originalUnitPrice <= 0.0) {
+        originalUnitPrice =
+            double.tryParse(cartItem.detail.price?.toString() ?? '') ?? 0.0;
+      }
+
       int qtyFactor =
           (cartItem.detail.packtype == 'Pack' || cartItem.isPack == true)
               ? (cartItem.detail.pieces?.toInt() ?? 1)
               : 1;
-      double baseSellAmount = sellPriceVal * qtyFactor;
+
+      final double? apiSellingPackPrice = (cartItem.isPack == true ||
+              cartItem.detail.packtype == 'Pack')
+          ? (double.tryParse(
+              cartItem.detail.sellingPackPrice?.toString() ?? ''))
+          : null;
+
+      final double originalBaseSellAmount =
+          (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+              ? apiSellingPackPrice
+              : originalUnitPrice * qtyFactor;
+
+      double currentBaseSellAmount = originalBaseSellAmount;
+      if (cartItem.detail.displayPrice != null) {
+        final double editedUnitPrice =
+            double.tryParse(cartItem.detail.displayPrice!) ?? originalUnitPrice;
+        currentBaseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+            ? (double.tryParse(cartItem.detail.displayPrice!) ?? originalBaseSellAmount)
+            : editedUnitPrice * qtyFactor;
+      }
+
       double productQuantity = cartItem.detail.count.toDouble();
 
-      // 2. Calculate Discount
+      // 2. Edit-price discount (difference between original and edited price)
+      double editPriceDiscountAmount = 0.0;
+      if (cartItem.detail.displayPrice != null) {
+        final double diff = originalBaseSellAmount - currentBaseSellAmount;
+        if (diff > 0) {
+          editPriceDiscountAmount = diff * productQuantity;
+        }
+      }
+
+      // 3. Calculate Discount Percentages
       double customerDisc =
           (cartItem.CustomerDiscount != null && cartItem.CustomerDiscount! > 0)
               ? cartItem.CustomerDiscount!
@@ -4091,59 +4170,51 @@ class CartDialogueState extends State<CartDialogue> {
           (cartItem.tieredDiscount != null && cartItem.tieredDiscount! > 0)
               ? cartItem.tieredDiscount!
               : 0;
-      //     num flatDisc =
-      // (cartItem.flatDiscount != null && cartItem.flatDiscount! > 0)
-      //     ? cartItem.flatDiscount!
-      //     : 0;
 
       double totalDiscountPercent = customerDisc + tieredDisc;
-//       double percentageDiscountAmount = (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
-// double blocks = productQuantity / tierStep;
-// // 2. ✅ Add the fixed flat discount
-// double totalDiscountAmount = percentageDiscountAmount + (flatDisc.toDouble() * blocks);
-// double totalDiscountAmount = percentageDiscountAmount + flatDisc.toDouble();
 
-      // Calculate Discount Amount
-      double totalDiscountAmount =
-          (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
-      print('total discpunt amount in product quanity:$totalDiscountAmount');
+      // 4. Total Discount Amount
+      double percentageDiscountAmount =
+          (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+
+      double totalDiscountAmount = percentageDiscountAmount + editPriceDiscountAmount;
 
       cartItem.totalDiscountAmount = totalDiscountAmount;
 
-      // 3. Calculate Price After Discount
+      // 5. Calculate Price After Discount
       double priceAfterDiscount =
-          (baseSellAmount * productQuantity) - totalDiscountAmount;
+          (originalBaseSellAmount * productQuantity) - totalDiscountAmount;
+      if (priceAfterDiscount < 0) priceAfterDiscount = 0.0;
 
-      // 4. Calculate Tax
-      double taxPercentage = (cartItem.catTax ?? 0).toDouble();
+      // 6. Calculate Tax
+      double bulkTaxPercentage = (cartItem.detail.bulkTax ?? 0).toDouble();
+      double taxPercentage = bulkTaxPercentage > 0
+          ? bulkTaxPercentage
+          : (cartItem.catTax ?? 0).toDouble();
 
-      double tax;
+      double tax = 0.0;
       if (cartItem.detail.inclTax == "N.A") {
         tax = 0.0;
       } else if (taxPercentage > 0) {
-        // Scenario A: We have the percentage, calculate normally
         tax = priceAfterDiscount * (taxPercentage / 100);
       } else {
-        // Scenario B: Percentage is missing (reload/draft), use Unit Tax from details
         double unitTax = (cartItem.detail.tax ?? 0).toDouble();
-
-        // Calculate total pieces (Quantity * Pieces per pack)
         double totalUnits = cartItem.detail.count.toDouble();
         if (cartItem.isPack == true || cartItem.detail.packtype == 'Pack') {
           totalUnits = totalUnits * (cartItem.detail.pieces ?? 1);
         }
-
-        tax = unitTax * totalUnits;
+        tax = totalUnits > 0
+            ? (unitTax * totalUnits * (1 - (totalDiscountPercent / 100.0)))
+            : 0.0;
       }
 
       cartItem.taxAmount = tax;
-
-      // 5. Update Final Price
-      if (cartItem.detail.inclTax == "incl_tax" ||
-          cartItem.detail.inclTax == "N.A") {
+      if (cartItem.detail.inclTax == "incl_tax" || cartItem.detail.inclTax == "N.A") {
         cartItem.finalPrice = priceAfterDiscount;
+        cartItem.totalPrice = (originalBaseSellAmount * productQuantity);
       } else {
         cartItem.finalPrice = priceAfterDiscount + tax;
+        cartItem.totalPrice = (originalBaseSellAmount * productQuantity) + tax;
       }
     }
 

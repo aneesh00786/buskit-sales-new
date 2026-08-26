@@ -4,16 +4,16 @@ import 'package:get/get.dart';
 
 class CartColumnWidths {
   static const double checkbox = 30;
-  static const double variant = 150;
-  static const double unitPrice = 75;
-  static const double packPrice = 75;
-  static const double pack = 75;
-  static const double quantity = 110;
-  static const double price = 75;
-  static const double disc = 65;
-  static const double tax = 55;
-  static const double total = 75;
-  static const double delete = 40;
+  static const double variant = 160;
+  static const double unitPrice = 85;
+  static const double packPrice = 85;
+  static const double pack = 80;
+  static const double quantity = 115;
+  static const double price = 85;
+  static const double disc = 90;
+  static const double tax = 90;
+  static const double total = 85;
+  static const double delete = 45;
 }
 
 

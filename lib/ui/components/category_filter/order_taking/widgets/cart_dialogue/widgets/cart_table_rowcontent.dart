@@ -54,45 +54,48 @@ class GroupedItemDataRows {
               0.0;
 
       double originalUnitPrice =
-          double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+          double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
       if (originalUnitPrice <= 0.0) {
         originalUnitPrice =
-            double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+            double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
       }
 
-      final double quantity =
-          (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
-              ? (groupedItem.detail.pieces?.toDouble() ?? 1.0) *
-                  (groupedItem.detail.count.toDouble())
-              : groupedItem.detail.count.toDouble();
-
-      double sellPrice = groupedItem.detail.displayPrice != null
-          ? (double.tryParse(groupedItem.detail.displayPrice!) ??
-              (double.tryParse(
-                      groupedItem.detail.sellPrice?.toString() ?? '0') ??
-                  0.0))
-          : (groupedItem.detail.price != null && (double.tryParse(groupedItem.detail.price!.toString()) ?? 0.0) > 0.0)
-              ? (double.tryParse(groupedItem.detail.price!.toString()) ?? (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0))
-              : (double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ?? 0.0);
       int qtyFactor =
           (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
               ? (groupedItem.detail.pieces?.toInt() ?? 1)
               : 1;
 
-      // If the item is sold by Pack and the API provides a dedicated
-      // selling_pack_price, use it directly instead of sellPrice * pieces.
-      // This avoids the unit_price × pieces mismatch.
       final double? apiSellingPackPrice = (groupedItem.isPack == true ||
               groupedItem.detail.packtype == 'Pack')
           ? (double.tryParse(
               groupedItem.detail.sellingPackPrice?.toString() ?? ''))
           : null;
 
-      double baseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
-          ? apiSellingPackPrice   // use API pack price directly
-          : sellPrice * qtyFactor; // fallback: unit price × pieces
+      // 1. Original Base Sell Amount (Pre-Discount & Pre-Edit)
+      final double originalBaseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+          ? apiSellingPackPrice
+          : originalUnitPrice * qtyFactor;
+
+      // 2. Current Base Sell Amount (reflects salesman price override if edited)
+      double currentBaseSellAmount = originalBaseSellAmount;
+      if (groupedItem.detail.displayPrice != null) {
+        final double editedUnitPrice =
+            double.tryParse(groupedItem.detail.displayPrice!) ?? originalUnitPrice;
+        currentBaseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+            ? (double.tryParse(groupedItem.detail.displayPrice!) ?? originalBaseSellAmount)
+            : editedUnitPrice * qtyFactor;
+      }
 
       double productQuantity = groupedItem.detail.count.toDouble();
+
+      // 3. Edit-price discount (difference between original price and edited price)
+      double editPriceDiscountAmount = 0.0;
+      if (groupedItem.detail.displayPrice != null) {
+        final double priceDiff = originalBaseSellAmount - currentBaseSellAmount;
+        if (priceDiff > 0) {
+          editPriceDiscountAmount = priceDiff * productQuantity;
+        }
+      }
 
       double CustomerDiscount = (groupedItem.CustomerDiscount != null &&
               groupedItem.CustomerDiscount! > 0)
@@ -107,100 +110,58 @@ class GroupedItemDataRows {
       num? bulkDiscount = groupedItem.detail.bulkDiscount != null && groupedItem.detail.bulkDiscount! > 0
           ? groupedItem.detail.bulkDiscount
           : 0;
-      print('bulk discount:$bulkDiscount');
        
       num flatDiscount = (groupedItem.flatDiscount != null &&
               groupedItem.flatDiscount! > 0)
           ? groupedItem.flatDiscount!
           : 0;
-          num bulkDiscountAmount = (groupedItem.detail.bulkDiscountAmount != null &&
-              groupedItem.detail.bulkDiscountAmount! > 0)? groupedItem.detail.bulkDiscountAmount! : 0;
-          num bogoDiscount = (groupedItem.bogoDiscount != null &&
-              groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
-        //  print('bogo discount:$bogoDiscount');
+      num bulkDiscountAmount = (groupedItem.detail.bulkDiscountAmount != null &&
+          groupedItem.detail.bulkDiscountAmount! > 0) ? groupedItem.detail.bulkDiscountAmount! : 0;
+      num bogoDiscount = (groupedItem.bogoDiscount != null &&
+          groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
+
       double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
-      print('total discount percentage:$totalDiscountPercent');
-      print('backend discount amount:${groupedItem.totalDiscountAmount}');
+
+      // 4. Percentage discount calculated on original base amount
       double percentageDiscountAmount =
-          (baseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
-    groupedItem.totalDiscountAmount = percentageDiscountAmount ;
-    
-      double totalDiscountAmount = percentageDiscountAmount + flatDiscount  + bulkDiscountAmount   ;
-      print('total discount amount$totalDiscountAmount');
+          (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
 
-      // ── Edit-price discount (salesman price override) ──────────────────
-      // When a salesman edits the unit price, the difference between the original
-      // sell price and the new displayPrice is an implicit discount.
-      final double originalSellPrice =
-          double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '0') ??
-              0.0;
-      double editPriceDiscountAmount = 0.0;
-      if (groupedItem.detail.displayPrice != null) {
-        final double priceDiff = originalSellPrice - sellPrice; // always ≥ 0
-        if (priceDiff > 0) {
-          editPriceDiscountAmount =
-              priceDiff * qtyFactor * productQuantity;
-        }
-      }
+      // 5. Total discount amount includes percentage, flat, bulk, and price edit difference
+      double totalDiscountAmount = percentageDiscountAmount + flatDiscount + bulkDiscountAmount + editPriceDiscountAmount;
 
-      // Include editPriceDiscountAmount in totalDiscountAmount stored on the item
-      // so that the bottom Discount line (which sums item.totalDiscountAmount) reflects it.
-      groupedItem.totalDiscountAmount = percentageDiscountAmount + editPriceDiscountAmount;
+      groupedItem.totalDiscountAmount = totalDiscountAmount;
 
-      // Total discount shown in the Disc column includes all discounts
-      double displayDiscountAmount = totalDiscountAmount + editPriceDiscountAmount;
-      print('edit price discount amount: $editPriceDiscountAmount');
-      print('display discount amount: $displayDiscountAmount');
+      // 6. Price After Discount
+      double priceAfterDiscount =
+          (originalBaseSellAmount * productQuantity) - totalDiscountAmount;
+      if (priceAfterDiscount < 0) priceAfterDiscount = 0.0;
 
-double bulkTaxPercentage = (groupedItem.detail.bulkTax ?? 0).toDouble();
-print('bulktax percentage from detail: $bulkTaxPercentage');
-     double taxPercentage = bulkTaxPercentage > 0 
+      double bulkTaxPercentage = (groupedItem.detail.bulkTax ?? 0).toDouble();
+      double taxPercentage = bulkTaxPercentage > 0 
           ? bulkTaxPercentage 
           : (groupedItem.catTax ?? 0).toDouble();
-          print('final tax percentage used: $taxPercentage');
-      // priceAfterDiscount includes both percentage-based and edit-price discounts
-      double priceAfterDiscount =
-          (baseSellAmount * productQuantity) - totalDiscountAmount - editPriceDiscountAmount;
 
+      // 7. Tax calculated strictly from priceAfterDiscount
       double tax;
       if (groupedItem.detail.inclTax == "N.A") {
         tax = 0.0;
         groupedItem.taxAmount = 0.0;
-      } else if (groupedItem.taxAmount != null && groupedItem.taxAmount! > 0) {
-        tax = groupedItem.taxAmount!;
-        print('backend tax:$tax');
       } else {
         tax = priceAfterDiscount * (taxPercentage / 100);
-        print('frontend calculated tax:$tax');
         groupedItem.taxAmount = tax;
       }
-      print('inclusive tax:${groupedItem.detail.inclTax}');
 
       double finalPrice;
-
-      // When displayPrice is set (price was edited), always recalculate —
-      // never use the cached finalPrice which may be from the original price.
-      final bool priceWasEdited = groupedItem.detail.displayPrice != null;
-
-      // 1. Use cached finalPrice only if price was NOT edited
-      if (!priceWasEdited && groupedItem.finalPrice != null && groupedItem.finalPrice! > 0) {
-        print('Using existing final price: ${groupedItem.finalPrice}');
-        finalPrice = groupedItem.finalPrice!;
+      if (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A") {
+        finalPrice = priceAfterDiscount;
       } else {
-        // 2. Recalculate
-        if (groupedItem.detail.inclTax == "incl_tax" || groupedItem.detail.inclTax == "N.A") {
-          print('its inclusive tax or N.A');
-          finalPrice = priceAfterDiscount;
-        } else {
-          print('its not inclusive tax');
-          finalPrice = priceAfterDiscount + tax;
-        }
-        // 3. Store the recalculated price
-        groupedItem.finalPrice = finalPrice;
-        try {
-          groupedItem.save();
-        } catch (_) {}
+        finalPrice = priceAfterDiscount + tax;
       }
+      groupedItem.finalPrice = finalPrice;
+      groupedItem.totalPrice = (originalBaseSellAmount * productQuantity);
+      try {
+        groupedItem.save();
+      } catch (_) {}
 
       // double finalPrice;
       // if (groupedItem.detail.inclTax == "incl_tax") {
@@ -745,7 +706,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
           // Cell 3: Unit Price
           DataCell(
             SizedBox(width: CartColumnWidths.unitPrice, child: Center(
-              child: (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: (groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack')
                   ? Text(
                       formatAmount(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0'),
                       style: TextStyle(
@@ -766,9 +729,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         );
                       },
                       child: () {
-                        double originalPrice = double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+                        double originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
                         if (originalPrice <= 0.0) {
-                          originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+                          originalPrice = double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
                         }
                         final double currentPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
                         final bool isPriceEdited = groupedItem.detail.displayPrice != null;
@@ -840,13 +803,16 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                         }
                       }(),
                     ),
+              ),
             ),),
           ),
 
           // Cell 4: Pack Price
           DataCell(
             SizedBox(width: CartColumnWidths.packPrice, child: Center(
-              child: (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: (groupedItem.detail.packtype == 'Pack' || groupedItem.isPack == true)
                   ? InkWell(
                       onTap: () {
                         _showEditPackPriceDialog(
@@ -856,9 +822,9 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                       },
                       child: () {
                         final int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
-                        double originalPrice = double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+                        double originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
                         if (originalPrice <= 0.0) {
-                          originalPrice = double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+                          originalPrice = double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
                         }
                         // Use API selling_pack_price if available, else calculate
                         final double? apiPackPrice = double.tryParse(
@@ -867,10 +833,12 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                             ? apiPackPrice
                             : originalPrice * pieces;
 
-                        final double currentPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
-                        final double currentPackPrice = groupedItem.detail.displayPrice != null
-                            ? currentPrice * pieces  // edited price still computed
-                            : originalPackPrice;     // unedited: use API pack price
+                        final double currentUnitPrice = double.tryParse(groupedItem.detail.displayPrice ?? groupedItem.detail.sellPrice ?? '0') ?? 0.0;
+                        final double currentPackPrice = (groupedItem.detail.displayPrice != null)
+                            ? (apiPackPrice != null && apiPackPrice > 0
+                                ? (double.tryParse(groupedItem.detail.displayPrice!) ?? originalPackPrice)
+                                : currentUnitPrice * pieces)
+                            : originalPackPrice;     // unedited: use calculated/API pack price
                         final bool isPriceEdited = groupedItem.detail.displayPrice != null;
                         final double cellFontSize = fontSize >= 13.0 ? fontSize : 13.5;
 
@@ -952,6 +920,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+              ),
             ),),
           ),
 
@@ -994,27 +963,32 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
               fontSize: fontSize,
               maxLines: 1,
               content: formatAmount(
-                  (originalUnitPrice * qtyFactor * productQuantity).toString()),
+                  (originalBaseSellAmount * productQuantity).toString()),
             ),),
           ),
 
           DataCell(
-            SizedBox(width: CartColumnWidths.disc, child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TableContent(
-                  maxLines: 1,
-                  fontSize: fontSize,
-                  content: formatAmount(displayDiscountAmount),
-                ),
-                if (displayDiscountAmount > 0) ...[
-                  const SizedBox(width: 4),
-                  InkWell(
-                    child: const Icon(
-                      Icons.info_outline,
-                      size: 18,
-                      color: Colors.blueGrey,
+            SizedBox(
+              width: CartColumnWidths.disc,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: TableContent(
+                      maxLines: 1,
+                      fontSize: fontSize,
+                      content: formatAmount(totalDiscountAmount),
                     ),
+                  ),
+                  if (totalDiscountAmount > 0) ...[
+                    const SizedBox(width: 3),
+                    InkWell(
+                      child: const Icon(
+                        Icons.info_outline,
+                        size: 15,
+                        color: Colors.blueGrey,
+                      ),
                     onTap: () {
                       final double quantity = productQuantity;
                       // Original selling price per unit
@@ -1183,7 +1157,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                               Row(
                                                 children: [
                                                   Text(
-                                                    'Original: ${formatAmount(originalSellPrice.toString())}',
+                                                    'Original: ${formatAmount(originalBaseSellAmount.toString())}',
                                                     style: TextStyle(
                                                         color: Colors
                                                             .grey.shade600,
@@ -1193,7 +1167,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                                   ),
                                                   const SizedBox(width: 8),
                                                   Text(
-                                                    '→ ${formatAmount(sellPrice.toString())}',
+                                                    '→ ${formatAmount(currentBaseSellAmount.toString())}',
                                                     style: TextStyle(
                                                         color:
                                                             Colors.teal.shade700,
@@ -1256,8 +1230,7 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
                                       Text(
                                          () {
                                            final double originalBaseAmount =
-                                               originalSellPrice *
-                                                   qtyFactor *
+                                               originalBaseSellAmount *
                                                    productQuantity;
                                            final double editPricePercent =
                                                originalBaseAmount > 0
@@ -1322,12 +1295,38 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
             ),),
           ),
           DataCell(
-            SizedBox(width: CartColumnWidths.tax, child: TableContent(
-                maxLines: 1,
-                fontSize: fontSize,
-                content: groupedItem.detail.inclTax == "N.A"
-                    ? formatAmount(0)
-                    : formatAmount(tax)),),
+            SizedBox(
+              width: CartColumnWidths.tax,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: TableContent(
+                        maxLines: 1,
+                        fontSize: fontSize,
+                        content: groupedItem.detail.inclTax == "N.A"
+                            ? formatAmount(0)
+                            : formatAmount(tax),
+                      ),
+                    ),
+                    if (groupedItem.detail.inclTax == 'incl_tax') ...[
+                      const SizedBox(width: 3),
+                      Text(
+                        'Incl.Tax'.tr,
+                        style: TextStyle(
+                          fontSize: fontSize > 3 ? fontSize - 3 : 9.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.teal.shade700,
+                          fontFamily: fontFamilyName,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
           DataCell(
             SizedBox(width: CartColumnWidths.total, child: Center(
@@ -1367,10 +1366,10 @@ print('bulktax percentage from detail: $bulkTaxPercentage');
 
 void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
   double originalPrice =
-      double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+      double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
   if (originalPrice <= 0.0) {
     originalPrice =
-        double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+        double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
   }
 
   final TextEditingController priceController = TextEditingController(
@@ -1751,10 +1750,10 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
 void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
   final int pieces = groupedItem.detail.pieces?.toInt() ?? 1;
   double originalUnitPrice =
-      double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
+      double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
   if (originalUnitPrice <= 0.0) {
     originalUnitPrice =
-        double.tryParse(groupedItem.detail.sellPrice?.toString() ?? '') ?? 0.0;
+        double.tryParse(groupedItem.detail.price?.toString() ?? '') ?? 0.0;
   }
   // Use API selling_pack_price if available, else fallback to unitPrice * pieces
   final double? apiPackPrice = double.tryParse(
@@ -1763,10 +1762,12 @@ void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
       ? apiPackPrice
       : originalUnitPrice * pieces;
 
-  // Current pack price: if user already edited, use displayPrice * pieces;
-  // otherwise use the API pack price (or computed fallback).
-  final double currentPackPrice = groupedItem.detail.displayPrice != null
-      ? (double.tryParse(groupedItem.detail.displayPrice!) ?? originalPackPrice) * pieces
+  // Current pack price: if user already edited, use displayPrice;
+  // otherwise use the calculated/API pack price.
+  final double currentPackPrice = (groupedItem.detail.displayPrice != null)
+      ? (apiPackPrice != null && apiPackPrice > 0
+          ? (double.tryParse(groupedItem.detail.displayPrice!) ?? originalPackPrice)
+          : (double.tryParse(groupedItem.detail.displayPrice!) ?? originalUnitPrice) * pieces)
       : originalPackPrice;
 
   final TextEditingController priceController = TextEditingController(
@@ -2284,28 +2285,36 @@ Widget _buildDiscountRow({
 }
 
 class TableContent extends StatelessWidget {
-  double fontSize;
-  String content;
-  int maxLines;
-  TextAlign align;
-  TableContent(
-      {super.key,
-      required this.fontSize,
-      required this.content,
-      this.align = TextAlign.center,
-      this.maxLines = 2});
+  final double fontSize;
+  final String content;
+  final int maxLines;
+  final TextAlign align;
+
+  const TableContent({
+    super.key,
+    required this.fontSize,
+    required this.content,
+    this.align = TextAlign.center,
+    this.maxLines = 1,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 40, maxWidth: 140),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: align == TextAlign.start
+            ? Alignment.centerLeft
+            : align == TextAlign.end
+                ? Alignment.centerRight
+                : Alignment.center,
         child: CustomText(
           content: content,
           textAlign: align,
           fontSize: fontSize >= 13.0 ? fontSize : 13.5,
           fontWeight: FontWeight.w600,
           maxLine: maxLines,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

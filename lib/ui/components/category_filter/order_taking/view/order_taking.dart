@@ -1791,12 +1791,41 @@ class _OrderTakingState extends State<OrderTaking>
                 detail['packtype'] ??
                 detail['pack_type'] ??
                 '') as String;
+            final bool isBulkDraft = (packTypeStr == 'Bulk') ||
+                (detail['bulk_id'] != null &&
+                    detail['bulk_id'].toString().isNotEmpty &&
+                    detail['bulk_id'].toString() != 'null') ||
+                (detail['is_bulk'] == 1 ||
+                    detail['is_bulk'] == true ||
+                    detail['is_bulk'] == '1');
+
+            final num? bulkDiscountPct = isBulkDraft
+                ? (num.tryParse(detail['bulk_discount']?.toString() ?? '') ??
+                    num.tryParse(detail['discount_percentage']?.toString() ?? '') ??
+                    num.tryParse(detail['bulk_discount_percentage']?.toString() ?? '') ??
+                    0)
+                : 0;
+
+            final num? bulkDiscountAmt = isBulkDraft
+                ? ((bulkDiscountPct != null && bulkDiscountPct > 0)
+                    ? 0
+                    : (num.tryParse(detail['bulk_discount_amount']?.toString() ?? '') ??
+                        num.tryParse(detail['discount_amount']?.toString() ?? '') ??
+                        0))
+                : 0;
+
+            final num? bulkTaxVal = isBulkDraft
+                ? (num.tryParse(detail['bulk_tax']?.toString() ?? '') ??
+                    num.tryParse(detail['cat_tax']?.toString() ?? '') ??
+                    0)
+                : 0;
+
             final cartItem = CartItem(
               detail: Detail(
                 productId: detail['product_id'],
                 variationId: detail['variant_id'],
                 sellPrice: detail['price'],
-                discount: detail['discount'],
+                discount: isBulkDraft ? 0 : detail['discount'],
                 count: (detail['quantity'] as num?)?.toDouble() ?? 0,
                 pieces: int.tryParse(detail['pack'] ?? '0'),
                 variationName: detail['variant_name'],
@@ -1807,6 +1836,10 @@ class _OrderTakingState extends State<OrderTaking>
                 productName: detail['product_name'],
                 tax: detail['tax'],
                 inclTax: detail['incl_tax'],
+                bulkId: isBulkDraft ? detail['bulk_id']?.toString() : null,
+                bulkDiscountAmount: bulkDiscountAmt,
+                bulkDiscount: bulkDiscountPct,
+                bulkTax: bulkTaxVal,
               ),
               productName: detail['product_name'],
               totalPrice:
@@ -1815,6 +1848,12 @@ class _OrderTakingState extends State<OrderTaking>
               customerId: customerId,
               salesmanId: salesmanId,
               catId: 0,
+              isPromo: false,
+              CustomerDiscount: 0.0,
+              taxAmount: (num.tryParse(detail['tax_amount']?.toString() ?? '') ??
+                      num.tryParse(detail['total_tax']?.toString() ?? '') ??
+                      0)
+                  .toDouble(),
             );
             await draftBox.add(cartItem);
           }

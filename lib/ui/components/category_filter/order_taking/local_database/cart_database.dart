@@ -27,6 +27,87 @@ class CartDatabaseManager {
   // List<CartItem> cartItems = cartBox.values.toList();
   List<CartItem> get cartItems => cartBox.values.toList();
 
+  static num? findBulkDiscount({String? bulkId, String? productId, String? variantId}) {
+    try {
+      final boxNames = ['bulkVolumesBox', 'cached_bulk_data'];
+      for (final bName in boxNames) {
+        if (Hive.isBoxOpen(bName)) {
+          final box = Hive.box(bName);
+          for (var key in box.keys) {
+            final raw = box.get(key);
+            final List items = (raw is Map && raw['data'] is List)
+                ? raw['data']
+                : (raw is List ? raw : []);
+            for (var item in items) {
+              if (item is Map) {
+                final bool idMatch = (bulkId != null &&
+                    bulkId.isNotEmpty &&
+                    bulkId != 'null' &&
+                    (item['bulk_id']?.toString() == bulkId ||
+                        item['id']?.toString() == bulkId));
+                final bool productMatch = (productId != null &&
+                    productId.isNotEmpty &&
+                    productId != 'null' &&
+                    item['product_id']?.toString() == productId &&
+                    (variantId == null ||
+                        variantId.isEmpty ||
+                        variantId == 'null' ||
+                        item['product_variant_id']?.toString() == variantId));
+                if (idMatch || productMatch) {
+                  final disc = num.tryParse(
+                      item['discount_percentage']?.toString() ?? '');
+                  if (disc != null && disc > 0) return disc;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static num? findBulkTax({String? bulkId, String? productId, String? variantId}) {
+    try {
+      final boxNames = ['bulkVolumesBox', 'cached_bulk_data'];
+      for (final bName in boxNames) {
+        if (Hive.isBoxOpen(bName)) {
+          final box = Hive.box(bName);
+          for (var key in box.keys) {
+            final raw = box.get(key);
+            final List items = (raw is Map && raw['data'] is List)
+                ? raw['data']
+                : (raw is List ? raw : []);
+            for (var item in items) {
+              if (item is Map) {
+                final bool idMatch = (bulkId != null &&
+                    bulkId.isNotEmpty &&
+                    bulkId != 'null' &&
+                    (item['bulk_id']?.toString() == bulkId ||
+                        item['id']?.toString() == bulkId));
+                final bool productMatch = (productId != null &&
+                    productId.isNotEmpty &&
+                    productId != 'null' &&
+                    item['product_id']?.toString() == productId &&
+                    (variantId == null ||
+                        variantId.isEmpty ||
+                        variantId == 'null' ||
+                        item['product_variant_id']?.toString() == variantId));
+                if (idMatch || productMatch) {
+                  final tax = num.tryParse(item['cat_tax']?.toString() ??
+                      item['tax']?.toString() ??
+                      '');
+                  if (tax != null && tax > 0) return tax;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
   /// Get cart items that don't have a customer ID assigned
   List<CartItem> get orphanedCartItems => cartBox.values
       .where((item) => item.customerId == null || item.customerId!.isEmpty)
@@ -100,7 +181,63 @@ class CartDatabaseManager {
                     (num.tryParse(cart['promo_discount']?.toString() ?? '0') ??
                             0)
                         .toDouble();
-                final String packTypeStr = (cart['packtype'] ?? cart['packType'] ?? cart['pack_type'] ?? '') as String;
+                final String packTypeStr = (cart['packtype'] ??
+                        cart['packType'] ??
+                        cart['pack_type'] ??
+                        '')
+                    as String;
+                final bool isBulkDraft = (packTypeStr == 'Bulk') ||
+                    (cart['bulk_id'] != null &&
+                        cart['bulk_id'].toString().isNotEmpty &&
+                        cart['bulk_id'].toString() != 'null') ||
+                    (cart['is_bulk'] == 1 ||
+                        cart['is_bulk'] == true ||
+                        cart['is_bulk'] == '1');
+                final bool isPromoDraft = !isBulkDraft &&
+                    (cart['is_promo'] == 1 ||
+                        cart['is_promo'] == true ||
+                        cart['is_promo'] == '1');
+
+                final String bId = (cart['bulk_id'] ?? '').toString();
+                final String pId = (cart['product_id'] ?? '').toString();
+                final String vId = (cart['variation_id'] ?? cart['variant_id'] ?? '').toString();
+
+                num? bulkDiscountPct = isBulkDraft
+                    ? (num.tryParse(cart['bulk_discount']?.toString() ?? '') ??
+                        num.tryParse(cart['discount_percentage']?.toString() ?? '') ??
+                        num.tryParse(cart['bulk_discount_percentage']?.toString() ?? '') ??
+                        0)
+                    : 0;
+
+                if (isBulkDraft && (bulkDiscountPct == null || bulkDiscountPct == 0)) {
+                  bulkDiscountPct = CartDatabaseManager.findBulkDiscount(
+                        bulkId: bId,
+                        productId: pId,
+                        variantId: vId,
+                      ) ??
+                      bulkDiscountPct;
+                }
+
+                final num? bulkDiscountAmt = isBulkDraft
+                    ? ((bulkDiscountPct != null && bulkDiscountPct > 0)
+                        ? 0
+                        : (num.tryParse(cart['bulk_discount_amount']?.toString() ?? '') ?? 0))
+                    : 0;
+                num? bulkTaxVal = isBulkDraft
+                    ? (num.tryParse(cart['bulk_tax']?.toString() ?? '') ??
+                        num.tryParse(cart['cat_tax']?.toString() ?? '') ??
+                        0)
+                    : 0;
+
+                if (isBulkDraft && (bulkTaxVal == null || bulkTaxVal == 0)) {
+                  bulkTaxVal = CartDatabaseManager.findBulkTax(
+                        bulkId: bId,
+                        productId: pId,
+                        variantId: vId,
+                      ) ??
+                      bulkTaxVal;
+                }
+
                 final detail = Detail(
                   productId: cart['product_id'] as String? ?? '',
                   variationId: cart['variation_id'] as String? ?? '',
@@ -110,7 +247,7 @@ class CartDatabaseManager {
                   pieces: num.tryParse(cart['pieces']?.toString() ?? '0') ?? 0,
                   count: num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
                   // If it's a Bulk item, use unit_price. Otherwise, fall back to sell_price.
-                  sellPrice: (packTypeStr == 'Bulk')
+                  sellPrice: isBulkDraft
                       ? cart['unit_price']?.toString() ?? '0'
                       : cart['sell_price']?.toString() ?? '0',
                   // sellPrice: cart['sell_price']?.toString() ?? '0',
@@ -130,32 +267,17 @@ class CartDatabaseManager {
                   unitTax:
                       num.tryParse(cart['unit_tax']?.toString() ?? '0') ?? 0,
 
-                  discount:
-                      num.tryParse(cart['discount_amount'].toString()) ?? 0,
+                  discount: isBulkDraft
+                      ? 0
+                      : (num.tryParse(cart['discount_amount']?.toString() ?? '0') ?? 0),
                   productName: cart['product_name'] as String? ?? '',
                   initialCount:
                       num.tryParse(cart['quantity']?.toString() ?? '0') ?? 0,
-                  // bulkDiscountAmount:   num.tryParse(cart['discount_amount'].toString()) ?? 0,
-
-                  bulkDiscountAmount: (packTypeStr == 'Bulk')
-                      ? (num.tryParse(
-                              cart['discount_amount']?.toString() ?? '0') ??
-                          0)
-                      : 0,
-                  bulkDiscount: (packTypeStr == 'Bulk')
-                      ? (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0)
-                      : 0,
-                  bulkTax: (packTypeStr == 'Bulk')
-                      ? (num.tryParse(cart['tax']?.toString() ?? '0') ?? 0)
-                      : 0,
+                  bulkId: isBulkDraft ? (cart['bulk_id']?.toString()) : null,
+                  bulkDiscountAmount: bulkDiscountAmt,
+                  bulkDiscount: bulkDiscountPct,
+                  bulkTax: bulkTaxVal,
                 );
-                final bool isBulkDraft = (packTypeStr == 'Bulk') ||
-                    (cart['bulk_id'] != null &&
-                        cart['bulk_id'].toString().isNotEmpty &&
-                        cart['bulk_id'].toString() != 'null');
-                final bool isPromoDraft =
-                    (cart['is_promo'] == 1 || cart['is_promo'] == true || cart['is_promo'] == '1') &&
-                        !isBulkDraft;
 
                 final cartItem = CartItem(
                   detail: detail,
@@ -327,6 +449,57 @@ class CartDatabaseManager {
               detail['packtype'] ??
               detail['pack_type'] ??
               '') as String;
+          final bool isBulkItem = (packTypeStr == 'Bulk') ||
+              (detail['bulk_id'] != null &&
+                  detail['bulk_id'].toString().isNotEmpty &&
+                  detail['bulk_id'].toString() != 'null') ||
+              (detail['is_bulk'] == true || detail['is_bulk'] == 1);
+          final bool isPromoItem = !isBulkItem &&
+              (detail['is_promo'] == true ||
+                  detail['is_promo'] == 1 ||
+                  detail['is_promo'] == '1');
+
+          final String bId = (detail['bulk_id'] ?? '').toString();
+          final String pId = (detail['product_id'] ?? '').toString();
+          final String vId = (detail['variant_id'] ?? detail['variation_id'] ?? '').toString();
+
+          num? bulkDiscountPct = isBulkItem
+              ? (num.tryParse(detail['bulk_discount']?.toString() ?? '') ??
+                  num.tryParse(detail['discount_percentage']?.toString() ?? '') ??
+                  num.tryParse(detail['bulk_discount_percentage']?.toString() ?? '') ??
+                  0)
+              : 0;
+
+          if (isBulkItem && (bulkDiscountPct == null || bulkDiscountPct == 0)) {
+            bulkDiscountPct = CartDatabaseManager.findBulkDiscount(
+                  bulkId: bId,
+                  productId: pId,
+                  variantId: vId,
+                ) ??
+                bulkDiscountPct;
+          }
+
+          final num? bulkDiscountAmt = isBulkItem
+              ? ((bulkDiscountPct != null && bulkDiscountPct > 0)
+                  ? 0
+                  : (num.tryParse(detail['bulk_discount_amount']?.toString() ?? '') ?? 0))
+              : 0;
+
+          num? bulkTaxVal = isBulkItem
+              ? (num.tryParse(detail['bulk_tax']?.toString() ?? '') ??
+                  num.tryParse(detail['cat_tax']?.toString() ?? '') ??
+                  0)
+              : 0;
+
+          if (isBulkItem && (bulkTaxVal == null || bulkTaxVal == 0)) {
+            bulkTaxVal = CartDatabaseManager.findBulkTax(
+                  bulkId: bId,
+                  productId: pId,
+                  variantId: vId,
+                ) ??
+                bulkTaxVal;
+          }
+
           double parsedCatTax =
               (num.tryParse(detail['cat_tax']?.toString() ?? '') ?? 0)
                   .toDouble();
@@ -345,7 +518,7 @@ class CartDatabaseManager {
               productId: detail['product_id'],
               variationId: detail['variant_id'],
               sellPrice: detail['price'],
-              discount: detail['discount'],
+              discount: isBulkItem ? 0 : detail['discount'],
               count: (detail['quantity'] as num?)?.toDouble() ?? 0,
               pieces: int.tryParse(detail['pack']?.toString() ?? '0'),
               variationName: detail['variant_name'],
@@ -359,6 +532,10 @@ class CartDatabaseManager {
               totaltax: taxAmt,
               unitTax:
                   (num.tryParse(detail['unit_tax']?.toString() ?? '0') ?? 0),
+              bulkId: isBulkItem ? detail['bulk_id']?.toString() : null,
+              bulkDiscountAmount: bulkDiscountAmt,
+              bulkDiscount: bulkDiscountPct,
+              bulkTax: bulkTaxVal,
             ),
             productName: detail['product_name'],
             totalPrice:
@@ -367,16 +544,39 @@ class CartDatabaseManager {
             customerId: customerId,
             salesmanId: salesmanId,
             catId: detail['cat_id'] as int? ?? 0,
-            isPromo: draft['is_promo'] == 1 ? true : false,
-            promoCode:
-                draft['promo_code'] == null || draft['promo_code'] == ""
-                    ? draft['promo_code']
-                    : null,
-            promoMsg: draft['title'] == null || draft['title'] == ""
-                ? draft['title']
+            isPromo: isPromoItem,
+            promoCode: isPromoItem
+                ? (draft['promo_code'] ?? detail['promo_code'])
+                : null,
+            promoMsg: isPromoItem
+                ? (draft['title'] ?? detail['promo_msg'])
                 : null,
             taxAmount: taxAmt,
             catTax: parsedCatTax > 0 ? parsedCatTax : null,
+            CustomerDiscount: isBulkItem
+                ? 0.0
+                : (num.tryParse(detail['customer_discount']?.toString() ??
+                            detail['discount']?.toString() ??
+                            '0') ??
+                        0)
+                    .toDouble(),
+            tieredDiscount: isPromoItem
+                ? (num.tryParse(detail['tiered_discount']?.toString() ??
+                            detail['promo_discount']?.toString() ??
+                            '0') ??
+                        0)
+                    .toDouble()
+                : 0.0,
+            flatDiscount: isPromoItem
+                ? (num.tryParse(detail['flat_discount']?.toString() ?? '0') ??
+                        0)
+                    .toDouble()
+                : 0.0,
+            bogoDiscount: isPromoItem
+                ? (num.tryParse(detail['bogo_discount']?.toString() ?? '0') ??
+                        0)
+                    .toDouble()
+                : 0.0,
           );
           customerOfflineDraftItems.add(cartItem);
         }
@@ -394,13 +594,13 @@ class CartDatabaseManager {
 
       for (var item in customerCartItems) {
         final key =
-            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
+            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}_${item.detail.bulkId ?? ''}";
         itemMap[key] = item;
       }
 
       for (var item in customerDraftItems) {
         final key =
-            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
+            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}_${item.detail.bulkId ?? ''}";
         if (!itemMap.containsKey(key)) {
           itemMap[key] = item;
         }
@@ -408,7 +608,7 @@ class CartDatabaseManager {
 
       for (var item in customerOfflineDraftItems) {
         final key =
-            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
+            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}_${item.detail.bulkId ?? ''}";
         if (!itemMap.containsKey(key)) {
           itemMap[key] = item;
         }
@@ -644,6 +844,13 @@ class CartDatabaseManager {
               'NEW ITEM: Set initialCount to $localCount for ${newDetail.productName}');
         }
 
+        final bool isBulkItem = (bulkId != null && bulkId.isNotEmpty) ||
+            (detail.bulkId != null && detail.bulkId!.isNotEmpty) ||
+            (detail.packtype == 'Bulk') ||
+            (detail.saleBy == 'Bulk') ||
+            (detail.bulkDiscount != null && detail.bulkDiscount! > 0) ||
+            (detail.bulkDiscountAmount != null && detail.bulkDiscountAmount! > 0);
+
         final newCartItem = CartItem(
             detail: newDetail,
             productName: productName,
@@ -655,7 +862,7 @@ class CartDatabaseManager {
             isChecked: isChcked,
             catId: catId,
             isPromo: false,
-            CustomerDiscount: discountPercentage,
+            CustomerDiscount: isBulkItem ? 0.0 : discountPercentage,
             catTax: catTax);
 
         await cartBox.add(newCartItem);
@@ -1120,15 +1327,20 @@ class CartDatabaseManager {
           'createdDate': DateTime.now().toIso8601String(),
         };
         drafts[existingDraftIndex]['details'] = details.map((detail) {
+          final bool isBulkDetail = (detail.bulkId != null &&
+                  detail.bulkId!.isNotEmpty) ||
+              (detail.saleBy == 'Bulk' || detail.packtype == 'Bulk') ||
+              (detail.bulkDiscount != null && detail.bulkDiscount! > 0) ||
+              (detail.bulkDiscountAmount != null && detail.bulkDiscountAmount! > 0);
           return {
             'product_id': detail.productId ?? '',
             'variant_id': detail.variationId ?? '',
             'pack': detail.saleBy == 'Pack'
                 ? detail.pieces.toString()
                 : detail.count.toString(),
-            'packType': detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+            'packType': detail.saleBy == 'Pack' ? 'Pack' : (isBulkDetail ? 'Bulk' : 'Pcs'),
             'price': detail.sellPrice.toString(),
-            'discount': detail.discount,
+            'discount': isBulkDetail ? 0 : detail.discount,
             'quantity': detail.count.toInt(),
             'variant_name': detail.variationName ?? '',
             'stock': detail.stock ?? 0,
@@ -1142,6 +1354,12 @@ class CartDatabaseManager {
             'total_tax': detail.totaltax ?? 0.0,
             'unit_tax': detail.unitTax ?? 0.0,
             'cat_id': 0,
+            'bulk_id': detail.bulkId,
+            'is_bulk': isBulkDetail,
+            'bulk_discount': detail.bulkDiscount,
+            'discount_percentage': detail.bulkDiscount,
+            'bulk_discount_amount': detail.bulkDiscountAmount,
+            'bulk_tax': detail.bulkTax,
           };
         }).toList();
       } else {
@@ -1152,14 +1370,19 @@ class CartDatabaseManager {
           'salesman_id': salesmanId,
           'total_amount': totalAmount,
           'details': details.map((e) {
+            final bool isBulkDetail = (e.bulkId != null &&
+                    e.bulkId!.isNotEmpty) ||
+                (e.saleBy == 'Bulk' || e.packtype == 'Bulk') ||
+                (e.bulkDiscount != null && e.bulkDiscount! > 0) ||
+                (e.bulkDiscountAmount != null && e.bulkDiscountAmount! > 0);
             return {
               'product_id': e.productId ?? '',
               'variant_id': e.variationId ?? '',
               'pack':
                   e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString(),
-              'packType': e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              'packType': e.saleBy == 'Pack' ? 'Pack' : (isBulkDetail ? 'Bulk' : 'Pcs'),
               'price': e.sellPrice.toString(),
-              'discount': e.discount,
+              'discount': isBulkDetail ? 0 : e.discount,
               'quantity': e.count.toInt(),
               'variant_name': e.variationName ?? '',
               'unitType': e.unitType,
@@ -1173,6 +1396,12 @@ class CartDatabaseManager {
               'total_tax': e.totaltax ?? 0.0,
               'unit_tax': e.unitTax ?? 0.0,
               'cat_id': 0,
+              'bulk_id': e.bulkId,
+              'is_bulk': isBulkDetail,
+              'bulk_discount': e.bulkDiscount,
+              'discount_percentage': e.bulkDiscount,
+              'bulk_discount_amount': e.bulkDiscountAmount,
+              'bulk_tax': e.bulkTax,
             };
           }).toList(),
           'displayData': {

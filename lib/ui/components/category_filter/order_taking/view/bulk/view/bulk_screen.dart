@@ -568,15 +568,15 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                       sellPrice: data.unitPrice ?? '0',
                       pieces: data.itemNumbers,
                       saleBy: 'Pack',
+                      packtype: 'Bulk',
                       unitType: "",
                       // Pass quantity as stock/count for cart logic
                       stock: _currentQuantity, 
                       bulkId: data.bulkId,
-                      bulkDiscount:  data.discountPercentage ?? 0,
+                      bulkDiscount: data.discountPercentage ?? 0,
+                      bulkDiscountAmount: num.tryParse(data.discountAmount?.toString() ?? '0') ?? 0,
                       bulkTax: data.bulkTax ?? 0,
-                      discount: num.tryParse(data.discountAmount),
-                      // discount: num.tryParse(data.discountAmount?.toString() ?? '0') ?? 0,
-                      // discpountPercentage: data.discountPercentage ?? 0,
+                      discount: 0,
                   ),
                 );
                 // print('detail discount: ${data.discountPercentage}');

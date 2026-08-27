@@ -117,13 +117,15 @@ class Utils {
                 : 0;
 
         double totalDiscountPercent =
-            customerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
+            customerDiscount + tieredDiscount + bogoDiscount + (bulkDiscount ?? 0);
 
         double percentageDiscountAmount =
             (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
 
-        double bulkDiscountAmt =
-            (item.detail.bulkDiscountAmount ?? 0).toDouble();
+        // Only apply flat bulkDiscountAmount if bulk percentage discount is NOT already applied
+        double bulkDiscountAmt = ((bulkDiscount ?? 0) > 0)
+            ? 0.0
+            : (item.detail.bulkDiscountAmount ?? 0).toDouble();
 
         double totalDiscountAmount =
             percentageDiscountAmount + bulkDiscountAmt + editPriceDiscountAmount;

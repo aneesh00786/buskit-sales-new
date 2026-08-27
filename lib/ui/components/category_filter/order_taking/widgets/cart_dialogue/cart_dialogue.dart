@@ -279,12 +279,41 @@ class CartDialogueState extends State<CartDialogue> {
                   detail['packtype'] ??
                   detail['pack_type'] ??
                   '') as String;
+              final bool isBulkDraft = (packTypeStr == 'Bulk') ||
+                  (detail['bulk_id'] != null &&
+                      detail['bulk_id'].toString().isNotEmpty &&
+                      detail['bulk_id'].toString() != 'null') ||
+                  (detail['is_bulk'] == 1 ||
+                      detail['is_bulk'] == true ||
+                      detail['is_bulk'] == '1');
+
+              final num? bulkDiscountPct = isBulkDraft
+                  ? (num.tryParse(detail['bulk_discount']?.toString() ?? '') ??
+                      num.tryParse(detail['discount_percentage']?.toString() ?? '') ??
+                      num.tryParse(detail['bulk_discount_percentage']?.toString() ?? '') ??
+                      0)
+                  : 0;
+
+              final num? bulkDiscountAmt = isBulkDraft
+                  ? ((bulkDiscountPct != null && bulkDiscountPct > 0)
+                      ? 0
+                      : (num.tryParse(detail['bulk_discount_amount']?.toString() ?? '') ??
+                          num.tryParse(detail['discount_amount']?.toString() ?? '') ??
+                          0))
+                  : 0;
+
+              final num? bulkTaxVal = isBulkDraft
+                  ? (num.tryParse(detail['bulk_tax']?.toString() ?? '') ??
+                      num.tryParse(detail['cat_tax']?.toString() ?? '') ??
+                      0)
+                  : 0;
+
               final cartItem = CartItem(
                 detail: Detail(
                   productId: detail['product_id'],
                   variationId: detail['variant_id'],
                   sellPrice: detail['price'],
-                  discount: detail['discount'],
+                  discount: isBulkDraft ? 0 : detail['discount'],
                   count: (detail['quantity'] as num?)?.toDouble() ?? 0,
                   pieces: int.tryParse(detail['pack'] ?? '0'),
                   variationName: detail['variant_name'],
@@ -292,14 +321,27 @@ class CartDialogueState extends State<CartDialogue> {
                   stock: detail['stock'] ?? 0,
                   unitType: detail['unitType'],
                   packtype: packTypeStr,
+                  productName: detail['product_name'] ?? detail['variant_name'],
+                  tax: detail['tax'],
+                  inclTax: detail['incl_tax'],
+                  bulkId: isBulkDraft ? detail['bulk_id']?.toString() : null,
+                  bulkDiscountAmount: bulkDiscountAmt,
+                  bulkDiscount: bulkDiscountPct,
+                  bulkTax: bulkTaxVal,
                 ),
-                productName: detail['variant_name'] ?? '',
+                productName: detail['product_name'] ?? detail['variant_name'] ?? '',
                 totalPrice:
                     double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
                 isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
                 customerId: customerId,
                 salesmanId: salesmanId,
                 catId: 0,
+                isPromo: false,
+                CustomerDiscount: 0.0,
+                taxAmount: (num.tryParse(detail['tax_amount']?.toString() ?? '') ??
+                        num.tryParse(detail['total_tax']?.toString() ?? '') ??
+                        0)
+                    .toDouble(),
               );
               await draftBox.add(cartItem);
             }
@@ -324,7 +366,19 @@ class CartDialogueState extends State<CartDialogue> {
       );
 
       for (final item in widget.productsController.cartItems) {
-        if (isOnline) {
+        final bool isBulkItem = (item.detail.bulkId != null &&
+                item.detail.bulkId!.isNotEmpty) ||
+            (item.detail.packtype == 'Bulk') ||
+            (item.detail.saleBy == 'Bulk') ||
+            (item.isPack == true &&
+                item.detail.bulkDiscount != null &&
+                item.detail.bulkDiscount! > 0) ||
+            (item.detail.bulkDiscountAmount != null &&
+                item.detail.bulkDiscountAmount! > 0);
+
+        if (isBulkItem) {
+          item.CustomerDiscount = 0.0;
+        } else if (isOnline) {
           double effectiveSellingPrice =
               double.tryParse(item.detail.sellPrice ?? '0') ?? 0;
           num itemCount = item.detail.count > 0 ? item.detail.count : 1;
@@ -419,14 +473,16 @@ class CartDialogueState extends State<CartDialogue> {
                 : 0;
 
         double totalDiscountPercent =
-            customerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
+            customerDiscount + tieredDiscount + bogoDiscount + (bulkDiscount ?? 0);
 
         // 5. Calculate Total Discount Amount
         double percentageDiscountAmount =
             (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
 
-        double bulkDiscountAmt =
-            (item.detail.bulkDiscountAmount ?? 0).toDouble();
+        // Only apply flat bulkDiscountAmount if bulk percentage discount is NOT already applied
+        double bulkDiscountAmt = ((bulkDiscount ?? 0) > 0)
+            ? 0.0
+            : (item.detail.bulkDiscountAmount ?? 0).toDouble();
 
         double totalDiscountAmount =
             percentageDiscountAmount + bulkDiscountAmt + editPriceDiscountAmount;
@@ -3850,15 +3906,21 @@ class CartDialogueState extends State<CartDialogue> {
           };
 
           for (var detail in newCartItems) {
+            final bool isBulkDetail = (detail.detail.bulkId != null &&
+                    detail.detail.bulkId!.isNotEmpty) ||
+                (detail.detail.saleBy == 'Bulk' || detail.detail.packtype == 'Bulk') ||
+                (detail.detail.bulkDiscount != null && detail.detail.bulkDiscount! > 0) ||
+                (detail.detail.bulkDiscountAmount != null && detail.detail.bulkDiscountAmount! > 0);
+
             detailsAfterProcessing.add({
               'product_id': detail.detail.productId ?? '',
               'variant_id': detail.detail.variationId ?? '',
               'pack': detail.detail.saleBy == 'Pack'
                   ? detail.detail.pieces.toString()
                   : detail.detail.count.toString(),
-              'packType': detail.detail.saleBy == 'Pack' ? 'Pack' : 'Pcs',
+              'packType': detail.detail.saleBy == 'Pack' ? 'Pack' : (isBulkDetail ? 'Bulk' : 'Pcs'),
               'price': detail.detail.sellPrice.toString(),
-              'discount': detail.detail.discount,
+              'discount': isBulkDetail ? 0 : detail.detail.discount,
               'quantity': detail.detail.count.toInt(),
               'variant_name': detail.detail.variationName ?? '',
               'stock': detail.detail.stock ?? 0,
@@ -3867,6 +3929,17 @@ class CartDialogueState extends State<CartDialogue> {
               'tax': detail.detail.tax,
               'incl_tax': detail.detail.inclTax,
               'pieces': detail.detail.pieces,
+              'cat_tax': getStoredTaxFromCache(detail.detail.productId ?? ''),
+              'tax_amount': detail.detail.tax ?? 0.0,
+              'total_tax': detail.detail.totaltax ?? 0.0,
+              'unit_tax': detail.detail.unitTax ?? 0.0,
+              'cat_id': 0,
+              'bulk_id': detail.detail.bulkId,
+              'is_bulk': isBulkDetail,
+              'bulk_discount': detail.detail.bulkDiscount,
+              'discount_percentage': detail.detail.bulkDiscount,
+              'bulk_discount_amount': detail.detail.bulkDiscountAmount,
+              'bulk_tax': detail.detail.bulkTax,
             });
           }
 

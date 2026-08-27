@@ -119,30 +119,41 @@ class GroupedItemDataRows {
               groupedItem.tieredDiscount! > 0)
           ? groupedItem.tieredDiscount!
           : 0;
-        
-      num? bulkDiscount = groupedItem.detail.bulkDiscount != null && groupedItem.detail.bulkDiscount! > 0
-          ? groupedItem.detail.bulkDiscount
-          : 0;
-       
+
       num flatDiscount = (isPromoItem &&
               groupedItem.flatDiscount != null &&
               groupedItem.flatDiscount! > 0)
           ? groupedItem.flatDiscount!
           : 0;
+
       num bulkDiscountAmount = (groupedItem.detail.bulkDiscountAmount != null &&
-          groupedItem.detail.bulkDiscountAmount! > 0) ? groupedItem.detail.bulkDiscountAmount! : 0;
+              groupedItem.detail.bulkDiscountAmount! > 0)
+          ? groupedItem.detail.bulkDiscountAmount!
+          : 0;
+
+      num? bulkDiscount = (groupedItem.detail.bulkDiscount != null && groupedItem.detail.bulkDiscount! > 0)
+          ? groupedItem.detail.bulkDiscount
+          : 0;
+
       num bogoDiscount = (isPromoItem &&
               groupedItem.bogoDiscount != null &&
-              groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
+              groupedItem.bogoDiscount! > 0)
+          ? groupedItem.bogoDiscount!
+          : 0;
 
-      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
+      double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount + (bulkDiscount ?? 0);
 
       // 4. Percentage discount calculated on original base amount
       double percentageDiscountAmount =
           (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
 
+      // Only add flat bulkDiscountAmount if bulk percentage discount is NOT already applied
+      num effectiveBulkDiscountAmount = ((bulkDiscount ?? 0) > 0)
+          ? 0
+          : bulkDiscountAmount;
+
       // 5. Total discount amount includes percentage, flat, bulk, and price edit difference
-      double totalDiscountAmount = percentageDiscountAmount + flatDiscount + bulkDiscountAmount + editPriceDiscountAmount;
+      double totalDiscountAmount = percentageDiscountAmount + flatDiscount + effectiveBulkDiscountAmount + editPriceDiscountAmount;
 
       groupedItem.totalDiscountAmount = totalDiscountAmount;
 
@@ -1059,12 +1070,21 @@ class GroupedItemDataRows {
                               groupedItem.detail.bulkDiscountAmount! > 0);
 
                       final double effectiveBulkDiscountPercent =
-                          (bulkDiscount != null && bulkDiscount > 0)
-                              ? bulkDiscount.toDouble()
-                              : (isBulkItem ? CustomerDiscount : 0.0);
+                          (groupedItem.detail.bulkDiscount != null &&
+                                  groupedItem.detail.bulkDiscount! > 0)
+                              ? groupedItem.detail.bulkDiscount!.toDouble()
+                              : ((bulkDiscount != null && bulkDiscount > 0)
+                                  ? bulkDiscount.toDouble()
+                                  : 0.0);
 
                       final double effectiveCustomerDiscountPercent =
                           isBulkItem ? 0.0 : CustomerDiscount;
+
+                      final double calculatedBulkDiscountAmount =
+                          (effectiveBulkDiscountPercent > 0)
+                              ? ((originalBaseSellAmount * quantity) *
+                                  (effectiveBulkDiscountPercent / 100.0))
+                              : (bulkDiscountAmount * quantity).toDouble();
 
                       showDialog(
                         context: context,
@@ -1130,12 +1150,7 @@ class GroupedItemDataRows {
                                     icon: Icons.inventory_2_outlined,
                                     label: "Bulk Discount".tr,
                                     percent: effectiveBulkDiscountPercent,
-                                    amount: (bulkDiscountAmount > 0)
-                                        ? (bulkDiscountAmount * quantity)
-                                            .toDouble()
-                                        : ((originalBaseSellAmount * quantity) *
-                                            (effectiveBulkDiscountPercent /
-                                                100.0)),
+                                    amount: calculatedBulkDiscountAmount,
                                     color: Colors.indigo.shade700,
                                   ),
                                   const SizedBox(height: 12),

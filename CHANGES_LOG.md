@@ -101,6 +101,27 @@ This document lists all the features, bug fixes, and calculation logic updates i
     $$\text{Final Amount} = \text{Base Amount} - \text{Total Discounts (Customer + Tiered + Bulk + Edit Price)} + \text{Exclusive Taxes}$$
   - Matches the cart dialogue total to the exact cent across the entire application.
 
+### 10. Quick Sale Save & Send Integration with Payment Payloads
+- **Fixes Applied**:
+  - **Identical Add-To-Cart Payload as Sale Order**: `AddToCartModel` and `SendCartData` for Quick Sale use the exact same calculation and formatting logic as Sale Order (bulk price discounts, flat discounts, customer discounts, promo items, and unit prices).
+  - **Clean Payment Details in `place_order` Request**:
+    - `payment_type`: Sent as `"0"` (Cash), `"1"` (Cheque), or `"2"` (Bank Transfer).
+    - `cheque_number` / `transaction_number` and `cheque_date` / `transaction_date`: Passed only when Cheque or Bank Transfer is selected and non-empty.
+    - `payment_detail`: Passed when a remark is entered.
+    - `order_status`: Set to `14` (Quick Sale).
+  - **Form Validation & Amount Formatting**:
+    - Removed literal currency symbols from `totalQuickController.text` that conflicted with `FilteringTextInputFormatter` regex and form validation, moving currency symbol display cleanly to `InputDecoration.prefixText`.
+    - Made the remark field optional so Cash orders proceed without requiring dummy remark inputs.
+
+### 11. Variant & Product Name Table Row RenderFlex Overflow Fix
+- **Fixes Applied**:
+  - In `cart_table_rowcontent.dart`, wrapped the variant title and promo badge column in an `Expanded` widget.
+  - Added `maxLines` (2 lines for regular items, 1 line for promo items) and `overflow: TextOverflow.ellipsis` to prevent `RenderFlex` horizontal overflow errors on long variant/product names.
+
+### 12. Customer Dashboard Total Sales Doughnut Chart Legend Overflow Fix
+- **Fixes Applied**:
+  - In `total_sales.dart`, wrapped the legend `Row` inside a `FittedBox(fit: BoxFit.scaleDown)` to ensure the `Bookings` and `Orders` totals auto-scale down gracefully on smaller viewports without throwing RenderFlex overflow errors.
+
 ---
 
 ## File Mapping Table
@@ -115,8 +136,10 @@ This document lists all the features, bug fixes, and calculation logic updates i
 | **Connectivity & Payload Service** | `lib/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/widgets/cart_dialogue/widgets/connectivity_check.dart` |
 | **Products Controller & Draft Sync** | `lib/ui/view/ui/products/products_controller.dart` | `lib/ui/view/ui/products/products_controller.dart` |
 | **SendCartData & Payload Model** | `lib/ui/components/diloags/cart_diloag/cart_data_model.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/local_database/cart_data_model.dart` |
+| **Cart Order Model (`place_order`)** | `lib/ui/components/diloags/cart_diloag/customer_cart_responce.dart` | `lib/ui/components/diloags/cart_diloag/customer_cart_responce.dart` |
 | **Catalog Search Bar Widget** | `lib/ui/components/category_filter/order_taking/widgets/catalog_search_bar.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/widgets/catalog_search_bar.dart` |
 | **Order Taking Screen Layout** | `lib/ui/components/category_filter/order_taking/view/order_taking.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/view/order_taking.dart` |
+| **Customer Total Sales Widget** | `lib/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sales.dart` | `lib/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sales.dart` |
 | **Currency Extension** | `lib/ui/utills/extentions/string_extention.dart` | `lib/ui/utills/extentions/string_extention.dart` |
 
 ---

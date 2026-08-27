@@ -66,61 +66,64 @@ Widget totalSalse(BuildContext context) {
                               aColor: Colors.blue.shade900,
                               bColor: Colors.blue,
                               legend1: const SizedBox.shrink(),
-                              legend2: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      if (paymentCompleted == 0) {
-                                        showCustomToastDisplay(
-                                            context,
-                                            "No Record Found".tr,
-                                            red,
-                                            Icons.close);
-                                      } else {
-                                        if (categoryPerformance.data.revenue
-                                            .bookingRevenueData!.isNotEmpty) {
-                                          showValueDialogCusDash(
+                              legend2: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        if (paymentCompleted == 0) {
+                                          showCustomToastDisplay(
                                               context,
-                                              categoryPerformance.data.revenue
-                                                      .bookingRevenueData
-                                                  as List<dynamic>,
-                                              'Booking');
+                                              "No Record Found".tr,
+                                              red,
+                                              Icons.close);
+                                        } else {
+                                          if (categoryPerformance.data.revenue
+                                              .bookingRevenueData!.isNotEmpty) {
+                                            showValueDialogCusDash(
+                                                context,
+                                                categoryPerformance.data.revenue
+                                                        .bookingRevenueData
+                                                    as List<dynamic>,
+                                                'Booking');
+                                          }
                                         }
-                                      }
-                                    },
-                                    child: _buildLegendItem(
-                                      Colors.blue.shade900,
-                                      'Bookings'.tr + ' : \u200E${formatAmount(paymentCompleted)}',
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue.shade900,
+                                        'Bookings'.tr + ' : \u200E${formatAmount(paymentCompleted)}',
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  InkWell(
-                                    onTap: () {
-                                      if (remaCompleted == 0) {
-                                        showCustomToastDisplay(
-                                            context,
-                                            "No Record Found".tr,
-                                            red,
-                                            Icons.close);
-                                      } else {
-                                        if (categoryPerformance.data.revenue
-                                            .orderRevenueData!.isNotEmpty) {
-                                          showValueDialogCusDash(
+                                    const SizedBox(width: 10),
+                                    InkWell(
+                                      onTap: () {
+                                        if (remaCompleted == 0) {
+                                          showCustomToastDisplay(
                                               context,
-                                              categoryPerformance.data.revenue
-                                                      .orderRevenueData
-                                                  as List<dynamic>,
-                                              'Order');
+                                              "No Record Found".tr,
+                                              red,
+                                              Icons.close);
+                                        } else {
+                                          if (categoryPerformance.data.revenue
+                                              .orderRevenueData!.isNotEmpty) {
+                                            showValueDialogCusDash(
+                                                context,
+                                                categoryPerformance.data.revenue
+                                                        .orderRevenueData
+                                                    as List<dynamic>,
+                                                'Order');
+                                          }
                                         }
-                                      }
-                                    },
-                                    child: _buildLegendItem(
-                                      Colors.blue,
-                                      'Orders'.tr + ' : \u200E${formatAmount(remaCompleted)}',
+                                      },
+                                      child: _buildLegendItem(
+                                        Colors.blue,
+                                        'Orders'.tr + ' : \u200E${formatAmount(remaCompleted)}',
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),

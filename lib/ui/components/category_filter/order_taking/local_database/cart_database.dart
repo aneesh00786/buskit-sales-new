@@ -149,6 +149,14 @@ class CartDatabaseManager {
                       ? (num.tryParse(cart['tax']?.toString() ?? '0') ?? 0)
                       : 0,
                 );
+                final bool isBulkDraft = (packTypeStr == 'Bulk') ||
+                    (cart['bulk_id'] != null &&
+                        cart['bulk_id'].toString().isNotEmpty &&
+                        cart['bulk_id'].toString() != 'null');
+                final bool isPromoDraft =
+                    (cart['is_promo'] == 1 || cart['is_promo'] == true || cart['is_promo'] == '1') &&
+                        !isBulkDraft;
+
                 final cartItem = CartItem(
                   detail: detail,
                   productName: cart['product_name'] as String? ?? '',
@@ -174,7 +182,7 @@ class CartDatabaseManager {
                   isPack: packTypeStr == "Pack" || packTypeStr == "Bulk",
                   catId: cart['catId'] as int? ?? 0,
                   salesmanId: order['salesman_id'] as String? ?? '',
-                  isPromo: cart['is_promo'] == 1,
+                  isPromo: isPromoDraft,
                   promoCode: (cart['promo_code'] != null &&
                           cart['promo_code'].toString().isNotEmpty)
                       ? cart['promo_code'].toString()
@@ -185,8 +193,9 @@ class CartDatabaseManager {
                               cart['promo_msg'].toString().isNotEmpty)
                           ? cart['promo_msg'].toString()
                           : null,
-                  CustomerDiscount:
-                      (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0)
+                  CustomerDiscount: isBulkDraft
+                      ? 0.0
+                      : (num.tryParse(cart['discount']?.toString() ?? '0') ?? 0)
                           .toDouble(),
                   totalDiscountAmount: (num.tryParse(
                               cart['discount_amount']?.toString() ?? '0') ??
@@ -212,10 +221,12 @@ class CartDatabaseManager {
                     }
                     return parsed > 0 ? parsed : null;
                   }(),
-                  tieredDiscount:
-                      promoType == 'flat_discount' ? 0.0 : parsedPromoDiscount,
-                  flatDiscount:
-                      promoType == 'flat_discount' ? parsedPromoDiscount : 0.0,
+                  tieredDiscount: isPromoDraft
+                      ? (promoType == 'flat_discount' ? 0.0 : parsedPromoDiscount)
+                      : 0.0,
+                  flatDiscount: isPromoDraft
+                      ? (promoType == 'flat_discount' ? parsedPromoDiscount : 0.0)
+                      : 0.0,
                 );
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString(
@@ -481,7 +492,10 @@ class CartDatabaseManager {
         ? (effectiveSellingPrice * (detail.pieces ?? 1) * itemCount)
         : (effectiveSellingPrice * itemCount);
 
-    if (discountData != null && discountData.customerId == customerId) {
+    final bool isBulk = (detail.bulkId != null && detail.bulkId!.isNotEmpty) ||
+        (detail.packtype == 'Bulk');
+
+    if (!isBulk && discountData != null && discountData.customerId == customerId) {
       final applicableDiscount = discountData.discounts?.firstWhere(
         (discount) {
           return discount.categoriesId == catId.toString() &&

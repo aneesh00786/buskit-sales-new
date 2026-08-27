@@ -668,14 +668,23 @@ List<BulkData> storedBulkList = [];
               e.saleBy == 'Pack' ? e.pieces.toString() : e.count.toString();
         }
 
+        final bool isBulk = (e.bulkId != null && e.bulkId!.isNotEmpty) ||
+            (e.packtype == 'Bulk') ||
+            (item.isPack == true && e.bulkDiscount != null && e.bulkDiscount! > 0) ||
+            (e.bulkDiscountAmount != null && e.bulkDiscountAmount! > 0);
+
+        final bool isPromoItem = (item.isPromo == true) && !isBulk;
+
         final double combinedDiscount =
             (item.totalDiscountAmount ?? 0).toDouble() +
-                (item.flatDiscount ?? 0).toDouble() +
-                (item.bogoDiscount ?? 0).toDouble() +
-                (item.detail.bulkDiscountAmount ?? 0).toDouble();
-        final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
-            (item.flatDiscount ?? 0) +
-            (item.bogoDiscount ?? 0);
+                (isPromoItem ? (item.flatDiscount ?? 0).toDouble() : 0.0) +
+                (isPromoItem ? (item.bogoDiscount ?? 0).toDouble() : 0.0) +
+                (e.bulkDiscountAmount ?? 0).toDouble();
+        final num combinedPromoDiscount = isPromoItem
+            ? ((item.tieredDiscount ?? 0) +
+                (item.flatDiscount ?? 0) +
+                (item.bogoDiscount ?? 0))
+            : 0;
 
         final String origUnitPrice = (e.sellPrice != null &&
                 e.sellPrice.toString().trim().isNotEmpty &&

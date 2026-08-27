@@ -495,17 +495,25 @@ class ConnectivityService {
                 }
               }
 
+              bool isBulkItem = (detail.bulkId != null && detail.bulkId!.isNotEmpty) ||
+                  (detail.packtype == 'Bulk') ||
+                  (item.isPack == true && detail.bulkDiscount != null && detail.bulkDiscount! > 0) ||
+                  (detail.bulkDiscountAmount != null && detail.bulkDiscountAmount! > 0);
+
+              bool isPromoItem = (item.isPromo == true) && !isBulkItem;
+
               final double combinedDiscount = (item.totalDiscountAmount ?? 0).toDouble() +
-                  (item.flatDiscount ?? 0).toDouble() +
-                  (item.bogoDiscount ?? 0).toDouble() +
+                  (isPromoItem ? (item.flatDiscount ?? 0).toDouble() : 0.0) +
+                  (isPromoItem ? (item.bogoDiscount ?? 0).toDouble() : 0.0) +
                   (detail.bulkDiscountAmount ?? 0).toDouble();
                   
-              final num combinedPromoDiscount = (item.tieredDiscount ?? 0) +
-                  (item.flatDiscount ?? 0) +
-                  (item.bogoDiscount ?? 0);
+              final num combinedPromoDiscount = isPromoItem
+                  ? ((item.tieredDiscount ?? 0) +
+                      (item.flatDiscount ?? 0) +
+                      (item.bogoDiscount ?? 0))
+                  : 0;
 
               bool isBundle = item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
-              bool isBulkItem = detail.bulkId != null && detail.bulkId!.isNotEmpty;
 
               return SendCartData(
                 productId: detail.productId ?? '',

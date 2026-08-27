@@ -97,12 +97,25 @@ class GroupedItemDataRows {
         }
       }
 
-      double CustomerDiscount = (groupedItem.CustomerDiscount != null &&
+      final bool isBulk = (groupedItem.detail.bulkId != null &&
+              groupedItem.detail.bulkId!.isNotEmpty) ||
+          (groupedItem.detail.packtype == 'Bulk') ||
+          (groupedItem.isPack == true &&
+              groupedItem.detail.bulkDiscount != null &&
+              groupedItem.detail.bulkDiscount! > 0) ||
+          (groupedItem.detail.bulkDiscountAmount != null &&
+              groupedItem.detail.bulkDiscountAmount! > 0);
+
+      final bool isPromoItem = (groupedItem.isPromo == true) && !isBulk;
+
+      double CustomerDiscount = (!isBulk &&
+              groupedItem.CustomerDiscount != null &&
               groupedItem.CustomerDiscount! > 0)
           ? groupedItem.CustomerDiscount!
           : 0.0;
 
-      num tieredDiscount = (groupedItem.tieredDiscount != null &&
+      num tieredDiscount = (isPromoItem &&
+              groupedItem.tieredDiscount != null &&
               groupedItem.tieredDiscount! > 0)
           ? groupedItem.tieredDiscount!
           : 0;
@@ -111,14 +124,16 @@ class GroupedItemDataRows {
           ? groupedItem.detail.bulkDiscount
           : 0;
        
-      num flatDiscount = (groupedItem.flatDiscount != null &&
+      num flatDiscount = (isPromoItem &&
+              groupedItem.flatDiscount != null &&
               groupedItem.flatDiscount! > 0)
           ? groupedItem.flatDiscount!
           : 0;
       num bulkDiscountAmount = (groupedItem.detail.bulkDiscountAmount != null &&
           groupedItem.detail.bulkDiscountAmount! > 0) ? groupedItem.detail.bulkDiscountAmount! : 0;
-      num bogoDiscount = (groupedItem.bogoDiscount != null &&
-          groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
+      num bogoDiscount = (isPromoItem &&
+              groupedItem.bogoDiscount != null &&
+              groupedItem.bogoDiscount! > 0) ? groupedItem.bogoDiscount! : 0;
 
       double totalDiscountPercent = CustomerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
 
@@ -1034,20 +1049,37 @@ class GroupedItemDataRows {
                                   100
                               : 0.0;
 
+                      final bool isBulkItem = (groupedItem.detail.bulkId != null &&
+                              groupedItem.detail.bulkId!.isNotEmpty) ||
+                          (groupedItem.detail.packtype == 'Bulk') ||
+                          (groupedItem.isPack == true &&
+                              groupedItem.detail.bulkDiscount != null &&
+                              groupedItem.detail.bulkDiscount! > 0) ||
+                          (groupedItem.detail.bulkDiscountAmount != null &&
+                              groupedItem.detail.bulkDiscountAmount! > 0);
+
+                      final double effectiveBulkDiscountPercent =
+                          (bulkDiscount != null && bulkDiscount > 0)
+                              ? bulkDiscount.toDouble()
+                              : (isBulkItem ? CustomerDiscount : 0.0);
+
+                      final double effectiveCustomerDiscountPercent =
+                          isBulkItem ? 0.0 : CustomerDiscount;
+
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18)),
                           elevation: 12,
-                          title:  Row(
+                          title: Row(
                             children: [
-                              Icon(Icons.discount_outlined,
+                              const Icon(Icons.discount_outlined,
                                   color: Colors.deepPurple, size: 28),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Text(
                                 "Discount Details".tr,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 20),
                               ),
                             ],
@@ -1090,21 +1122,35 @@ class GroupedItemDataRows {
                                 ),
                                 const SizedBox(height: 20),
 
-                                // Original Price
-                                // _buildPriceRow(
-                                //   label: "Original Price",
-                                //   amount: originalTotalPrice,
-                                //   isTotal: true,
-                                // ),
-                                const SizedBox(height: 16),
+                                // Bulk Discount
+                                if (isBulkItem &&
+                                    (effectiveBulkDiscountPercent > 0 ||
+                                        bulkDiscountAmount > 0)) ...[
+                                  _buildDiscountRow(
+                                    icon: Icons.inventory_2_outlined,
+                                    label: "Bulk Discount".tr,
+                                    percent: effectiveBulkDiscountPercent,
+                                    amount: (bulkDiscountAmount > 0)
+                                        ? (bulkDiscountAmount * quantity)
+                                            .toDouble()
+                                        : ((originalBaseSellAmount * quantity) *
+                                            (effectiveBulkDiscountPercent /
+                                                100.0)),
+                                    color: Colors.indigo.shade700,
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
 
-                                // User Discount (as %)
-                                if (CustomerDiscount > 0) ...[
+                                // Customer Discount (as %)
+                                if (!isBulkItem &&
+                                    effectiveCustomerDiscountPercent > 0) ...[
                                   _buildDiscountRow(
                                     icon: Icons.card_giftcard_rounded,
                                     label: "Customer Discount".tr,
-                                    percent: CustomerDiscount,
-                                    amount: CustomerDiscount * quantity,
+                                    percent: effectiveCustomerDiscountPercent,
+                                    amount: (originalBaseSellAmount * quantity) *
+                                        (effectiveCustomerDiscountPercent /
+                                            100.0),
                                     color: Colors.orange.shade700,
                                   ),
                                   const SizedBox(height: 12),
@@ -1116,9 +1162,34 @@ class GroupedItemDataRows {
                                     icon: Icons.local_offer_outlined,
                                     label: "Promo Offer".tr,
                                     percent: tieredDiscount,
-                                    amount:
-                                        promoDiscountAmountPerUnit * quantity,
+                                    amount: (originalBaseSellAmount * quantity) *
+                                        (tieredDiscount / 100.0),
                                     color: Colors.green.shade700,
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+
+                                // Flat Discount
+                                if (flatDiscount > 0) ...[
+                                  _buildDiscountRow(
+                                    icon: Icons.money_off_rounded,
+                                    label: "Flat Discount".tr,
+                                    percent: 0,
+                                    amount: flatDiscount.toDouble() * quantity,
+                                    color: Colors.purple.shade700,
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+
+                                // BOGO Discount
+                                if (bogoDiscount > 0) ...[
+                                  _buildDiscountRow(
+                                    icon: Icons.redeem_rounded,
+                                    label: "BOGO Offer".tr,
+                                    percent: bogoDiscount,
+                                    amount: (originalBaseSellAmount * quantity) *
+                                        (bogoDiscount / 100.0),
+                                    color: Colors.teal.shade700,
                                   ),
                                   const SizedBox(height: 12),
                                 ],
@@ -1162,15 +1233,16 @@ class GroupedItemDataRows {
                                                         color: Colors
                                                             .grey.shade600,
                                                         fontSize: 12,
-                                                        decoration: TextDecoration
-                                                            .lineThrough),
+                                                        decoration:
+                                                            TextDecoration
+                                                                .lineThrough),
                                                   ),
                                                   const SizedBox(width: 8),
                                                   Text(
                                                     '→ ${formatAmount(currentBaseSellAmount.toString())}',
                                                     style: TextStyle(
-                                                        color:
-                                                            Colors.teal.shade700,
+                                                        color: Colors
+                                                            .teal.shade700,
                                                         fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.bold),
@@ -1193,14 +1265,18 @@ class GroupedItemDataRows {
                                   const SizedBox(height: 12),
                                 ],
 
-                                if (CustomerDiscount == 0 &&
+                                if (effectiveCustomerDiscountPercent == 0 &&
+                                    effectiveBulkDiscountPercent == 0 &&
+                                    bulkDiscountAmount == 0 &&
                                     tieredDiscount == 0 &&
+                                    flatDiscount == 0 &&
+                                    bogoDiscount == 0 &&
                                     editPriceDiscountAmount == 0)
-                                   Padding(
-                                    padding: EdgeInsets.all(20),
+                                  Padding(
+                                    padding: const EdgeInsets.all(20),
                                     child: Text(
                                       "No discount applied".tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           color: Colors.grey,
                                           fontStyle: FontStyle.italic,
                                           fontSize: 16),
@@ -2242,10 +2318,12 @@ Widget _buildPriceRow({
 Widget _buildDiscountRow({
   required IconData icon,
   required String label,
-  required percent,
+  required dynamic percent,
   required double amount,
   required Color color,
 }) {
+  final double pVal =
+      (num.tryParse(percent?.toString() ?? '0') ?? 0).toDouble();
   return Row(
     children: [
       Icon(icon, color: color, size: 28),
@@ -2270,7 +2348,9 @@ Widget _buildDiscountRow({
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "-${percent.toStringAsFixed(1)}%",
+              pVal > 0
+                  ? "-${pVal.toStringAsFixed(1)}%"
+                  : "-${formatAmount(amount.toString())}",
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.bold,

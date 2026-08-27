@@ -94,16 +94,21 @@ class Utils {
           }
         }
 
-        double customerDiscount =
-            (item.CustomerDiscount != null && item.CustomerDiscount! > 0)
-                ? item.CustomerDiscount!
-                : (double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0);
+        final bool isBulk = (item.detail.bulkId != null && item.detail.bulkId!.isNotEmpty) ||
+            (item.detail.packtype == 'Bulk') ||
+            (item.isPack == true && item.detail.bulkDiscount != null && item.detail.bulkDiscount! > 0) ||
+            (item.detail.bulkDiscountAmount != null && item.detail.bulkDiscountAmount! > 0);
 
-        num tieredDiscount =
-            (item.tieredDiscount != null && item.tieredDiscount! > 0)
-                ? item.tieredDiscount!
-                : 0;
-        num bogoDiscount = (item.bogoDiscount != null && item.bogoDiscount! > 0)
+        final bool isPromoItem = (item.isPromo == true) && !isBulk;
+
+        double customerDiscount = (!isBulk && item.CustomerDiscount != null && item.CustomerDiscount! > 0)
+            ? item.CustomerDiscount!
+            : (!isBulk ? (double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0) : 0.0);
+
+        num tieredDiscount = (isPromoItem && item.tieredDiscount != null && item.tieredDiscount! > 0)
+            ? item.tieredDiscount!
+            : 0;
+        num bogoDiscount = (isPromoItem && item.bogoDiscount != null && item.bogoDiscount! > 0)
             ? item.bogoDiscount!
             : 0;
         num? bulkDiscount =

@@ -1778,8 +1778,8 @@ class CartDialogueState extends State<CartDialogue> {
               );
 
               totalQuickController.text = isOrder
-                  ? '\$${discountedSubtotal.toStringAsFixed(2)} '
-                  : '\$${discountedPreorderSubtotal.toStringAsFixed(2)}';
+                  ? discountedSubtotal.toStringAsFixed(2)
+                  : discountedPreorderSubtotal.toStringAsFixed(2);
             }
             final isSelected = _selectedValue == option;
             IconData optionIcon;
@@ -1995,6 +1995,7 @@ class CartDialogueState extends State<CartDialogue> {
                           fillColor: const Color(0xFFF8FAFC),
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 8, horizontal: 10),
+                          prefixText: '${addCurrencySymbol()} ',
                           labelText: "Amount".tr,
                           labelStyle: const TextStyle(
                               fontSize: 13,
@@ -2138,9 +2139,6 @@ class CartDialogueState extends State<CartDialogue> {
                         style: const TextStyle(
                             fontSize: 13, fontFamily: fontFamilyName),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please provide a remark';
-                          }
                           return null;
                         },
                         decoration: InputDecoration(
@@ -2284,21 +2282,6 @@ class CartDialogueState extends State<CartDialogue> {
                       return;
                     }
 
-                    if (_selectedValue == "Quick Sale" &&
-                        totalQuickController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Please enter amount'),
-                            backgroundColor: Colors.red),
-                      );
-                      return;
-                    }
-
-                    final sanitizedText = totalQuickController.text
-                        .replaceAll(RegExp(r'[^\d.]'), '')
-                        .trim();
-                    final double userEnteredAmount =
-                        double.tryParse(sanitizedText) ?? 0.0;
                     final String customerId = widget.customerId ??
                         widget.productsController.selectedCustomerId.value;
 
@@ -2312,7 +2295,27 @@ class CartDialogueState extends State<CartDialogue> {
                     final double baseAmount =
                         (subtotal - flatDisc).clamp(0.0, double.infinity);
 
-                    final double originalTotal = _selectedValue == "Quick Sale"
+                    if (_selectedValue == "Quick Sale") {
+                      if (totalQuickController.text.trim().isEmpty) {
+                        totalQuickController.text = baseAmount.toStringAsFixed(2);
+                      }
+                      if (!(_formKey.currentState?.validate() ?? false)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Please fill all required fields'),
+                              backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+                    }
+
+                    final sanitizedText = totalQuickController.text
+                        .replaceAll(RegExp(r'[^\d.]'), '')
+                        .trim();
+                    final double userEnteredAmount =
+                        double.tryParse(sanitizedText) ?? 0.0;
+
+                    final double originalTotal = (_selectedValue == "Quick Sale" && userEnteredAmount > 0)
                         ? userEnteredAmount
                         : baseAmount;
 
@@ -2343,17 +2346,6 @@ class CartDialogueState extends State<CartDialogue> {
                         : {'cart_id': '', 'draft_id': ''};
                     final cartIdPrefs = firstOrder['cart_id'] ?? '';
                     final draftIdPrefs = firstOrder['draft_id'] ?? '';
-
-                    if (_selectedValue == "Quick Sale") {
-                      if (!(_formKey.currentState?.validate() ?? false)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Please fill all required fields'),
-                              backgroundColor: Colors.red),
-                        );
-                        return;
-                      }
-                    }
 
                     if (widget.productsController.storedBulkList.isEmpty) {
                       await widget.productsController.fetchBulkData();
@@ -2927,12 +2919,21 @@ class CartDialogueState extends State<CartDialogue> {
               cartId: cartOrder.cartId,
               orderStatus: orderStatus,
               orderPrice: finalAmount,
-              paymentType: paymentType.toString(),
+              paymentType: paymentType != null ? paymentType.toString() : null,
               companyId: companyId,
-              paymentDetail: remarkController.text.trim(),
-              transactionNumber:
-                  chequeOrTransactionNumberController.text.trim(),
-              transactionDate: dateController.text.trim(),
+              paymentDetail: remarkController.text.trim().isNotEmpty
+                  ? remarkController.text.trim()
+                  : null,
+              transactionNumber: (_dropdownValue == "Cheque" ||
+                          _dropdownValue == "Bank Transfer") &&
+                      chequeOrTransactionNumberController.text.trim().isNotEmpty
+                  ? chequeOrTransactionNumberController.text.trim()
+                  : null,
+              transactionDate: (_dropdownValue == "Cheque" ||
+                          _dropdownValue == "Bank Transfer") &&
+                      dateController.text.trim().isNotEmpty
+                  ? dateController.text.trim()
+                  : null,
               draftId: draftId.isNotEmpty ? draftId : '',
               varientIds: varientIdsPass,
               creditAmount: shouldUseCredit ? creditUsed : 0,
@@ -4613,16 +4614,19 @@ class CartDialogueState extends State<CartDialogue> {
 
 Future<bool?> showCreditUsageDialog({
   required BuildContext context,
-  required availableCredit,
+  required dynamic availableCredit,
   required double amountToPayBeforeCredit,
 }) async {
+  final double availCred =
+      (num.tryParse(availableCredit?.toString() ?? '0') ?? 0).toDouble();
+  final double amtBefore = amountToPayBeforeCredit.toDouble();
+
   // Calculate how much credit would be used if applied
-  final double creditToBeUsed = amountToPayBeforeCredit > availableCredit
-      ? availableCredit
-      : amountToPayBeforeCredit;
+  final double creditToBeUsed =
+      amtBefore > availCred ? availCred : amtBefore;
 
   final double amountAfterCredit =
-      (amountToPayBeforeCredit - creditToBeUsed).clamp(0.0, double.infinity);
+      (amtBefore - creditToBeUsed).clamp(0.0, double.infinity);
 
   return await showDialog<bool?>(
     context: context,

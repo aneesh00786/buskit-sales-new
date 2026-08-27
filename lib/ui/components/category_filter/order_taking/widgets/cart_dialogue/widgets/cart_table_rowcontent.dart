@@ -264,18 +264,23 @@ class GroupedItemDataRows {
                           fit: BoxFit.contain,
                         ),
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TableContent(
-                      content:
-                          '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
-                      fontSize: fontSize,
-                      align: TextAlign.start,
-                      maxLines: groupedItem.promoCode == null ? 2 : 1,
-                    ),
-                    if (groupedItem.promoCode != null &&
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${groupedItem.detail.variationName} ${groupedItem.detail.unitType}',
+                        style: TextStyle(
+                          fontSize: fontSize >= 13.0 ? fontSize : 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF1E293B),
+                        ),
+                        textAlign: TextAlign.start,
+                        maxLines: groupedItem.promoCode == null ? 2 : 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (groupedItem.promoCode != null &&
                         groupedItem.promoMsg != null) ...[
                   InkWell(
                     onTap: () {
@@ -725,9 +730,10 @@ class GroupedItemDataRows {
                 ],
               ],
             ),
-          ],
-        ),),
           ),
+        ],
+      ),),
+    ),
 
           // Cell 3: Unit Price
           DataCell(

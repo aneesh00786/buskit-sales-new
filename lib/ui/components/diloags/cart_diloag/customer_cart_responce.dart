@@ -420,15 +420,17 @@ class CartOrderModel {
       'cart_id': cartId,
       'order_status': orderStatus,
       'companyId': companyId,
-      'payment_type': paymentType,
+      if (paymentType != null && paymentType != 'null')
+        'payment_type': paymentType,
       'order_price': orderPrice,
-      if (transactionNumber != null)
+      if (transactionNumber != null && transactionNumber!.isNotEmpty)
         paymentType == "1" ? 'cheque_number' : 'transaction_number':
             transactionNumber,
-      if (transactionDate != null)
+      if (transactionDate != null && transactionDate!.isNotEmpty)
         paymentType == "1" ? 'cheque_date' : 'transaction_date':
             transactionDate,
-      'payment_detail': paymentDetail,
+      if (paymentDetail != null && paymentDetail!.isNotEmpty)
+        'payment_detail': paymentDetail,
       'draft_id': draftId,
       'item_count': selctedItemCount,
       'varient_ids': varientIds,

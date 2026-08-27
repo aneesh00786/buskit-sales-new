@@ -42,21 +42,29 @@ class _CategoryListState extends State<CategoryList> {
   @override
   void initState() {
     super.initState();
-    _expandedIndex = widget.selectedCategory.isNotEmpty
+    final index = widget.selectedCategory.isNotEmpty
         ? widget.categories
             .indexWhere((cat) => cat.title == widget.selectedCategory)
         : -1;
+    _expandedIndex =
+        index >= 0 ? index : (widget.categories.isNotEmpty ? 0 : -1);
   }
 
   @override
   void didUpdateWidget(covariant CategoryList oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedCategory != widget.selectedCategory) {
+    if (oldWidget.selectedCategory != widget.selectedCategory ||
+        oldWidget.categories != widget.categories) {
       setState(() {
-        _expandedIndex = widget.selectedCategory.isNotEmpty
+        final index = widget.selectedCategory.isNotEmpty
             ? widget.categories
                 .indexWhere((cat) => cat.title == widget.selectedCategory)
             : -1;
+        _expandedIndex = index >= 0
+            ? index
+            : (_expandedIndex >= 0
+                ? _expandedIndex
+                : (widget.categories.isNotEmpty ? 0 : -1));
       });
     }
   }

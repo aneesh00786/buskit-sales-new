@@ -124,7 +124,11 @@ class _OrderTakingState extends State<OrderTaking>
 
     super.initState();
     CartDatabaseManager().getDraftItems();
-    widget.productsController.fetchCategoryData();
+    widget.productsController.fetchCategoryData().then((_) {
+      if (mounted && _selectedCategory.isEmpty) {
+        _selectFirstCategory();
+      }
+    });
     if (widget.isDirectDialogue) {}
     fetchAndSetCustomers();
     animationController = AnimationController(
@@ -161,21 +165,27 @@ class _OrderTakingState extends State<OrderTaking>
       setState(() {
         _isDrawerOpen = true;
       });
+      // Immediately select first category if categories are already in memory
+      final currentCategories =
+          widget.productsController.categoryData.value.data;
+      if (currentCategories != null && currentCategories.isNotEmpty) {
+        _selectFirstCategory();
+      }
+
       ever(widget.productsController.categoryData, (CategoryModel? value) {
-        if (_isDrawerOpen &&
-            _expandedIndex == -1 &&
-            value != null &&
+        if (value != null &&
             value.data != null &&
-            value.data!.isNotEmpty) {
+            value.data!.isNotEmpty &&
+            _selectedCategory.isEmpty) {
           _selectFirstCategory();
         }
       });
       _drawerTimer = Timer(const Duration(seconds: 4), () {
-        setState(() {
-          _isDrawerOpen = false;
-          _expandedIndex = -1;
-          _selectedCategory = '';
-        });
+        if (mounted) {
+          setState(() {
+            _isDrawerOpen = false;
+          });
+        }
       });
     });
   }
@@ -214,8 +224,9 @@ class _OrderTakingState extends State<OrderTaking>
     List<CategoryData> categories =
         widget.productsController.categoryData.value.data ?? [];
     if (categories.isNotEmpty) {
+      final firstCategoryName = categories[0].categoryName ?? '';
       _expandedIndex = 0;
-      _selectedCategory = categories[0].categoryName ?? '';
+      _selectedCategory = firstCategoryName;
       if (categories[0].subCategoryItem != null &&
           categories[0].subCategoryItem!.isNotEmpty) {
         final firstSubCategory =
@@ -230,13 +241,23 @@ class _OrderTakingState extends State<OrderTaking>
             firstSubCategory;
 
         // Update the _id variable so ProductGrid can detect the change
-        setState(() {
-          _id = firstSubCategoryId;
-          _selectedOption =
-              firstSubCategory; // Ensure the option name is updated
-        });
+        if (mounted) {
+          setState(() {
+            _id = firstSubCategoryId;
+            _selectedCategory = firstCategoryName;
+            _expandedIndex = 0;
+            _selectedOption = firstSubCategory;
+          });
+        }
 
         _loadProductsForSubCategory(firstSubCategoryId);
+      } else {
+        if (mounted) {
+          setState(() {
+            _selectedCategory = firstCategoryName;
+            _expandedIndex = 0;
+          });
+        }
       }
     }
   }
@@ -1228,7 +1249,9 @@ class _OrderTakingState extends State<OrderTaking>
                                     String initial = categoryName.isNotEmpty
                                         ? categoryName[0].toUpperCase()
                                         : '';
-                                    final bool isSelected = _selectedCategory == categoryName;
+                                    final bool isSelected = _selectedCategory.isNotEmpty
+                                        ? (_selectedCategory == categoryName)
+                                        : (index == 0);
                                     return Material(
                                       color: Colors.transparent,
                                       child: InkWell(
@@ -1289,7 +1312,15 @@ class _OrderTakingState extends State<OrderTaking>
                             _fetchProductsByCategory(selectedSubcategoryId);
                           },
                           onDrawerToggle: _toggleDrawer,
-                          selectedCategory: _selectedCategory,
+                          selectedCategory: _selectedCategory.isNotEmpty
+                              ? _selectedCategory
+                              : (widget.productsController.categoryData.value
+                                          .data?.isNotEmpty ==
+                                      true
+                                  ? widget.productsController.categoryData.value
+                                          .data![0].categoryName ??
+                                      ''
+                                  : ''),
                           onCategoryExpanded: (categoryName) {
                             setState(() {
                               _selectedCategory = categoryName;

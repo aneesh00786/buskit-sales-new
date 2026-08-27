@@ -26,11 +26,20 @@ This document lists all the features, bug fixes, and calculation logic updates i
   - `_deleteVariant` and `showVariantDeleteDialog` called `_loadCartItems()` immediately after deleting an item in `CartDialogueState`, which re-queried `getCartItems()` and loaded un-purged offline drafts from `offlineDraftsBox`.
   - `deleteCartItem()` and `clearCart()` only deleted records from `cartBox` and `draftBox`, leaving the items intact inside `offlineDraftsBox.get('drafts')`.
 - **Fixes Applied**:
-  - **`deleteCartItem()`**: Updated to delete the item from `cartBox`, `draftBox`, AND `offlineDraftsBox` for the matching customer and variant/product.
+  - **`deleteCartItem()`**: Updated to delete the item from `cartBox`, `draftBox`, **and** `offlineDraftsBox` for the matching customer and variant/product.
   - **`clearCart()`**: Updated to purge `offlineDraftsBox` entries for that customer.
   - **Cart Dialog Deletion Flow**: Removed redundant `_loadCartItems()` calls upon confirmation, made deletion asynchronously awaited, and updated local controller state directly without triggering a re-fetch of stale records.
 
-### 3. Catalog Search Bar (Category, Subcategory & Product In-Grid Search)
+### 3. Adding Products to Saved Draft Orders Fix
+- **Root Causes**:
+  - When opening a draft from the Customer Dashboard (`isFromCustomerDach: true`), `isDraftView` was set to `true`, causing `getCartItems(customerId, draftsOnly: true)` to be called with `draftsOnly: true`.
+  - `getCartItems` with `draftsOnly: true` exclusively read from `draftBox` and completely excluded `cartBox` and `offlineDraftsBox`.
+  - When a user continued shopping on a saved draft and added a new product, `addToCart()` placed the newly selected variant into `cartBox`. Opening the draft dialogue or navigating reloaded items via `draftsOnly: true`, dropping all newly added items from `cartBox`.
+- **Fixes Applied**:
+  - **Seamless Merge in `getCartItems()`**: Updated `getCartItems(customerId)` to always combine all customer items across `cartBox`, `draftBox`, and `offlineDraftsBox`.
+  - **Unified Loading**: Removed restrictive `draftsOnly: isDraftView` parameter from `CartDialogue._loadCartItems()`, ensuring all existing draft items plus newly added products are preserved, displayed, and saved together.
+
+### 4. Catalog Search Bar (Category, Subcategory & Product In-Grid Search)
 - **UI Placement**: Placed the `CatalogSearchBar` on a dedicated 2nd row under the Customer Search bar inside `order_taking.dart` without unbounded flex/height constraints.
 - **Search Capabilities**:
   - **Category Search**: Filters and selects catalog categories.
@@ -38,7 +47,7 @@ This document lists all the features, bug fixes, and calculation logic updates i
   - **Product Search (In-Grid)**: Dynamically filters the live product grid using `searchProductsInCatalog(query)` and `clearCatalogProductSearch()`.
 - **Search Scope**: Queries active products, `scidProductGroups` Hive box, and `products` Hive box by product name, product code, brand name, variant name, and barcode.
 
-### 4. Apply Customer Credit Dialog Redesign & Non-Breaking Formatting
+### 5. Apply Customer Credit Dialog Redesign & Non-Breaking Formatting
 - **Redesigned Dialog**:
   - Clean card-based visual design with balance/total rows and green confirmation pill container.
   - Redesigned 3-action buttons:
@@ -49,7 +58,7 @@ This document lists all the features, bug fixes, and calculation logic updates i
   - Updated `formatAmount()` in `string_extention.dart` to use a non-breaking space (`\u00A0`), preventing currency symbols (`$`) and numbers from breaking into separate lines.
   - Wrapped the dynamic payable amount inside a `WidgetSpan` in `cart_dialogue.dart` to guarantee single-line atomic rendering.
 
-### 5. Hive / Offline Tax Calculation & Hydration Fix
+### 6. Hive / Offline Tax Calculation & Hydration Fix
 - **Root Cause**:
   - When loading draft items from Hive storage (`offlineDrafts` / `draftBox`), `catTax` (the category tax percentage) was omitted, causing tax calculations in the cart dialog to evaluate to `0.0` or fall back incorrectly to unit taxes.
 - **Fixes Applied**:
@@ -58,7 +67,7 @@ This document lists all the features, bug fixes, and calculation logic updates i
   - **Cart Dialog Fallback**: Added real-time fallback in `cart_dialogue.dart`'s discount & tax processing loop.
   - **Local Persistence**: Updated `saveDraftOrderLocally()` to serialize `cat_tax`, `tax_amount`, `total_tax`, `unit_tax`, and `cat_id`.
 
-### 6. Order-Taking Top Cart Total Amount (Final Payable Calculation)
+### 7. Order-Taking Top Cart Total Amount (Final Payable Calculation)
 - **Root Cause**:
   - The amount shown next to the cart icon in the top header was previously calculated by `calculateCartNetTotal()` using only raw item subtotal minus discounts, without factoring in exclusive taxes or price overrides.
 - **Fixes Applied**:

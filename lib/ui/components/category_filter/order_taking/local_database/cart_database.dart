@@ -296,141 +296,115 @@ class CartDatabaseManager {
       'cartId': cartId,
       'draftId': draftId,
     };
-  }
-
-  Future<List<CartItem>> getCartItems(String customerId,
+  }  Future<List<CartItem>> getCartItems(String customerId,
       {bool draftsOnly = false}) async {
     try {
       print('get cart called');
-      if (draftsOnly) {
-        print('draft only called');
-        final customerDraftItems = draftBox.values
-            .where((item) => item.customerId == customerId)
-            .toList();
-        final Map<String, CartItem> deduped = {};
-        for (var item in customerDraftItems) {
-          // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
-          // final key = item.detail.variationId ?? '';
-          if (deduped.containsKey(key)) {
-            deduped[key]!.detail.count += item.detail.count;
-          } else {
-            final clonedItem = CartItem.fromJson(item.toJson());
-            deduped[key] = clonedItem;
+      List<CartItem> customerOfflineDraftItems = [];
+      var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+      List<dynamic> drafts =
+          offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
+      final draft = drafts.firstWhere(
+        (d) => d['customer_id'] == customerId,
+        orElse: () => null,
+      );
+      if (draft != null) {
+        final List details = draft['details'];
+        final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
+        for (var detail in details) {
+          final String packTypeStr = (detail['packType'] ??
+              detail['packtype'] ??
+              detail['pack_type'] ??
+              '') as String;
+          double parsedCatTax =
+              (num.tryParse(detail['cat_tax']?.toString() ?? '') ?? 0)
+                  .toDouble();
+          if (parsedCatTax == 0 && detail['product_id'] != null) {
+            parsedCatTax =
+                getStoredTaxFromCache(detail['product_id'].toString());
           }
-        }
-        final result = deduped.values.toList();
-        return Future.value(result);
-      } else {
-        print('else part called');
-        List<CartItem> customerOfflineDraftItems = [];
-        var offlineDraftsBox = await Hive.openBox('offlineDrafts');
-        List<dynamic> drafts =
-            offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
-        final draft = drafts.firstWhere(
-          (d) => d['customer_id'] == customerId,
-          orElse: () => null,
-        );
-        if (draft != null) {
-          final List details = draft['details'];
-          final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
-          for (var detail in details) {
-            final String packTypeStr = (detail['packType'] ??
-                detail['packtype'] ??
-                detail['pack_type'] ??
-                '') as String;
-            double parsedCatTax =
-                (num.tryParse(detail['cat_tax']?.toString() ?? '') ?? 0)
-                    .toDouble();
-            if (parsedCatTax == 0 && detail['product_id'] != null) {
-              parsedCatTax =
-                  getStoredTaxFromCache(detail['product_id'].toString());
-            }
-            final double taxAmt = (num.tryParse(
-                        detail['tax_amount']?.toString() ?? '') ??
-                    num.tryParse(detail['total_tax']?.toString() ?? '') ??
-                    num.tryParse(detail['tax']?.toString() ?? '') ??
-                    0)
-                .toDouble();
-            final cartItem = CartItem(
-              detail: Detail(
-                productId: detail['product_id'],
-                variationId: detail['variant_id'],
-                sellPrice: detail['price'],
-                discount: detail['discount'],
-                count: (detail['quantity'] as num?)?.toDouble() ?? 0,
-                pieces: int.tryParse(detail['pack']?.toString() ?? '0'),
-                variationName: detail['variant_name'],
-                saleBy: packTypeStr,
-                stock: detail['stock'] ?? 0,
-                unitType: detail['unitType'],
-                packtype: packTypeStr,
-                productName: detail['product_name'],
-                tax: detail['tax'],
-                inclTax: detail['incl_tax'],
-                totaltax: taxAmt,
-                unitTax: (num.tryParse(detail['unit_tax']?.toString() ?? '0') ?? 0),
-              ),
+          final double taxAmt = (num.tryParse(
+                      detail['tax_amount']?.toString() ?? '') ??
+                  num.tryParse(detail['total_tax']?.toString() ?? '') ??
+                  num.tryParse(detail['tax']?.toString() ?? '') ??
+                  0)
+              .toDouble();
+          final cartItem = CartItem(
+            detail: Detail(
+              productId: detail['product_id'],
+              variationId: detail['variant_id'],
+              sellPrice: detail['price'],
+              discount: detail['discount'],
+              count: (detail['quantity'] as num?)?.toDouble() ?? 0,
+              pieces: int.tryParse(detail['pack']?.toString() ?? '0'),
+              variationName: detail['variant_name'],
+              saleBy: packTypeStr,
+              stock: detail['stock'] ?? 0,
+              unitType: detail['unitType'],
+              packtype: packTypeStr,
               productName: detail['product_name'],
-              totalPrice:
-                  double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
-              isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
-              customerId: customerId,
-              salesmanId: salesmanId,
-              catId: detail['cat_id'] as int? ?? 0,
-              isPromo: draft['is_promo'] == 1 ? true : false,
-              promoCode:
-                  draft['promo_code'] == null || draft['promo_code'] == ""
-                      ? draft['promo_code']
-                      : null,
-              promoMsg: draft['title'] == null || draft['title'] == ""
-                  ? draft['title']
-                  : null,
-              taxAmount: taxAmt,
-              catTax: parsedCatTax > 0 ? parsedCatTax : null,
-            );
-            customerOfflineDraftItems.add(cartItem);
-          }
+              tax: detail['tax'],
+              inclTax: detail['incl_tax'],
+              totaltax: taxAmt,
+              unitTax:
+                  (num.tryParse(detail['unit_tax']?.toString() ?? '0') ?? 0),
+            ),
+            productName: detail['product_name'],
+            totalPrice:
+                double.tryParse(detail['price']?.toString() ?? '0') ?? 0,
+            isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
+            customerId: customerId,
+            salesmanId: salesmanId,
+            catId: detail['cat_id'] as int? ?? 0,
+            isPromo: draft['is_promo'] == 1 ? true : false,
+            promoCode:
+                draft['promo_code'] == null || draft['promo_code'] == ""
+                    ? draft['promo_code']
+                    : null,
+            promoMsg: draft['title'] == null || draft['title'] == ""
+                ? draft['title']
+                : null,
+            taxAmount: taxAmt,
+            catTax: parsedCatTax > 0 ? parsedCatTax : null,
+          );
+          customerOfflineDraftItems.add(cartItem);
         }
+      }
 
-        final customerCartItems = cartBox.values
-            .where((item) => item.customerId == customerId)
-            .toList();
+      final customerCartItems = cartBox.values
+          .where((item) => item.customerId == customerId)
+          .toList();
 
-        final customerDraftItems = draftBox.values
-            .where((item) => item.customerId == customerId)
-            .toList();
+      final customerDraftItems = draftBox.values
+          .where((item) => item.customerId == customerId)
+          .toList();
 
-        final Map<String, CartItem> itemMap = {};
+      final Map<String, CartItem> itemMap = {};
 
-        for (var item in customerCartItems) {
-          // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
-          // final key = item.detail.variationId ?? '';
+      for (var item in customerCartItems) {
+        final key =
+            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
+        itemMap[key] = item;
+      }
+
+      for (var item in customerDraftItems) {
+        final key =
+            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
+        if (!itemMap.containsKey(key)) {
           itemMap[key] = item;
         }
-
-        for (var item in customerDraftItems) {
-          // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
-          // final key = item.detail.variationId ?? '';
-          if (!itemMap.containsKey(key)) {
-            itemMap[key] = item;
-          }
-        }
-
-        for (var item in customerOfflineDraftItems) {
-          // Change the key generation in both the draftsOnly and else blocks
-          final key = "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
-          // final key = item.detail.variationId ?? '';
-          if (!itemMap.containsKey(key)) {
-            itemMap[key] = item;
-          }
-        }
-
-        final combinedItems = itemMap.values.toList();
-        return Future.value(combinedItems);
       }
+
+      for (var item in customerOfflineDraftItems) {
+        final key =
+            "${item.detail.variationId}_${item.isPromo ?? false}_${item.isPack ?? false}";
+        if (!itemMap.containsKey(key)) {
+          itemMap[key] = item;
+        }
+      }
+
+      final combinedItems = itemMap.values.toList();
+      return Future.value(combinedItems);
     } catch (e) {
       return Future.value([]);
     }

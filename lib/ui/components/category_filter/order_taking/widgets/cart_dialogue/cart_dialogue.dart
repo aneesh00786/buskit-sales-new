@@ -307,8 +307,8 @@ class CartDialogueState extends State<CartDialogue> {
         }
       }
 
-      widget.productsController.cartItems = await CartDatabaseManager()
-          .getCartItems(customerId, draftsOnly: isDraftView);
+      widget.productsController.cartItems =
+          await CartDatabaseManager().getCartItems(customerId);
 
       if (isOnline) {
         await ApiWorker().fetchDiscounts(

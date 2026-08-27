@@ -921,30 +921,72 @@ class CartDatabaseManager {
     }
   }
 
-  void deleteCartItem(CartItem cartItem) {
+  Future<void> deleteCartItem(CartItem cartItem) async {
     try {
       final cartKeysToRemove = cartBox.keys.where((key) {
         final item = cartBox.get(key);
         return item != null &&
-            item.customerId == cartItem.customerId &&
-            item.detail.variationId == cartItem.detail.variationId &&
+            (item.customerId == cartItem.customerId ||
+                cartItem.customerId == null ||
+                cartItem.customerId == '') &&
+            (item.detail.variationId == cartItem.detail.variationId ||
+                (item.productName == cartItem.productName &&
+                    item.detail.variationName ==
+                        cartItem.detail.variationName)) &&
             item.isPromo == cartItem.isPromo &&
             item.isPack == cartItem.isPack;
       }).toList();
       for (var key in cartKeysToRemove) {
-        cartBox.delete(key);
+        await cartBox.delete(key);
       }
 
       final draftKeysToRemove = draftBox.keys.where((key) {
         final item = draftBox.get(key);
         return item != null &&
-            item.detail.variationId == cartItem.detail.variationId &&
-            item.customerId == cartItem.customerId &&
+            (item.customerId == cartItem.customerId ||
+                cartItem.customerId == null ||
+                cartItem.customerId == '') &&
+            (item.detail.variationId == cartItem.detail.variationId ||
+                (item.productName == cartItem.productName &&
+                    item.detail.variationName ==
+                        cartItem.detail.variationName)) &&
             item.isPromo == cartItem.isPromo &&
             item.isPack == cartItem.isPack;
       }).toList();
       for (var key in draftKeysToRemove) {
-        draftBox.delete(key);
+        await draftBox.delete(key);
+      }
+
+      // Also remove from offlineDrafts box
+      if (Hive.isBoxOpen('offlineDrafts') ||
+          (await Hive.openBox('offlineDrafts')).isOpen) {
+        var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+        List<dynamic> drafts = List<dynamic>.from(
+            offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>);
+        int draftIndex =
+            drafts.indexWhere((d) => d['customer_id'] == cartItem.customerId);
+        if (draftIndex != -1) {
+          Map<String, dynamic> draftMap =
+              Map<String, dynamic>.from(drafts[draftIndex] as Map);
+          List<dynamic> details = List<dynamic>.from(draftMap['details'] ?? []);
+          details.removeWhere((detail) {
+            final String packTypeStr = (detail['packType'] ??
+                detail['packtype'] ??
+                detail['pack_type'] ??
+                '') as String;
+            final bool isPack = packTypeStr == 'Pack' || packTypeStr == 'Bulk';
+            return (detail['variant_id'] == cartItem.detail.variationId ||
+                    detail['product_name'] == cartItem.productName) &&
+                isPack == (cartItem.isPack ?? false);
+          });
+          if (details.isEmpty) {
+            drafts.removeAt(draftIndex);
+          } else {
+            draftMap['details'] = details;
+            drafts[draftIndex] = draftMap;
+          }
+          await offlineDraftsBox.put('drafts', drafts);
+        }
       }
     } catch (e) {
       print('Error deleting cart item: $e');
@@ -963,7 +1005,18 @@ class CartDatabaseManager {
       await draftBox.clear();
       await cartBox.addAll(remainingCartItems);
       await draftBox.addAll(remainingDraftItems);
-      getCartItems(customerId);
+
+      // Also remove from offlineDrafts box
+      if (Hive.isBoxOpen('offlineDrafts') ||
+          (await Hive.openBox('offlineDrafts')).isOpen) {
+        var offlineDraftsBox = await Hive.openBox('offlineDrafts');
+        List<dynamic> drafts = List<dynamic>.from(
+            offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>);
+        drafts.removeWhere((d) => d['customer_id'] == customerId);
+        await offlineDraftsBox.put('drafts', drafts);
+      }
+
+      await getCartItems(customerId);
     } catch (e) {
       //
     }

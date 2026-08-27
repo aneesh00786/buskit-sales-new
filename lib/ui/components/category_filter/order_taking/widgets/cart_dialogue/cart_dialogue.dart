@@ -3920,12 +3920,11 @@ class CartDialogueState extends State<CartDialogue> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       final provider = Provider.of<CustomersProvider>(context,
                           listen: false);
                       print('delete variant called');
-                      _deleteVariant(groupedItem, provider);
-                      _loadCartItems();
+                      await _deleteVariant(groupedItem, provider);
                       widget.productsController.isCartModified.value = true;
                       Navigator.pop(context);
                     },
@@ -4024,7 +4023,6 @@ class CartDialogueState extends State<CartDialogue> {
                           listen: false);
                       _deleteProduct(productName, isPreorder: isPreOrder);
                       await provider.updateCartCount(customerId);
-                      _loadCartItems();
                       Navigator.pop(context);
                       widget.productsController.isCartModified.value = true;
                       showCustomToastDisplay(
@@ -4052,67 +4050,45 @@ class CartDialogueState extends State<CartDialogue> {
     );
   }
 
-  void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
+  Future<void> _deleteVariant(
+      CartItem variantToDelete, CustomersProvider provider) async {
     final String customerId = widget.customerId ?? '';
-    setState(() {
-      // 1. Remove from local controller lists FIRST
-      widget.productsController.cartItems.removeWhere((item) =>
-          item.productName == variantToDelete.productName &&
-          item.detail.variationName == variantToDelete.detail.variationName);
+    // 1. Remove from local controller lists FIRST
+    widget.productsController.cartItems.removeWhere((item) =>
+        (item.detail.variationId == variantToDelete.detail.variationId ||
+            (item.productName == variantToDelete.productName &&
+                item.detail.variationName ==
+                    variantToDelete.detail.variationName)) &&
+        item.isPack == variantToDelete.isPack &&
+        item.isPromo == variantToDelete.isPromo);
 
-      // 2. Actually delete from the database (Do NOT update it to count = 0 first)
-      CartDatabaseManager().deleteCartItem(variantToDelete);
+    // 2. Actually delete from the database
+    await CartDatabaseManager().deleteCartItem(variantToDelete);
 
-      // 3. Rebuild order and preorder lists
-      List<CartItem> orderItems = widget.productsController.cartItems
-          .where((item) => (item.detail.stock ?? 0) > 0)
-          .toList();
-      List<CartItem> preorderItems = widget.productsController.cartItems
-          .where((item) => item.detail.stock == 0)
-          .toList();
+    // 3. Rebuild order and preorder lists
+    List<CartItem> orderItems = widget.productsController.cartItems
+        .where((item) => (item.detail.stock ?? 0) > 0)
+        .toList();
+    List<CartItem> preorderItems = widget.productsController.cartItems
+        .where((item) => item.detail.stock == 0)
+        .toList();
 
-      // 4. Update Controller State
-      widget.productsController.orderItems = orderItems;
-      widget.productsController.preorderItems = preorderItems;
+    // 4. Update Controller State
+    widget.productsController.orderItems = orderItems;
+    widget.productsController.preorderItems = preorderItems;
 
-      // 5. Recalculate Totals
-      orderSubtotal = Utils().calculateSubtotal(orderItems);
-      orderTaxe = Utils().calculateTotalTax(
-          orderItems); // Note: Make sure you use orderTaxe consistently
-      preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-      preorderTax = Utils().calculateTotalTax(preorderItems);
+    // 5. Recalculate Totals
+    orderSubtotal = Utils().calculateSubtotal(orderItems);
+    orderTaxe = Utils().calculateTotalTax(orderItems);
+    preorderSubtotal = Utils().calculateSubtotal(preorderItems);
+    preorderTax = Utils().calculateTotalTax(preorderItems);
 
-      provider.updateCartCount(customerId);
-    });
-
+    await provider.updateCartCount(customerId);
     _maybeClearFlatDiscountForCustomer(customerId);
+    if (mounted) {
+      setState(() {});
+    }
   }
-
-  // void _deleteVariant(CartItem variantToDelete, CustomersProvider provider) {
-  //   final String customerId = widget.customerId ?? '';
-  //   setState(() {
-  //     variantToDelete.detail.count = 0;
-  //     CartDatabaseManager().updateCart(variantToDelete);
-  //     widget.productsController.cartItems.removeWhere((item) =>
-  //         item.productName == variantToDelete.productName &&
-  //         item.detail.variationName == variantToDelete.detail.variationName);
-  //     CartDatabaseManager().deleteCartItem(variantToDelete);
-  //     List<CartItem> orderItems = widget.productsController.cartItems
-  //         .where((item) => (item.detail.stock ?? 0) > 0)
-  //         .toList();
-  //     List<CartItem> preorderItems = widget.productsController.cartItems
-  //         .where((item) => item.detail.stock == 0)
-  //         .toList();
-  //     orderSubtotal = Utils().calculateSubtotal(orderItems);
-  //     orderTax = Utils().calculateTotalTax(orderItems);
-  //     preorderSubtotal = Utils().calculateSubtotal(preorderItems);
-  //     preorderTax = Utils().calculateTotalTax(preorderItems);
-  //     provider.updateCartCount(customerId);
-  //   });
-
-  //   // If no remaining items carry a flat discount promo, clear it
-  //   _maybeClearFlatDiscountForCustomer(customerId);
-  // }
 
   Container productQuantityManager(CartItem cartItem, String sellPrice,
       double fontSize, double availableWidth) {

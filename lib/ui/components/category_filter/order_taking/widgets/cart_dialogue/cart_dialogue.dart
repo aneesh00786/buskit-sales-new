@@ -23,6 +23,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/category_mo
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/cart_data_model.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/cart_diloag/customer_cart_responce.dart';
@@ -429,9 +430,18 @@ class CartDialogueState extends State<CartDialogue> {
 
         // 7. Calculate Tax strictly from priceAfterDiscount
         double bulkTaxPercentage = (item.detail.bulkTax ?? 0).toDouble();
+        double catTaxVal = (item.catTax ?? 0).toDouble();
+        if (catTaxVal == 0 &&
+            item.detail.productId != null &&
+            item.detail.productId!.isNotEmpty) {
+          catTaxVal = getStoredTaxFromCache(item.detail.productId!);
+          if (catTaxVal > 0) {
+            item.catTax = catTaxVal;
+          }
+        }
         double taxPercentage = bulkTaxPercentage > 0
             ? bulkTaxPercentage
-            : (item.catTax ?? 0).toDouble();
+            : catTaxVal;
 
         double calculatedTax = 0.0;
         if (item.detail.inclTax == "N.A") {

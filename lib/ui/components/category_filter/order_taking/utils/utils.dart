@@ -2,6 +2,7 @@
 import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/discount_model.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class Utils {
@@ -47,35 +48,115 @@ class Utils {
 
   double calculateCartNetTotal(List<CartItem> items) {
     return items.fold(0.0, (sum, item) {
-      if (item.isChecked == true) {
+      if (item.isChecked != false) {
         if (item.finalPrice != null && item.finalPrice! > 0) {
           return sum + item.finalPrice!;
         }
-        double basePrice;
-        if (item.isPack == true) {
-          final double? apiPackPrice = double.tryParse(
-              item.detail.sellingPackPrice?.toString() ?? '');
-          if (apiPackPrice != null && apiPackPrice > 0) {
-            basePrice = apiPackPrice;
-          } else {
-            double sell = double.tryParse(item.detail.displayPrice ??
-                    item.detail.sellPrice?.toString() ??
-                    '0') ??
-                0.0;
-            int pcs = item.detail.pieces?.toInt() ?? 1;
-            basePrice = sell * pcs;
-          }
-        } else {
-          basePrice = double.tryParse(item.detail.displayPrice ??
-                  item.detail.sellPrice?.toString() ??
-                  '0') ??
-              0.0;
+
+        final double originalUnitPrice =
+            double.tryParse(item.detail.sellPrice?.toString() ?? '0') ?? 0.0;
+        final double effectiveUnitPrice = originalUnitPrice > 0.0
+            ? originalUnitPrice
+            : (double.tryParse(item.detail.price?.toString() ?? '0') ?? 0.0);
+
+        final int qtyFactor =
+            (item.isPack == true || item.detail.packtype == 'Pack')
+                ? (item.detail.pieces?.toInt() ?? 1)
+                : 1;
+
+        final double? apiSellingPackPrice =
+            (item.isPack == true || item.detail.packtype == 'Pack')
+                ? (double.tryParse(
+                    item.detail.sellingPackPrice?.toString() ?? ''))
+                : null;
+
+        final double originalBaseSellAmount =
+            (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+                ? apiSellingPackPrice
+                : effectiveUnitPrice * qtyFactor;
+
+        double currentBaseSellAmount = originalBaseSellAmount;
+        if (item.detail.displayPrice != null) {
+          final double editedUnitPrice =
+              double.tryParse(item.detail.displayPrice!) ?? originalUnitPrice;
+          currentBaseSellAmount = (apiSellingPackPrice != null && apiSellingPackPrice > 0)
+              ? (double.tryParse(item.detail.displayPrice!) ?? originalBaseSellAmount)
+              : editedUnitPrice * qtyFactor;
         }
 
-        double count = item.detail.count.toDouble();
-        double disc = item.totalDiscountAmount ?? 0.0;
-        double net = (basePrice * count) - disc;
-        return sum + (net > 0 ? net : 0.0);
+        double productQuantity = item.detail.count.toDouble();
+
+        double editPriceDiscountAmount = 0.0;
+        if (item.detail.displayPrice != null) {
+          final double diff = originalBaseSellAmount - currentBaseSellAmount;
+          if (diff > 0) {
+            editPriceDiscountAmount = diff * productQuantity;
+          }
+        }
+
+        double customerDiscount =
+            (item.CustomerDiscount != null && item.CustomerDiscount! > 0)
+                ? item.CustomerDiscount!
+                : (double.tryParse(item.detail.discount?.toString() ?? '0') ?? 0.0);
+
+        num tieredDiscount =
+            (item.tieredDiscount != null && item.tieredDiscount! > 0)
+                ? item.tieredDiscount!
+                : 0;
+        num bogoDiscount = (item.bogoDiscount != null && item.bogoDiscount! > 0)
+            ? item.bogoDiscount!
+            : 0;
+        num? bulkDiscount =
+            (item.detail.bulkDiscount != null && item.detail.bulkDiscount! > 0)
+                ? item.detail.bulkDiscount
+                : 0;
+
+        double totalDiscountPercent =
+            customerDiscount + tieredDiscount + bogoDiscount + bulkDiscount!;
+
+        double percentageDiscountAmount =
+            (originalBaseSellAmount * productQuantity) * (totalDiscountPercent / 100.0);
+
+        double bulkDiscountAmt =
+            (item.detail.bulkDiscountAmount ?? 0).toDouble();
+
+        double totalDiscountAmount =
+            percentageDiscountAmount + bulkDiscountAmt + editPriceDiscountAmount;
+
+        double priceAfterDiscount =
+            (originalBaseSellAmount * productQuantity) - totalDiscountAmount;
+        if (priceAfterDiscount < 0) priceAfterDiscount = 0.0;
+
+        double bulkTaxPercentage = (item.detail.bulkTax ?? 0).toDouble();
+        double catTaxVal = (item.catTax ?? 0).toDouble();
+        if (catTaxVal == 0 &&
+            item.detail.productId != null &&
+            item.detail.productId!.isNotEmpty) {
+          catTaxVal = getStoredTaxFromCache(item.detail.productId!);
+        }
+        double taxPercentage = bulkTaxPercentage > 0
+            ? bulkTaxPercentage
+            : catTaxVal;
+
+        double calculatedTax = 0.0;
+        if (item.detail.inclTax == "N.A") {
+          calculatedTax = 0.0;
+        } else if (taxPercentage > 0) {
+          calculatedTax = priceAfterDiscount * (taxPercentage / 100);
+        } else {
+          double totalRawTax =
+              (item.detail.tax ?? 0).toDouble() * productQuantity * qtyFactor;
+          calculatedTax = totalRawTax * (1 - (totalDiscountPercent / 100.0));
+        }
+
+        double itemFinalPrice;
+        if (item.detail.inclTax == "incl_tax" || item.detail.inclTax == "N.A") {
+          itemFinalPrice = priceAfterDiscount;
+        } else {
+          itemFinalPrice = priceAfterDiscount + calculatedTax;
+        }
+
+        return sum + itemFinalPrice;
       }
       return sum;
     });

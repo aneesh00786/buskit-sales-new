@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/product_lis
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/widgets/variant_dialogue.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -197,8 +198,20 @@ class CartDatabaseManager {
                   //         0)
                   //     .toDouble(),
                   taxAmount:
-                      (num.tryParse(cart['total_tax']?.toString() ?? '0') ?? 0)
+                      (num.tryParse(cart['total_tax']?.toString() ?? '') ??
+                              num.tryParse(cart['tax']?.toString() ?? '') ??
+                              0)
                           .toDouble(),
+                  catTax: () {
+                    double parsed =
+                        (num.tryParse(cart['cat_tax']?.toString() ?? '') ?? 0)
+                            .toDouble();
+                    if (parsed == 0 && cart['product_id'] != null) {
+                      parsed =
+                          getStoredTaxFromCache(cart['product_id'].toString());
+                    }
+                    return parsed > 0 ? parsed : null;
+                  }(),
                   tieredDiscount:
                       promoType == 'flat_discount' ? 0.0 : parsedPromoDiscount,
                   flatDiscount:
@@ -322,7 +335,23 @@ class CartDatabaseManager {
           final List details = draft['details'];
           final salesmanId = SessionHelper.loginSavedData?.salesmanId ?? '';
           for (var detail in details) {
-            final String packTypeStr = (detail['packType'] ?? detail['packtype'] ?? detail['pack_type'] ?? '') as String;
+            final String packTypeStr = (detail['packType'] ??
+                detail['packtype'] ??
+                detail['pack_type'] ??
+                '') as String;
+            double parsedCatTax =
+                (num.tryParse(detail['cat_tax']?.toString() ?? '') ?? 0)
+                    .toDouble();
+            if (parsedCatTax == 0 && detail['product_id'] != null) {
+              parsedCatTax =
+                  getStoredTaxFromCache(detail['product_id'].toString());
+            }
+            final double taxAmt = (num.tryParse(
+                        detail['tax_amount']?.toString() ?? '') ??
+                    num.tryParse(detail['total_tax']?.toString() ?? '') ??
+                    num.tryParse(detail['tax']?.toString() ?? '') ??
+                    0)
+                .toDouble();
             final cartItem = CartItem(
               detail: Detail(
                 productId: detail['product_id'],
@@ -330,7 +359,7 @@ class CartDatabaseManager {
                 sellPrice: detail['price'],
                 discount: detail['discount'],
                 count: (detail['quantity'] as num?)?.toDouble() ?? 0,
-                pieces: int.tryParse(detail['pack'] ?? '0'),
+                pieces: int.tryParse(detail['pack']?.toString() ?? '0'),
                 variationName: detail['variant_name'],
                 saleBy: packTypeStr,
                 stock: detail['stock'] ?? 0,
@@ -339,6 +368,8 @@ class CartDatabaseManager {
                 productName: detail['product_name'],
                 tax: detail['tax'],
                 inclTax: detail['incl_tax'],
+                totaltax: taxAmt,
+                unitTax: (num.tryParse(detail['unit_tax']?.toString() ?? '0') ?? 0),
               ),
               productName: detail['product_name'],
               totalPrice:
@@ -346,7 +377,7 @@ class CartDatabaseManager {
               isPack: packTypeStr == 'Pack' || packTypeStr == 'Bulk',
               customerId: customerId,
               salesmanId: salesmanId,
-              catId: 0,
+              catId: detail['cat_id'] as int? ?? 0,
               isPromo: draft['is_promo'] == 1 ? true : false,
               promoCode:
                   draft['promo_code'] == null || draft['promo_code'] == ""
@@ -355,6 +386,8 @@ class CartDatabaseManager {
               promoMsg: draft['title'] == null || draft['title'] == ""
                   ? draft['title']
                   : null,
+              taxAmount: taxAmt,
+              catTax: parsedCatTax > 0 ? parsedCatTax : null,
             );
             customerOfflineDraftItems.add(cartItem);
           }
@@ -1035,7 +1068,7 @@ class CartDatabaseManager {
           drafts.indexWhere((draft) => draft['customer_id'] == customerId);
 
       if (existingDraftIndex != -1) {
-        var existingDraft = drafts[existingDraftIndex];
+        drafts[existingDraftIndex]['total_amount'] = totalAmount;
         drafts[existingDraftIndex]['displayData'] = {
           'customerId': customerId,
           'customerName': customerName,
@@ -1045,9 +1078,8 @@ class CartDatabaseManager {
           'displayTotal': allItemsTotal,
           'createdDate': DateTime.now().toIso8601String(),
         };
-        List<dynamic> existingDetails = existingDraft['details'];
-        for (var detail in details) {
-          existingDetails.add({
+        drafts[existingDraftIndex]['details'] = details.map((detail) {
+          return {
             'product_id': detail.productId ?? '',
             'variant_id': detail.variationId ?? '',
             'pack': detail.saleBy == 'Pack'
@@ -1064,8 +1096,13 @@ class CartDatabaseManager {
             'tax': detail.tax ?? 0.0,
             'pieces': detail.pieces ?? 0.0,
             'incl_tax': detail.inclTax ?? '',
-          });
-        }
+            'cat_tax': getStoredTaxFromCache(detail.productId ?? ''),
+            'tax_amount': detail.tax ?? 0.0,
+            'total_tax': detail.totaltax ?? 0.0,
+            'unit_tax': detail.unitTax ?? 0.0,
+            'cat_id': 0,
+          };
+        }).toList();
       } else {
         final orderId = DateTime.now().millisecondsSinceEpoch.toString();
         final newDraft = {
@@ -1090,6 +1127,11 @@ class CartDatabaseManager {
               'tax': e.tax ?? 0.0,
               'pieces': e.pieces ?? 0.0,
               'incl_tax': e.inclTax ?? '',
+              'cat_tax': getStoredTaxFromCache(e.productId ?? ''),
+              'tax_amount': e.tax ?? 0.0,
+              'total_tax': e.totaltax ?? 0.0,
+              'unit_tax': e.unitTax ?? 0.0,
+              'cat_id': 0,
             };
           }).toList(),
           'displayData': {

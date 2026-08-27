@@ -211,14 +211,20 @@ class _ProductGridState extends State<ProductGrid> {
               .where((e) => e.customerId == selectedCustomerId)
               .toList();
 
+          final isSearching =
+              widget.productsController.catalogProductSearchQuery.value.isNotEmpty;
+          final displayedProducts = isSearching
+              ? widget.productsController.catalogSearchedProducts
+              : products;
+
           return Expanded(
             child: (isProductsLoading || isLoading)
                 ? const Center(child: CircularProgressIndicator())
-                : products.isEmpty
-                    ? const Center(
+                : displayedProducts.isEmpty
+                    ? Center(
                         child: Text(
-                        'No Products Available',
-                        style: TextStyle(fontSize: 25),
+                        isSearching ? 'No Matching Products Found' : 'No Products Available',
+                        style: const TextStyle(fontSize: 25),
                       ))
                     : GridView.builder(
                         gridDelegate:
@@ -228,9 +234,9 @@ class _ProductGridState extends State<ProductGrid> {
                           mainAxisSpacing: 10,
                           childAspectRatio: 10 / 9,
                         ),
-                        itemCount: products.length,
+                        itemCount: displayedProducts.length,
                         itemBuilder: (context, index) {
-                          final product = products[index];
+                          final product = displayedProducts[index];
 
                           return LayoutBuilder(
                             builder: (context, constraints) {

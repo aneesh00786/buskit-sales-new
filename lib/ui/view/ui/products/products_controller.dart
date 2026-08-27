@@ -493,6 +493,81 @@ List<BulkData> storedBulkList = [];
   //   CartDatabaseManager().getDraftItems();
   //   isCartModified.value = false;
   // }
+  RxString catalogProductSearchQuery = "".obs;
+  RxList<ProductModel> catalogSearchedProducts = <ProductModel>[].obs;
+
+  Future<void> searchProductsInCatalog(String query) async {
+    catalogProductSearchQuery.value = query;
+    if (query.trim().isEmpty) {
+      catalogSearchedProducts.clear();
+      return;
+    }
+
+    final lowerQuery = query.trim().toLowerCase();
+    List<ProductModel> allProducts = [];
+
+    // 1. Controller products
+    if (products.isNotEmpty) {
+      allProducts.addAll(products);
+    }
+
+    // 2. scidProductGroups Box
+    try {
+      if (Hive.isBoxOpen('scidProductGroups')) {
+        final box = Hive.box<ScidProductGroup>('scidProductGroups');
+        for (final group in box.values) {
+          allProducts.addAll(group.products);
+        }
+      } else {
+        final box = await Hive.openBox<ScidProductGroup>('scidProductGroups');
+        for (final group in box.values) {
+          allProducts.addAll(group.products);
+        }
+      }
+    } catch (_) {}
+
+    // 3. products Box
+    try {
+      if (Hive.isBoxOpen('products')) {
+        final box = Hive.box<ProductModel>('products');
+        allProducts.addAll(box.values);
+      }
+    } catch (_) {}
+
+    final Map<String, ProductModel> uniqueMap = {};
+    for (final p in allProducts) {
+      final key = p.productId?.toString().isNotEmpty == true
+          ? p.productId.toString()
+          : (p.id?.toString() ?? p.productName ?? '');
+      if (key.isNotEmpty && !uniqueMap.containsKey(key)) {
+        uniqueMap[key] = p;
+      }
+    }
+
+    final filtered = uniqueMap.values.where((p) {
+      final name = p.productName?.toLowerCase() ?? '';
+      final code = p.productCode?.toLowerCase() ?? '';
+      final brand = p.brandname?.toLowerCase() ?? '';
+      final hasDetailMatch = p.detail?.any((d) =>
+              (d.variationName?.toLowerCase() ?? '').contains(lowerQuery) ||
+              (d.barcode?.toLowerCase() ?? '').contains(lowerQuery) ||
+              (d.inNo?.toLowerCase() ?? '').contains(lowerQuery)) ??
+          false;
+
+      return name.contains(lowerQuery) ||
+          code.contains(lowerQuery) ||
+          brand.contains(lowerQuery) ||
+          hasDetailMatch;
+    }).toList();
+
+    catalogSearchedProducts.value = filtered;
+  }
+
+  void clearCatalogProductSearch() {
+    catalogProductSearchQuery.value = "";
+    catalogSearchedProducts.clear();
+  }
+
   Future<bool> processCartBeforeNavigation({
   required BuildContext context,
   required String customerId,
@@ -535,28 +610,33 @@ List<BulkData> storedBulkList = [];
     print("Cart is empty, nothing to save to draft.");
     CartDatabaseManager().cartItems.clear();
     CartDatabaseManager().clearCart(customerId: customerId);
-    // Return a special sentinel: null means "was online but cart was empty"
-    // We use a wrapper to distinguish: return false here to skip success dialog
-    return false; // <-- CHANGED: don't show success when cart is empty
+    return false;
   }
 
   allItemsTotalSave.value = Utils().calculateSubtotal(allItems);
 
+  final List<Detail> detail = allItems.map((e) {
+    final d = e.detail;
+    if (d.productName == null || d.productName!.isEmpty) {
+      d.productName = e.productName;
+    }
+    return d;
+  }).toList();
+  await CartDatabaseManager().saveDraftOffline(
+    customerId: customerId,
+    salesmanId: currentSalesmanId,
+    totalAmount: finalAmount.value,
+    details: detail,
+    customerName: selectedCustomerName.value,
+    customerMobile: selectedCustomerMobileNo.value,
+    customerEmail: selectedCustomerEmail.value,
+    customerImageUrl: selectedCustomerImageUrl.value,
+    allItemsTotal: allItemsTotalSave.value,
+  );
+
   final isOnline = await connectivityService.isOnline();
 
   if (!isOnline) {
-    final List<Detail> detail = allItems.map((e) => e.detail).toList();
-    await CartDatabaseManager().saveDraftOffline(
-      customerId: customerId,
-      salesmanId: currentSalesmanId,
-      totalAmount: finalAmount.value,
-      details: detail,
-      customerName: selectedCustomerName.value,
-      customerMobile: selectedCustomerMobileNo.value,
-      customerEmail: selectedCustomerEmail.value,
-      customerImageUrl: selectedCustomerImageUrl.value,
-      allItemsTotal: allItemsTotalSave.value,
-    );
     CartDatabaseManager().clearCart(customerId: customerId);
     return false;
   } else {
@@ -597,6 +677,39 @@ List<BulkData> storedBulkList = [];
             (item.flatDiscount ?? 0) +
             (item.bogoDiscount ?? 0);
 
+        final String origUnitPrice = (e.sellPrice != null &&
+                e.sellPrice.toString().trim().isNotEmpty &&
+                e.sellPrice.toString() != 'null')
+            ? e.sellPrice.toString()
+            : (e.price?.toString() ?? '0.0');
+
+        final String origPackPrice = (() {
+          final double? apiSPP =
+              double.tryParse(e.sellingPackPrice?.toString() ?? '');
+          if (apiSPP != null && apiSPP > 0) return apiSPP.toStringAsFixed(2);
+          final double? apiPP =
+              double.tryParse(e.packPrice?.toString() ?? '');
+          if (apiPP != null && apiPP > 0) return apiPP.toStringAsFixed(2);
+          final double uP = double.tryParse(origUnitPrice) ?? 0.0;
+          final int pcs = (e.pieces?.toInt() ?? 1);
+          return (uP * (pcs > 0 ? pcs : 1)).toStringAsFixed(2);
+        })();
+
+        final String effectivePackPrice = (() {
+          if (e.displayPrice != null &&
+              (e.packtype == 'Pack' ||
+                  item.isPack == true ||
+                  e.saleBy == 'Pack')) {
+            final double uP = double.tryParse(e.displayPrice!) ??
+                (double.tryParse(origUnitPrice) ?? 0.0);
+            final int pcs = (e.pieces?.toInt() ?? 1);
+            return (uP * (pcs > 0 ? pcs : 1)).toStringAsFixed(2);
+          }
+          return origPackPrice;
+        })();
+
+        final String effectiveUnitPrice = e.displayPrice ?? origUnitPrice;
+
         if (item.isPromo == true) {
           bool isBundle =
               item.promoMsg != null && item.promoMsg!.startsWith("Bundle");
@@ -607,7 +720,7 @@ List<BulkData> storedBulkList = [];
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
-              price: e.sellPrice.toString(),
+              price: effectiveUnitPrice,
               packType: e.saleBy == 'Pack' ? 'Pack' : 'Pcs',
               discount: combinedDiscount,
               quantity: e.count.toInt(),
@@ -622,7 +735,11 @@ List<BulkData> storedBulkList = [];
               promoDiscount: combinedPromoDiscount,
               initialCount: e.initialCount,
               taxAmount: item.taxAmount,
-              unitPrice: e.sellPrice.toString(),
+              unitPrice: effectiveUnitPrice,
+              originalUnitPrice: origUnitPrice,
+              originalPackPrice: origPackPrice,
+              editedAmount: 0.0,
+              customerDiscountPercentage: item.CustomerDiscount,
               isBulk: false,
             );
           } else {
@@ -630,7 +747,7 @@ List<BulkData> storedBulkList = [];
               productId: e.productId ?? '',
               variantId: e.variationId ?? '',
               pack: packValue,
-              price: e.sellPrice.toString(),
+              price: effectiveUnitPrice,
               packType: e.saleBy != 'Pcs' ? 'Pack' : 'Pcs',
               discount: combinedDiscount,
               quantity: e.count.toInt(),
@@ -643,7 +760,11 @@ List<BulkData> storedBulkList = [];
               promoDiscount: combinedPromoDiscount,
               initialCount: e.initialCount,
               taxAmount: item.taxAmount,
-              unitPrice: e.sellPrice.toString(),
+              unitPrice: effectiveUnitPrice,
+              originalUnitPrice: origUnitPrice,
+              originalPackPrice: origPackPrice,
+              editedAmount: 0.0,
+              customerDiscountPercentage: item.CustomerDiscount,
               isBulk: false,
             );
           }
@@ -653,7 +774,7 @@ List<BulkData> storedBulkList = [];
           bool isBulkItem = false;
           String? currentBulkId = e.bulkId;
           String? idToSendToBackend = currentBulkId;
-          String finalPrice = e.sellPrice.toString();
+          String finalPrice = effectiveUnitPrice;
 
           if (currentBulkId != null && currentBulkId.isNotEmpty) {
             isBulkItem = true;
@@ -675,6 +796,25 @@ List<BulkData> storedBulkList = [];
             }
           }
 
+          double editPriceDiscountAmt = 0.0;
+          if (e.displayPrice != null) {
+            final double origPrice =
+                double.tryParse(origUnitPrice) ?? 0.0;
+            final double newPrice =
+                double.tryParse(e.displayPrice!) ?? origPrice;
+            final int itemQtyFactor =
+                (e.packtype == 'Pack' || item.isPack == true || e.saleBy == 'Pack')
+                    ? (e.pieces?.toInt() ?? 1)
+                    : 1;
+            final double priceDiff = origPrice - newPrice;
+            if (priceDiff > 0) {
+              editPriceDiscountAmt =
+                  priceDiff * itemQtyFactor * e.count.toDouble();
+            }
+          }
+          final double totalCombinedDiscount =
+              combinedDiscount + editPriceDiscountAmt;
+
           return SendCartData(
             productId: e.productId ?? '',
             variantId: e.variationId ?? '',
@@ -683,7 +823,7 @@ List<BulkData> storedBulkList = [];
             packType: isBulkItem
                 ? 'Bulk'
                 : (e.saleBy == 'Pack' ? 'Pack' : 'Pcs'),
-            discount: combinedDiscount,
+            discount: totalCombinedDiscount,
             quantity: e.count.toInt(),
             variantName: e.variationName ?? '',
             customerDiscount: item.CustomerDiscount,
@@ -693,8 +833,12 @@ List<BulkData> storedBulkList = [];
             initialCount: e.initialCount,
             taxAmount: item.taxAmount,
             itemNumbers: isBulkItem ? e.pieces?.toInt() : null,
-            unitPrice: e.sellPrice.toString(),
+            unitPrice: effectiveUnitPrice,
             bulkDiscountAmount: e.bulkDiscountAmount,
+            originalUnitPrice: origUnitPrice,
+            originalPackPrice: origPackPrice,
+            editedAmount: editPriceDiscountAmt,
+            customerDiscountPercentage: item.CustomerDiscount,
           );
         }
       }).toList()),

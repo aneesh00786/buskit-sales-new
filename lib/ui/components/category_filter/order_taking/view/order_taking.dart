@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search_warning_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/catalog_search_bar.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
@@ -812,7 +813,7 @@ class _OrderTakingState extends State<OrderTaking>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 76),
+                      const SizedBox(height: 125),
                       Expanded(
                         child: Stack(
                           children: [
@@ -844,28 +845,31 @@ class _OrderTakingState extends State<OrderTaking>
                       right: 20,
                     ),
                     child: Consumer<CustomersProvider>(
-                      builder: (context, provider, child) => Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      builder: (context, provider, child) => Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomSearchBar(
-                                  text: "Search customer...".tr,
-                                  controller: customerSearchController,
-                                  onChange: (value) {
-                                    filterCustomers(value);
-                                  },
-                                  icon: EneftyIcons.profile_outline,
-                                ),
-                                Expanded(
-                                  child: isLoading
-                                      ? const Center(
-                                          child: CircularProgressIndicator())
-                                      : customerSearchController.text.isNotEmpty
-                                          ? filteredCustomers.isEmpty
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomSearchBar(
+                                      text: "Search customer...".tr,
+                                      controller: customerSearchController,
+                                      onChange: (value) {
+                                        filterCustomers(value);
+                                      },
+                                      icon: EneftyIcons.profile_outline,
+                                    ),
+                                    if (customerSearchController.text.isNotEmpty)
+                                      isLoading
+                                          ? const Center(
+                                              child: CircularProgressIndicator())
+                                          : filteredCustomers.isEmpty
                                               ? Align(
                                                   alignment:
                                                       Alignment.topCenter,
@@ -968,9 +972,7 @@ class _OrderTakingState extends State<OrderTaking>
                                                       ),
                                                     );
                                                   },
-                                                )
-                                          : const SizedBox.shrink(),
-                                ),
+                                                ),
                                 if (widget.productsController.showDialog.value)
                                   AlertDialog(
                                     shape: RoundedRectangleBorder(
@@ -1148,10 +1150,24 @@ class _OrderTakingState extends State<OrderTaking>
                                               .selectedCustomerId.value
                                               .toString(),
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
+                              ],
+                            ),
+                          const SizedBox(height: 8),
+                          CatalogSearchBar(
+                            productsController: widget.productsController,
+                            onCategorySelected: (category) {
+                              _selectCategory(category.categoryName ?? '');
+                            },
+                            onSubCategorySelected:
+                                (subCategory, parentCategory) {
+                              _selectSubCategory(subCategory, parentCategory);
+                            },
+                            onProductSelected: (product) {},
+                          ),
                         ],
                       ),
                     ),
@@ -1669,6 +1685,19 @@ class _OrderTakingState extends State<OrderTaking>
         );
       },
     );
+  }
+
+  void _selectSubCategory(
+      SubCategoryItem subCategory, CategoryData parentCategory) {
+    _selectCategory(parentCategory.categoryName ?? '');
+    widget.productsController.selectedSubCategoryId.value =
+        subCategory.id ?? '';
+    widget.productsController.selectedSubCategoryName.value =
+        subCategory.subCategory ?? '';
+    setState(() {
+      _id = subCategory.id ?? '';
+      _selectedOption = subCategory.subCategory ?? '';
+    });
   }
 
   void playAddToCartAnimation() {

@@ -4561,137 +4561,211 @@ Future<bool?> showCreditUsageDialog({
     builder: (BuildContext context) {
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          "Apply Customer Credit?",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+        contentPadding: const EdgeInsets.fromLTRB(24, 10, 24, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+        title: Row(
           children: [
-            // Available Credit
-            Row(
-              children: [
-                const Text("Available Credit: ",
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  formatAmount(availableCredit),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                    fontSize: 19,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // Order Total
-            Row(
-              children: [
-                const Text("Order Total: ",
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  formatAmount(amountToPayBeforeCredit),
-                  style: const TextStyle(fontSize: 17),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Visual Summary Card
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.green.shade200),
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //  Text(
-                  //   "If you apply credit:",
-                  //   style: TextStyle(fontWeight: FontWeight.w600, color: Colors.green),
-                  // ),
-                  // const SizedBox(height: 8),
-                  // Text(
-                  //   "• Deduct: ${formatAmount(creditToBeUsed)}",
-                  //   style: const TextStyle(fontSize: 16),
-                  // ),
-                  Text(
-                    "After applying the credit, your total payable amount will be: ${formatAmount(amountAfterCredit)}",
-                    // "You pay: ${formatAmount(amountAfterCredit)}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: amountAfterCredit == 0
-                          ? Colors.green[800]
-                          : Colors.blue[800],
-                    ),
-                  ),
-                  // if (amountAfterCredit == 0)
-                  // const Padding(
-                  //   padding: EdgeInsets.only(top: 8),
-                  //   child: Row(
-                  //     children: [
-                  //       Icon(Icons.celebration, color: Colors.green, size: 20),
-                  //       SizedBox(width: 6),
-                  //       Text(
-                  //         "Full amount covered!",
-                  //         style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ],
+              child: const Icon(
+                Icons.account_balance_wallet_rounded,
+                color: Color(0xFF2E7D32),
+                size: 22,
               ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              "Apply Customer Credit?",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
             ),
           ],
         ),
+        content: SizedBox(
+          width: 540,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Available Credit & Order Total Card
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Available Credit: ",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                        Text(
+                          formatAmount(availableCredit),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF2E7D32),
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Divider(height: 1, color: Colors.grey.shade200),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Order Total: ",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                        Text(
+                          formatAmount(amountToPayBeforeCredit),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Visual Summary Card in Green
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFA5D6A7), width: 1.2),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: Color(0xFF2E7D32),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            fontSize: 14,
+                            color: Color(0xFF1B5E20),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          children: [
+                            const TextSpan(
+                              text: "After applying the credit, your total payable amount will be:\u00A0",
+                            ),
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Text(
+                                formatAmount(amountAfterCredit),
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF1B5E20),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
         actions: [
           // Cancel Button
-          TextButton(
-            onPressed: () =>
-                Navigator.pop(context, null), // null means cancelled
-            child: const Text("Cancel", style: TextStyle(color: Colors.black)),
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.grey[200],
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(context, null),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.grey.shade700,
+              side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              "Cancel",
+              style: TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
 
           // Skip Credit Button
-          OutlinedButton(
+          OutlinedButton.icon(
             onPressed: () => Navigator.pop(context, false),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+            icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+            label: const Text(
+              "Pay without Credit",
+              style: TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            child: const Text("Pay without Credit",
-                style: TextStyle(fontSize: 16)),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: const Color(0xFFEFF6FF),
+              foregroundColor: const Color(0xFF2563EB),
+              side: const BorderSide(color: Color(0xFFBFDBFE), width: 1.2),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
 
           // Pay with Credit Button
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
-            icon: const Icon(Icons.check_circle, size: 20),
+            icon: const Icon(Icons.check_circle_rounded, size: 19, color: Colors.white),
             label: Text(
               amountAfterCredit == 0 ? "Pay with Credit" : "Apply Credit",
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
+              backgroundColor: const Color(0xFF16A34A),
+              elevation: 1,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
         ],

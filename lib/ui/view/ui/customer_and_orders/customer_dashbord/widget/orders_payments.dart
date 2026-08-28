@@ -53,14 +53,17 @@ Widget OrdersPayments(
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                dashboardContainerHeader('Orders & Payments'.tr),
-                const SizedBox(width: 7),
-                SizedBox(
-                  height: 25,
-                  // width: 95,
-                  child: ElevatedButton(
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: dashboardContainerHeader('Orders & Payments'.tr),
+                  ),
+                  const SizedBox(width: 6),
+                  SizedBox(
+                    height: 24,
+                    child: ElevatedButton(
                     onPressed: () {
                       if (subscriptionController
                               .customerPaymentCollection.value ==
@@ -98,11 +101,19 @@ Widget OrdersPayments(
                         borderRadius: BorderRadius.circular(4.0),
                       ),
                     ),
-                    child: Text('Collection'.tr,
-                        style: TextStyle(color: Colors.white)),
+                    child: Text(
+                        'Collection'.tr,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 2),

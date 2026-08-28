@@ -1687,7 +1687,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       },
                                       child: AnimatedContainer(
                                           duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                           decoration: BoxDecoration(
                                             color: _tabIndex == 0 ? primaryColor.withOpacity(0.1) : Colors.transparent,
                                             borderRadius: BorderRadius.circular(20),
@@ -1695,9 +1695,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Revenue'.tr,
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 13.5,
+                                              fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 0 ? Colors.black87 : Colors.grey.shade500,
+                                              color: _tabIndex == 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
                                             ),
                                           ),
                                       ),
@@ -1710,7 +1711,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       },
                                       child: AnimatedContainer(
                                           duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                           decoration: BoxDecoration(
                                             color: _tabIndex == 1 ? const Color(0xff5bc0de).withOpacity(0.1) : Colors.transparent,
                                             borderRadius: BorderRadius.circular(20),
@@ -1718,9 +1719,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Customer Offer'.tr,
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 13.5,
+                                              fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 1 ? Colors.black87 : Colors.grey.shade500,
+                                              color: _tabIndex == 1 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
                                             ),
                                           ),
                                       ),
@@ -1786,7 +1788,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       },
                                       child: AnimatedContainer(
                                           duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                           decoration: BoxDecoration(
                                             color: _tabIndex == 0 ? primaryColor.withOpacity(0.1) : Colors.transparent,
                                             borderRadius: BorderRadius.circular(20),
@@ -1794,9 +1796,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Revenue'.tr,
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 13.5,
+                                              fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 0 ? Colors.black87 : Colors.grey.shade500,
+                                              color: _tabIndex == 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
                                             ),
                                           ),
                                       ),
@@ -1809,7 +1812,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                       },
                                       child: AnimatedContainer(
                                           duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                           decoration: BoxDecoration(
                                             color: _tabIndex == 1 ? const Color(0xff5bc0de).withOpacity(0.1) : Colors.transparent,
                                             borderRadius: BorderRadius.circular(20),
@@ -1817,9 +1820,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Customer Offer'.tr,
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 13.5,
+                                              fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 1 ? Colors.black87 : Colors.grey.shade500,
+                                              color: _tabIndex == 1 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
                                             ),
                                           ),
                                       ),

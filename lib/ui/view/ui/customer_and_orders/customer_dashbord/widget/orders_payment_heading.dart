@@ -9,88 +9,118 @@ class OrdersPaymentHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Row(
-      children: [
-        SizedBox(
-        width: colDateWidth,
-          child: Center(
-            child: Text(
-              "Date".tr,
-              style: TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
+    return Container(
+      height: 36,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: colDateWidth,
+            child: Center(
+              child: Text(
+                "Date".tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                  color: Color(0xFF0F172A),
+                ),
               ),
             ),
           ),
-        ),
-        SizedBox(
-       width: colInvoiceWidth,
-          child: Center(
-            child: Text(
-              "Invoice".tr,
-              style: TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
+          SizedBox(
+            width: colInvoiceWidth,
+            child: Center(
+              child: Text(
+                "Invoice".tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                  color: Color(0xFF0F172A),
+                ),
               ),
             ),
           ),
-        ),
-        SizedBox(
-         width: colStatusWidth,
-          child: Center(
-            child: Text(
-              "Status".tr,
-              style: TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
+          SizedBox(
+            width: colStatusWidth,
+            child: Center(
+              child: Text(
+                "Status".tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                  color: Color(0xFF0F172A),
+                ),
               ),
             ),
           ),
-        ),
-        SizedBox(
-         width: colAmountWidth,
-          child: Center(
-            child: Text(
-              "Amount".tr,
-              style: TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
+          SizedBox(
+            width: colAmountWidth,
+            child: Center(
+              child: Text(
+                "Amount".tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                  color: Color(0xFF0F172A),
+                ),
               ),
             ),
           ),
-        ),
-        SizedBox(
-        width: colDueWidth,
-          child: Center(
-            child: Text(
-              "Due By".tr,
-              style: TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
-              ),
-              maxLines: 1,
-            ),
-          ),
-        ),
-        SizedBox(
-        width: colSelectWidth,
-          child: Center(
-            child: Text(
-              "Select".tr,
-              style: TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontWeight: FontWeight.w600,
-                fontSize: 11,
+          SizedBox(
+            width: colDueWidth,
+            child: Center(
+              child: Text(
+                "Due By".tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                  color: Color(0xFF0F172A),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+          SizedBox(
+            width: colSelectWidth,
+            child: Center(
+              child: Text(
+                "Select".tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

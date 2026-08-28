@@ -13,354 +13,413 @@ import 'package:intl/intl.dart';
 
 Widget topSellingProductsCustomer(
     List<FrequantliyProductList> frequentProductLists) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      double availableWidth = constraints.maxWidth;
-      const double colWidth0 = 48; // Sl.No.
-      const double colWidth2_2 = 65; // I/N
-      const double colWidth2 = 92; // Last Purchase
-      const double colWidth3 = 52; // Times
-      const double colWidth4 = 88; // Amount
-      const double colWidth5 = 52; // Qty
-      const double gapTotal = 6 * 6; // 6 gaps of 6px
+  return TopSellingProductsCustomerWidget(frequentProductLists: frequentProductLists);
+}
 
-      double colWidth1 = math.max(160.0, availableWidth - (colWidth0 + colWidth2_2 + colWidth2 + colWidth3 + colWidth4 + colWidth5 + gapTotal + 20));
-      double totalTableWidth = colWidth0 + colWidth1 + colWidth2_2 + colWidth2 + colWidth3 + colWidth4 + colWidth5 + gapTotal;
+class TopSellingProductsCustomerWidget extends StatefulWidget {
+  final List<FrequantliyProductList> frequentProductLists;
 
-      const double fontSize = 11.5;
+  const TopSellingProductsCustomerWidget({
+    super.key,
+    required this.frequentProductLists,
+  });
 
-      if (frequentProductLists.isEmpty) {
-        return const NodataWidget();
-      } else {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            width: totalTableWidth + 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 🔹 Table Header
-                Container(
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(6),
+  @override
+  State<TopSellingProductsCustomerWidget> createState() => _TopSellingProductsCustomerWidgetState();
+}
+
+class _TopSellingProductsCustomerWidgetState extends State<TopSellingProductsCustomerWidget> {
+  final ScrollController _horizontalScrollController = ScrollController();
+  final ScrollController _verticalScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    _verticalScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.frequentProductLists.isEmpty) {
+      return const NodataWidget();
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double availableWidth = constraints.maxWidth;
+        const double colWidth0 = 50; // Sl.No.
+        const double colWidth2_2 = 70; // I/N
+        const double colWidth2 = 98; // Last Purchase
+        const double colWidth3 = 56; // Times
+        const double colWidth4 = 92; // Amount
+        const double colWidth5 = 56; // Qty
+        const double gapTotal = 6 * 6; // 6 gaps of 6px
+
+        double colWidth1 = math.max(180.0, availableWidth - (colWidth0 + colWidth2_2 + colWidth2 + colWidth3 + colWidth4 + colWidth5 + gapTotal + 20));
+        double totalTableWidth = colWidth0 + colWidth1 + colWidth2_2 + colWidth2 + colWidth3 + colWidth4 + colWidth5 + gapTotal;
+
+        const double fontSize = 11.5;
+
+        return Scrollbar(
+          controller: _horizontalScrollController,
+          thumbVisibility: true,
+          trackVisibility: true,
+          radius: const Radius.circular(8),
+          thickness: 6,
+          notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+          child: SingleChildScrollView(
+            controller: _horizontalScrollController,
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              width: totalTableWidth + 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 🔹 Table Header
+                  Container(
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: colWidth0,
+                          child: Center(
+                            child: Text(
+                              "Sl.No.".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        SizedBox(
+                          width: colWidth1,
+                          child: Center(
+                            child: Text(
+                              "Product".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        SizedBox(
+                          width: colWidth2_2,
+                          child: Center(
+                            child: Text(
+                              "I/N".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        SizedBox(
+                          width: colWidth2,
+                          child: Center(
+                            child: Text(
+                              "Last Purchase".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        SizedBox(
+                          width: colWidth3,
+                          child: Center(
+                            child: Text(
+                              "Times".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        SizedBox(
+                          width: colWidth4,
+                          child: Center(
+                            child: Text(
+                              "Amount".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        SizedBox(
+                          width: colWidth5,
+                          child: Center(
+                            child: Text(
+                              "Qty".tr,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: colWidth0,
-                        child: Center(
-                          child: Text(
-                            "Sl.No.".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: colWidth1,
-                        child: Center(
-                          child: Text(
-                            "Product".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: colWidth2_2,
-                        child: Center(
-                          child: Text(
-                            "I/N".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: colWidth2,
-                        child: Center(
-                          child: Text(
-                            "Last Purchase".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: colWidth3,
-                        child: Center(
-                          child: Text(
-                            "Times".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: colWidth4,
-                        child: Center(
-                          child: Text(
-                            "Amount".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(
-                        width: colWidth5,
-                        child: Center(
-                          child: Text(
-                            "Qty".tr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
-                // 🔹 Table Body
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      children:
-                          frequentProductLists.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        var product = entry.value;
-                        String variation = product.variationName ?? '';
-                        String prodName = variation.isNotEmpty
-                            ? '${product.productName} - $variation'
-                            : (product.productName ?? '');
+                  // 🔹 Table Body
+                  Expanded(
+                    child: Scrollbar(
+                      controller: _verticalScrollController,
+                      thumbVisibility: true,
+                      trackVisibility: true,
+                      radius: const Radius.circular(8),
+                      thickness: 6,
+                      notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
+                      child: SingleChildScrollView(
+                        controller: _verticalScrollController,
+                        scrollDirection: Axis.vertical,
+                        child: Column(
+                          children: widget.frequentProductLists.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            var product = entry.value;
+                            String variation = product.variationName ?? '';
+                            String prodName = variation.isNotEmpty
+                                ? '${product.productName} - $variation'
+                                : (product.productName ?? '');
 
-                        return Container(
-                          height: 38,
-                          decoration: BoxDecoration(
-                            border: Border(bottom: BorderSide(color: Colors.grey.shade100, width: 1)),
-                          ),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: colWidth0,
-                                child: Center(
-                                  child: Text(
-                                    "${index + 1}.",
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF0F172A),
-                                    ),
-                                  ),
-                                ),
+                            return Container(
+                              height: 38,
+                              decoration: BoxDecoration(
+                                border: Border(bottom: BorderSide(color: Colors.grey.shade100, width: 1)),
                               ),
-                              const SizedBox(width: 6),
-                              SizedBox(
-                                width: colWidth1,
-                                child: Text(
-                                  prodName,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontSize: fontSize,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF0F172A),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              SizedBox(
-                                width: colWidth2_2,
-                                child: Center(
-                                  child: Text(
-                                    product.inNo.toString(),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF0F172A),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              SizedBox(
-                                width: colWidth2,
-                                child: Center(
-                                  child: Text(
-                                    product.createdAt != null
-                                        ? TimeUtils.formatTimeInZone(
-                                            product.createdAt,
-                                            format: 'dd-MM-yyyy',
-                                          )
-                                        : 'N/A',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF0F172A),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              SizedBox(
-                                width: colWidth3,
-                                child: Center(
-                                  child: InkWell(
-                                    onTap: () {
-                                      showDashTimesDialogue(
-                                        context,
-                                        product,
-                                        (p) => p.count,
-                                        (data) => data.businessName,
-                                        (data) => formatAmount(data.price),
-                                        (data) => formatAmount(data.tax),
-                                        (data) => data.quantity.toString(),
-                                        (data) => formatAmount(
-                                          data.inclTax == "incl_tax"
-                                              ? ((double.tryParse(data.totalPrice.toString()) ?? 0))
-                                              : (((double.tryParse(data.totalPrice.toString()) ?? 0) + (double.tryParse(data.tax.toString()) ?? 0.0))),
-                                        ),
-                                        (data) => DateFormat('dd-MM-yyyy').format(data.createdAt!),
-                                        (data) => data.orderId.toString(),
-                                        false,
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF0284C7),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
+                              child: Row(
+                                children: [
+                                  // Sl.No.
+                                  SizedBox(
+                                    width: colWidth0,
+                                    child: Center(
                                       child: Text(
-                                        product.count.length.toString(),
+                                        "${index + 1}.",
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           fontFamily: 'Poppins_Regular',
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 11,
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF0F172A),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              SizedBox(
-                                width: colWidth4,
-                                child: Center(
-                                  child: Text(
-                                    formatAmount(product.totalPrice),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF0F172A),
+                                  const SizedBox(width: 6),
+
+                                  // Product Name
+                                  SizedBox(
+                                    width: colWidth1,
+                                    child: Text(
+                                      prodName,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: fontSize,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF0F172A),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              SizedBox(
-                                width: colWidth5,
-                                child: Center(
-                                  child: Text(
-                                    product.quantity.toString(),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: fontSize,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF0F172A),
+                                  const SizedBox(width: 6),
+
+                                  // I/N
+                                  SizedBox(
+                                    width: colWidth2_2,
+                                    child: Center(
+                                      child: Text(
+                                        product.inNo.toString(),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  const SizedBox(width: 6),
+
+                                  // Last Purchase
+                                  SizedBox(
+                                    width: colWidth2,
+                                    child: Center(
+                                      child: Text(
+                                        product.createdAt != null
+                                            ? TimeUtils.formatTimeInZone(
+                                                product.createdAt,
+                                                format: 'dd-MM-yyyy',
+                                              )
+                                            : 'N/A',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Times
+                                  SizedBox(
+                                    width: colWidth3,
+                                    child: Center(
+                                      child: InkWell(
+                                        onTap: () {
+                                          showDashTimesDialogue(
+                                            context,
+                                            product,
+                                            (p) => p.count,
+                                            (data) => data.businessName,
+                                            (data) => formatAmount(data.price),
+                                            (data) => formatAmount(data.tax),
+                                            (data) => data.quantity.toString(),
+                                            (data) => formatAmount(
+                                              data.inclTax == "incl_tax"
+                                                  ? ((double.tryParse(data.totalPrice.toString()) ?? 0))
+                                                  : (((double.tryParse(data.totalPrice.toString()) ?? 0) + (double.tryParse(data.tax.toString()) ?? 0.0))),
+                                            ),
+                                            (data) => DateFormat('dd-MM-yyyy').format(data.createdAt!),
+                                            (data) => data.orderId.toString(),
+                                            false,
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF0284C7),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            product.count.length.toString(),
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontFamily: 'Poppins_Regular',
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Amount
+                                  SizedBox(
+                                    width: colWidth4,
+                                    child: Center(
+                                      child: Text(
+                                        formatAmount(product.totalPrice),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+
+                                  // Qty
+                                  SizedBox(
+                                    width: colWidth5,
+                                    child: Center(
+                                      child: Text(
+                                        product.quantity.toString(),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
-      }
-    },
-  );
+      },
+    );
+  }
 }

@@ -882,23 +882,23 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         headingTextStyle: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
-                                          color: Colors.black,
-                                          letterSpacing: 0.1,
+                                          color: Color(0xFF0F172A),
+                                          letterSpacing: 0.3,
                                         ),
                                         dataRowMinHeight: 56,
                                         dataRowMaxHeight: 68,
-                                        columnSpacing: 12,
-                                        horizontalMargin: 12,
+                                        columnSpacing: 14,
+                                        horizontalMargin: 16,
                                         columns: [
-                                          DataColumn(label: Text('Customer List'.tr)),
-                                          DataColumn(label: Text('Order No.'.tr)),
-                                          DataColumn(label: Text('Created'.tr)),
-                                          DataColumn(label: Text('Created By'.tr)),
+                                          DataColumn(label: Text('Customer'.tr)),
+                                          DataColumn(label: Text('Order #'.tr)),
+                                          DataColumn(label: Text('Date'.tr)),
+                                          DataColumn(label: Text('Sales Rep'.tr)),
                                           DataColumn(label: Text('Amount'.tr)),
                                           DataColumn(label: Text('Invoice'.tr)),
                                           DataColumn(label: Text('Payment'.tr)),
                                           DataColumn(label: Text('Status'.tr)),
-                                          const DataColumn(label: Text('')),
+                                          const DataColumn(label: Text('Action')),
                                         ],
                                         rows: filteredOrders.map((order) {
                                           final customer = order.customer.isNotEmpty ? order.customer[0] : null;
@@ -977,7 +977,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   ),
                                                 ),
                                               ),
-                                              // Created
+                                              // Date
                                               DataCell(
                                                 Text(
                                                   order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
@@ -986,7 +986,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                 ),
                                               ),
-                                              // Created By
+                                              // Sales Rep
                                               DataCell(
                                                 SizedBox(
                                                   width: 90,
@@ -1342,21 +1342,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         headingTextStyle: const TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
-                                          color: Colors.black,
-                                          letterSpacing: 0.1,
+                                          color: Color(0xFF0F172A),
+                                          letterSpacing: 0.3,
                                         ),
                                         dataRowMinHeight: 56,
                                         dataRowMaxHeight: 68,
                                         columnSpacing: 14,
-                                        horizontalMargin: 14,
+                                        horizontalMargin: 16,
                                         columns: [
-                                          DataColumn(label: Text('Customer List'.tr)),
-                                          DataColumn(label: Text('$orderType ${'No.'.tr}')),
-                                          DataColumn(label: Text('Created'.tr)),
-                                          DataColumn(label: Text('Created By'.tr)),
-                                          DataColumn(label: Text('$orderType ${'Amount'.tr}')),
+                                          DataColumn(label: Text('Customer'.tr)),
+                                          DataColumn(label: Text('$orderType #'.tr)),
+                                          DataColumn(label: Text('Date'.tr)),
+                                          DataColumn(label: Text('Sales Rep'.tr)),
+                                          DataColumn(label: Text('Amount'.tr)),
                                           DataColumn(label: Text('Status'.tr)),
-                                          const DataColumn(label: Text('')),
+                                          const DataColumn(label: Text('Action')),
                                         ],
                                         rows: [
                                           // Server Orders
@@ -1442,7 +1442,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     ),
                                                   ),
                                                 ),
-                                                // Created
+                                                // Date
                                                 DataCell(
                                                   Text(
                                                     order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
@@ -1451,7 +1451,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                   ),
                                                 ),
-                                                // Created By
+                                                // Sales Rep
                                                 DataCell(
                                                   SizedBox(
                                                     width: 90,

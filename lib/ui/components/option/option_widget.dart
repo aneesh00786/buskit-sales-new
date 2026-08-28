@@ -717,6 +717,7 @@ class _OptionWidgetState extends State<OptionWidget> {
   void _showOrderStatusDialog(BuildContext context, DashboardProvider provider,
       OrderStatus selectedOrderStatus) {
     final ScrollController verticalScrollController = ScrollController();
+    final ScrollController horizontalScrollController = ScrollController();
 
     showDialog(
       barrierDismissible: false,
@@ -844,19 +845,27 @@ class _OptionWidgetState extends State<OptionWidget> {
                         Flexible(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                  child: Scrollbar(
-                                    controller: verticalScrollController,
-                                    thumbVisibility: true,
-                                    radius: const Radius.circular(8),
-                                    thickness: 6,
-                                    child: SingleChildScrollView(
+                              return Scrollbar(
+                                controller: horizontalScrollController,
+                                thumbVisibility: true,
+                                trackVisibility: true,
+                                radius: const Radius.circular(8),
+                                thickness: 6,
+                                child: SingleChildScrollView(
+                                  controller: horizontalScrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                                    child: Scrollbar(
                                       controller: verticalScrollController,
-                                      scrollDirection: Axis.vertical,
-                                      child: DataTable(
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      radius: const Radius.circular(8),
+                                      thickness: 6,
+                                      child: SingleChildScrollView(
+                                        controller: verticalScrollController,
+                                        scrollDirection: Axis.vertical,
+                                        child: DataTable(
                                         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                         headingTextStyle: const TextStyle(
                                           fontFamily: 'Poppins_Regular',
@@ -1095,7 +1104,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                     ),
                                   ),
                                 ),
-                              );
+                              ),
+                            );
                             },
                           ),
                         ),
@@ -1161,6 +1171,7 @@ class _OptionWidgetState extends State<OptionWidget> {
     List<dynamic>? offlineDraftDetails,
   }) {
     final ScrollController verticalScrollController = ScrollController();
+    final ScrollController horizontalScrollController = ScrollController();
 
     var offlineDraftTotal = (offlineDraftDetails == null
         ? 0.0
@@ -1341,19 +1352,27 @@ class _OptionWidgetState extends State<OptionWidget> {
                         Flexible(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                  child: Scrollbar(
-                                    controller: verticalScrollController,
-                                    thumbVisibility: true,
-                                    radius: const Radius.circular(8),
-                                    thickness: 6,
-                                    child: SingleChildScrollView(
+                              return Scrollbar(
+                                controller: horizontalScrollController,
+                                thumbVisibility: true,
+                                trackVisibility: true,
+                                radius: const Radius.circular(8),
+                                thickness: 6,
+                                child: SingleChildScrollView(
+                                  controller: horizontalScrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                                    child: Scrollbar(
                                       controller: verticalScrollController,
-                                      scrollDirection: Axis.vertical,
-                                      child: DataTable(
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      radius: const Radius.circular(8),
+                                      thickness: 6,
+                                      child: SingleChildScrollView(
+                                        controller: verticalScrollController,
+                                        scrollDirection: Axis.vertical,
+                                        child: DataTable(
                                         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                         headingTextStyle: const TextStyle(
                                           fontFamily: 'Poppins_Regular',
@@ -1718,10 +1737,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         ),
+                      ),
 
                       // --- FOOTER ---
                       if (totalRecordCount > 0)

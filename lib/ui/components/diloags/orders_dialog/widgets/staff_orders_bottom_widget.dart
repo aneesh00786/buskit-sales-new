@@ -59,7 +59,7 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                     )),
                     DataColumn(
                         label: SizedBox(
-                      width: flexWidth * 1,
+                      width: flexWidth * 1.35,
                       child: Center(
                         child: CustomText(
                           content: 'Total',
@@ -71,7 +71,7 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                     )),
                     DataColumn(
                         label: SizedBox(
-                      width: flexWidth * 1,
+                      width: flexWidth * 1.35,
                       child: Center(
                         child: CustomText(
                           content: formatAmount(filteredOrders.fold<double>(

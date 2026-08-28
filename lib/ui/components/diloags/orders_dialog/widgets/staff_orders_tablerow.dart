@@ -164,10 +164,10 @@ class StaffOrdersTableRow extends StatelessWidget {
                           SizedBox(width: flexWidth * 0.9),
                         ),
                         DataCell(
-                          SizedBox(width: flexWidth * 1),
+                          SizedBox(width: flexWidth * 1.35),
                         ),
                         DataCell(
-                          SizedBox(width: flexWidth * 1),
+                          SizedBox(width: flexWidth * 1.35),
                         ),
                         DataCell(
                           SizedBox(width: flexWidth * 0.9),

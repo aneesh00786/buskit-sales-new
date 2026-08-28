@@ -863,7 +863,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: SizedBox(
-                              width: (screenWidth > 1100 ? 980 : screenWidth * 0.9).clamp(850.0, 1200.0),
+                              width: (screenWidth > 1100 ? 980.0 : screenWidth * 0.9).clamp(850.0, 1200.0).toDouble(),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.vertical,
                                 child: DataTable(
@@ -1301,7 +1301,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: SizedBox(
-                              width: (screenWidth > 1100 ? 980 : screenWidth * 0.9).clamp(850.0, 1200.0),
+                              width: (screenWidth > 1100 ? 980.0 : screenWidth * 0.9).clamp(850.0, 1200.0).toDouble(),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.vertical,
                                 child: DataTable(

@@ -1,20 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
-import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/build_row_content_data.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 Future<dynamic> showDashTimesDialogue<T>(
   BuildContext context,
@@ -81,375 +75,329 @@ class DashTimesDialog<T> extends StatefulWidget {
 
 class _DashTimesDialogState<T> extends State<DashTimesDialog<T>> {
   late List<dynamic> timesDataList;
-
-  late LinkedScrollControllerGroup _controllers;
-
-  late ScrollController _scrollController1;
-  late ScrollController _scrollController2;
-  late ScrollController _scrollController3;
+  final ScrollController _verticalController = ScrollController();
+  final ScrollController _horizontalController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     timesDataList = widget.getTimesData(widget.product);
+  }
 
-    _controllers = LinkedScrollControllerGroup();
+  @override
+  void dispose() {
+    _verticalController.dispose();
+    _horizontalController.dispose();
+    super.dispose();
+  }
 
-    // SET 1
-    _scrollController1 = _controllers.addAndGet();
-    _scrollController2 = _controllers.addAndGet();
-    _scrollController3 = _controllers.addAndGet();
+  String get productTitle {
+    if (widget.product is TopSellingProductA) {
+      final p = widget.product as TopSellingProductA;
+      return '${p.productName} - ${p.variationName}';
+    } else if (widget.product is FrequantliyProductList) {
+      final p = widget.product as FrequantliyProductList;
+      return p.variationName.isNotEmpty ? '${p.productName} - ${p.variationName}' : p.productName;
+    }
+    return '';
   }
 
   @override
   Widget build(BuildContext context) {
-    double rowHeight = 40.0;
-    double headerHeight = 30.0;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-    double maxDialogHeight = MediaQuery.of(context).size.height * 0.7;
-    double listHeight = timesDataList.length * rowHeight;
-    double contentHeight =
-        listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+    int totalQty = timesDataList.fold(0, (sum, item) {
+      String str = widget.getQuantity(item).replaceAll(RegExp(r'[^0-9.]'), '');
+      return sum + (int.tryParse(str) ?? 0);
+    });
 
-    double dialogWidth = isPhonePortrait(context)
-        ? fullScreenWidth(context)
-        : widget.isDash
-            ? fullScreenWidth(context) * 0.9
-            : fullScreenWidth(context) * 0.75;
+    double totalTax = timesDataList.fold(0.0, (sum, item) {
+      String str = widget.getTax(item).replaceAll(RegExp(r'[^0-9.]'), '');
+      return sum + (double.tryParse(str) ?? 0.0);
+    });
+
+    double totalSum = timesDataList.fold(0.0, (sum, item) {
+      String str = widget.getTotalPrice(item).replaceAll(RegExp(r'[^0-9.]'), '');
+      return sum + (double.tryParse(str) ?? 0.0);
+    });
 
     return Dialog(
-      insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
-      backgroundColor: white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ConstrainedBox(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      child: Container(
+        width: double.infinity,
         constraints: BoxConstraints(
-          maxHeight: maxDialogHeight,
+          maxWidth: 820,
+          maxHeight: screenHeight * 0.88,
         ),
-        child: SizedBox(
-          width: dialogWidth,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 🔹 Header bar
+              // 🔹 Gradient Header
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 decoration: const BoxDecoration(
-                  color: primaryColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [primaryColor, Color(0xFF2D3748)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: MyRegularText(
-                        label: widget.product is TopSellingProductA
-                            ? '${(widget.product as TopSellingProductA).productName} - ${(widget.product as TopSellingProductA).variationName}'
-                            : widget.product is FrequantliyProductList
-                                ? (widget.product as FrequantliyProductList)
-                                    .productName
-                                : '',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'Poppins_Regular',
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxlines: 5,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 17),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              productTitle,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: 0.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white.withOpacity(0.35)),
+                            ),
+                            child: Text(
+                              '${timesDataList.length} ${'Records'.tr}',
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    dialogCloseButton1(context, red),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 17),
+                      ),
+                    ),
                   ],
                 ),
               ),
 
-              // 🔹 Column headers
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller: _scrollController1,
-                child: Container(
-                  color: const Color.fromARGB(255, 247, 247, 247),
-                  height: headerHeight,
-                  width: isPhonePortrait(context)
-                      ? fullScreenWidth(context) * 2
-                      : fullScreenWidth(context) * 0.9,
+              // 🔹 Table / Data Body
+              if (timesDataList.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(32),
+                  child: Center(child: NodataWidget()),
+                )
+              else
+                Flexible(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Scrollbar(
+                        controller: _verticalController,
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        radius: const Radius.circular(8),
+                        thickness: 6,
+                        notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
+                        child: Scrollbar(
+                          controller: _horizontalController,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          radius: const Radius.circular(8),
+                          thickness: 6,
+                          notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+                          child: SingleChildScrollView(
+                            controller: _verticalController,
+                            scrollDirection: Axis.vertical,
+                            child: SingleChildScrollView(
+                              controller: _horizontalController,
+                              scrollDirection: Axis.horizontal,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                                child: DataTable(
+                                  headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+                                  headingTextStyle: const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF0F172A),
+                                    letterSpacing: 0.3,
+                                  ),
+                                  dataRowMinHeight: 44,
+                                  dataRowMaxHeight: 52,
+                                  columnSpacing: 16,
+                                  horizontalMargin: 16,
+                                  columns: [
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Sl.No.'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    if (widget.isDash)
+                                      DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Customer'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Order Id'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Date'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Price'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Quantity'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Tax'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                    DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Amount'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                  ],
+                                  rows: timesDataList.asMap().entries.map((entry) {
+                                    int index = entry.key;
+                                    var item = entry.value;
+                                    String orderId = widget.getOrderId(item);
+
+                                    return DataRow(
+                                      cells: [
+                                        // Sl.No.
+                                        DataCell(Center(child: Text('${index + 1}.', textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)))),
+                                        // Customer (if isDash)
+                                        if (widget.isDash)
+                                          DataCell(Center(child: Text(widget.getCustomer(item), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87)))),
+                                        // Order Id
+                                        DataCell(
+                                          Center(
+                                            child: InkWell(
+                                              onTap: () async {
+                                                bool isOnline = await ConnectivityService().isOnline();
+                                                if (isOnline) {
+                                                  showDetailedOrderInvoiceDialog(context, orderId, false);
+                                                } else {
+                                                  showCustomToastDisplay(context, "You are Offline!", red, Icons.warning);
+                                                }
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                                decoration: BoxDecoration(
+                                                  color: primaryColor.withOpacity(0.1),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                  border: Border.all(color: primaryColor.withOpacity(0.3)),
+                                                ),
+                                                child: Text(
+                                                  orderId,
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(
+                                                    fontFamily: 'Poppins_Regular',
+                                                    color: primaryColor,
+                                                    fontSize: 11.5,
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Date
+                                        DataCell(Center(child: Text(widget.getPurchasedAt(item), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)))),
+                                        // Price
+                                        DataCell(Center(child: Text(widget.getPrice(item), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)))),
+                                        // Quantity
+                                        DataCell(Center(child: Text(widget.getQuantity(item), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black)))),
+                                        // Tax
+                                        DataCell(Center(child: Text(widget.getTax(item), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)))),
+                                        // Amount
+                                        DataCell(Center(child: Text(widget.getTotalPrice(item), textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black)))),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+              // 🔹 Summary Footer
+              if (timesDataList.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    border: Border(top: BorderSide(color: Color(0xFFCBD5E1))),
+                  ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (widget.isDash) ...[
-                        SizedBox(width: 50, child: buildHeader('  Sl.No.'.tr)),
-                        Expanded(flex: 2, child: buildHeader('Customer'.tr)),
-                        Expanded(child: buildHeader('Order Id'.tr)),
-                        Expanded(child: buildHeader('Date'.tr)),
-                        Expanded(child: buildHeader('Price'.tr)),
-                        Expanded(child: buildHeader('Quantity'.tr)),
-                        Expanded(child: buildHeader('Tax'.tr)),
-                        Expanded(child: buildHeader('Amount'.tr)),
-                      ],
-                      if (!widget.isDash) ...[
-                        SizedBox(width: 50, child: buildHeader('  Sl.No.'.tr)),
-                        Expanded(child: buildHeader('Order Id'.tr)),
-                        Expanded(child: buildHeader('Date'.tr)),
-                        Expanded(child: buildHeader('Price'.tr)),
-                        Expanded(child: buildHeader('Quantity'.tr)),
-                        Expanded(child: buildHeader('Tax'.tr)),
-                        Expanded(child: buildHeader('Amount'.tr)),
-                      ],
+                      Row(
+                        children: [
+                          Text(
+                            '${'Total'.tr}: ',
+                            style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                          ),
+                          Text(
+                            '${timesDataList.length} ${'Orders'.tr} (Qty: $totalQty)',
+                            style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: primaryColor.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              '${'Total Amount'.tr}: ',
+                              style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                            ),
+                            Text(
+                              formatAmount(totalSum),
+                              style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-
-              // 🔹 Content list
-              Flexible(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  controller: _scrollController2,
-                  child: SizedBox(
-                    height: contentHeight,
-                    width: isPhonePortrait(context)
-                        ? fullScreenWidth(context) * 2
-                        : fullScreenWidth(context) * 0.9,
-                    child: ScrollbarTheme(
-                      data: const ScrollbarThemeData(
-                        thickness: WidgetStatePropertyAll(5),
-                        thumbColor: WidgetStatePropertyAll(Colors.blue),
-                      ),
-                      child: Scrollbar(
-                        thumbVisibility: true,
-                        trackVisibility: true,
-                        child: ListView.builder(
-                          primary: false,
-                          itemCount:
-                              timesDataList.isEmpty ? 1 : timesDataList.length,
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) {
-                            if (timesDataList.isEmpty) {
-                              return buildEmptyRow();
-                            } else {
-                              var timesData = timesDataList[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                ),
-                                height: rowHeight,
-                                child: Row(
-                                  children: [
-                                    if (widget.isDash) ...[
-                                      SizedBox(
-                                          width: 50,
-                                          child:
-                                              buildRowData("  ${index + 1}.")),
-                                      Expanded(
-                                          flex: 2,
-                                          child: buildRowData(
-                                              widget.getCustomer(timesData))),
-                                      Expanded(
-                                          child: InkWell(
-                                        onTap: () async {
-                                          bool isOnline =
-                                              await ConnectivityService()
-                                                  .isOnline();
-                                          if (isOnline) {
-                                            showDetailedOrderInvoiceDialog(
-                                                context,
-                                                widget.getOrderId(timesData),
-                                                false);
-                                          } else {
-                                            showCustomToastDisplay(
-                                                context,
-                                                "You are Offline!",
-                                                red,
-                                                Icons.warning);
-                                          }
-                                        },
-                                        child: buildRowData(
-                                            widget.getOrderId(timesData),
-                                            textColor: primaryColor),
-                                      )),
-                                      Expanded(
-                                          child: buildRowData(widget
-                                              .getPurchasedAt(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getPrice(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getQuantity(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getTax(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getTotalPrice(timesData))),
-                                    ],
-                                    if (!widget.isDash) ...[
-                                      SizedBox(
-                                          width: 50,
-                                          child:
-                                              buildRowData("  ${index + 1}.")),
-                                      Expanded(
-                                          child: InkWell(
-                                        onTap: () {
-                                          showDetailedOrderInvoiceDialog(
-                                              context,
-                                              widget.getOrderId(timesData),
-                                              false);
-                                        },
-                                        child: buildRowData(
-                                            widget.getOrderId(timesData),
-                                            textColor: primaryColor),
-                                      )),
-                                      Expanded(
-                                          child: buildRowData(widget
-                                              .getPurchasedAt(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getPrice(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getQuantity(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getTax(timesData))),
-                                      Expanded(
-                                          child: buildRowData(
-                                              widget.getTotalPrice(timesData))),
-                                    ],
-                                  ],
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // 🔹 Footer totals
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                controller: _scrollController3,
-                child: Container(
-                  width: isPhonePortrait(context)
-                      ? fullScreenWidth(context) * 2
-                      : fullScreenWidth(context) * 0.9,
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.grey,
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  height: rowHeight,
-                  child: SizedBox(
-                    width: isPhonePortrait(context)
-                        ? fullScreenWidth(context) * 2
-                        : double.maxFinite,
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 50),
-                        Expanded(
-                          flex: widget.isDash ? 5 : 3,
-                          child: CustomText(
-                            fontWeight: FontWeight.w600,
-                            textAlign: TextAlign.center,
-                            content: 'Total'.tr,
-                            fontSize: 11,
-                            maxLine: 1,
-                          ),
-                        ),
-                        Expanded(
-                          child: CustomText(
-                            fontWeight: FontWeight.w600,
-                            textAlign: TextAlign.center,
-                            content: () {
-                              int total = timesDataList.fold(0, (sum, item) {
-                                String priceStr = widget
-                                    .getQuantity(item)
-                                    .replaceAll(RegExp(r'[^0-9.]'), '');
-                                int price = int.tryParse(priceStr) ?? 0;
-                                return sum + price;
-                              });
-                              return total.toString();
-                            }(),
-                            fontSize: 11,
-                            maxLine: 1,
-                          ),
-                        ),
-                        Expanded(
-                          child: CustomText(
-                            fontWeight: FontWeight.w600,
-                            textAlign: TextAlign.center,
-                            content: () {
-                              double total =
-                                  timesDataList.fold(0.0, (sum, item) {
-                                String priceStr = widget
-                                    .getTax(item)
-                                    .replaceAll(RegExp(r'[^0-9.]'), '');
-                                double price = double.tryParse(priceStr) ?? 0.0;
-                                return sum + price;
-                              });
-                              return formatAmount(total);
-                            }(),
-                            fontSize: 11,
-                            maxLine: 1,
-                          ),
-                        ),
-                        Expanded(
-                          child: CustomText(
-                            fontWeight: FontWeight.w600,
-                            textAlign: TextAlign.center,
-                            content: () {
-                              double total =
-                                  timesDataList.fold(0.0, (sum, item) {
-                                String priceStr = widget
-                                    .getTotalPrice(item)
-                                    .replaceAll(RegExp(r'[^0-9.]'), '');
-                                double price = double.tryParse(priceStr) ?? 0.0;
-                                return sum + price;
-                              });
-                              return formatAmount(total);
-                            }(),
-                            fontSize: 11,
-                            maxLine: 1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-Widget buildHeader(String title) {
-  return Center(
-    child: Text(
-      title,
-      style: const TextStyle(
-        fontSize: 13,
-        fontFamily: 'Poppins_Regular',
-        fontWeight: FontWeight.bold,
-      ),
-      textAlign: TextAlign.center,
-    ),
-  );
 }

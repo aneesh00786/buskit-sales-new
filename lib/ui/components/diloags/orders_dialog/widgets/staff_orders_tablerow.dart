@@ -30,7 +30,7 @@ class StaffOrdersTableRow extends StatelessWidget {
               child: DataTable(
                   dataRowHeight: 0,
                   headingRowHeight: fullScreenWidth(context) > 740 ? 45 : 75,
-                  headingRowColor: const WidgetStatePropertyAll(primaryColor),
+                  headingRowColor: const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
                   columnSpacing: 10,
                   columns: [
                     DataColumn(
@@ -42,7 +42,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Customer List',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),
@@ -58,7 +58,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Order No.',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),
@@ -74,7 +74,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Created',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),
@@ -90,7 +90,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Amount',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),
@@ -106,7 +106,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Invoice',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),
@@ -122,7 +122,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Payment Status',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),
@@ -138,7 +138,7 @@ class StaffOrdersTableRow extends StatelessWidget {
                         child: Center(
                           child: CustomText(
                             content: 'Status',
-                            color: white,
+                            color: const Color(0xFF0F172A),
                             fontSize: fontSize + 2,
                             fontFamily: commonFont,
                           ),

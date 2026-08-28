@@ -100,18 +100,81 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: white,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.18),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🔹 Gradient Header Bar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [primaryColor, Color(0xFF2D3748)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 17),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.heading.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontFamily: 'Poppins_Regular',
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 🔹 Table Content
+              Flexible(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
                   double availableWidth = constraints.maxWidth;
                   double fontSize = (availableWidth * 0.017).clamp(7.0, 15.0);
                   double padding = availableWidth / 100;
@@ -139,7 +202,7 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                                   headingRowHeight:
                                       fullScreenWidth(context) > 740 ? 45 : 75,
                                   headingRowColor: const WidgetStatePropertyAll(
-                                      primaryColor),
+                                      Color(0xFFF1F5F9)),
                                   columnSpacing: 10,
                                   headingTextStyle: TextStyle(
                                       fontSize: fontSize + 1,
@@ -605,24 +668,16 @@ class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
                           scrollController2: _scrollController2,
                           flexWidth: flexWidth,
                           fontSize: fontSize),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: SizedBox(
-                          height: 45,
-                          width: 45,
-                          child:
-                              Center(child: dialogCloseButton1(context, red)),
-                        ),
-                      ),
+                      const SizedBox.shrink(),
                     ],
                   );
                 },
               ),
             ),
-          ),
+          ],
         ),
-      ],
-    );
+      ),
+    ),
+  );
   }
 }

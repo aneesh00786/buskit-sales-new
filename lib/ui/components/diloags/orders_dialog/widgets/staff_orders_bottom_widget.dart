@@ -34,7 +34,7 @@ class StaffOrdersBottomWidget extends StatelessWidget {
               child: DataTable(
                   dataRowHeight: 0,
                   headingRowHeight: 30,
-                  headingRowColor: const WidgetStatePropertyAll(primaryColor),
+                  headingRowColor: const WidgetStatePropertyAll(Color(0xFFF8FAFC)),
                   columnSpacing: 10,
                   columns: [
                     DataColumn(
@@ -63,7 +63,7 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                       child: Center(
                         child: CustomText(
                           content: 'Total',
-                          color: white,
+                          color: const Color(0xFF0F172A),
                           fontSize: fontSize + 2,
                           fontFamily: commonFont,
                         ),
@@ -78,7 +78,7 @@ class StaffOrdersBottomWidget extends StatelessWidget {
                             0.0,
                             (sum, order) => sum + (order.orderTotal ?? 0.0),
                           )),
-                          color: white,
+                          color: const Color(0xFF0F172A),
                           fontSize: fontSize + 2,
                           fontFamily: commonFont,
                         ),

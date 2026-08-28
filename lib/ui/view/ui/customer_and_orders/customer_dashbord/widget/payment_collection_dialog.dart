@@ -330,35 +330,62 @@ void paymentCollectionDialog(
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(16)),
               insetPadding: const EdgeInsets.symmetric(horizontal: 20),
               backgroundColor: Colors.white,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF335098),
+                      gradient: LinearGradient(
+                        colors: [primaryColor, Color(0xFF2D3748)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12)),
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("Share Payment Link",
-                            style: TextStyle(
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.share_rounded, color: Colors.white, size: 17),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              "Share Payment Link".tr,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 15.5,
+                                fontWeight: FontWeight.w800,
                                 color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500)),
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
                         InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Icon(Icons.close,
-                              color: Colors.white, size: 20),
+                          onTap: () => Navigator.of(context).pop(),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close, color: Colors.white, size: 17),
+                          ),
                         ),
                       ],
                     ),
@@ -372,7 +399,7 @@ void paymentCollectionDialog(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(16)),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -415,7 +442,7 @@ void paymentCollectionDialog(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(16)),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -458,7 +485,7 @@ void paymentCollectionDialog(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(16)),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -676,7 +703,7 @@ void paymentCollectionDialog(
   //         return StatefulBuilder(builder: (context, setState) {
   //           return Dialog(
   //             shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(12)),
+  //                 borderRadius: BorderRadius.circular(16)),
   //             insetPadding: const EdgeInsets.symmetric(horizontal: 20),
   //             backgroundColor: Colors.white,
   //             child: Column(
@@ -719,7 +746,7 @@ void paymentCollectionDialog(
   //                         padding: const EdgeInsets.all(12),
   //                         decoration: BoxDecoration(
   //                             border: Border.all(color: Colors.grey.shade300),
-  //                             borderRadius: BorderRadius.circular(10)),
+  //                             borderRadius: BorderRadius.circular(16)),
   //                         child: Row(
   //                           crossAxisAlignment: CrossAxisAlignment.center,
   //                           children: [
@@ -761,7 +788,7 @@ void paymentCollectionDialog(
   //                         padding: const EdgeInsets.all(12),
   //                         decoration: BoxDecoration(
   //                             border: Border.all(color: Colors.grey.shade300),
-  //                             borderRadius: BorderRadius.circular(10)),
+  //                             borderRadius: BorderRadius.circular(16)),
   //                         child: Row(
   //                           crossAxisAlignment: CrossAxisAlignment.center,
   //                           children: [
@@ -1038,34 +1065,62 @@ void paymentCollectionDialog(
       return Dialog(
         insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: SingleChildScrollView(
           child: Column(
             children: [
               Container(
-                height: 45,
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 decoration: const BoxDecoration(
-                  color: primaryColor,
+                  gradient: LinearGradient(
+                    colors: [primaryColor, Color(0xFF2D3748)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Payment',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontFamily: 'Poppins_Regular',
-                        fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.payment_rounded, color: Colors.white, size: 17),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Payment Collection'.tr,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 17),
                       ),
                     ),
-                    dialogCloseButton1(context, red),
                   ],
                 ),
               ),

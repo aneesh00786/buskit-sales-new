@@ -1,5 +1,5 @@
-
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +49,6 @@ class _PaymentHistoryButtonState extends State<PaymentHistoryButton> {
       builder: (context) {
         return Stack(
           children: [
-            // 1. Invisible full-screen detector to close popup when clicking outside
             Positioned.fill(
               child: GestureDetector(
                 onTap: _closePopup,
@@ -57,26 +56,24 @@ class _PaymentHistoryButtonState extends State<PaymentHistoryButton> {
                 child: Container(color: Colors.transparent),
               ),
             ),
-            // 2. The Anchored Popup
             CompositedTransformFollower(
               link: _layerLink,
               showWhenUnlinked: false,
-              // Offset: Moves the popup to the right (-10) and down (30) relative to icon
-              offset: const Offset(-200, 30), // Adjust -200 to shift left/right
+              offset: const Offset(-240, 30),
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  width: 300, // Fixed width for the popup
+                  width: 320,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
-                      BoxShadow(color: Colors.black26, blurRadius: 10, spreadRadius: 2)
+                      BoxShadow(color: Colors.black.withOpacity(0.18), blurRadius: 16, offset: const Offset(0, 6)),
                     ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: _PaymentHistoryContent(orderId: widget.orderId),
+                    borderRadius: BorderRadius.circular(12),
+                    child: _PaymentHistoryContent(orderId: widget.orderId, onClose: _closePopup),
                   ),
                 ),
               ),
@@ -91,14 +88,15 @@ class _PaymentHistoryButtonState extends State<PaymentHistoryButton> {
 
   @override
   Widget build(BuildContext context) {
-    print('payment history button called');
     return CompositedTransformTarget(
       link: _layerLink,
       child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
         icon: Icon(
           Icons.info_outline,
           size: widget.iconSize,
-          color: Colors.blue,
+          color: primaryColor,
         ),
         onPressed: _togglePopup,
       ),
@@ -106,27 +104,26 @@ class _PaymentHistoryButtonState extends State<PaymentHistoryButton> {
   }
 }
 
-// Separate widget for the content to handle FutureBuilder cleanly
 class _PaymentHistoryContent extends StatelessWidget {
   final String orderId;
+  final VoidCallback onClose;
 
-  const _PaymentHistoryContent({required this.orderId});
+  const _PaymentHistoryContent({required this.orderId, required this.onClose});
 
   Future<List<dynamic>> _fetchData() async {
     try {
       final dio = Dio();
       final response = await dio.post(
-         '${ApiConstants.baseUrl1}/get_previous_partial_payment',
-        // 'https://test.thrivewoo.com/get_previous_partial_payment',
+        '${ApiConstants.baseUrl1}/get_previous_partial_payment',
         data: {"order_id": orderId, "companyId": 1},
       );
-      
+
       if (response.statusCode == 200 && response.data != null) {
         return response.data is List ? response.data : (response.data['data'] ?? []);
       }
       return [];
     } catch (e) {
-      return []; // Handle error gracefully or rethrow
+      return [];
     }
   }
 
@@ -143,9 +140,14 @@ class _PaymentHistoryContent extends StatelessWidget {
         }
 
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-          return  Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("No history found".tr),
+          return Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Center(
+              child: Text(
+                "No history found".tr,
+                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+            ),
           );
         }
 
@@ -156,71 +158,122 @@ class _PaymentHistoryContent extends StatelessWidget {
           children: [
             // Header
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              color: Colors.grey.shade200,
-              child:  Text("Payment history".tr,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            ),
-            // Table Header
-             Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children:  [
-                    Expanded(child: Text("Date".tr, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-                    Expanded(child: Text("Amount".tr, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-                    Expanded(child: Text("Mode".tr, textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-                  ],
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [primaryColor, Color(0xFF2D3748)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-            const Divider(height: 1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.history_rounded, color: Colors.white, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Payment History".tr,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  InkWell(
+                    onTap: onClose,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, color: Colors.white, size: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Table Header
+            Container(
+              color: const Color(0xFFF1F5F9),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Date".tr,
+                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontWeight: FontWeight.w800, fontSize: 11.5, color: Color(0xFF0F172A)),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      "Amount".tr,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontWeight: FontWeight.w800, fontSize: 11.5, color: Color(0xFF0F172A)),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      "Mode".tr,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontWeight: FontWeight.w800, fontSize: 11.5, color: Color(0xFF0F172A)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // List
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 150),
-              child: ListView.builder(
+              constraints: const BoxConstraints(maxHeight: 180),
+              child: ListView.separated(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 itemCount: data.length,
-                // Inside _PaymentHistoryContent -> ListView.builder
+                separatorBuilder: (context, idx) => const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                itemBuilder: (ctx, index) {
+                  final item = data[index];
+                  final date = item['old_received_amount_date'] ?? '-';
+                  final amount = item['old_received_amount'] ?? '0';
+                  final paymentType = item['old_payment_type'] == "0" ? "Cash" : "Card";
 
-itemBuilder: (ctx, index) {
-  final item = data[index];
-  
-  // 1. Map the specific keys from your Postman response
-  final date = item['old_received_amount_date'] ?? '-';
-  final amount = item['old_received_amount'] ?? '0';
-  
-  
-  final paymentType = item['old_payment_type'] == "0" ? "Cash" : "Card"; 
-
-  
-  // final displayDate = date.toString().contains('T') 
-  //     ? date.toString().split('T')[0] 
-  //     : date.toString();
-
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Row(
-      children: [
-        // Display mapped data
-        Expanded(
-          child: Text(NKDateUtils.commonDayFormat2(DateTime.parse(date)), style: const TextStyle(fontSize: 12))
-        ),
-        Expanded(
-          child: Text(formatAmount(amount), textAlign: TextAlign.center, style: const TextStyle(fontSize: 12))
-        ),
-        Expanded(
-          child: Text(paymentType, textAlign: TextAlign.right, style: const TextStyle(fontSize: 12))
-        ),
-      ],
-    ),
-  );
-},
-                
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            NKDateUtils.commonDayFormat2(DateTime.parse(date)),
+                            style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11.5, fontWeight: FontWeight.w600, color: Colors.black87),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            formatAmount(amount),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            paymentType,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11.5, fontWeight: FontWeight.w700, color: primaryColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
-             const SizedBox(height: 8),
           ],
         );
       },

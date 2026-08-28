@@ -683,6 +683,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           Text(
             text.tr,
             style: TextStyle(
+              fontFamily: 'Poppins_Regular',
               color: textColor,
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -717,6 +718,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           Text(
             title.tr,
             style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
               fontSize: 15,
               fontWeight: FontWeight.w800,
               color: Colors.black,
@@ -726,6 +728,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           Text(
             subtitle.tr,
             style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
               fontSize: 12.5,
               color: Colors.black87,
               fontWeight: FontWeight.w500,
@@ -809,6 +812,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 Text(
                                   'Orders'.tr,
                                   style: const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
                                     fontSize: 15.5,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -827,6 +831,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                     child: Text(
                                       '${filteredOrders.length} ${'Records'.tr}',
                                       style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
@@ -880,6 +885,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                       child: DataTable(
                                         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                         headingTextStyle: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
                                           color: Color(0xFF0F172A),
@@ -890,15 +896,15 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         columnSpacing: 14,
                                         horizontalMargin: 16,
                                         columns: [
-                                          DataColumn(label: Text('Customer'.tr)),
-                                          DataColumn(label: Text('Order #'.tr)),
-                                          DataColumn(label: Text('Date'.tr)),
-                                          DataColumn(label: Text('Sales Rep'.tr)),
-                                          DataColumn(label: Text('Amount'.tr)),
-                                          DataColumn(label: Text('Invoice'.tr)),
-                                          DataColumn(label: Text('Payment'.tr)),
-                                          DataColumn(label: Text('Status'.tr)),
-                                          const DataColumn(label: Text('Action')),
+                                          DataColumn(label: Text('Customer'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Order #'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Date'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Sales Rep'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Amount'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Invoice'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Payment'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Status'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          const DataColumn(label: Text('Action', style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
                                         ],
                                         rows: filteredOrders.map((order) {
                                           final customer = order.customer.isNotEmpty ? order.customer[0] : null;
@@ -923,21 +929,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                           children: [
                                                             Text(
                                                               customer?.businessName ?? 'N/A',
-                                                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                                                              style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                               maxLines: 1,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                             if (customer?.fullName != null && customer!.fullName.isNotEmpty)
                                                               Text(
                                                                 customer.fullName,
-                                                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis,
-                                                              ),
+                                                             ),
                                                             if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
                                                               Text(
                                                                 customer.mobileNo,
-                                                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis,
                                                               ),
@@ -969,6 +975,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     child: Text(
                                                       order.orderId,
                                                       style: const TextStyle(
+                                                        fontFamily: 'Poppins_Regular',
                                                         color: primaryColor,
                                                         fontSize: 11.5,
                                                         fontWeight: FontWeight.w800,
@@ -983,7 +990,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
                                                       ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
                                                       : 'N/A',
-                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                 ),
                                               ),
                                               // Sales Rep
@@ -992,7 +999,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   width: 90,
                                                   child: Text(
                                                     '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
@@ -1002,7 +1009,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                               DataCell(
                                                 Text(
                                                   formatAmount(order.orderTotal ?? 0.0),
-                                                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
                                                 ),
                                               ),
                                               // Invoice
@@ -1025,6 +1032,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   child: Text(
                                                     order.invoice.isEmpty ? '-' : order.invoice[0].invoiceId,
                                                     style: TextStyle(
+                                                      fontFamily: 'Poppins_Regular',
                                                       color: order.invoice.isEmpty ? Colors.black54 : primaryColor,
                                                       fontSize: 11.5,
                                                       fontWeight: FontWeight.w700,
@@ -1047,6 +1055,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   child: Text(
                                                     order.paymentStatus == 0 ? 'Pending'.tr : 'Paid'.tr,
                                                     style: TextStyle(
+                                                      fontFamily: 'Poppins_Regular',
                                                       fontSize: 10.5,
                                                       fontWeight: FontWeight.w800,
                                                       color: order.paymentStatus == 0 ? const Color(0xFF991B1B) : const Color(0xFF065F46),
@@ -1107,7 +1116,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                             children: [
                               Text(
                                 '${'Showing'.tr} ${filteredOrders.length} ${'Orders'.tr}',
-                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -1120,11 +1129,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                   children: [
                                     Text(
                                       '${'Total'.tr}: ',
-                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
                                     Text(
                                       formatAmount(totalSum),
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
+                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
                                     ),
                                   ],
                                 ),
@@ -1269,6 +1278,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 Text(
                                   '$orderType ${'List'.tr}',
                                   style: const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
                                     fontSize: 15.5,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
@@ -1287,6 +1297,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                     child: Text(
                                       '$totalRecordCount ${'Records'.tr}',
                                       style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
@@ -1340,6 +1351,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                       child: DataTable(
                                         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                         headingTextStyle: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
                                           color: Color(0xFF0F172A),
@@ -1350,13 +1362,13 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         columnSpacing: 14,
                                         horizontalMargin: 16,
                                         columns: [
-                                          DataColumn(label: Text('Customer'.tr)),
-                                          DataColumn(label: Text('$orderType #'.tr)),
-                                          DataColumn(label: Text('Date'.tr)),
-                                          DataColumn(label: Text('Sales Rep'.tr)),
-                                          DataColumn(label: Text('Amount'.tr)),
-                                          DataColumn(label: Text('Status'.tr)),
-                                          const DataColumn(label: Text('Action')),
+                                          DataColumn(label: Text('Customer'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('$orderType #'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Date'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Sales Rep'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Amount'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Text('Status'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          const DataColumn(label: Text('Action', style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
                                         ],
                                         rows: [
                                           // Server Orders
@@ -1383,21 +1395,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                             children: [
                                                               Text(
                                                                 customer?.businessName ?? 'N/A',
-                                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis,
                                                               ),
                                                               if (customer?.fullName != null && customer!.fullName.isNotEmpty)
                                                                 Text(
                                                                   customer.fullName,
-                                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
                                                                   maxLines: 1,
                                                                   overflow: TextOverflow.ellipsis,
                                                                 ),
                                                               if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
                                                                 Text(
                                                                   customer.mobileNo,
-                                                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
                                                                   maxLines: 1,
                                                                   overflow: TextOverflow.ellipsis,
                                                                 ),
@@ -1434,6 +1446,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                       child: Text(
                                                         order.orderId,
                                                         style: const TextStyle(
+                                                          fontFamily: 'Poppins_Regular',
                                                           color: primaryColor,
                                                           fontSize: 11.5,
                                                           fontWeight: FontWeight.w800,
@@ -1448,7 +1461,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
                                                         ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
                                                         : 'N/A',
-                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                   ),
                                                 ),
                                                 // Sales Rep
@@ -1457,7 +1470,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     width: 90,
                                                     child: Text(
                                                       '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
@@ -1467,7 +1480,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 DataCell(
                                                   Text(
                                                     formatAmount(order.orderTotal ?? 0.0),
-                                                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
                                                   ),
                                                 ),
                                                 // Status Badge
@@ -1561,14 +1574,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                               children: [
                                                                 Text(
                                                                   customerName,
-                                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                                   maxLines: 1,
                                                                   overflow: TextOverflow.ellipsis,
                                                                 ),
                                                                 if (customerMobile.isNotEmpty)
                                                                   Text(
                                                                     customerMobile,
-                                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
                                                                     maxLines: 1,
                                                                     overflow: TextOverflow.ellipsis,
                                                                   ),
@@ -1589,14 +1602,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                       ),
                                                       child: Text(
                                                         orderId,
-                                                        style: const TextStyle(color: primaryColor, fontSize: 11.5, fontWeight: FontWeight.w800),
+                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', color: primaryColor, fontSize: 11.5, fontWeight: FontWeight.w800),
                                                       ),
                                                     ),
                                                   ),
                                                   DataCell(
                                                     Text(
                                                       createdDate,
-                                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                     ),
                                                   ),
                                                   DataCell(
@@ -1604,7 +1617,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                       width: 90,
                                                       child: Text(
                                                         '${SessionHelper.loginSavedData?.fullname ?? ""}',
-                                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
                                                       ),
@@ -1613,7 +1626,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   DataCell(
                                                     Text(
                                                       formatAmount(displayTotal is double ? displayTotal : double.tryParse(displayTotal.toString()) ?? 0.0),
-                                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
                                                     ),
                                                   ),
                                                   DataCell(
@@ -1683,7 +1696,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                             children: [
                               Text(
                                 '${'Showing'.tr} $totalRecordCount $orderType ${'Records'.tr}',
-                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -1696,11 +1709,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                   children: [
                                     Text(
                                       '${'Total'.tr}: ',
-                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
                                     Text(
                                       formatAmount(overallTotal),
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
+                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
                                     ),
                                   ],
                                 ),

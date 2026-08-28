@@ -619,7 +619,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          leadingWidth: isMobile ? 150 : 200,
+          leadingWidth: isMobile ? 240 : 320,
           leading: Padding(
             padding: const EdgeInsets.all(5.0),
             child: Row(
@@ -893,10 +893,12 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                 ),
                 Expanded(
                   child: Text(
-                    isMobile ? "Customer..." : "Customer dashboard".tr,
+                    "Customer dashboard".tr,
                     style: TextStyle(
-                        fontSize: NkFontSize.largeFont(largeFont: 20),
-                        fontWeight: FontWeight.bold),
+                        fontFamily: 'Poppins_Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

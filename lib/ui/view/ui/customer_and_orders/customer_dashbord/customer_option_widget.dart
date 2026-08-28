@@ -877,15 +877,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 trackVisibility: true,
                                 radius: const Radius.circular(8),
                                 thickness: 6,
-                                child: SingleChildScrollView(
-                                  controller: verticalScrollController,
-                                  scrollDirection: Axis.vertical,
-                                  child: Scrollbar(
-                                    controller: horizontalScrollController,
-                                    thumbVisibility: true,
-                                    trackVisibility: true,
-                                    radius: const Radius.circular(8),
-                                    thickness: 6,
+                                notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
+                                child: Scrollbar(
+                                  controller: horizontalScrollController,
+                                  thumbVisibility: true,
+                                  trackVisibility: true,
+                                  radius: const Radius.circular(8),
+                                  thickness: 6,
+                                  notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+                                  child: SingleChildScrollView(
+                                    controller: verticalScrollController,
+                                    scrollDirection: Axis.vertical,
                                     child: SingleChildScrollView(
                                       controller: horizontalScrollController,
                                       scrollDirection: Axis.horizontal,
@@ -1376,15 +1378,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 trackVisibility: true,
                                 radius: const Radius.circular(8),
                                 thickness: 6,
-                                child: SingleChildScrollView(
-                                  controller: verticalScrollController,
-                                  scrollDirection: Axis.vertical,
-                                  child: Scrollbar(
-                                    controller: horizontalScrollController,
-                                    thumbVisibility: true,
-                                    trackVisibility: true,
-                                    radius: const Radius.circular(8),
-                                    thickness: 6,
+                                notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
+                                child: Scrollbar(
+                                  controller: horizontalScrollController,
+                                  thumbVisibility: true,
+                                  trackVisibility: true,
+                                  radius: const Radius.circular(8),
+                                  thickness: 6,
+                                  notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+                                  child: SingleChildScrollView(
+                                    controller: verticalScrollController,
+                                    scrollDirection: Axis.vertical,
                                     child: SingleChildScrollView(
                                       controller: horizontalScrollController,
                                       scrollDirection: Axis.horizontal,

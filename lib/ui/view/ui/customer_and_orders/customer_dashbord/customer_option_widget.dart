@@ -637,39 +637,58 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   Widget _buildStatusBadge(int? orderStatus, String text) {
     Color bg = const Color(0xFFF1F5F9);
     Color textColor = const Color(0xFF475569);
+    Color dotColor = const Color(0xFF64748B);
 
     if (orderStatus == 2 || text.toLowerCase().contains('deliver')) {
-      bg = const Color(0xFFDCFCE7);
-      textColor = const Color(0xFF166534);
+      bg = const Color(0xFFECFDF5);
+      textColor = const Color(0xFF065F46);
+      dotColor = const Color(0xFF10B981);
     } else if (orderStatus == 7 || text.toLowerCase().contains('estimate')) {
-      bg = const Color(0xFFFEF3C7);
+      bg = const Color(0xFFFFFBEB);
       textColor = const Color(0xFF92400E);
+      dotColor = const Color(0xFFF59E0B);
     } else if (orderStatus == 0 || text.toLowerCase().contains('booking') || text.toLowerCase().contains('pre')) {
-      bg = const Color(0xFFDBEAFE);
+      bg = const Color(0xFFEFF6FF);
       textColor = const Color(0xFF1E40AF);
+      dotColor = const Color(0xFF3B82F6);
     } else if (orderStatus == 4 || text.toLowerCase().contains('draft')) {
-      bg = const Color(0xFFF1F5F9);
+      bg = const Color(0xFFF8FAFC);
       textColor = const Color(0xFF475569);
+      dotColor = const Color(0xFF94A3B8);
     } else if (orderStatus == 3 || text.toLowerCase().contains('cancel')) {
-      bg = const Color(0xFFFEE2E2);
+      bg = const Color(0xFFFEF2F2);
       textColor = const Color(0xFF991B1B);
+      dotColor = const Color(0xFFEF4444);
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: textColor.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: dotColor.withOpacity(0.25), width: 1),
       ),
-      child: Text(
-        text.tr,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-        textAlign: TextAlign.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: dotColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            text.tr,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -677,20 +696,20 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
   Widget _buildModernEmptyState(String title, String subtitle, BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: primaryColor.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.receipt_long_rounded,
-              size: 48,
+              size: 44,
               color: primaryColor,
             ),
           ),
@@ -698,7 +717,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           Text(
             title.tr,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1E293B),
             ),
@@ -707,7 +726,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
           Text(
             subtitle.tr,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12.5,
               color: Colors.grey.shade600,
             ),
             textAlign: TextAlign.center,
@@ -723,22 +742,25 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
+
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Container(
             constraints: BoxConstraints(
-              maxWidth: 950,
-              maxHeight: MediaQuery.of(context).size.height * 0.85,
+              maxWidth: screenWidth > 1100 ? 1000 : screenWidth * 0.92,
+              maxHeight: screenHeight * 0.82,
             ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -762,7 +784,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [primaryColor, Color(0xFF4A5568)],
+                            colors: [primaryColor, Color(0xFF3F4E75)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -772,28 +794,37 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
-                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.all(7),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.18),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 18),
+                                ),
+                                const SizedBox(width: 12),
                                 Text(
                                   'Orders'.tr,
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w700,
                                     color: Colors.white,
+                                    letterSpacing: 0.2,
                                   ),
                                 ),
                                 if (snapshot.connectionState == ConnectionState.done) ...[
                                   const SizedBox(width: 10),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.white.withOpacity(0.18),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: Colors.white.withOpacity(0.25)),
                                     ),
                                     child: Text(
                                       '${filteredOrders.length} ${'Records'.tr}',
                                       style: const TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       ),
@@ -808,7 +839,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                               child: Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withOpacity(0.18),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.close, color: Colors.white, size: 18),
@@ -818,203 +849,223 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         ),
                       ),
 
-                      // --- CONTENT ---
+                      // --- BODY ---
                       if (snapshot.connectionState == ConnectionState.waiting)
                         Container(
-                          height: 200,
+                          height: 180,
                           alignment: Alignment.center,
-                          child: const SpinKitThreeBounce(color: primaryColor, size: 28),
+                          child: const SpinKitThreeBounce(color: primaryColor, size: 26),
                         )
                       else if (filteredOrders.isEmpty)
                         _buildModernEmptyState('No Orders Found', 'There are no delivered orders found for this customer.', context)
                       else
-                        Expanded(
+                        Flexible(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: DataTable(
-                                headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
-                                headingTextStyle: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF334155),
-                                ),
-                                dataRowMinHeight: 65,
-                                dataRowMaxHeight: 80,
-                                columnSpacing: 16,
-                                columns: [
-                                  DataColumn(label: Text('Customer List'.tr)),
-                                  DataColumn(label: Text('Order No.'.tr)),
-                                  DataColumn(label: Text('Created'.tr)),
-                                  DataColumn(label: Text('Created By'.tr)),
-                                  DataColumn(label: Text('Amount'.tr)),
-                                  DataColumn(label: Text('Invoice'.tr)),
-                                  DataColumn(label: Text('Payment Status'.tr)),
-                                  DataColumn(label: Text('Status'.tr)),
-                                  const DataColumn(label: Text('')),
-                                ],
-                                rows: filteredOrders.map((order) {
-                                  final customer = order.customer.isNotEmpty ? order.customer[0] : null;
-                                  return DataRow(
-                                    cells: [
-                                      // Customer Info
-                                      DataCell(
-                                        Container(
-                                          constraints: const BoxConstraints(minWidth: 160, maxWidth: 200),
-                                          child: Row(
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 16,
-                                                backgroundColor: const Color(0xffe6ecff),
-                                                child: const Icon(Icons.person, size: 18, color: primaryColor),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      customer?.businessName ?? 'N/A',
-                                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                    Text(
-                                                      customer?.fullName ?? '',
-                                                      style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                    if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
+                            child: SizedBox(
+                              width: (screenWidth > 1100 ? 980 : screenWidth * 0.9).clamp(850.0, 1200.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: DataTable(
+                                  headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                                  headingTextStyle: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF475569),
+                                    letterSpacing: 0.2,
+                                  ),
+                                  dataRowMinHeight: 60,
+                                  dataRowMaxHeight: 74,
+                                  columnSpacing: 20,
+                                  horizontalMargin: 20,
+                                  columns: [
+                                    DataColumn(label: Text('Customer List'.tr)),
+                                    DataColumn(label: Text('Order No.'.tr)),
+                                    DataColumn(label: Text('Created'.tr)),
+                                    DataColumn(label: Text('Created By'.tr)),
+                                    DataColumn(label: Text('Amount'.tr)),
+                                    DataColumn(label: Text('Invoice'.tr)),
+                                    DataColumn(label: Text('Payment'.tr)),
+                                    DataColumn(label: Text('Status'.tr)),
+                                    const DataColumn(label: Text('')),
+                                  ],
+                                  rows: filteredOrders.map((order) {
+                                    final customer = order.customer.isNotEmpty ? order.customer[0] : null;
+                                    return DataRow(
+                                      cells: [
+                                        // Customer Info
+                                        DataCell(
+                                          SizedBox(
+                                            width: 190,
+                                            child: Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 16,
+                                                  backgroundColor: const Color(0xFFEEF2FF),
+                                                  child: const Icon(Icons.person, size: 18, color: primaryColor),
+                                                ),
+                                                const SizedBox(width: 9),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
                                                       Text(
-                                                        customer.mobileNo,
-                                                        style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                                                        customer?.businessName ?? 'N/A',
+                                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
                                                       ),
-                                                  ],
+                                                      Text(
+                                                        customer?.fullName ?? '',
+                                                        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                      if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
+                                                        Text(
+                                                          customer.mobileNo,
+                                                          style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // Order No
-                                      DataCell(
-                                        InkWell(
-                                          onTap: () async {
-                                            bool isOnline = await ConnectivityService().isOnline();
-                                            if (isOnline) {
-                                              showDetailedOrderInvoiceDialog(context, order.orderId, false);
-                                            } else {
-                                              showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
-                                            }
-                                          },
-                                          child: Text(
-                                            order.orderId,
-                                            style: const TextStyle(
-                                              color: primaryColor,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              decoration: TextDecoration.underline,
+                                              ],
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      // Created
-                                      DataCell(
-                                        Text(
-                                          order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
-                                              ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
-                                              : 'N/A',
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
-                                        ),
-                                      ),
-                                      // Created By
-                                      DataCell(
-                                        Text(
-                                          '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                          style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                      // Amount
-                                      DataCell(
-                                        Text(
-                                          formatAmount(order.orderTotal ?? 0.0),
-                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                                        ),
-                                      ),
-                                      // Invoice
-                                      DataCell(
-                                        InkWell(
-                                          onTap: () async {
-                                            bool isOnline = await ConnectivityService().isOnline();
-                                            if (order.invoice.isNotEmpty) {
+                                        // Order No
+                                        DataCell(
+                                          InkWell(
+                                            onTap: () async {
+                                              bool isOnline = await ConnectivityService().isOnline();
                                               if (isOnline) {
-                                                showDialog(
-                                                  barrierDismissible: false,
-                                                  context: context,
-                                                  builder: (context) => InvoicePreview(orderId: order.orderId),
-                                                );
+                                                showDetailedOrderInvoiceDialog(context, order.orderId, false);
                                               } else {
                                                 showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
                                               }
-                                            }
-                                          },
-                                          child: Text(
-                                            order.invoice.isEmpty ? '-' : order.invoice[0].invoiceId,
-                                            style: TextStyle(
-                                              color: order.invoice.isEmpty ? Colors.grey : primaryColor,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: primaryColor.withOpacity(0.08),
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                order.orderId,
+                                                style: const TextStyle(
+                                                  color: primaryColor,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      // Payment Status
-                                      DataCell(
-                                        Center(
-                                          child: Container(
+                                        // Created
+                                        DataCell(
+                                          Text(
+                                            order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
+                                                : 'N/A',
+                                            style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                                          ),
+                                        ),
+                                        // Created By
+                                        DataCell(
+                                          Text(
+                                            '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                                            style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                                            maxLines: 2,
+                                          ),
+                                        ),
+                                        // Amount
+                                        DataCell(
+                                          Text(
+                                            formatAmount(order.orderTotal ?? 0.0),
+                                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                          ),
+                                        ),
+                                        // Invoice
+                                        DataCell(
+                                          InkWell(
+                                            onTap: () async {
+                                              bool isOnline = await ConnectivityService().isOnline();
+                                              if (order.invoice.isNotEmpty) {
+                                                if (isOnline) {
+                                                  showDialog(
+                                                    barrierDismissible: false,
+                                                    context: context,
+                                                    builder: (context) => InvoicePreview(orderId: order.orderId),
+                                                  );
+                                                } else {
+                                                  showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                }
+                                              }
+                                            },
+                                            child: Text(
+                                              order.invoice.isEmpty ? '-' : order.invoice[0].invoiceId,
+                                              style: TextStyle(
+                                                color: order.invoice.isEmpty ? const Color(0xFF94A3B8) : primaryColor,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Payment Status
+                                        DataCell(
+                                          Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                             decoration: BoxDecoration(
-                                              color: order.paymentStatus == 0 ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                                              color: order.paymentStatus == 0 ? const Color(0xFFFEF2F2) : const Color(0xFFECFDF5),
                                               borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: order.paymentStatus == 0 ? const Color(0xFFFCA5A5) : const Color(0xFF6EE7B7),
+                                                width: 0.8,
+                                              ),
                                             ),
                                             child: Text(
                                               order.paymentStatus == 0 ? 'Pending'.tr : 'Paid'.tr,
                                               style: TextStyle(
                                                 fontSize: 10.5,
-                                                fontWeight: FontWeight.bold,
-                                                color: order.paymentStatus == 0 ? Colors.red.shade700 : Colors.green.shade700,
+                                                fontWeight: FontWeight.w700,
+                                                color: order.paymentStatus == 0 ? const Color(0xFFB91C1C) : const Color(0xFF047857),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      // Status Badge
-                                      DataCell(
-                                        _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
-                                      ),
-                                      // Action Icon
-                                      DataCell(
-                                        IconButton(
-                                          icon: const Icon(Icons.visibility_outlined, size: 18, color: primaryColor),
-                                          onPressed: () async {
-                                            bool isOnline = await ConnectivityService().isOnline();
-                                            if (isOnline) {
-                                              showDetailedOrderInvoiceDialog(context, order.orderId, false);
-                                            } else {
-                                              showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
-                                            }
-                                          },
+                                        // Status Badge
+                                        DataCell(
+                                          _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
+                                        // Action Icon
+                                        DataCell(
+                                          IconButton(
+                                            icon: Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFF1F5F9),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                            ),
+                                            onPressed: () async {
+                                              bool isOnline = await ConnectivityService().isOnline();
+                                              if (isOnline) {
+                                                showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                              } else {
+                                                showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
                               ),
                             ),
                           ),
@@ -1024,28 +1075,36 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                       if (filteredOrders.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
-                            border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF8FAFC),
+                            border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '${'Showing'.tr} ${filteredOrders.length} ${'Orders'.tr}',
-                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: Colors.grey.shade700),
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                               ),
-                              Row(
-                                children: [
-                                  Text(
-                                    '${'Total'.tr}: ',
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
-                                  ),
-                                  Text(
-                                    formatAmount(totalSum),
-                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: primaryColor),
-                                  ),
-                                ],
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      '${'Total'.tr}: ',
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                                    ),
+                                    Text(
+                                      formatAmount(totalSum),
+                                      style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: primaryColor),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -1106,22 +1165,25 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
+
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Container(
             constraints: BoxConstraints(
-              maxWidth: 950,
-              maxHeight: MediaQuery.of(context).size.height * 0.85,
+              maxWidth: screenWidth > 1100 ? 1000 : screenWidth * 0.92,
+              maxHeight: screenHeight * 0.82,
             ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -1150,7 +1212,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [primaryColor, Color(0xFF4A5568)],
+                            colors: [primaryColor, Color(0xFF3F4E75)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -1160,38 +1222,47 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                  orderType == 'Estimate'
-                                      ? Icons.receipt_long_outlined
-                                      : orderType == 'Booking'
-                                          ? Icons.bookmark_border_rounded
-                                          : orderType == 'Draft'
-                                              ? Icons.edit_note_rounded
-                                              : Icons.cancel_outlined,
-                                  color: Colors.white,
-                                  size: 20,
+                                Container(
+                                  padding: const EdgeInsets.all(7),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.18),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    orderType == 'Estimate'
+                                        ? Icons.receipt_long_outlined
+                                        : orderType == 'Booking'
+                                            ? Icons.bookmark_border_rounded
+                                            : orderType == 'Draft'
+                                                ? Icons.edit_note_rounded
+                                                : Icons.cancel_outlined,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 12),
                                 Text(
                                   '$orderType ${'List'.tr}',
                                   style: const TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w700,
                                     color: Colors.white,
+                                    letterSpacing: 0.2,
                                   ),
                                 ),
                                 if (snapshot.connectionState == ConnectionState.done) ...[
                                   const SizedBox(width: 10),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.white.withOpacity(0.18),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: Colors.white.withOpacity(0.25)),
                                     ),
                                     child: Text(
                                       '$totalRecordCount ${'Records'.tr}',
                                       style: const TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       ),
@@ -1206,7 +1277,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                               child: Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withOpacity(0.18),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.close, color: Colors.white, size: 18),
@@ -1216,172 +1287,97 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         ),
                       ),
 
-                      // --- CONTENT ---
+                      // --- BODY ---
                       if (snapshot.connectionState == ConnectionState.waiting && offlineDraftDetails == null)
                         Container(
-                          height: 200,
+                          height: 180,
                           alignment: Alignment.center,
                           child: const SpinKitThreeBounce(color: primaryColor, size: 28),
                         )
                       else if (filteredOrders.isEmpty && (offlineDraftDetails == null || offlineDraftDetails.isEmpty))
                         _buildModernEmptyState('No Records Found', 'There are no $orderType records found for this customer.', context)
                       else
-                        Expanded(
+                        Flexible(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: DataTable(
-                                headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
-                                headingTextStyle: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF334155),
-                                ),
-                                dataRowMinHeight: 65,
-                                dataRowMaxHeight: 80,
-                                columnSpacing: 16,
-                                columns: [
-                                  DataColumn(label: Text('Customer List'.tr)),
-                                  DataColumn(label: Text('$orderType ${'No.'.tr}')),
-                                  DataColumn(label: Text('Created'.tr)),
-                                  DataColumn(label: Text('Created By'.tr)),
-                                  DataColumn(label: Text('$orderType ${'Amount'.tr}')),
-                                  DataColumn(label: Text('Status'.tr)),
-                                  const DataColumn(label: Text('')),
-                                ],
-                                rows: [
-                                  // Server Orders
-                                  ...filteredOrders.map((order) {
-                                    final customer = order.customer.isNotEmpty ? order.customer[0] : null;
-                                    return DataRow(
-                                      cells: [
-                                        // Customer Info
-                                        DataCell(
-                                          Container(
-                                            constraints: const BoxConstraints(minWidth: 160, maxWidth: 200),
-                                            child: Row(
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 16,
-                                                  backgroundColor: const Color(0xffe6ecff),
-                                                  child: const Icon(Icons.person, size: 18, color: primaryColor),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Text(
-                                                        customer?.businessName ?? 'N/A',
-                                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                      Text(
-                                                        customer?.fullName ?? '',
-                                                        style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                      if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
+                            child: SizedBox(
+                              width: (screenWidth > 1100 ? 980 : screenWidth * 0.9).clamp(850.0, 1200.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: DataTable(
+                                  headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                                  headingTextStyle: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF475569),
+                                    letterSpacing: 0.2,
+                                  ),
+                                  dataRowMinHeight: 60,
+                                  dataRowMaxHeight: 74,
+                                  columnSpacing: 20,
+                                  horizontalMargin: 20,
+                                  columns: [
+                                    DataColumn(label: Text('Customer List'.tr)),
+                                    DataColumn(label: Text('$orderType ${'No.'.tr}')),
+                                    DataColumn(label: Text('Created'.tr)),
+                                    DataColumn(label: Text('Created By'.tr)),
+                                    DataColumn(label: Text('$orderType ${'Amount'.tr}')),
+                                    DataColumn(label: Text('Status'.tr)),
+                                    const DataColumn(label: Text('')),
+                                  ],
+                                  rows: [
+                                    // Server Orders
+                                    ...filteredOrders.map((order) {
+                                      final customer = order.customer.isNotEmpty ? order.customer[0] : null;
+                                      return DataRow(
+                                        cells: [
+                                          // Customer Info
+                                          DataCell(
+                                            SizedBox(
+                                              width: 190,
+                                              child: Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 16,
+                                                    backgroundColor: const Color(0xFFEEF2FF),
+                                                    child: const Icon(Icons.person, size: 18, color: primaryColor),
+                                                  ),
+                                                  const SizedBox(width: 9),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
                                                         Text(
-                                                          customer.mobileNo,
-                                                          style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                                                          customer?.businessName ?? 'N/A',
+                                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
                                                           maxLines: 1,
                                                           overflow: TextOverflow.ellipsis,
                                                         ),
-                                                    ],
+                                                        Text(
+                                                          customer?.fullName ?? '',
+                                                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                        if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
+                                                          Text(
+                                                            customer.mobileNo,
+                                                            style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        // Order No
-                                        DataCell(
-                                          InkWell(
-                                            onTap: () async {
-                                              bool isOnline = await ConnectivityService().isOnline();
-                                              if (isOnline) {
-                                                showDetailedOrderInvoiceDialog(
-                                                  context,
-                                                  order.orderId,
-                                                  false,
-                                                  changedTitle: orderType == 'Booking' ? 'BOOKING' : (orderType == 'Estimate' ? 'ESTIMATE' : ''),
-                                                );
-                                              } else {
-                                                showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
-                                              }
-                                            },
-                                            child: Text(
-                                              order.orderId,
-                                              style: const TextStyle(
-                                                color: primaryColor,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                                decoration: TextDecoration.underline,
+                                                ],
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        // Created
-                                        DataCell(
-                                          Text(
-                                            order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
-                                                ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
-                                                : 'N/A',
-                                            style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
-                                          ),
-                                        ),
-                                        // Created By
-                                        DataCell(
-                                          Text(
-                                            '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                            style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                        // Amount (FIXED: Row Amount)
-                                        DataCell(
-                                          Text(
-                                            formatAmount(order.orderTotal ?? 0.0),
-                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                                          ),
-                                        ),
-                                        // Status Badge
-                                        DataCell(
-                                          _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
-                                        ),
-                                        // Action
-                                        DataCell(
-                                          IconButton(
-                                            icon: const Icon(Icons.visibility_outlined, size: 18, color: primaryColor),
-                                            onPressed: () async {
-                                              if (orderType == 'Draft') {
-                                                final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                widget.productsController.selectedCustomerId.value = customer?.customerId ?? '';
-                                                widget.productsController.selectedCustomerName.value = customer?.businessName ?? '';
-                                                widget.productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
-                                                widget.productsController.selectedCustomerEmail.value = customer?.email ?? '';
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return CartDialogue(
-                                                      active: true,
-                                                      cartItemCount: cartProvider.cartItemCount,
-                                                      productsController: widget.productsController,
-                                                      customerOrderController: customerOrderController,
-                                                      onContinueShopping: onContinueShopping,
-                                                      isFromCustomerDach: true,
-                                                      isDashboard: false,
-                                                      customerId: widget.customerId,
-                                                      onDraftUpdated: onDraftUpdated,
-                                                    );
-                                                  },
-                                                );
-                                              } else {
+                                          // Order No
+                                          DataCell(
+                                            InkWell(
+                                              onTap: () async {
                                                 bool isOnline = await ConnectivityService().isOnline();
                                                 if (isOnline) {
                                                   showDetailedOrderInvoiceDialog(
@@ -1393,121 +1389,228 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 } else {
                                                   showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
                                                 }
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-
-                                  // Offline Drafts
-                                  if (offlineDraftDetails != null && offlineDraftDetails.isNotEmpty)
-                                    ...offlineDraftDetails.map((draft) {
-                                      final orderId = draft['order_id'] ?? '';
-                                      final customerName = draft['displayData']['customerName'] ?? 'N/A';
-                                      final customerMobile = draft['displayData']['mobileNo'] ?? '';
-                                      final customerEmail = draft['displayData']['email'] ?? '';
-                                      final createdDate = draft['displayData']['createdDate'] ?? '';
-                                      final displayTotal = draft['displayData']['displayTotal'] ?? 0.0;
-
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(
-                                            Container(
-                                              constraints: const BoxConstraints(minWidth: 160, maxWidth: 200),
-                                              child: Row(
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius: 16,
-                                                    backgroundColor: const Color(0xffe6ecff),
-                                                    child: const Icon(Icons.person, size: 18, color: primaryColor),
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: primaryColor.withOpacity(0.08),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  order.orderId,
+                                                  style: const TextStyle(
+                                                    color: primaryColor,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
                                                   ),
-                                                  const SizedBox(width: 8),
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        Text(
-                                                          customerName,
-                                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow.ellipsis,
-                                                        ),
-                                                        if (customerMobile.isNotEmpty)
-                                                          Text(
-                                                            customerMobile,
-                                                            style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
-                                                            maxLines: 1,
-                                                            overflow: TextOverflow.ellipsis,
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
+                                                ),
                                               ),
                                             ),
                                           ),
+                                          // Created
                                           DataCell(
                                             Text(
-                                              orderId,
-                                              style: const TextStyle(color: primaryColor, fontSize: 12, fontWeight: FontWeight.bold),
+                                              order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                  ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
+                                                  : 'N/A',
+                                              style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
                                             ),
                                           ),
+                                          // Created By
                                           DataCell(
                                             Text(
-                                              createdDate,
-                                              style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
+                                              '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                                              style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                                              maxLines: 2,
                                             ),
                                           ),
+                                          // Amount (FIXED: Row Amount)
                                           DataCell(
                                             Text(
-                                              '${SessionHelper.loginSavedData?.fullname ?? ""}',
-                                              style: const TextStyle(fontSize: 12, color: Color(0xFF334155)),
+                                              formatAmount(order.orderTotal ?? 0.0),
+                                              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
                                             ),
                                           ),
+                                          // Status Badge
                                           DataCell(
-                                            Text(
-                                              formatAmount(displayTotal is double ? displayTotal : double.tryParse(displayTotal.toString()) ?? 0.0),
-                                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                                            ),
+                                            _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
                                           ),
-                                          DataCell(
-                                            _buildStatusBadge(4, 'Draft'),
-                                          ),
+                                          // Action
                                           DataCell(
                                             IconButton(
-                                              icon: const Icon(Icons.visibility_outlined, size: 18, color: primaryColor),
-                                              onPressed: () {
-                                                final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                widget.productsController.selectedCustomerId.value = widget.customerId;
-                                                widget.productsController.selectedCustomerName.value = customerName;
-                                                widget.productsController.selectedCustomerMobileNo.value = customerMobile;
-                                                widget.productsController.selectedCustomerEmail.value = customerEmail;
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return CartDialogue(
-                                                      active: true,
-                                                      cartItemCount: cartProvider.cartItemCount,
-                                                      productsController: widget.productsController,
-                                                      customerOrderController: customerOrderController,
-                                                      onContinueShopping: onContinueShopping,
-                                                      isFromCustomerDach: true,
-                                                      isDashboard: false,
-                                                      customerId: widget.customerId,
-                                                      onDraftUpdated: onDraftUpdated,
+                                              icon: Container(
+                                                padding: const EdgeInsets.all(5),
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xFFF1F5F9),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                              ),
+                                              onPressed: () async {
+                                                if (orderType == 'Draft') {
+                                                  final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                  widget.productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                  widget.productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                  widget.productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                  widget.productsController.selectedCustomerEmail.value = customer?.email ?? '';
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return CartDialogue(
+                                                        active: true,
+                                                        cartItemCount: cartProvider.cartItemCount,
+                                                        productsController: widget.productsController,
+                                                        customerOrderController: customerOrderController,
+                                                        onContinueShopping: onContinueShopping,
+                                                        isFromCustomerDach: true,
+                                                        isDashboard: false,
+                                                        customerId: widget.customerId,
+                                                        onDraftUpdated: onDraftUpdated,
+                                                      );
+                                                    },
+                                                  );
+                                                } else {
+                                                  bool isOnline = await ConnectivityService().isOnline();
+                                                  if (isOnline) {
+                                                    showDetailedOrderInvoiceDialog(
+                                                      context,
+                                                      order.orderId,
+                                                      false,
+                                                      changedTitle: orderType == 'Booking' ? 'BOOKING' : (orderType == 'Estimate' ? 'ESTIMATE' : ''),
                                                     );
-                                                  },
-                                                );
+                                                  } else {
+                                                    showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                  }
+                                                }
                                               },
                                             ),
                                           ),
                                         ],
                                       );
                                     }),
-                                ],
+
+                                    // Offline Drafts
+                                    if (offlineDraftDetails != null && offlineDraftDetails.isNotEmpty)
+                                      ...offlineDraftDetails.map((draft) {
+                                        final orderId = draft['order_id'] ?? '';
+                                        final customerName = draft['displayData']['customerName'] ?? 'N/A';
+                                        final customerMobile = draft['displayData']['mobileNo'] ?? '';
+                                        final customerEmail = draft['displayData']['email'] ?? '';
+                                        final createdDate = draft['displayData']['createdDate'] ?? '';
+                                        final displayTotal = draft['displayData']['displayTotal'] ?? 0.0;
+
+                                        return DataRow(
+                                          cells: [
+                                            DataCell(
+                                              SizedBox(
+                                                width: 190,
+                                                child: Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 16,
+                                                      backgroundColor: const Color(0xFFEEF2FF),
+                                                      child: const Icon(Icons.person, size: 18, color: primaryColor),
+                                                    ),
+                                                    const SizedBox(width: 9),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Text(
+                                                            customerName,
+                                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                          if (customerMobile.isNotEmpty)
+                                                            Text(
+                                                              customerMobile,
+                                                              style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: primaryColor.withOpacity(0.08),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  orderId,
+                                                  style: const TextStyle(color: primaryColor, fontSize: 12, fontWeight: FontWeight.w700),
+                                                ),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Text(
+                                                createdDate,
+                                                style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Text(
+                                                '${SessionHelper.loginSavedData?.fullname ?? ""}',
+                                                style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Text(
+                                                formatAmount(displayTotal is double ? displayTotal : double.tryParse(displayTotal.toString()) ?? 0.0),
+                                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              _buildStatusBadge(4, 'Draft'),
+                                            ),
+                                            DataCell(
+                                              IconButton(
+                                                icon: Container(
+                                                  padding: const EdgeInsets.all(5),
+                                                  decoration: const BoxDecoration(
+                                                    color: Color(0xFFF1F5F9),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                                ),
+                                                onPressed: () {
+                                                  final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                  widget.productsController.selectedCustomerId.value = widget.customerId;
+                                                  widget.productsController.selectedCustomerName.value = customerName;
+                                                  widget.productsController.selectedCustomerMobileNo.value = customerMobile;
+                                                  widget.productsController.selectedCustomerEmail.value = customerEmail;
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return CartDialogue(
+                                                        active: true,
+                                                        cartItemCount: cartProvider.cartItemCount,
+                                                        productsController: widget.productsController,
+                                                        customerOrderController: customerOrderController,
+                                                        onContinueShopping: onContinueShopping,
+                                                        isFromCustomerDach: true,
+                                                        isDashboard: false,
+                                                        customerId: widget.customerId,
+                                                        onDraftUpdated: onDraftUpdated,
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -1517,28 +1620,36 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                       if (totalRecordCount > 0)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
-                            border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF8FAFC),
+                            border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '${'Showing'.tr} $totalRecordCount $orderType ${'Records'.tr}',
-                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: Colors.grey.shade700),
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
                               ),
-                              Row(
-                                children: [
-                                  Text(
-                                    '${'Total'.tr}: ',
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
-                                  ),
-                                  Text(
-                                    formatAmount(overallTotal),
-                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: primaryColor),
-                                  ),
-                                ],
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      '${'Total'.tr}: ',
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                                    ),
+                                    Text(
+                                      formatAmount(overallTotal),
+                                      style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: primaryColor),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),

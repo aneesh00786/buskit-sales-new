@@ -32,12 +32,25 @@ void showCategoryChartDialog(
             double dialogWidth = MediaQuery.of(context).size.width * 0.8;
             double maxDialogHeight = constraints.maxHeight * 0.7;
 
-            return ConstrainedBox(
+            return Container(
+              width: double.infinity,
               constraints: BoxConstraints(
+                maxWidth: dialogWidth,
                 maxHeight: maxDialogHeight,
               ),
-              child: SizedBox(
-                width: dialogWidth,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -148,12 +161,25 @@ void showValueDialogCusDash(
             double listHeight = orderDetails.length * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-            return ConstrainedBox(
+            return Container(
+              width: double.infinity,
               constraints: BoxConstraints(
+                maxWidth: dialogWidth,
                 maxHeight: maxDialogHeight,
               ),
-              child: SizedBox(
-                width: dialogWidth,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

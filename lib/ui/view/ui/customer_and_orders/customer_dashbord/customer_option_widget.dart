@@ -636,44 +636,44 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
 
   Widget _buildStatusBadge(int? orderStatus, String text) {
     Color bg = const Color(0xFFF1F5F9);
-    Color textColor = const Color(0xFF475569);
-    Color dotColor = const Color(0xFF64748B);
+    Color textColor = const Color(0xFF0F172A);
+    Color dotColor = const Color(0xFF0F172A);
 
     if (orderStatus == 2 || text.toLowerCase().contains('deliver')) {
-      bg = const Color(0xFFECFDF5);
-      textColor = const Color(0xFF065F46);
-      dotColor = const Color(0xFF10B981);
+      bg = const Color(0xFFDCFCE7);
+      textColor = const Color(0xFF064E3B);
+      dotColor = const Color(0xFF059669);
     } else if (orderStatus == 7 || text.toLowerCase().contains('estimate')) {
-      bg = const Color(0xFFFFFBEB);
-      textColor = const Color(0xFF92400E);
-      dotColor = const Color(0xFFF59E0B);
+      bg = const Color(0xFFFEF3C7);
+      textColor = const Color(0xFF78350F);
+      dotColor = const Color(0xFFD97706);
     } else if (orderStatus == 0 || text.toLowerCase().contains('booking') || text.toLowerCase().contains('pre')) {
-      bg = const Color(0xFFEFF6FF);
-      textColor = const Color(0xFF1E40AF);
-      dotColor = const Color(0xFF3B82F6);
+      bg = const Color(0xFFDBEAFE);
+      textColor = const Color(0xFF1E3A8A);
+      dotColor = const Color(0xFF2563EB);
     } else if (orderStatus == 4 || text.toLowerCase().contains('draft')) {
-      bg = const Color(0xFFF8FAFC);
-      textColor = const Color(0xFF475569);
-      dotColor = const Color(0xFF94A3B8);
+      bg = const Color(0xFFF1F5F9);
+      textColor = const Color(0xFF0F172A);
+      dotColor = const Color(0xFF475569);
     } else if (orderStatus == 3 || text.toLowerCase().contains('cancel')) {
-      bg = const Color(0xFFFEF2F2);
-      textColor = const Color(0xFF991B1B);
-      dotColor = const Color(0xFFEF4444);
+      bg = const Color(0xFFFEE2E2);
+      textColor = const Color(0xFF7F1D1D);
+      dotColor = const Color(0xFFDC2626);
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: dotColor.withOpacity(0.25), width: 0.8),
+        border: Border.all(color: dotColor.withOpacity(0.35), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 5,
-            height: 5,
+            width: 6,
+            height: 6,
             decoration: BoxDecoration(
               color: dotColor,
               shape: BoxShape.circle,
@@ -684,8 +684,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
             text.tr,
             style: TextStyle(
               color: textColor,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -718,16 +718,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
             title.tr,
             style: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 5),
           Text(
             subtitle.tr,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
           ),
@@ -758,7 +759,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withOpacity(0.15),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -784,7 +785,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [primaryColor, Color(0xFF3F4E75)],
+                            colors: [primaryColor, Color(0xFF2D3748)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -797,7 +798,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.18),
+                                    color: Colors.white.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 17),
@@ -806,8 +807,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 Text(
                                   'Orders'.tr,
                                   style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15.5,
+                                    fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                     letterSpacing: 0.2,
                                   ),
@@ -815,17 +816,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 if (snapshot.connectionState == ConnectionState.done) ...[
                                   const SizedBox(width: 10),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.18),
+                                      color: Colors.white.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.white.withOpacity(0.25)),
+                                      border: Border.all(color: Colors.white.withOpacity(0.35)),
                                     ),
                                     child: Text(
                                       '${filteredOrders.length} ${'Records'.tr}',
                                       style: const TextStyle(
                                         fontSize: 11,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -839,7 +840,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                               child: Container(
                                 padding: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.18),
+                                  color: Colors.white.withOpacity(0.2),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.close, color: Colors.white, size: 17),
@@ -869,11 +870,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                   child: SingleChildScrollView(
                                     scrollDirection: Axis.vertical,
                                     child: DataTable(
-                                      headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                                      headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                       headingTextStyle: const TextStyle(
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF475569),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.black,
                                         letterSpacing: 0.1,
                                       ),
                                       dataRowMinHeight: 56,
@@ -895,7 +896,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                         final customer = order.customer.isNotEmpty ? order.customer[0] : null;
                                         return DataRow(
                                           cells: [
-                                            // Customer Info (Reduced width with clean ellipsis)
+                                            // Customer Info (Clear crisp black/dark text)
                                             DataCell(
                                               SizedBox(
                                                 width: 140,
@@ -914,21 +915,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                         children: [
                                                           Text(
                                                             customer?.businessName ?? 'N/A',
-                                                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                             maxLines: 1,
                                                             overflow: TextOverflow.ellipsis,
                                                           ),
                                                           if (customer?.fullName != null && customer!.fullName.isNotEmpty)
                                                             Text(
                                                               customer.fullName,
-                                                              style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B)),
+                                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
                                                               maxLines: 1,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                           if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
                                                             Text(
                                                               customer.mobileNo,
-                                                              style: const TextStyle(fontSize: 9.5, color: Color(0xFF94A3B8)),
+                                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
                                                               maxLines: 1,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
@@ -953,15 +954,16 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 child: Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                                   decoration: BoxDecoration(
-                                                    color: primaryColor.withOpacity(0.08),
+                                                    color: primaryColor.withOpacity(0.1),
                                                     borderRadius: BorderRadius.circular(6),
+                                                    border: Border.all(color: primaryColor.withOpacity(0.3)),
                                                   ),
                                                   child: Text(
                                                     order.orderId,
                                                     style: const TextStyle(
                                                       color: primaryColor,
                                                       fontSize: 11.5,
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight: FontWeight.w800,
                                                     ),
                                                   ),
                                                 ),
@@ -973,7 +975,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
                                                     ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
                                                     : 'N/A',
-                                                style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                               ),
                                             ),
                                             // Created By
@@ -982,7 +984,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 width: 90,
                                                 child: Text(
                                                   '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
@@ -992,7 +994,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                             DataCell(
                                               Text(
                                                 formatAmount(order.orderTotal ?? 0.0),
-                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
                                               ),
                                             ),
                                             // Invoice
@@ -1015,9 +1017,9 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 child: Text(
                                                   order.invoice.isEmpty ? '-' : order.invoice[0].invoiceId,
                                                   style: TextStyle(
-                                                    color: order.invoice.isEmpty ? const Color(0xFF94A3B8) : primaryColor,
+                                                    color: order.invoice.isEmpty ? Colors.black54 : primaryColor,
                                                     fontSize: 11.5,
-                                                    fontWeight: FontWeight.w600,
+                                                    fontWeight: FontWeight.w700,
                                                   ),
                                                 ),
                                               ),
@@ -1027,19 +1029,19 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                               Container(
                                                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
                                                 decoration: BoxDecoration(
-                                                  color: order.paymentStatus == 0 ? const Color(0xFFFEF2F2) : const Color(0xFFECFDF5),
+                                                  color: order.paymentStatus == 0 ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
                                                   borderRadius: BorderRadius.circular(12),
                                                   border: Border.all(
-                                                    color: order.paymentStatus == 0 ? const Color(0xFFFCA5A5) : const Color(0xFF6EE7B7),
-                                                    width: 0.8,
+                                                    color: order.paymentStatus == 0 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                                                    width: 1,
                                                   ),
                                                 ),
                                                 child: Text(
                                                   order.paymentStatus == 0 ? 'Pending'.tr : 'Paid'.tr,
                                                   style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: order.paymentStatus == 0 ? const Color(0xFFB91C1C) : const Color(0xFF047857),
+                                                    fontSize: 10.5,
+                                                    fontWeight: FontWeight.w800,
+                                                    color: order.paymentStatus == 0 ? const Color(0xFF991B1B) : const Color(0xFF065F46),
                                                   ),
                                                 ),
                                               ),
@@ -1055,9 +1057,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                                                 icon: Container(
                                                   padding: const EdgeInsets.all(5),
-                                                  decoration: const BoxDecoration(
-                                                    color: Color(0xFFF1F5F9),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFEEF2FF),
                                                     shape: BoxShape.circle,
+                                                    border: Border.all(color: primaryColor.withOpacity(0.2)),
                                                   ),
                                                   child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
                                                 ),
@@ -1087,32 +1090,32 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                           decoration: const BoxDecoration(
-                            color: Color(0xFFF8FAFC),
-                            border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                            color: Color(0xFFF1F5F9),
+                            border: Border(top: BorderSide(color: Color(0xFFCBD5E1))),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '${'Showing'.tr} ${filteredOrders.length} ${'Orders'.tr}',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: primaryColor.withOpacity(0.08),
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                  border: Border.all(color: primaryColor.withOpacity(0.3)),
                                 ),
                                 child: Row(
                                   children: [
                                     Text(
                                       '${'Total'.tr}: ',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
                                     Text(
                                       formatAmount(totalSum),
-                                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: primaryColor),
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
                                     ),
                                   ],
                                 ),
@@ -1192,7 +1195,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withOpacity(0.15),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -1223,7 +1226,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [primaryColor, Color(0xFF3F4E75)],
+                            colors: [primaryColor, Color(0xFF2D3748)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -1236,7 +1239,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.18),
+                                    color: Colors.white.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(
@@ -1255,8 +1258,8 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 Text(
                                   '$orderType ${'List'.tr}',
                                   style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15.5,
+                                    fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                     letterSpacing: 0.2,
                                   ),
@@ -1264,17 +1267,17 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                 if (snapshot.connectionState == ConnectionState.done) ...[
                                   const SizedBox(width: 10),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.18),
+                                      color: Colors.white.withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: Colors.white.withOpacity(0.25)),
+                                      border: Border.all(color: Colors.white.withOpacity(0.35)),
                                     ),
                                     child: Text(
                                       '$totalRecordCount ${'Records'.tr}',
                                       style: const TextStyle(
                                         fontSize: 11,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -1288,7 +1291,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                               child: Container(
                                 padding: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.18),
+                                  color: Colors.white.withOpacity(0.2),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.close, color: Colors.white, size: 17),
@@ -1318,11 +1321,11 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                   child: SingleChildScrollView(
                                     scrollDirection: Axis.vertical,
                                     child: DataTable(
-                                      headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+                                      headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                       headingTextStyle: const TextStyle(
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF475569),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.black,
                                         letterSpacing: 0.1,
                                       ),
                                       dataRowMinHeight: 56,
@@ -1344,7 +1347,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                           final customer = order.customer.isNotEmpty ? order.customer[0] : null;
                                           return DataRow(
                                             cells: [
-                                              // Customer Info (Reduced width with clean ellipsis)
+                                              // Customer Info (Clear crisp black/dark text)
                                               DataCell(
                                                 SizedBox(
                                                   width: 145,
@@ -1363,21 +1366,21 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                           children: [
                                                             Text(
                                                               customer?.businessName ?? 'N/A',
-                                                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                                                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                               maxLines: 1,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                             if (customer?.fullName != null && customer!.fullName.isNotEmpty)
                                                               Text(
                                                                 customer.fullName,
-                                                                style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B)),
+                                                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis,
                                                               ),
                                                             if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
                                                               Text(
                                                                 customer.mobileNo,
-                                                                style: const TextStyle(fontSize: 9.5, color: Color(0xFF94A3B8)),
+                                                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis,
                                                               ),
@@ -1407,15 +1410,16 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   child: Container(
                                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                                     decoration: BoxDecoration(
-                                                      color: primaryColor.withOpacity(0.08),
+                                                      color: primaryColor.withOpacity(0.1),
                                                       borderRadius: BorderRadius.circular(6),
+                                                      border: Border.all(color: primaryColor.withOpacity(0.3)),
                                                     ),
                                                     child: Text(
                                                       order.orderId,
                                                       style: const TextStyle(
                                                         color: primaryColor,
                                                         fontSize: 11.5,
-                                                        fontWeight: FontWeight.w700,
+                                                        fontWeight: FontWeight.w800,
                                                       ),
                                                     ),
                                                   ),
@@ -1427,7 +1431,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
                                                       ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
                                                       : 'N/A',
-                                                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                 ),
                                               ),
                                               // Created By
@@ -1436,7 +1440,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   width: 90,
                                                   child: Text(
                                                     '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                    style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
@@ -1446,7 +1450,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                               DataCell(
                                                 Text(
                                                   formatAmount(order.orderTotal ?? 0.0),
-                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
                                                 ),
                                               ),
                                               // Status Badge
@@ -1460,9 +1464,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                                                   icon: Container(
                                                     padding: const EdgeInsets.all(5),
-                                                    decoration: const BoxDecoration(
-                                                      color: Color(0xFFF1F5F9),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFEEF2FF),
                                                       shape: BoxShape.circle,
+                                                      border: Border.all(color: primaryColor.withOpacity(0.2)),
                                                     ),
                                                     child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
                                                   ),
@@ -1539,14 +1544,14 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                             children: [
                                                               Text(
                                                                 customerName,
-                                                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis,
                                                               ),
                                                               if (customerMobile.isNotEmpty)
                                                                 Text(
                                                                   customerMobile,
-                                                                  style: const TextStyle(fontSize: 9.5, color: Color(0xFF94A3B8)),
+                                                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
                                                                   maxLines: 1,
                                                                   overflow: TextOverflow.ellipsis,
                                                                 ),
@@ -1561,19 +1566,20 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                   Container(
                                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                                     decoration: BoxDecoration(
-                                                      color: primaryColor.withOpacity(0.08),
+                                                      color: primaryColor.withOpacity(0.1),
                                                       borderRadius: BorderRadius.circular(6),
+                                                      border: Border.all(color: primaryColor.withOpacity(0.3)),
                                                     ),
                                                     child: Text(
                                                       orderId,
-                                                      style: const TextStyle(color: primaryColor, fontSize: 11.5, fontWeight: FontWeight.w700),
+                                                      style: const TextStyle(color: primaryColor, fontSize: 11.5, fontWeight: FontWeight.w800),
                                                     ),
                                                   ),
                                                 ),
                                                 DataCell(
                                                   Text(
                                                     createdDate,
-                                                    style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                   ),
                                                 ),
                                                 DataCell(
@@ -1581,7 +1587,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     width: 90,
                                                     child: Text(
                                                       '${SessionHelper.loginSavedData?.fullname ?? ""}',
-                                                      style: const TextStyle(fontSize: 11.5, color: Color(0xFF475569)),
+                                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
@@ -1590,7 +1596,7 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                 DataCell(
                                                   Text(
                                                     formatAmount(displayTotal is double ? displayTotal : double.tryParse(displayTotal.toString()) ?? 0.0),
-                                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
                                                   ),
                                                 ),
                                                 DataCell(
@@ -1602,9 +1608,10 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                                                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                                                     icon: Container(
                                                       padding: const EdgeInsets.all(5),
-                                                      decoration: const BoxDecoration(
-                                                        color: Color(0xFFF1F5F9),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFEEF2FF),
                                                         shape: BoxShape.circle,
+                                                        border: Border.all(color: primaryColor.withOpacity(0.2)),
                                                       ),
                                                       child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
                                                     ),
@@ -1650,32 +1657,32 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                           decoration: const BoxDecoration(
-                            color: Color(0xFFF8FAFC),
-                            border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                            color: Color(0xFFF1F5F9),
+                            border: Border(top: BorderSide(color: Color(0xFFCBD5E1))),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '${'Showing'.tr} $totalRecordCount $orderType ${'Records'.tr}',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: primaryColor.withOpacity(0.08),
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                  border: Border.all(color: primaryColor.withOpacity(0.3)),
                                 ),
                                 child: Row(
                                   children: [
                                     Text(
                                       '${'Total'.tr}: ',
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
                                     ),
                                     Text(
                                       formatAmount(overallTotal),
-                                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: primaryColor),
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
                                     ),
                                   ],
                                 ),

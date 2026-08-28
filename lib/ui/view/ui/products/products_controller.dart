@@ -1426,9 +1426,10 @@ List<BulkData> storedBulkList = [];
     selectedCustomerId.value = id;
   }
 
-  Future<List<ProductModel>> fetchProducts(String subCatId) async {
+  Future<List<ProductModel>> fetchProducts(String subCatId,
+      {bool forceRefresh = false}) async {
     try {
-  print('fetch product called');
+      print('fetch product called');
       if (subCatId.isEmpty) {
         isLoading.value = false;
         products.clear();
@@ -1446,6 +1447,7 @@ List<BulkData> storedBulkList = [];
       List<ProductModel> fetchedProducts = await _apiWorker.getTempProduct(
         subCatId,
         companyid: SessionHelper.loginSavedData?.company_id ?? 0,
+        forceRefresh: forceRefresh,
       );
 
       products.clear();
@@ -1485,7 +1487,7 @@ List<BulkData> storedBulkList = [];
     try {
       await _apiWorker.clearProductsForSubCategory(subCatId);
 
-      return await fetchProducts(subCatId);
+      return await fetchProducts(subCatId, forceRefresh: true);
     } catch (e) {
       return [];
     }
@@ -1585,11 +1587,11 @@ List<BulkData> storedBulkList = [];
         selectedSubCategoryName.value.isNotEmpty;
   }
 
-  Future<void> loadCategoriesAndDefaultProducts() async {
+  Future<void> loadCategoriesAndDefaultProducts({bool forceRefresh = false}) async {
     try {
       debugCategoryData();
 
-      if (isCategoriesAndProductsReady && products.isNotEmpty) {
+      if (!forceRefresh && isCategoriesAndProductsReady && products.isNotEmpty) {
         return;
       }
 
@@ -1605,7 +1607,7 @@ List<BulkData> storedBulkList = [];
 
         selectedSubCategoryName.value = initialSubCategory.subCategory ?? '';
 
-        await fetchProducts(initialSubCategory.id.toString());
+        await fetchProducts(initialSubCategory.id.toString(), forceRefresh: forceRefresh);
 
         if (categoryData.value.data != null &&
             categoryData.value.data!.isNotEmpty) {

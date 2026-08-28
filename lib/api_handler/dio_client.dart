@@ -9,9 +9,9 @@ class DioClient with ApiConstants {
       : _dio = Dio(
           BaseOptions(
               baseUrl: ApiConstants.baseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 15),
-              sendTimeout: const Duration(seconds: 15),
+              connectTimeout: const Duration(seconds: 60),
+              receiveTimeout: const Duration(seconds: 60),
+              sendTimeout: const Duration(seconds: 60),
               responseType: ResponseType.json),
         )..interceptors.addAll([
             GlobalApiInterceptor(),
@@ -117,12 +117,19 @@ class DioClient with ApiConstants {
 Future<Response<dynamic>> responsePostMethod(
     {required Map<String, dynamic> requestData,
     String? endPoint,
-    Options? options}) async {
-  final response = await Dio()
+    Options? options,
+    Duration timeout = const Duration(seconds: 60)}) async {
+  final response = await Dio(
+    BaseOptions(
+      connectTimeout: timeout,
+      receiveTimeout: timeout,
+      sendTimeout: timeout,
+    ),
+  )
       .post("${ApiConstants.baseUrl}$endPoint",
           data: requestData, options: options)
       .timeout(
-    const Duration(seconds: 15),
+    timeout,
     onTimeout: () {
       throw DioException(
         requestOptions:
@@ -138,12 +145,19 @@ Future<Response<dynamic>> responseGetMethod(
     {Map<String, dynamic>? requestData,
     String? endPoint,
     Options? options,
-    Map<String, dynamic>? queryParameters}) async {
-  final response = await Dio()
+    Map<String, dynamic>? queryParameters,
+    Duration timeout = const Duration(seconds: 60)}) async {
+  final response = await Dio(
+    BaseOptions(
+      connectTimeout: timeout,
+      receiveTimeout: timeout,
+      sendTimeout: timeout,
+    ),
+  )
       .post("${ApiConstants.baseUrl}$endPoint",
           data: requestData, options: options, queryParameters: queryParameters)
       .timeout(
-    const Duration(seconds: 15),
+    timeout,
     onTimeout: () {
       throw DioException(
         requestOptions:

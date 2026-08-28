@@ -122,6 +122,14 @@ This document lists all the features, bug fixes, and calculation logic updates i
 - **Fixes Applied**:
   - In `total_sales.dart`, wrapped the legend `Row` inside a `FittedBox(fit: BoxFit.scaleDown)` to ensure the `Bookings` and `Orders` totals auto-scale down gracefully on smaller viewports without throwing RenderFlex overflow errors.
 
+### 13. Default Category & Subcategory Selection on Order-Taking Screen
+- **Fixes Applied**:
+  - **Automatic Selection on Screen Entry**: In `order_taking.dart`, `_selectFirstCategory()` is now triggered immediately on screen load and as soon as `fetchCategoryData()` completes. This automatically sets `_selectedCategory` to the first category, and updates `productsController.selectedSubCategoryId` and `selectedSubCategoryName` to the first subcategory.
+  - **Drawer Timer Reset Removal**: Removed the code in `_drawerTimer` that was clearing `_selectedCategory = ''` and `_expandedIndex = -1` when the sidebar drawer auto-closed after 4 seconds. The drawer now closes smoothly while **preserving** the active category/subcategory selection and its visual highlight.
+  - **Category Sidebar & Icon Strip Highlight Fallbacks**:
+    - In `category_list.dart`, defaulted the accordion expanded index to `0` (the first category) when opened so the first category's subcategory options and active selection highlight are visible immediately.
+    - In the mini left category icon strip, added a fallback check so that the first category circle remains highlighted by default even during initial data load.
+
 ---
 
 ## File Mapping Table
@@ -138,6 +146,7 @@ This document lists all the features, bug fixes, and calculation logic updates i
 | **SendCartData & Payload Model** | `lib/ui/components/diloags/cart_diloag/cart_data_model.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/local_database/cart_data_model.dart` |
 | **Cart Order Model (`place_order`)** | `lib/ui/components/diloags/cart_diloag/customer_cart_responce.dart` | `lib/ui/components/diloags/cart_diloag/customer_cart_responce.dart` |
 | **Catalog Search Bar Widget** | `lib/ui/components/category_filter/order_taking/widgets/catalog_search_bar.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/widgets/catalog_search_bar.dart` |
+| **Category List Accordion Widget** | `lib/ui/components/category_filter/category_list.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/view/category_list.dart` |
 | **Order Taking Screen Layout** | `lib/ui/components/category_filter/order_taking/view/order_taking.dart` | `lib/ui/view/ui/customer_and_orders/order_taking_new/view/order_taking.dart` |
 | **Customer Total Sales Widget** | `lib/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sales.dart` | `lib/ui/view/ui/customer_and_orders/customer_dashbord/widget/total_sales.dart` |
 | **Currency Extension** | `lib/ui/utills/extentions/string_extention.dart` | `lib/ui/utills/extentions/string_extention.dart` |

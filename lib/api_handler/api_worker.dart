@@ -889,11 +889,13 @@ class ApiWorker with ApiConstants {
   }
 
   Future<List<ProductModel>> getTempProduct(String subCatId,
-      {required int companyid}) async {
-    final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
-    if (cachedProducts.isNotEmpty) {
-      print('Returning cached B2B products instantly for subCatId: $subCatId');
-      return cachedProducts;
+      {required int companyid, bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+      if (cachedProducts.isNotEmpty) {
+        print('Returning cached B2B products instantly for subCatId: $subCatId');
+        return cachedProducts;
+      }
     }
 
     final isConnected = await ConnectivityService().isOnline();
@@ -913,7 +915,10 @@ class ApiWorker with ApiConstants {
           final responseData = response.data;
           List<ProductModel> productsForSubCategory = [];
 
-          if (responseData['status'] == true && responseData['data'] != null) {
+          if ((responseData['status'] == true ||
+                  responseData['status'] == 'true' ||
+                  responseData['status'] == 1) &&
+              responseData['data'] != null) {
             try {
               await _cacheProductsByScid(responseData['data']);
             } catch (cacheError) {
@@ -935,7 +940,8 @@ class ApiWorker with ApiConstants {
 
           return productsForSubCategory;
         } else {
-          return [];
+          final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+          return cachedProducts;
         }
       } catch (e, stacktrace) {
         print("CRASH REASON: $e");
@@ -944,7 +950,8 @@ class ApiWorker with ApiConstants {
           apiName: 'Get Temp Product',
           response: e is DioException ? e.response : null,
         );
-        return [];
+        final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+        return cachedProducts;
       }
     } else {
       final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
@@ -1069,7 +1076,10 @@ class ApiWorker with ApiConstants {
           List<ProductModel> allProducts = [];
 
           // Parse the new JSON structure directly
-          if (responseData['status'] == true && responseData['data'] != null) {
+          if ((responseData['status'] == true ||
+                  responseData['status'] == 'true' ||
+                  responseData['status'] == 1) &&
+              responseData['data'] != null) {
             for (var scidGroup in responseData['data']) {
               // The backend now uses 'product' instead of 'products'
               if (scidGroup['product'] != null) {
@@ -1299,19 +1309,26 @@ class ApiWorker with ApiConstants {
       }
 
       // Remove existing products with the same scids to avoid duplicates
-      for (var scidGroup in scidGroups) {
-        final existingProducts =
-            productBox.values.where((p) => p.scid == scidGroup.scid).toList();
-        for (var product in existingProducts) {
-          if (product.productId != null) {
-            await productBox.delete(product.productId);
-            // log('Removed existing product: ${product.productId}');
-          }
+      final scidSet = scidGroups.map((g) => g.scid).toSet();
+      final keysToDelete = <dynamic>[];
+      for (var key in productBox.keys) {
+        final prod = productBox.get(key);
+        if (prod != null && (scidSet.contains(prod.scid) || (prod.productId != null && prod.productId!.isNotEmpty))) {
+          keysToDelete.add(key);
         }
       }
+      for (var key in keysToDelete) {
+        await productBox.delete(key);
+      }
 
-      // Add new products without deduplication (let the API handle it)
-      await productBox.addAll(newProducts);
+      // Store new products with their productId as key
+      for (var product in newProducts) {
+        if (product.productId != null && product.productId!.isNotEmpty) {
+          await productBox.put(product.productId, product);
+        } else {
+          await productBox.add(product);
+        }
+      }
     } catch (e) {
       print("Error in _cacheProductsByScid: $e");
     }
@@ -1451,13 +1468,16 @@ class ApiWorker with ApiConstants {
       // Remove from scid-based cache
       await scidGroupBox.delete(subCatId);
 
-      // Remove from legacy cache
-      final existingProducts =
-          productBox.values.where((p) => p.scid == subCatId).toList();
-      for (var product in existingProducts) {
-        if (product.productId != null) {
-          await productBox.delete(product.productId);
+      // Remove from products cache
+      final keysToDelete = <dynamic>[];
+      for (var key in productBox.keys) {
+        final prod = productBox.get(key);
+        if (prod?.scid == subCatId) {
+          keysToDelete.add(key);
         }
+      }
+      for (var k in keysToDelete) {
+        await productBox.delete(k);
       }
     } catch (e) {
       //

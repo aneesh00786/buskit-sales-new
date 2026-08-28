@@ -507,22 +507,26 @@ class LoginController extends GetxController {
       await customerBox.put(cacheKeyFirst, firstResponse.toJson());
       // Fetch remaining pages if any
       for (page = 2; page <= totalPages; page++) {
-        final response = await apiService.fetchCustomer(
-          salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
-          customerName: '',
-          startDate: '',
-          endDate: '',
-          limit: 10,
-          page: page,
-          valueFromDw: "Month",
-          selectedRange: [DateFormat('MMMM').format(DateTime.now())],
-        );
-        allCustomers.addAll(response.data);
-        allOrderTotals.addAll(response.orderTotal);
-        allYearsList.addAll(response.yearsListOfAll);
-        final cacheKey =
-            '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
-        await customerBox.put(cacheKey, response.toJson());
+        try {
+          final response = await apiService.fetchCustomer(
+            salesmanId: SessionHelper.loginSavedData?.salesmanId ?? '',
+            customerName: '',
+            startDate: '',
+            endDate: '',
+            limit: 10,
+            page: page,
+            valueFromDw: "Month",
+            selectedRange: [DateFormat('MMMM').format(DateTime.now())],
+          );
+          allCustomers.addAll(response.data);
+          allOrderTotals.addAll(response.orderTotal);
+          allYearsList.addAll(response.yearsListOfAll);
+          final cacheKey =
+              '${SessionHelper.loginSavedData?.company_id ?? 0}_customer_list_$page';
+          await customerBox.put(cacheKey, response.toJson());
+        } catch (pageError) {
+          print("Error fetching customer page $page: $pageError");
+        }
       }
       provider.setCustomers(allCustomers, totalPages);
       provider.setOrderTotal(allOrderTotals);

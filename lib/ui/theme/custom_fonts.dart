@@ -206,7 +206,7 @@ Widget dashboardContainerHeader(String text) {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            fontFamily: 'Poppins_Regular', color: const Color(0xFF0F172A),
             letterSpacing: -0.4,
           ),
           maxLines: 1,

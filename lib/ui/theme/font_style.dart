@@ -4,13 +4,15 @@ import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// [NkGetXFontStyle] USE CUSTOM FONT
+
 class NkGetXFontStyle {
   static TextTheme get textLightTheme =>
-      GoogleFonts.barlowCondensedTextTheme().copyWith(
-          labelMedium: GoogleFonts.barlow().copyWith(
-        color: primaryTextColor,
-        fontSize: NkFontSize.regularFont(),
-        fontWeight: NkGeneralSize.nkGeneralFontWeight(),
-      ));
-
+      GoogleFonts.poppinsTextTheme().copyWith(
+        labelMedium: GoogleFonts.poppins().copyWith(
+          color: primaryTextColor,
+          fontSize: NkFontSize.regularFont(),
+          fontWeight: NkGeneralSize.nkGeneralFontWeight(),
+        ),
+      );
 }

@@ -727,10 +727,11 @@ class _OptionWidgetState extends State<OptionWidget> {
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
           child: Container(
+            width: double.infinity,
             constraints: BoxConstraints(
-              maxWidth: screenWidth > 1150 ? 1050 : screenWidth * 0.95,
+              maxWidth: double.infinity,
               maxHeight: screenHeight * 0.85,
             ),
             decoration: BoxDecoration(
@@ -1186,10 +1187,11 @@ class _OptionWidgetState extends State<OptionWidget> {
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
           child: Container(
+            width: double.infinity,
             constraints: BoxConstraints(
-              maxWidth: screenWidth > 1150 ? 980 : screenWidth * 0.95,
+              maxWidth: double.infinity,
               maxHeight: screenHeight * 0.85,
             ),
             decoration: BoxDecoration(

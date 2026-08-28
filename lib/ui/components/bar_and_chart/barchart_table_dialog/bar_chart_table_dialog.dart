@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/orders_dialog/staffs_order_dialog.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/salesman_target_by_caregory_dialog.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -26,144 +23,229 @@ showBarchartDialog(
       barrierDismissible: false,
       context: context,
       builder: (context) {
+        final ScrollController verticalController = ScrollController();
+
         return Dialog(
-          insetPadding: isPhonePortrait(context) || isPhoneLandscape(context)
-              ? EdgeInsets.zero
-              : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
           child: LayoutBuilder(
             builder: (context, constraints) {
               double dialogWidth = isPhonePortrait(context)
                   ? fullScreenWidth(context)
-                  : fullScreenWidth(context) * 0.7;
-              double maxDialogHeight = constraints.maxHeight * 0.7;
-              double rowHeight = 40.0;
-              double headerHeight = 40.0;
-              double listHeight = categories.length * rowHeight;
-              double contentHeight =
-                  listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
+                  : 620;
+              double maxDialogHeight = constraints.maxHeight * 0.75;
+              double rowHeight = 44.0;
+              double headerHeight = 42.0;
 
               num totalTarget =
-                  categories.fold(0, (sum, item) => sum + item.targetTotal!);
+                  categories.fold(0, (sum, item) => sum + (item.targetTotal ?? 0));
               num totalProjection = categories.fold(
-                  0, (sum, item) => sum + item.projectionTotal!);
+                  0, (sum, item) => sum + (item.projectionTotal ?? 0));
               num totalActual = categories.fold(
-                  0, (sum, item) => sum + num.parse(item.orderTotal));
+                  0, (sum, item) => sum + (num.tryParse(item.orderTotal.toString()) ?? 0));
 
-              return ConstrainedBox(
+              return Container(
+                width: double.infinity,
                 constraints: BoxConstraints(
-                  maxHeight: contentHeight + (headerHeight * 3.5),
+                  maxWidth: dialogWidth,
+                  maxHeight: maxDialogHeight,
                 ),
-                child: SizedBox(
-                  width: dialogWidth,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.18),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // 🔹 Gradient Header
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         decoration: const BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
+                          gradient: LinearGradient(
+                            colors: [primaryColor, Color(0xFF2D3748)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Text(
-                                title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins_Regular',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.bar_chart_rounded, color: Colors.white, size: 17),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      title.tr,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontFamily: 'Poppins_Regular',
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            dialogCloseButton1(context, red),
+                            InkWell(
+                              onTap: () => Navigator.of(context).pop(),
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close, color: Colors.white, size: 18),
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      // Table Header
+
+                      // 🔹 Table Header
                       Container(
-                        color: const Color.fromARGB(255, 247, 247, 247),
+                        color: const Color(0xFFF1F5F9),
                         height: headerHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Row(
                           children: [
-                            DialogTableHeaderText(
-                              text: 'Name'.tr,
-                              fontSize: 13,
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                'Name'.tr,
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(
+                                  color: Color(0xFF0F172A),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  fontFamily: 'Poppins_Regular',
+                                ),
+                              ),
                             ),
                             if (!isDayOrRange) ...[
-                              // if (targetType == '1') ...[
-                              DialogTableHeaderText(
-                                text: 'Target'.tr,
-                                fontSize: 13,
-                              ),
-                              // ],
-                              if (staffProjection == '1') ...[
-                                DialogTableHeaderText(
-                                  text: 'Projection'.tr,
-                                  fontSize: 13,
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'Target'.tr,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Color(0xFF0F172A),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                    fontFamily: 'Poppins_Regular',
+                                  ),
                                 ),
-                              ]
+                              ),
+                              if (staffProjection == '1') ...[
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    'Projection'.tr,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Color(0xFF0F172A),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                      fontFamily: 'Poppins_Regular',
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
-                            DialogTableHeaderText(
-                              text: 'Actual'.tr,
-                              fontSize: 13,
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                'Actual'.tr,
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  color: Color(0xFF0F172A),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  fontFamily: 'Poppins_Regular',
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      // Scrollable Content
-                      Expanded(
-                        // height: contentHeight,
+
+                      // 🔹 Scrollable Content
+                      Flexible(
                         child: ScrollbarTheme(
-                          data: const ScrollbarThemeData(
-                            thickness: WidgetStatePropertyAll(5),
-                            thumbColor: WidgetStatePropertyAll(Colors.blue),
+                          data: ScrollbarThemeData(
+                            thumbColor: WidgetStateProperty.all(const Color(0xFF94A3B8)),
+                            trackColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+                            trackBorderColor: WidgetStateProperty.all(Colors.transparent),
+                            thickness: WidgetStateProperty.all(5),
+                            radius: const Radius.circular(8),
                           ),
                           child: Scrollbar(
+                            controller: verticalController,
                             thumbVisibility: true,
                             trackVisibility: true,
                             child: ListView.builder(
+                              controller: verticalController,
                               itemCount: categories.length,
                               physics: const ClampingScrollPhysics(),
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 final category = categories[index];
+                                final hasTarget = (category.targetTotal ?? 0) > 0;
+                                final hasProjection = (category.projectionTotal ?? 0) > 0;
+                                final actualNum = num.tryParse(category.orderTotal.toString()) ?? 0;
+                                final hasActual = actualNum > 0;
+
                                 return Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(
-                                        color: Colors.grey.shade300,
-                                        width: 0.5,
+                                        color: Color(0xFFF1F5F9),
+                                        width: 1,
                                       ),
                                     ),
                                   ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
                                   height: rowHeight,
                                   child: Row(
                                     children: [
                                       Expanded(
-                                        child: Center(
-                                          child: Text(
-                                            category.fullname,
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: secondaryTextColor,
-                                            ),
+                                        flex: 3,
+                                        child: Text(
+                                          category.fullname,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Poppins_Regular',
+                                            color: Color(0xFF0F172A),
                                           ),
                                         ),
                                       ),
                                       if (!isDayOrRange) ...[
-                                        // if (targetType == '1') ...[
                                         Expanded(
+                                          flex: 2,
                                           child: Center(
                                             child: InkWell(
                                               onTap: () async {
@@ -180,25 +262,22 @@ showBarchartDialog(
                                                 }
                                               },
                                               child: Text(
-                                                formatAmount(
-                                                    category.targetTotal),
+                                                formatAmount(category.targetTotal),
                                                 style: TextStyle(
                                                   fontSize: 13,
-                                                  color: targetType == '1'
-                                                      ? category.targetTotal
-                                                                  .toString() ==
-                                                              '0'
-                                                          ? secondaryTextColor
-                                                          : primaryButtonColor
-                                                      : secondaryTextColor,
+                                                  fontFamily: 'Poppins_Regular',
+                                                  fontWeight: hasTarget ? FontWeight.w600 : FontWeight.w400,
+                                                  color: targetType == '1' && hasTarget
+                                                      ? const Color(0xFF2563EB)
+                                                      : const Color(0xFF64748B),
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                        // ],
                                         if (staffProjection == '1') ...[
                                           Expanded(
+                                            flex: 2,
                                             child: Center(
                                               child: InkWell(
                                                 onTap: () async {
@@ -210,23 +289,19 @@ showBarchartDialog(
                                                     Get.dialog(
                                                         SalesmanTargetByCategoryDialog(
                                                       title: 'Projection',
-                                                      provider:
-                                                          dashboardProvider,
+                                                      provider: dashboardProvider,
                                                     ));
                                                   }
                                                 },
                                                 child: Text(
-                                                  formatAmount(
-                                                      category.projectionTotal),
+                                                  formatAmount(category.projectionTotal),
                                                   style: TextStyle(
                                                     fontSize: 13,
-                                                    color: targetType == '1'
-                                                        ? category.projectionTotal
-                                                                    .toString() ==
-                                                                '0'
-                                                            ? secondaryTextColor
-                                                            : primaryButtonColor
-                                                        : secondaryTextColor,
+                                                    fontFamily: 'Poppins_Regular',
+                                                    fontWeight: hasProjection ? FontWeight.w600 : FontWeight.w400,
+                                                    color: targetType == '1' && hasProjection
+                                                        ? const Color(0xFF2563EB)
+                                                        : const Color(0xFF64748B),
                                                   ),
                                                 ),
                                               ),
@@ -234,18 +309,20 @@ showBarchartDialog(
                                           ),
                                         ],
                                       ],
-//
                                       Expanded(
-                                        child: Center(
+                                        flex: 2,
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
                                           child: InkWell(
                                             onTap: () async {
                                               await dashboardProvider
                                                   .fetchChartOrderData(
-                                                category.salesmanId,
-                                                catId,
-                                              );
+                                                      category.salesmanId,
+                                                      targetType == '0'
+                                                          ? ''
+                                                          : catId);
                                               Get.dialog(StaffOrdersDialog(
-                                                heading: 'orders',
+                                                heading: 'ORDER',
                                                 orderData: dashboardProvider
                                                     .chartOrderData,
                                               ));
@@ -254,11 +331,11 @@ showBarchartDialog(
                                               formatAmount(category.orderTotal),
                                               style: TextStyle(
                                                 fontSize: 13,
-                                                color: formatAmount(category
-                                                            .orderTotal) ==
-                                                        formatAmount(0)
-                                                    ? secondaryTextColor
-                                                    : primaryButtonColor,
+                                                fontFamily: 'Poppins_Regular',
+                                                fontWeight: hasActual ? FontWeight.w700 : FontWeight.w400,
+                                                color: hasActual
+                                                    ? const Color(0xFF2563EB)
+                                                    : const Color(0xFF64748B),
                                               ),
                                             ),
                                           ),
@@ -272,50 +349,76 @@ showBarchartDialog(
                           ),
                         ),
                       ),
+
+                      // 🔹 Total Footer Row
                       Container(
                         decoration: const BoxDecoration(
+                          color: Color(0xFFF8FAFC),
                           border: Border(
                             top: BorderSide(
-                              color: Colors.grey,
-                              width: 0.5,
+                              color: Color(0xFFE2E8F0),
+                              width: 1,
                             ),
                           ),
                         ),
-                        height: rowHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        height: headerHeight,
                         child: Row(
                           children: [
                             Expanded(
-                                child: CustomText(
-                                    fontWeight: FontWeight.w600,
+                              flex: 3,
+                              child: Text(
+                                'Total'.tr,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  fontFamily: 'Poppins_Regular',
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                            ),
+                            if (!isDayOrRange) ...[
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  formatAmount(totalTarget),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                    fontFamily: 'Poppins_Regular',
+                                    color: Color(0xFF0F172A),
+                                  ),
+                                ),
+                              ),
+                              if (staffProjection == '1')
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    formatAmount(totalProjection),
                                     textAlign: TextAlign.center,
-                                    content: 'Total'.tr,
-                                    fontSize: 11,
-                                    maxLine: 1)),
-                            if (!isDayOrRange
-                                //  && targetType == '1'
-                                )
-                              Expanded(
-                                  child: CustomText(
-                                      fontWeight: FontWeight.w600,
-                                      textAlign: TextAlign.center,
-                                      content: formatAmount(totalTarget),
-                                      fontSize: 11,
-                                      maxLine: 1)),
-                            if (!isDayOrRange && staffProjection == '1')
-                              Expanded(
-                                  child: CustomText(
-                                      fontWeight: FontWeight.w600,
-                                      textAlign: TextAlign.center,
-                                      content: formatAmount(totalProjection),
-                                      fontSize: 11,
-                                      maxLine: 1)),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                      fontFamily: 'Poppins_Regular',
+                                      color: Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ),
+                            ],
                             Expanded(
-                                child: CustomText(
-                                    fontWeight: FontWeight.w600,
-                                    textAlign: TextAlign.center,
-                                    content: formatAmount(totalActual),
-                                    fontSize: 11,
-                                    maxLine: 1)),
+                              flex: 2,
+                              child: Text(
+                                formatAmount(totalActual),
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  fontFamily: 'Poppins_Regular',
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

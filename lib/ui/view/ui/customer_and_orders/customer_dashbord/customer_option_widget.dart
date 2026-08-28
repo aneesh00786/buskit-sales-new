@@ -872,25 +872,25 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               return Scrollbar(
-                                controller: horizontalScrollController,
+                                controller: verticalScrollController,
                                 thumbVisibility: true,
                                 trackVisibility: true,
                                 radius: const Radius.circular(8),
                                 thickness: 6,
                                 child: SingleChildScrollView(
-                                  controller: horizontalScrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                    child: Scrollbar(
-                                      controller: verticalScrollController,
-                                      thumbVisibility: true,
-                                      trackVisibility: true,
-                                      radius: const Radius.circular(8),
-                                      thickness: 6,
-                                      child: SingleChildScrollView(
-                                        controller: verticalScrollController,
-                                        scrollDirection: Axis.vertical,
+                                  controller: verticalScrollController,
+                                  scrollDirection: Axis.vertical,
+                                  child: Scrollbar(
+                                    controller: horizontalScrollController,
+                                    thumbVisibility: true,
+                                    trackVisibility: true,
+                                    radius: const Radius.circular(8),
+                                    thickness: 6,
+                                    child: SingleChildScrollView(
+                                      controller: horizontalScrollController,
+                                      scrollDirection: Axis.horizontal,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(minWidth: constraints.maxWidth),
                                         child: DataTable(
                                         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                         headingTextStyle: const TextStyle(
@@ -1371,25 +1371,25 @@ class _OptionWidgetCustomerDashState extends State<OptionWidgetCustomerDash> {
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               return Scrollbar(
-                                controller: horizontalScrollController,
+                                controller: verticalScrollController,
                                 thumbVisibility: true,
                                 trackVisibility: true,
                                 radius: const Radius.circular(8),
                                 thickness: 6,
                                 child: SingleChildScrollView(
-                                  controller: horizontalScrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  child: ConstrainedBox(
-                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                                    child: Scrollbar(
-                                      controller: verticalScrollController,
-                                      thumbVisibility: true,
-                                      trackVisibility: true,
-                                      radius: const Radius.circular(8),
-                                      thickness: 6,
-                                      child: SingleChildScrollView(
-                                        controller: verticalScrollController,
-                                        scrollDirection: Axis.vertical,
+                                  controller: verticalScrollController,
+                                  scrollDirection: Axis.vertical,
+                                  child: Scrollbar(
+                                    controller: horizontalScrollController,
+                                    thumbVisibility: true,
+                                    trackVisibility: true,
+                                    radius: const Radius.circular(8),
+                                    thickness: 6,
+                                    child: SingleChildScrollView(
+                                      controller: horizontalScrollController,
+                                      scrollDirection: Axis.horizontal,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(minWidth: constraints.maxWidth),
                                         child: DataTable(
                                         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                                         headingTextStyle: const TextStyle(

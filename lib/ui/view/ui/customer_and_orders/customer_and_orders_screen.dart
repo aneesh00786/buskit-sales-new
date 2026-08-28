@@ -151,10 +151,12 @@ class _TableeeState extends State<Tableee> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Customers & Orders'.tr,
-                      style: TextStyle(
-                          fontSize: NkFontSize.largeFont(largeFont: 20),
-                          fontWeight: FontWeight.bold)),
+                  Text('Customers & Orders'.tr, style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              )),
                   Row(
                     children: [
                       if (!isMobile) addCustomer(context),

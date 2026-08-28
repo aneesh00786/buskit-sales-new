@@ -39,10 +39,12 @@ class _LeadTopScreenState extends State<LeadTopScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CustomText(
-              content: 'Leads'.tr,
-              fontWeight: FontWeight.bold,
-            ),
+            Text('Leads'.tr, style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              )),
             SizedBox(
               width: 10,
             ),

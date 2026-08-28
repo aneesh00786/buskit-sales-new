@@ -118,12 +118,12 @@ class _SalesReturnState extends State<SalesReturn> {
         children: [
           Row(
             children: [
-              Text(
-                "Sales Return".tr,
-                style: TextStyle(
-                    fontSize: NkFontSize.largeFont(largeFont: 20),
-                    fontWeight: FontWeight.bold),
-              ),
+              Text('Sales Return'.tr, style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              )),
               const Spacer(),
               const NotificationWidget(
                 startDate: '',

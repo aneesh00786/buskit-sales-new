@@ -49,7 +49,12 @@ class _CalenderScreenState extends State<CalenderScreen> {
             actions: [
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: CustomText(content: 'Calender'.tr,fontWeight: FontWeight.bold,),
+                child: Text('Calendar'.tr, style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              )),
               ),
               Spacer(),
               if (!isMobile) const ChatbotTopBarButton(routeName: '/attendance'),

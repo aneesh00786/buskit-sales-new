@@ -239,13 +239,25 @@ void showValueDialogCusDash(
                                     ],
                                     rows: orderDetails.map((item) {
                                       String formattedDate = 'N/A';
-                                      if (item.orderGeneratedDate != null && item.orderGeneratedDate.toString().isNotEmpty) {
-                                        formattedDate = TimeUtils.formatTimeInZone(
-                                          DateTime.tryParse(item.orderGeneratedDate.toString()) ?? DateTime.now(),
-                                          format: 'dd-MM-yyyy',
-                                        );
-                                      } else if (item.orderCreatAt != null) {
-                                        formattedDate = getFormattedOrderCreatAt(item.orderCreatAt);
+                                      dynamic dateVal;
+                                      try {
+                                        dateVal = item.orderGeneratedDate ?? item.orderGnerateAt ?? item.orderCreatAt;
+                                      } catch (_) {
+                                        try {
+                                          dateVal = item.orderCreatAt;
+                                        } catch (_) {}
+                                      }
+
+                                      if (dateVal != null) {
+                                        if (dateVal is DateTime) {
+                                          formattedDate = TimeUtils.formatTimeInZone(dateVal, format: 'dd-MM-yyyy');
+                                        } else if (dateVal.toString().isNotEmpty) {
+                                          try {
+                                            formattedDate = TimeUtils.formatTimeInZone(DateTime.parse(dateVal.toString()), format: 'dd-MM-yyyy');
+                                          } catch (_) {
+                                            formattedDate = getFormattedOrderCreatAt(dateVal);
+                                          }
+                                        }
                                       }
 
                                       String orderId = item.orderId ?? 'N/A';

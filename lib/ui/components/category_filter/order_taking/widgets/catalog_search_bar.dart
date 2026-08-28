@@ -225,7 +225,7 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
             ),
             subtitle: Text(
               "$subCount ${'Subcategories'.tr}",
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: const Color(0xFF0F172A)),
             ),
             trailing:
                 const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
@@ -275,7 +275,7 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
             ),
             subtitle: Text(
               parent.categoryName ?? '',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 12, color: const Color(0xFF0F172A)),
             ),
             trailing:
                 const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
@@ -307,7 +307,7 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
               message,
               style: TextStyle(
                 fontSize: 13.5,
-                color: Colors.grey.shade600,
+                color: const Color(0xFF0F172A),
                 fontStyle: FontStyle.italic,
               ),
             ),

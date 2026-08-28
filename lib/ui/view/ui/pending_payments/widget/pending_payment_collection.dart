@@ -218,7 +218,7 @@ void showOfflineInfoDialog(BuildContext context, String orderId) {
                             formattedTime,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.grey.shade700,
+                              color: const Color(0xFF0F172A),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

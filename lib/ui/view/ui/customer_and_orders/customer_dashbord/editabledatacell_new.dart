@@ -92,7 +92,7 @@ class _EditableDataCellState extends State<EditableDataCell> {
               hintText: widget.initialValue,
               hintStyle: TextStyle(
                 fontSize: 12,
-                color: Colors.grey.shade600,
+                color: const Color(0xFF0F172A),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 0.0,

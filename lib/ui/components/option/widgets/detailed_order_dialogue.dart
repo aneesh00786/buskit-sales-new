@@ -341,7 +341,7 @@ void showDetailedOrderDialog(
                 const SizedBox(height: 16),
                  Text(
                   'Currency ${formatAmount('')}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  style: const TextStyle(color: const Color(0xFF0F172A), fontSize: 14),
                 ),
               ],
             )

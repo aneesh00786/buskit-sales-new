@@ -981,7 +981,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           label: label,
           fontSize: 11.6,
           fontWeight: FontWeight.w600,
-          color: secondaryTextColor,
+          color: const Color(0xFF0F172A),
         ),
       ],
     );
@@ -1433,7 +1433,7 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
           ),
           MyRegularText(
             label: subTitle,
-            color: secondaryTextColor,
+            color: const Color(0xFF0F172A),
             fontSize: NkFontSize.smallFont(),
           )
         ],
@@ -1472,7 +1472,7 @@ class OrderStatusLegend extends StatelessWidget {
             label: label,
             fontSize: 11.6,
             fontWeight: FontWeight.w600,
-            color: secondaryTextColor,
+            color: const Color(0xFF0F172A),
           ),
         ],
       ),
@@ -1639,7 +1639,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               style: const TextStyle(
                   fontSize: 11,
-                  color: Colors.black45,
+                  color: const Color(0xFF0F172A),
                   fontWeight: FontWeight.w500),
             ),
           ],
@@ -1679,7 +1679,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     style: const TextStyle(
                         fontSize: 11,
-                        color: Colors.black45,
+                        color: const Color(0xFF0F172A),
                         fontWeight: FontWeight.w500),
                   ),
                   if (message.source == 'admin') ...[
@@ -1722,7 +1722,7 @@ class _ChatScreenState extends State<ChatScreen> {
   ),
   style: const TextStyle(
     fontSize: 11,
-    color: Colors.black45,
+    color: const Color(0xFF0F172A),
     fontWeight: FontWeight.w500,
   ),
 ),
@@ -1733,7 +1733,7 @@ class _ChatScreenState extends State<ChatScreen> {
             //   ),
             //   style: const TextStyle(
             //       fontSize: 11,
-            //       color: Colors.black45,
+            //       color: const Color(0xFF0F172A),
             //       fontWeight: FontWeight.w500),
             // ),
             if (message.source == 'salesman') ...[

@@ -467,7 +467,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                         'Stay'.tr,
                         style: const TextStyle(
                           fontFamily: 'Poppins_Regular',
-                          color: Colors.grey,
+                          color: const Color(0xFF0F172A),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -738,7 +738,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                                       "Address not available",
                                                   style: const TextStyle(
                                                     fontSize: 12,
-                                                    color: Colors.grey,
+                                                    color: const Color(0xFF0F172A),
                                                     fontWeight:
                                                         FontWeight.normal,
                                                   ),

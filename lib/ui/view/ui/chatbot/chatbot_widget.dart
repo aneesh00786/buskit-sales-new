@@ -88,7 +88,7 @@ class ChatbotWidget extends StatelessWidget {
                         const Text(
                           "Downloading assistant data...",
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: const Color(0xFF0F172A),
                             fontSize: 13,
                           ),
                         )

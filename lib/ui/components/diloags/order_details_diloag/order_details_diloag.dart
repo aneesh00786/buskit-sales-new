@@ -83,7 +83,7 @@ class OrderDetailsDiloag extends StatelessWidget {
           columns: headingColumnsTotalPayable.map((e) {
             return DataColumn(
                 label: MyRegularText(
-              color: secondaryTextColor,
+              color: const Color(0xFF0F172A),
               label: e,
             ));
           }).toList(),
@@ -142,7 +142,7 @@ class OrderDetailsDiloag extends StatelessWidget {
           columns: headingColumns.map((e) {
             return DataColumn(
                 label: MyRegularText(
-              color: secondaryTextColor,
+              color: const Color(0xFF0F172A),
               label: e,
             ));
           }).toList(),

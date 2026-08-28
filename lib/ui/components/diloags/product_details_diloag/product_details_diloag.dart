@@ -114,7 +114,7 @@ class ProductDetailsDialog extends Dialog {
               ),
               const MyRegularText(
                 label: "Product Code:C-LEN/SC_RLE/ADB",
-                color: secondaryTextColor,
+                color: const Color(0xFF0F172A),
               ),
             ],
           ),

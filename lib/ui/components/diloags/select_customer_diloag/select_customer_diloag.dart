@@ -271,7 +271,7 @@ class _SelectCustomerDiloagState extends State<SelectCustomerDiloag>
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child:
-                      Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                      Text('Cancel', style: TextStyle(color: const Color(0xFF0F172A))),
                 ),
               ],
             ),

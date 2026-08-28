@@ -782,7 +782,7 @@ class GroupedItemDataRows {
                                     fontFamily: fontFamilyName,
                                     fontSize: cellFontSize,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade500,
+                                    color: const Color(0xFF0F172A),
                                     decoration: TextDecoration.lineThrough,
                                     decorationColor: Colors.grey.shade500,
                                     height: 1.4,
@@ -795,7 +795,7 @@ class GroupedItemDataRows {
                                     fontFamily: fontFamilyName,
                                     fontSize: cellFontSize,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade500,
+                                    color: const Color(0xFF0F172A),
                                     height: 1.4,
                                   ),
                                 ),
@@ -887,7 +887,7 @@ class GroupedItemDataRows {
                                     fontFamily: fontFamilyName,
                                     fontSize: cellFontSize,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade500,
+                                    color: const Color(0xFF0F172A),
                                     decoration: TextDecoration.lineThrough,
                                     decorationColor: Colors.grey.shade500,
                                     height: 1.4,
@@ -900,7 +900,7 @@ class GroupedItemDataRows {
                                     fontFamily: fontFamilyName,
                                     fontSize: cellFontSize,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade500,
+                                    color: const Color(0xFF0F172A),
                                     height: 1.4,
                                   ),
                                 ),
@@ -1140,7 +1140,7 @@ class GroupedItemDataRows {
                                       Text(
                                         "${quantity.toInt()} × ${groupedItem.isPack == true || groupedItem.detail.packtype == 'Pack' ? 'Pack' : 'Piece'}",
                                         style: TextStyle(
-                                            color: Colors.grey.shade700,
+                                            color: const Color(0xFF0F172A),
                                             fontSize: 14),
                                       ),
                                     ],
@@ -1298,7 +1298,7 @@ class GroupedItemDataRows {
                                     child: Text(
                                       "No discount applied".tr,
                                       style: const TextStyle(
-                                          color: Colors.grey,
+                                          color: const Color(0xFF0F172A),
                                           fontStyle: FontStyle.italic,
                                           fontSize: 16),
                                     ),
@@ -1635,7 +1635,7 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
                           'New Price'.tr,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: const Color(0xFF0F172A),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1739,7 +1739,7 @@ void _showEditPriceDialog(BuildContext context, CartItem groupedItem) {
                                 ),
                                 child: Text('Cancel'.tr,
                                     style: TextStyle(
-                                        color: Colors.grey.shade600,
+                                        color: const Color(0xFF0F172A),
                                         fontWeight: FontWeight.w600)),
                               ),
                             ),
@@ -2033,7 +2033,7 @@ void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
                           'New Pack Price'.tr,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: const Color(0xFF0F172A),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -2137,7 +2137,7 @@ void _showEditPackPriceDialog(BuildContext context, CartItem groupedItem) {
                                 ),
                                 child: Text('Cancel'.tr,
                                     style: TextStyle(
-                                        color: Colors.grey.shade600,
+                                        color: const Color(0xFF0F172A),
                                         fontWeight: FontWeight.w600)),
                               ),
                             ),

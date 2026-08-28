@@ -1458,7 +1458,7 @@ void paymentCollectionDialog(
                                         hintText: 'Balance Amount',
                                         hintStyle: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey.shade600),
+                                            color: const Color(0xFF0F172A)),
                                         contentPadding:
                                             const EdgeInsets.symmetric(
                                                 vertical: 10.0,
@@ -1489,7 +1489,7 @@ void paymentCollectionDialog(
                                         hintText: 'Received Amount',
                                         hintStyle: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey.shade600),
+                                            color: const Color(0xFF0F172A)),
                                         contentPadding:
                                             const EdgeInsets.symmetric(
                                                 vertical: 10.0,
@@ -1520,7 +1520,7 @@ void paymentCollectionDialog(
                                         hintText: 'Remarks',
                                         hintStyle: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey.shade600),
+                                            color: const Color(0xFF0F172A)),
                                         contentPadding:
                                             const EdgeInsets.symmetric(
                                                 vertical: 10.0,
@@ -1648,7 +1648,7 @@ void paymentCollectionDialog(
                                             hintText: 'Balance Amount',
                                             hintStyle: TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.grey.shade600),
+                                                color: const Color(0xFF0F172A)),
                                             contentPadding:
                                                 const EdgeInsets.symmetric(
                                                     vertical: 10.0,
@@ -1707,7 +1707,7 @@ void paymentCollectionDialog(
                                             hintText: 'Received Amount',
                                             hintStyle: TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.grey.shade600),
+                                                color: const Color(0xFF0F172A)),
                                             contentPadding:
                                                 const EdgeInsets.symmetric(
                                                     vertical: 10.0,
@@ -1738,7 +1738,7 @@ void paymentCollectionDialog(
                                             hintText: 'Remarks',
                                             hintStyle: TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.grey.shade600),
+                                                color: const Color(0xFF0F172A)),
                                             contentPadding:
                                                 const EdgeInsets.symmetric(
                                                     vertical: 10.0,

@@ -51,7 +51,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "Sl.No..tr",
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),
@@ -64,7 +64,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "Product".tr,
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),
@@ -77,7 +77,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "I/N".tr,
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),
@@ -90,7 +90,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "Last Purchase".tr,
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),
@@ -103,7 +103,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "Times".tr,
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),
@@ -116,7 +116,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "Amount".tr,
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),
@@ -129,7 +129,7 @@ Widget topSellingProductsCustomer(
                           child: MyRegularText(
                             label: "Qty".tr,
                             fontWeight: FontWeight.w600,
-                            color: secondaryTextColor,
+                            color: const Color(0xFF0F172A),
                             align: TextAlign.center,
                             fontSize: 11.3,
                           ),

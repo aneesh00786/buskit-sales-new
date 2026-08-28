@@ -503,12 +503,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                     }
                   },
                   child:
-                      Text('Cancel'.tr, style: TextStyle(color: Colors.grey[600])),
+                      Text('Cancel'.tr, style: TextStyle(color: const Color(0xFF0F172A))),
                 ),
                 // TextButton(
                 //   onPressed: () => Navigator.of(context).pop(),
                 //   child:
-                //       Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                //       Text('Cancel', style: TextStyle(color: const Color(0xFF0F172A))),
                 // ),
               ],
             ),

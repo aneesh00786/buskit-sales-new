@@ -369,7 +369,7 @@ class UpdateCustomerPopupState extends State<UpdateCustomerPopup> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[700],
+            color: const Color(0xFF0F172A),
           ),
         ),
         const SizedBox(height: 6),

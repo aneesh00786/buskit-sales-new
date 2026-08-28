@@ -569,7 +569,7 @@ Widget _buildRevenueLegend(
           label: label,
           fontSize: 11.6,
           fontWeight: FontWeight.w600,
-          color: secondaryTextColor,
+          color: const Color(0xFF0F172A),
         ),
       ],
     );

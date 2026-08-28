@@ -24,7 +24,7 @@ Widget buildInputField(
               horizontal: 16.0, vertical: 18.0),
           labelText: labelText,
           labelStyle:
-              TextStyle(color: Colors.grey.shade600),
+              TextStyle(color: const Color(0xFF0F172A)),
           prefixIcon: filledIcon(icon),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),

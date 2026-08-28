@@ -1269,8 +1269,7 @@ class _TableeeState extends State<Tableee> {
                                                                 : 'Image selected'
                                                                     .tr,
                                                             style: TextStyle(
-                                                              color: Colors.grey
-                                                                  .shade700,
+                                                              color: const Color(0xFF0F172A),
                                                               fontSize: 16.0,
                                                               fontWeight:
                                                                   FontWeight
@@ -1687,7 +1686,7 @@ class _TableeeState extends State<Tableee> {
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
             labelText: labelText,
-            labelStyle: TextStyle(color: Colors.grey.shade600),
+            labelStyle: TextStyle(color: const Color(0xFF0F172A)),
             prefixIcon: filledIcon(icon),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -3587,7 +3586,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                         'Stay'.tr,
                         style: const TextStyle(
                           fontFamily: 'Poppins_Regular',
-                          color: Colors.grey,
+                          color: const Color(0xFF0F172A),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),

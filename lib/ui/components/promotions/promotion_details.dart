@@ -2551,7 +2551,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 variant.variationName ?? "-",
                                                 style: const TextStyle(
                                                   fontSize: 14,
-                                                  color: Colors.grey,
+                                                  color: const Color(0xFF0F172A),
                                                 ),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -3357,7 +3357,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     ),
     content: Text(
       "$name is currently out of stock.",
-      style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
     ),
     actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
     actions: [
@@ -3420,7 +3420,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     ),
     content: Text(
       "Only $stock available for $name. You requested $qty.",
-      style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
     ),
     actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
     actions: [
@@ -4155,7 +4155,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
     final headerStyle = TextStyle(
       fontSize: 12,
-      color: Colors.grey[700],
+      color: const Color(0xFF0F172A),
       fontWeight: FontWeight.w600,
     );
 
@@ -7822,7 +7822,7 @@ String extractSubCategoryId(String productId) {
 //                                                 variant.variationName ?? "-",
 //                                                 style: const TextStyle(
 //                                                   fontSize: 14,
-//                                                   color: Colors.grey,
+//                                                   color: const Color(0xFF0F172A),
 //                                                 ),
 //                                                 maxLines: 1,
 //                                                 overflow: TextOverflow.ellipsis,
@@ -9262,7 +9262,7 @@ String extractSubCategoryId(String productId) {
 
 //     final headerStyle = TextStyle(
 //       fontSize: 12,
-//       color: Colors.grey[700],
+//       color: const Color(0xFF0F172A),
 //       fontWeight: FontWeight.w600,
 //     );
 

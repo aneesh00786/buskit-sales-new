@@ -683,7 +683,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                               ? 'Pick an image from gallery'.tr
                                               : 'Image selected'.tr,
                                           style: TextStyle(
-                                            color: Colors.grey.shade700,
+                                            color: const Color(0xFF0F172A),
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.w500,
                                           ),

@@ -990,7 +990,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.grey.shade600,
+                                        color: const Color(0xFF0F172A),
                                       ),
                                     ),
                                     const SizedBox(height: 24),
@@ -1210,7 +1210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.grey.shade600,
+                            color: const Color(0xFF0F172A),
                             height: 1.4,
                           ),
                         ),
@@ -1359,7 +1359,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
-            color: Colors.grey.shade700,
+            color: const Color(0xFF0F172A),
           ),
         ),
         const SizedBox(height: 12),
@@ -1387,7 +1387,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 8),
                   Text('No Image Available'.tr,
                       style:
-                          TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                          TextStyle(color: const Color(0xFF0F172A), fontSize: 12)),
                 ],
               ),
             ),

@@ -231,7 +231,7 @@ class DialogContent extends StatelessWidget {
                                   // | Order: ${item.orderId}',
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: Colors.black54,
+                                    color: const Color(0xFF0F172A),
                                   ),
                                 ),
                               ],

@@ -339,7 +339,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text("Total:".tr, style: TextStyle(color: Colors.grey, fontSize: 12)),
+             Text("Total:".tr, style: TextStyle(color: const Color(0xFF0F172A), fontSize: 12)),
             Text(
               formatAmount(totalAmount.toStringAsFixed(2)),
               style: const TextStyle(
@@ -385,7 +385,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
     ),
     content: Text(
       "${data.productName} is currently out of stock.",
-      style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
     ),
     actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
     actions: [
@@ -450,7 +450,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
     ),
     content: Text(
        "Only $availableStock items available. You requested $totalRequestedStock items ($_currentQuantity bulks of $itemsPerBulk).",
-      style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
     ),
     actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
     actions: [

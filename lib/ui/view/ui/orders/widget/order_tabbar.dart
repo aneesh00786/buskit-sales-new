@@ -576,12 +576,12 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                           Text(
                             "No orders found",
                             style: TextStyle(
-                                color: Colors.grey[600], fontSize: 16),
+                                color: const Color(0xFF0F172A), fontSize: 16),
                           ),
                           Text(
                             "Try searching with Order ID or Invoice No.",
                             style: TextStyle(
-                                color: Colors.grey[500], fontSize: 14),
+                                color: const Color(0xFF0F172A), fontSize: 14),
                           ),
                         ],
                       ),

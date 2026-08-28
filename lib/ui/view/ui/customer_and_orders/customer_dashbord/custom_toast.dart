@@ -83,7 +83,7 @@ class _CustomToastState extends State<CustomToast>
                   child: Text(
                     widget.message,
                     style: const TextStyle(
-                      color: Colors.grey,
+                      color: const Color(0xFF0F172A),
                       fontSize: 16.0,
                     ),
                   ),

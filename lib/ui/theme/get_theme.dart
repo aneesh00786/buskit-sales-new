@@ -27,7 +27,7 @@ class NkGetXTheme {
         ),
         contentTextStyle: TextStyle(
           fontFamily: 'Poppins_Regular',
-          color: Colors.black54,
+          color: const Color(0xFF0F172A),
           fontSize: 16,
         ),
       ),

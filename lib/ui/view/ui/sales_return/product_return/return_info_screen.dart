@@ -140,7 +140,7 @@ class _TableHeaderText extends StatelessWidget {
         text,
         style: const TextStyle(
           fontWeight: FontWeight.w500,
-          color: Colors.black54,
+          color: const Color(0xFF0F172A),
           fontSize: 13,
         ),
       ),

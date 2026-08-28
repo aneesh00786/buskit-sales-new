@@ -4682,7 +4682,7 @@ Future<bool?> showCreditUsageDialog({
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade700,
+                            color: const Color(0xFF0F172A),
                           ),
                         ),
                         Text(
@@ -4706,7 +4706,7 @@ Future<bool?> showCreditUsageDialog({
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade700,
+                            color: const Color(0xFF0F172A),
                           ),
                         ),
                         Text(

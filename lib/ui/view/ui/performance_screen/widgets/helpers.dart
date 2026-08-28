@@ -63,7 +63,7 @@ Widget getBottomTitles(double value, TitleMeta meta,String targetType,List<Value
         const SizedBox(width: 2),
         MyRegularText(
           label: label,
-          color: secondaryTextColor,
+          color: const Color(0xFF0F172A),
           fontSize: 11.6,
           fontWeight: FontWeight.w600,
         ),

@@ -363,7 +363,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                       vertical: 18.0),
                                               labelText: 'Remark'.tr,
                                               labelStyle: TextStyle(
-                                                  color: Colors.grey.shade600),
+                                                  color: const Color(0xFF0F172A)),
                                               prefixIcon:
                                                   filledIcon(Assets.icRemark),
                                               focusedBorder: OutlineInputBorder(
@@ -1002,7 +1002,7 @@ Widget buildInputField(
               horizontal: 16.0, vertical: 18.0), // Modern padding
           labelText: labelText,
           labelStyle:
-              TextStyle(color: Colors.grey.shade600), // Modern label color
+              TextStyle(color: const Color(0xFF0F172A)), // Modern label color
           prefixIcon: filledIcon(icon),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
@@ -1422,7 +1422,7 @@ class CustomButtonLeads extends StatelessWidget {
 //                                                       vertical: 18.0),
 //                                               labelText: 'Remark',
 //                                               labelStyle: TextStyle(
-//                                                   color: Colors.grey.shade600),
+//                                                   color: const Color(0xFF0F172A)),
 //                                               prefixIcon:
 //                                                   filledIcon(Assets.icRemark),
 //                                               focusedBorder: OutlineInputBorder(
@@ -1829,7 +1829,7 @@ class CustomButtonLeads extends StatelessWidget {
 //               horizontal: 16.0, vertical: 18.0), // Modern padding
 //           labelText: labelText,
 //           labelStyle:
-//               TextStyle(color: Colors.grey.shade600), // Modern label color
+//               TextStyle(color: const Color(0xFF0F172A)), // Modern label color
 //           prefixIcon: filledIcon(icon),
 //           focusedBorder: OutlineInputBorder(
 //             borderRadius: BorderRadius.circular(8.0),

@@ -976,7 +976,7 @@ class _CustomBarChartState extends State<CustomBarChart> {
             const SizedBox(width: 5),
             MyRegularText(
               label: label,
-              color: secondaryTextColor,
+              color: const Color(0xFF0F172A),
               fontSize: 11.6,
               fontWeight: FontWeight.w600,
             ),

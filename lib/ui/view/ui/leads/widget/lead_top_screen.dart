@@ -170,7 +170,7 @@ Widget profiloe() {
                             child: MyRegularText(
                               label: homeController.userDetails?.designation ?? "",
                               fontSize: 8.5,
-                              color: Colors.grey,
+                              color: const Color(0xFF0F172A),
                               fontWeight: FontWeight.bold,
                             ),
                           ),

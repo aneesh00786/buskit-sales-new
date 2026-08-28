@@ -722,7 +722,6 @@ class _OptionWidgetState extends State<OptionWidget> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        final screenWidth = MediaQuery.of(context).size.width;
         final screenHeight = MediaQuery.of(context).size.height;
 
         return Dialog(
@@ -732,7 +731,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             width: double.infinity,
             constraints: BoxConstraints(
               maxWidth: double.infinity,
-              maxHeight: screenHeight * 0.85,
+              maxHeight: screenHeight * 0.88,
             ),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -871,15 +870,15 @@ class _OptionWidgetState extends State<OptionWidget> {
                                         columnSpacing: 14,
                                         horizontalMargin: 16,
                                         columns: [
-                                          DataColumn(label: Text('Customer'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Order #'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Date'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Sales Rep'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Amount'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Invoice'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Payment'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Status'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          const DataColumn(label: Text('Action', style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Center(child: Text('Customer'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Order #'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Date'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Sales Rep'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Amount'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Invoice'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Payment'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Status'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          const DataColumn(label: Center(child: Text('Action', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
                                         ],
                                         rows: filteredOrders.map((order) {
                                           final customer = order.customer.isNotEmpty ? order.customer[0] : null;
@@ -887,73 +886,77 @@ class _OptionWidgetState extends State<OptionWidget> {
                                             cells: [
                                               // Customer Info
                                               DataCell(
-                                                SizedBox(
-                                                  width: 140,
-                                                  child: Row(
-                                                    children: [
-                                                      CircleAvatar(
-                                                        radius: 14,
-                                                        backgroundColor: const Color(0xFFEEF2FF),
-                                                        child: const Icon(Icons.person, size: 15, color: primaryColor),
-                                                      ),
-                                                      const SizedBox(width: 7),
-                                                      Expanded(
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                          children: [
-                                                            Text(
-                                                              customer?.businessName ?? 'N/A',
-                                                              style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
-                                                              maxLines: 1,
-                                                              overflow: TextOverflow.ellipsis,
-                                                            ),
-                                                            if (customer?.fullName != null && customer!.fullName.isNotEmpty)
-                                                              Text(
-                                                                customer.fullName,
-                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis,
-                                                              ),
-                                                            if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
-                                                              Text(
-                                                                customer.mobileNo,
-                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis,
-                                                              ),
-                                                          ],
+                                                Center(
+                                                  child: SizedBox(
+                                                    width: 140,
+                                                    child: Row(
+                                                      children: [
+                                                        CircleAvatar(
+                                                          radius: 14,
+                                                          backgroundColor: const Color(0xFFEEF2FF),
+                                                          child: const Icon(Icons.person, size: 15, color: primaryColor),
                                                         ),
-                                                      ),
-                                                    ],
+                                                        const SizedBox(width: 7),
+                                                        Expanded(
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Text(
+                                                                customer?.businessName ?? 'N/A',
+                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis,
+                                                              ),
+                                                              if (customer?.fullName != null && customer!.fullName.isNotEmpty)
+                                                                Text(
+                                                                  customer.fullName,
+                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                                  maxLines: 1,
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                ),
+                                                              if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
+                                                                Text(
+                                                                  customer.mobileNo,
+                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                  maxLines: 1,
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                               // Order No
                                               DataCell(
-                                                InkWell(
-                                                  onTap: () async {
-                                                    bool isOnline = await ConnectivityService().isOnline();
-                                                    if (isOnline) {
-                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false);
-                                                    } else {
-                                                      showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                                                    decoration: BoxDecoration(
-                                                      color: primaryColor.withOpacity(0.1),
-                                                      borderRadius: BorderRadius.circular(6),
-                                                      border: Border.all(color: primaryColor.withOpacity(0.3)),
-                                                    ),
-                                                    child: Text(
-                                                      order.orderId,
-                                                      style: const TextStyle(
-                                                        fontFamily: 'Poppins_Regular',
-                                                        color: primaryColor,
-                                                        fontSize: 11.5,
-                                                        fontWeight: FontWeight.w800,
+                                                Center(
+                                                  child: InkWell(
+                                                    onTap: () async {
+                                                      bool isOnline = await ConnectivityService().isOnline();
+                                                      if (isOnline) {
+                                                        showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                      } else {
+                                                        showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                                      decoration: BoxDecoration(
+                                                        color: primaryColor.withOpacity(0.1),
+                                                        borderRadius: BorderRadius.circular(6),
+                                                        border: Border.all(color: primaryColor.withOpacity(0.3)),
+                                                      ),
+                                                      child: Text(
+                                                        order.orderId,
+                                                        style: const TextStyle(
+                                                          fontFamily: 'Poppins_Regular',
+                                                          color: primaryColor,
+                                                          fontSize: 11.5,
+                                                          fontWeight: FontWeight.w800,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -961,109 +964,128 @@ class _OptionWidgetState extends State<OptionWidget> {
                                               ),
                                               // Date
                                               DataCell(
-                                                Text(
-                                                  order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
-                                                      ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
-                                                      : 'N/A',
-                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                Center(
+                                                  child: Text(
+                                                    order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                        ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
+                                                        : 'N/A',
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                  ),
                                                 ),
                                               ),
                                               // Sales Rep
                                               DataCell(
-                                                SizedBox(
-                                                  width: 90,
-                                                  child: Text(
-                                                    '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                Center(
+                                                  child: SizedBox(
+                                                    width: 90,
+                                                    child: Text(
+                                                      '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                                                      textAlign: TextAlign.center,
+                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                               // Amount
                                               DataCell(
-                                                Text(
-                                                  formatAmount(order.orderTotal ?? 0.0),
-                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                Center(
+                                                  child: Text(
+                                                    formatAmount(order.orderTotal ?? 0.0),
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                  ),
                                                 ),
                                               ),
                                               // Invoice
                                               DataCell(
-                                                InkWell(
-                                                  onTap: () async {
-                                                    bool isOnline = await ConnectivityService().isOnline();
-                                                    if (order.invoice.isNotEmpty) {
-                                                      if (isOnline) {
-                                                        showDialog(
-                                                          barrierDismissible: false,
-                                                          context: context,
-                                                          builder: (context) => InvoicePreview(orderId: order.orderId),
-                                                        );
-                                                      } else {
-                                                        showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                Center(
+                                                  child: InkWell(
+                                                    onTap: () async {
+                                                      bool isOnline = await ConnectivityService().isOnline();
+                                                      if (order.invoice.isNotEmpty) {
+                                                        if (isOnline) {
+                                                          showDialog(
+                                                            barrierDismissible: false,
+                                                            context: context,
+                                                            builder: (context) => InvoicePreview(orderId: order.orderId),
+                                                          );
+                                                        } else {
+                                                          showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                        }
                                                       }
-                                                    }
-                                                  },
-                                                  child: Text(
-                                                    order.invoice.isEmpty ? '-' : order.invoice[0].invoiceId,
-                                                    style: TextStyle(
-                                                      fontFamily: 'Poppins_Regular',
-                                                      color: order.invoice.isEmpty ? Colors.black54 : primaryColor,
-                                                      fontSize: 11.5,
-                                                      fontWeight: FontWeight.w700,
+                                                    },
+                                                    child: Text(
+                                                      order.invoice.isEmpty ? '-' : order.invoice[0].invoiceId,
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontFamily: 'Poppins_Regular',
+                                                        color: order.invoice.isEmpty ? Colors.black54 : primaryColor,
+                                                        fontSize: 11.5,
+                                                        fontWeight: FontWeight.w700,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                               // Payment Status
                                               DataCell(
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-                                                  decoration: BoxDecoration(
-                                                    color: order.paymentStatus == 0 ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    border: Border.all(
-                                                      color: order.paymentStatus == 0 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                                                      width: 1,
+                                                Center(
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                                    decoration: BoxDecoration(
+                                                      color: order.paymentStatus == 0 ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      border: Border.all(
+                                                        color: order.paymentStatus == 0 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                                                        width: 1,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  child: Text(
-                                                    order.paymentStatus == 0 ? 'Pending'.tr : 'Paid'.tr,
-                                                    style: TextStyle(
-                                                      fontFamily: 'Poppins_Regular',
-                                                      fontSize: 10.5,
-                                                      fontWeight: FontWeight.w800,
-                                                      color: order.paymentStatus == 0 ? const Color(0xFF991B1B) : const Color(0xFF065F46),
+                                                    child: Text(
+                                                      order.paymentStatus == 0 ? 'Pending'.tr : 'Paid'.tr,
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontFamily: 'Poppins_Regular',
+                                                        fontSize: 10.5,
+                                                        fontWeight: FontWeight.w800,
+                                                        color: order.paymentStatus == 0 ? const Color(0xFF991B1B) : const Color(0xFF065F46),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                               // Status Badge
                                               DataCell(
-                                                _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
+                                                Center(
+                                                  child: _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
+                                                ),
                                               ),
                                               // Action Icon
                                               DataCell(
-                                                IconButton(
-                                                  padding: EdgeInsets.zero,
-                                                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                                  icon: Container(
-                                                    padding: const EdgeInsets.all(5),
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(0xFFEEF2FF),
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                                Center(
+                                                  child: IconButton(
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                                    icon: Container(
+                                                      padding: const EdgeInsets.all(5),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFEEF2FF),
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                                      ),
+                                                      child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
                                                     ),
-                                                    child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                                    onPressed: () async {
+                                                      bool isOnline = await ConnectivityService().isOnline();
+                                                      if (isOnline) {
+                                                        showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                      } else {
+                                                        showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                      }
+                                                    },
                                                   ),
-                                                  onPressed: () async {
-                                                    bool isOnline = await ConnectivityService().isOnline();
-                                                    if (isOnline) {
-                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false);
-                                                    } else {
-                                                      showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
-                                                    }
-                                                  },
                                                 ),
                                               ),
                                             ],
@@ -1182,7 +1204,6 @@ class _OptionWidgetState extends State<OptionWidget> {
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        final screenWidth = MediaQuery.of(context).size.width;
         final screenHeight = MediaQuery.of(context).size.height;
 
         return Dialog(
@@ -1192,7 +1213,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             width: double.infinity,
             constraints: BoxConstraints(
               maxWidth: double.infinity,
-              maxHeight: screenHeight * 0.85,
+              maxHeight: screenHeight * 0.88,
             ),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -1346,13 +1367,13 @@ class _OptionWidgetState extends State<OptionWidget> {
                                         columnSpacing: 14,
                                         horizontalMargin: 16,
                                         columns: [
-                                          DataColumn(label: Text('Customer'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('$orderType #'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Date'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Sales Rep'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Amount'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          DataColumn(label: Text('Status'.tr, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
-                                          const DataColumn(label: Text('Action', style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)))),
+                                          DataColumn(label: Center(child: Text('Customer'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('$orderType #'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Date'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Sales Rep'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Amount'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          DataColumn(label: Center(child: Text('Status'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                          const DataColumn(label: Center(child: Text('Action', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
                                         ],
                                         rows: [
                                           // Server Orders
@@ -1362,153 +1383,55 @@ class _OptionWidgetState extends State<OptionWidget> {
                                               cells: [
                                                 // Customer Info
                                                 DataCell(
-                                                  SizedBox(
-                                                    width: 145,
-                                                    child: Row(
-                                                      children: [
-                                                        CircleAvatar(
-                                                          radius: 14,
-                                                          backgroundColor: const Color(0xFFEEF2FF),
-                                                          child: const Icon(Icons.person, size: 15, color: primaryColor),
-                                                        ),
-                                                        const SizedBox(width: 7),
-                                                        Expanded(
-                                                          child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                            children: [
-                                                              Text(
-                                                                customer?.businessName ?? 'N/A',
-                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis,
-                                                              ),
-                                                              if (customer?.fullName != null && customer!.fullName.isNotEmpty)
-                                                                Text(
-                                                                  customer.fullName,
-                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
-                                                                  maxLines: 1,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                ),
-                                                              if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
-                                                                Text(
-                                                                  customer.mobileNo,
-                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
-                                                                  maxLines: 1,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                ),
-                                                            ],
+                                                  Center(
+                                                    child: SizedBox(
+                                                      width: 145,
+                                                      child: Row(
+                                                        children: [
+                                                          CircleAvatar(
+                                                            radius: 14,
+                                                            backgroundColor: const Color(0xFFEEF2FF),
+                                                            child: const Icon(Icons.person, size: 15, color: primaryColor),
                                                           ),
-                                                        ),
-                                                      ],
+                                                          const SizedBox(width: 7),
+                                                          Expanded(
+                                                            child: Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: [
+                                                                Text(
+                                                                  customer?.businessName ?? 'N/A',
+                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                                                                  maxLines: 1,
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                ),
+                                                                if (customer?.fullName != null && customer!.fullName.isNotEmpty)
+                                                                  Text(
+                                                                    customer.fullName,
+                                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                                    maxLines: 1,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                  ),
+                                                                if (customer?.mobileNo != null && customer!.mobileNo.isNotEmpty)
+                                                                  Text(
+                                                                    customer.mobileNo,
+                                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                    maxLines: 1,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                  ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                                 // Order No
                                                 DataCell(
-                                                  InkWell(
-                                                    onTap: () async {
-                                                      bool isOnline = await ConnectivityService().isOnline();
-                                                      if (isOnline) {
-                                                        showDetailedOrderInvoiceDialog(
-                                                          context,
-                                                          order.orderId,
-                                                          false,
-                                                          changedTitle: orderType == 'Booking' ? 'BOOKING' : (orderType == 'Estimate' ? 'ESTIMATE' : ''),
-                                                        );
-                                                      } else {
-                                                        showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                                                      decoration: BoxDecoration(
-                                                        color: primaryColor.withOpacity(0.1),
-                                                        borderRadius: BorderRadius.circular(6),
-                                                        border: Border.all(color: primaryColor.withOpacity(0.3)),
-                                                      ),
-                                                      child: Text(
-                                                        order.orderId,
-                                                        style: const TextStyle(
-                                                          fontFamily: 'Poppins_Regular',
-                                                          color: primaryColor,
-                                                          fontSize: 11.5,
-                                                          fontWeight: FontWeight.w800,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                // Date
-                                                DataCell(
-                                                  Text(
-                                                    order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
-                                                        ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
-                                                        : 'N/A',
-                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
-                                                  ),
-                                                ),
-                                                // Sales Rep
-                                                DataCell(
-                                                  SizedBox(
-                                                    width: 90,
-                                                    child: Text(
-                                                      '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
-                                                      maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ),
-                                                // Amount
-                                                DataCell(
-                                                  Text(
-                                                    formatAmount(order.orderTotal ?? 0.0),
-                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
-                                                  ),
-                                                ),
-                                                // Status Badge
-                                                DataCell(
-                                                  _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
-                                                ),
-                                                // Action
-                                                DataCell(
-                                                  IconButton(
-                                                    padding: EdgeInsets.zero,
-                                                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                                    icon: Container(
-                                                      padding: const EdgeInsets.all(5),
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFEEF2FF),
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(color: primaryColor.withOpacity(0.2)),
-                                                      ),
-                                                      child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
-                                                    ),
-                                                    onPressed: () async {
-                                                      if (orderType == 'Draft') {
-                                                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                        productsController.selectedCustomerId.value = customer?.customerId ?? '';
-                                                        productsController.selectedCustomerName.value = customer?.businessName ?? '';
-                                                        productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
-                                                        productsController.selectedCustomerEmail.value = customer?.email ?? '';
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext context) {
-                                                            return CartDialogue(
-                                                              active: true,
-                                                              cartItemCount: cartProvider.cartItemCount,
-                                                              productsController: productsController,
-                                                              customerOrderController: customerOrderController,
-                                                              onContinueShopping: null,
-                                                              isFromCustomerDach: false,
-                                                              isDashboard: true,
-                                                              customerId: customer?.customerId ?? '',
-                                                              onDraftUpdated: onDraftUpdated,
-                                                            );
-                                                          },
-                                                        );
-                                                      } else {
+                                                  Center(
+                                                    child: InkWell(
+                                                      onTap: () async {
                                                         bool isOnline = await ConnectivityService().isOnline();
                                                         if (isOnline) {
                                                           showDetailedOrderInvoiceDialog(
@@ -1520,8 +1443,123 @@ class _OptionWidgetState extends State<OptionWidget> {
                                                         } else {
                                                           showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
                                                         }
-                                                      }
-                                                    },
+                                                      },
+                                                      child: Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                                        decoration: BoxDecoration(
+                                                          color: primaryColor.withOpacity(0.1),
+                                                          borderRadius: BorderRadius.circular(6),
+                                                          border: Border.all(color: primaryColor.withOpacity(0.3)),
+                                                        ),
+                                                        child: Text(
+                                                          order.orderId,
+                                                          style: const TextStyle(
+                                                            fontFamily: 'Poppins_Regular',
+                                                            color: primaryColor,
+                                                            fontSize: 11.5,
+                                                            fontWeight: FontWeight.w800,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Date
+                                                DataCell(
+                                                  Center(
+                                                    child: Text(
+                                                      order.orderCreatedAt != null && order.orderCreatedAt.toString().isNotEmpty
+                                                          ? TimeUtils.formatTimeInZone(DateTime.parse(order.orderCreatedAt.toString()), format: 'dd-MM-yyyy')
+                                                          : 'N/A',
+                                                      textAlign: TextAlign.center,
+                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Sales Rep
+                                                DataCell(
+                                                  Center(
+                                                    child: SizedBox(
+                                                      width: 90,
+                                                      child: Text(
+                                                        '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                                                        textAlign: TextAlign.center,
+                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Amount
+                                                DataCell(
+                                                  Center(
+                                                    child: Text(
+                                                      formatAmount(order.orderTotal ?? 0.0),
+                                                      textAlign: TextAlign.center,
+                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Status Badge
+                                                DataCell(
+                                                  Center(
+                                                    child: _buildStatusBadge(order.orderStatus, getStatusName(order.orderStatus)),
+                                                  ),
+                                                ),
+                                                // Action
+                                                DataCell(
+                                                  Center(
+                                                    child: IconButton(
+                                                      padding: EdgeInsets.zero,
+                                                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                                      icon: Container(
+                                                        padding: const EdgeInsets.all(5),
+                                                        decoration: BoxDecoration(
+                                                          color: const Color(0xFFEEF2FF),
+                                                          shape: BoxShape.circle,
+                                                          border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                                        ),
+                                                        child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                                      ),
+                                                      onPressed: () async {
+                                                        if (orderType == 'Draft') {
+                                                          final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                          productsController.selectedCustomerId.value = customer?.customerId ?? '';
+                                                          productsController.selectedCustomerName.value = customer?.businessName ?? '';
+                                                          productsController.selectedCustomerMobileNo.value = customer?.mobileNo ?? '';
+                                                          productsController.selectedCustomerEmail.value = customer?.email ?? '';
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return CartDialogue(
+                                                                active: true,
+                                                                cartItemCount: cartProvider.cartItemCount,
+                                                                productsController: productsController,
+                                                                customerOrderController: customerOrderController,
+                                                                onContinueShopping: null,
+                                                                isFromCustomerDach: false,
+                                                                isDashboard: true,
+                                                                customerId: customer?.customerId ?? '',
+                                                                onDraftUpdated: onDraftUpdated,
+                                                              );
+                                                            },
+                                                          );
+                                                        } else {
+                                                          bool isOnline = await ConnectivityService().isOnline();
+                                                          if (isOnline) {
+                                                            showDetailedOrderInvoiceDialog(
+                                                              context,
+                                                              order.orderId,
+                                                              false,
+                                                              changedTitle: orderType == 'Booking' ? 'BOOKING' : (orderType == 'Estimate' ? 'ESTIMATE' : ''),
+                                                            );
+                                                          } else {
+                                                            showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                          }
+                                                        }
+                                                      },
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -1542,117 +1580,134 @@ class _OptionWidgetState extends State<OptionWidget> {
                                               return DataRow(
                                                 cells: [
                                                   DataCell(
-                                                    SizedBox(
-                                                      width: 145,
-                                                      child: Row(
-                                                        children: [
-                                                          CircleAvatar(
-                                                            radius: 14,
-                                                            backgroundColor: const Color(0xFFEEF2FF),
-                                                            child: const Icon(Icons.person, size: 15, color: primaryColor),
-                                                          ),
-                                                          const SizedBox(width: 7),
-                                                          Expanded(
-                                                            child: Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              mainAxisAlignment: MainAxisAlignment.center,
-                                                              children: [
-                                                                Text(
-                                                                  customerName,
-                                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
-                                                                  maxLines: 1,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                ),
-                                                                if (customerMobile.isNotEmpty)
+                                                    Center(
+                                                      child: SizedBox(
+                                                        width: 145,
+                                                        child: Row(
+                                                          children: [
+                                                            CircleAvatar(
+                                                              radius: 14,
+                                                              backgroundColor: const Color(0xFFEEF2FF),
+                                                              child: const Icon(Icons.person, size: 15, color: primaryColor),
+                                                            ),
+                                                            const SizedBox(width: 7),
+                                                            Expanded(
+                                                              child: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                children: [
                                                                   Text(
-                                                                    customerMobile,
-                                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                    customerName,
+                                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
                                                                     maxLines: 1,
                                                                     overflow: TextOverflow.ellipsis,
                                                                   ),
-                                                              ],
+                                                                  if (customerMobile.isNotEmpty)
+                                                                    Text(
+                                                                      customerMobile,
+                                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                      maxLines: 1,
+                                                                      overflow: TextOverflow.ellipsis,
+                                                                    ),
+                                                                ],
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    Container(
-                                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                                                      decoration: BoxDecoration(
-                                                        color: primaryColor.withOpacity(0.1),
-                                                        borderRadius: BorderRadius.circular(6),
-                                                        border: Border.all(color: primaryColor.withOpacity(0.3)),
-                                                      ),
-                                                      child: Text(
-                                                        orderId,
-                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', color: primaryColor, fontSize: 11.5, fontWeight: FontWeight.w800),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    Text(
-                                                      createdDate,
-                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    SizedBox(
-                                                      width: 90,
-                                                      child: Text(
-                                                        '${SessionHelper.loginSavedData?.fullname ?? ""}',
-                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    Text(
-                                                      formatAmount(displayTotal is double ? displayTotal : double.tryParse(displayTotal.toString()) ?? 0.0),
-                                                      style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
-                                                    ),
-                                                  ),
-                                                  DataCell(
-                                                    _buildStatusBadge(4, 'Draft'),
-                                                  ),
-                                                  DataCell(
-                                                    IconButton(
-                                                      padding: EdgeInsets.zero,
-                                                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                                      icon: Container(
-                                                        padding: const EdgeInsets.all(5),
-                                                        decoration: BoxDecoration(
-                                                          color: const Color(0xFFEEF2FF),
-                                                          shape: BoxShape.circle,
-                                                          border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                                          ],
                                                         ),
-                                                        child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
                                                       ),
-                                                      onPressed: () {
-                                                        final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
-                                                        productsController.selectedCustomerId.value = customerId;
-                                                        productsController.selectedCustomerName.value = customerName;
-                                                        productsController.selectedCustomerMobileNo.value = customerMobile;
-                                                        productsController.selectedCustomerEmail.value = customerEmail;
-                                                        showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext context) {
-                                                            return CartDialogue(
-                                                              active: true,
-                                                              cartItemCount: cartProvider.cartItemCount,
-                                                              productsController: productsController,
-                                                              customerOrderController: customerOrderController,
-                                                              onContinueShopping: null,
-                                                              isFromCustomerDach: false,
-                                                              isDashboard: true,
-                                                              customerId: customerId,
-                                                              onDraftUpdated: onDraftUpdated,
-                                                            );
-                                                          },
-                                                        );
-                                                      },
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                                        decoration: BoxDecoration(
+                                                          color: primaryColor.withOpacity(0.1),
+                                                          borderRadius: BorderRadius.circular(6),
+                                                          border: Border.all(color: primaryColor.withOpacity(0.3)),
+                                                        ),
+                                                        child: Text(
+                                                          orderId,
+                                                          style: const TextStyle(fontFamily: 'Poppins_Regular', color: primaryColor, fontSize: 11.5, fontWeight: FontWeight.w800),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: Text(
+                                                        createdDate,
+                                                        textAlign: TextAlign.center,
+                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: SizedBox(
+                                                        width: 90,
+                                                        child: Text(
+                                                          '${SessionHelper.loginSavedData?.fullname ?? ""}',
+                                                          textAlign: TextAlign.center,
+                                                          style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: Text(
+                                                        formatAmount(displayTotal is double ? displayTotal : double.tryParse(displayTotal.toString()) ?? 0.0),
+                                                        textAlign: TextAlign.center,
+                                                        style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: _buildStatusBadge(4, 'Draft'),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Center(
+                                                      child: IconButton(
+                                                        padding: EdgeInsets.zero,
+                                                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                                        icon: Container(
+                                                          padding: const EdgeInsets.all(5),
+                                                          decoration: BoxDecoration(
+                                                            color: const Color(0xFFEEF2FF),
+                                                            shape: BoxShape.circle,
+                                                            border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                                          ),
+                                                          child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                                        ),
+                                                        onPressed: () {
+                                                          final cartProvider = Provider.of<CustomersProvider>(context, listen: false);
+                                                          productsController.selectedCustomerId.value = customerId;
+                                                          productsController.selectedCustomerName.value = customerName;
+                                                          productsController.selectedCustomerMobileNo.value = customerMobile;
+                                                          productsController.selectedCustomerEmail.value = customerEmail;
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return CartDialogue(
+                                                                active: true,
+                                                                cartItemCount: cartProvider.cartItemCount,
+                                                                productsController: productsController,
+                                                                customerOrderController: customerOrderController,
+                                                                onContinueShopping: null,
+                                                                isFromCustomerDach: false,
+                                                                isDashboard: true,
+                                                                customerId: customerId,
+                                                                onDraftUpdated: onDraftUpdated,
+                                                              );
+                                                            },
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
@@ -1743,4 +1798,24 @@ class _OptionWidgetState extends State<OptionWidget> {
   }
 }
 
+class OptionData {
+  String title;
+  String count;
+  String unfilteredCount;
+  String svg;
+  Color svgBgColor;
+  Color? color;
+  VoidCallback? onTap;
+  VoidCallback? onUnFilterTap;
 
+  OptionData({
+    required this.title,
+    required this.count,
+    required this.unfilteredCount,
+    required this.svg,
+    required this.svgBgColor,
+    this.onTap,
+    this.onUnFilterTap,
+    this.color,
+  });
+}

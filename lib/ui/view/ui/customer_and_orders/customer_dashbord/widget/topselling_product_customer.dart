@@ -39,7 +39,6 @@ Widget topSellingProductsCustomer(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Container(
                   height: 35,
                   color: Colors.grey.shade100,
@@ -47,9 +46,9 @@ Widget topSellingProductsCustomer(
                     children: [
                       SizedBox(
                         width: colWidth0,
-                        child: const Center(
+                        child: Center(
                           child: MyRegularText(
-                            label: "Sl.No..tr",
+                            label: "Sl.No.".tr,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
@@ -60,7 +59,7 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth1,
-                        child:  Center(
+                        child: Center(
                           child: MyRegularText(
                             label: "Product".tr,
                             fontWeight: FontWeight.w600,
@@ -73,7 +72,7 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth2_2,
-                        child:  Center(
+                        child: Center(
                           child: MyRegularText(
                             label: "I/N".tr,
                             fontWeight: FontWeight.w600,
@@ -86,7 +85,7 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth2,
-                        child:  Center(
+                        child: Center(
                           child: MyRegularText(
                             label: "Last Purchase".tr,
                             fontWeight: FontWeight.w600,
@@ -99,7 +98,7 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth3,
-                        child:  Center(
+                        child: Center(
                           child: MyRegularText(
                             label: "Times".tr,
                             fontWeight: FontWeight.w600,
@@ -112,7 +111,7 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth4,
-                        child:  Center(
+                        child: Center(
                           child: MyRegularText(
                             label: "Amount".tr,
                             fontWeight: FontWeight.w600,
@@ -125,7 +124,7 @@ Widget topSellingProductsCustomer(
                       const SizedBox(width: 5),
                       SizedBox(
                         width: colWidth5,
-                        child:  Center(
+                        child: Center(
                           child: MyRegularText(
                             label: "Qty".tr,
                             fontWeight: FontWeight.w600,
@@ -138,7 +137,6 @@ Widget topSellingProductsCustomer(
                     ],
                   ),
                 ),
-
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -187,22 +185,24 @@ Widget topSellingProductsCustomer(
                               ),
                               const SizedBox(width: 5),
                               SizedBox(
-  width: colWidth2,
-  child: Center(
-    child: MyRegularText(
-      // Added a safe null check just in case createdAt is ever missing
-      label: product.createdAt != null
-          ? TimeUtils.formatTimeInZone(
-              product.createdAt, // Passed directly as a DateTime object!
-              format: 'dd-MM-yyyy', // Enforces the date-only format
-            )
-          : 'N/A',
-      color: secondaryTextColor,
-      fontSize: fontSize,
-      maxlines: 1,
-    ),
-  ),
-),
+                                width: colWidth2,
+                                child: Center(
+                                  child: MyRegularText(
+                                    // Added a safe null check just in case createdAt is ever missing
+                                    label: product.createdAt != null
+                                        ? TimeUtils.formatTimeInZone(
+                                            product
+                                                .createdAt, // Passed directly as a DateTime object!
+                                            format:
+                                                'dd-MM-yyyy', // Enforces the date-only format
+                                          )
+                                        : 'N/A',
+                                    color: secondaryTextColor,
+                                    fontSize: fontSize,
+                                    maxlines: 1,
+                                  ),
+                                ),
+                              ),
                               // SizedBox(
                               //   width: colWidth2,
                               //   child: Center(

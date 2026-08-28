@@ -1697,7 +1697,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Revenue'.tr,
                                             style: TextStyle(
-                                              fontSize: 13.5,
+                                              fontSize: 15.0,
                                               fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
                                               color: _tabIndex == 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
@@ -1721,7 +1721,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Customer Offer'.tr,
                                             style: TextStyle(
-                                              fontSize: 13.5,
+                                              fontSize: 15.0,
                                               fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
                                               color: _tabIndex == 1 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
@@ -1798,7 +1798,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Revenue'.tr,
                                             style: TextStyle(
-                                              fontSize: 13.5,
+                                              fontSize: 15.0,
                                               fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
                                               color: _tabIndex == 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
@@ -1822,7 +1822,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                           child: Text(
                                             'Customer Offer'.tr,
                                             style: TextStyle(
-                                              fontSize: 13.5,
+                                              fontSize: 15.0,
                                               fontFamily: 'Poppins_Regular',
                                               fontWeight: FontWeight.bold,
                                               color: _tabIndex == 1 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),

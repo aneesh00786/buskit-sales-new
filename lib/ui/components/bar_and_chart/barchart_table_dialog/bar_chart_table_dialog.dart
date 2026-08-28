@@ -9,6 +9,39 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provi
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+void _showLoadingDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext ctx) {
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.18),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const SizedBox(
+            width: 36,
+            height: 36,
+            child: CircularProgressIndicator(
+              color: primaryColor,
+              strokeWidth: 3.5,
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 showBarchartDialog(
     BuildContext context,
     String title,
@@ -316,12 +349,17 @@ showBarchartDialog(
                                           alignment: Alignment.centerRight,
                                           child: InkWell(
                                             onTap: () async {
-                                              await dashboardProvider
-                                                  .fetchChartOrderData(
-                                                      category.salesmanId,
-                                                      targetType == '0'
-                                                          ? ''
-                                                          : catId);
+                                              _showLoadingDialog(context);
+                                              try {
+                                                await dashboardProvider
+                                                    .fetchChartOrderData(
+                                                        category.salesmanId,
+                                                        targetType == '0'
+                                                            ? ''
+                                                            : catId);
+                                              } finally {
+                                                Navigator.of(context, rootNavigator: true).pop();
+                                              }
                                               Get.dialog(StaffOrdersDialog(
                                                 heading: 'ORDER',
                                                 orderData: dashboardProvider

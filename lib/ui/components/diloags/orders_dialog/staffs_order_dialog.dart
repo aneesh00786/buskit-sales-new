@@ -77,7 +77,7 @@ Widget _buildStatusBadge(int? orderStatus, String text) {
   );
 }
 
-class StaffOrdersDialog extends StatelessWidget {
+class StaffOrdersDialog extends StatefulWidget {
   final String heading;
   final List<OrderData> orderData;
 
@@ -88,11 +88,30 @@ class StaffOrdersDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final ScrollController verticalController = ScrollController();
-    final ScrollController horizontalController = ScrollController();
+  State<StaffOrdersDialog> createState() => _StaffOrdersDialogState();
+}
 
-    final filteredOrders = orderData;
+class _StaffOrdersDialogState extends State<StaffOrdersDialog> {
+  late final ScrollController verticalController;
+  late final ScrollController horizontalController;
+
+  @override
+  void initState() {
+    super.initState();
+    verticalController = ScrollController();
+    horizontalController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    verticalController.dispose();
+    horizontalController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredOrders = widget.orderData;
     final double totalAmount = filteredOrders.fold<double>(
       0.0,
       (sum, order) => sum + (order.orderTotal ?? 0.0),
@@ -151,7 +170,7 @@ class StaffOrdersDialog extends StatelessWidget {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          heading.tr,
+                          widget.heading.tr,
                           style: const TextStyle(
                             fontFamily: 'Poppins_Regular',
                             fontSize: 16,

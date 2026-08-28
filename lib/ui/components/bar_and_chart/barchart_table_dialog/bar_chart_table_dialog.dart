@@ -211,6 +211,7 @@ showBarchartDialog(
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 final category = categories[index];
+                                final displayName = '${category.fullname} ${category.lastname}'.trim();
                                 final hasTarget = (category.targetTotal ?? 0) > 0;
                                 final hasProjection = (category.projectionTotal ?? 0) > 0;
                                 final actualNum = num.tryParse(category.orderTotal.toString()) ?? 0;
@@ -232,7 +233,7 @@ showBarchartDialog(
                                       Expanded(
                                         flex: 3,
                                         child: Text(
-                                          category.fullname,
+                                          displayName.isNotEmpty ? displayName : category.fullname,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
@@ -266,10 +267,10 @@ showBarchartDialog(
                                                 style: TextStyle(
                                                   fontSize: 13,
                                                   fontFamily: 'Poppins_Regular',
-                                                  fontWeight: hasTarget ? FontWeight.w600 : FontWeight.w400,
+                                                  fontWeight: hasTarget ? FontWeight.w600 : FontWeight.w500,
                                                   color: targetType == '1' && hasTarget
                                                       ? const Color(0xFF2563EB)
-                                                      : const Color(0xFF64748B),
+                                                      : const Color(0xFF334155),
                                                 ),
                                               ),
                                             ),
@@ -298,10 +299,10 @@ showBarchartDialog(
                                                   style: TextStyle(
                                                     fontSize: 13,
                                                     fontFamily: 'Poppins_Regular',
-                                                    fontWeight: hasProjection ? FontWeight.w600 : FontWeight.w400,
+                                                    fontWeight: hasProjection ? FontWeight.w600 : FontWeight.w500,
                                                     color: targetType == '1' && hasProjection
                                                         ? const Color(0xFF2563EB)
-                                                        : const Color(0xFF64748B),
+                                                        : const Color(0xFF334155),
                                                   ),
                                                 ),
                                               ),
@@ -332,10 +333,10 @@ showBarchartDialog(
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 fontFamily: 'Poppins_Regular',
-                                                fontWeight: hasActual ? FontWeight.w700 : FontWeight.w400,
+                                                fontWeight: hasActual ? FontWeight.w700 : FontWeight.w500,
                                                 color: hasActual
                                                     ? const Color(0xFF2563EB)
-                                                    : const Color(0xFF64748B),
+                                                    : const Color(0xFF334155),
                                               ),
                                             ),
                                           ),

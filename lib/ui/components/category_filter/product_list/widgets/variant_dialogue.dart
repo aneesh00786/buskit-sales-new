@@ -44,6 +44,13 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
   List<String> droDownItem = ['Pack', 'Pcs'];
   double totalPrice = 0.0;
   late List<int> localCounts;
+  final ScrollController _horizontalScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -326,9 +333,11 @@ class _ProductVariantDialogueState extends State<ProductVariantDialogue> {
                       thumbColor: WidgetStatePropertyAll(Colors.blue),
                     ),
                     child: Scrollbar(
+                      controller: _horizontalScrollController,
                       thumbVisibility: true,
                       trackVisibility: true,
                       child: SingleChildScrollView(
+                        controller: _horizontalScrollController,
                         scrollDirection: Axis.horizontal,
                         child: SizedBox(
                           width: constraints.maxWidth,

@@ -51,6 +51,13 @@ class _ProductVariantDialoguePromoState
   double totalPrice = 0.0;
   late List<ValueNotifier<Tier?>> selectedTiers;
   late List<int> localCounts;
+  final ScrollController _horizontalScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -338,9 +345,11 @@ class _ProductVariantDialoguePromoState
                       thumbColor: WidgetStatePropertyAll(Colors.blue),
                     ),
                     child: Scrollbar(
+                      controller: _horizontalScrollController,
                       thumbVisibility: true,
                       trackVisibility: true,
                       child: SingleChildScrollView(
+                        controller: _horizontalScrollController,
                         scrollDirection: Axis.horizontal,
                         child: SizedBox(
                           width: constraints.maxWidth,

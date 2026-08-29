@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +34,13 @@ class OrderstatusTotalRow extends StatelessWidget {
               child: DataTable(
                   dataRowHeight: 0,
                   headingRowHeight: 30,
-                  headingRowColor: const WidgetStatePropertyAll(primaryColor),
+                  headingRowColor:
+                      const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
                   columnSpacing: 10,
                   headingTextStyle: TextStyle(
+                      fontFamily: 'Poppins_Regular',
                       fontSize: fontSize + 2,
-                      color: white,
+                      color: const Color(0xFF0F172A),
                       fontWeight: FontWeight.w700),
                   columns: [
                     DataColumn(

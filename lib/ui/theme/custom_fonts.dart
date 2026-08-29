@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 const String fontFamilyName = 'Poppins_Regular';
 const String myFont = 'Poppins_Regular';
+const String commonFont = 'Poppins_Regular';
 
 const TextStyle cardHeadingTextStyle = TextStyle(
   fontFamily: fontFamilyName,
@@ -180,37 +181,40 @@ class CustomButton extends StatelessWidget {
 
 Widget dashboardContainerHeader(String text) {
   return Padding(
-    padding: const EdgeInsets.only(left: 16.0, top: 12.0, bottom: 8.0),
+    padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 28,
-          height: 28,
+          width: 24,
+          height: 24,
           decoration: BoxDecoration(
             color: primaryColor.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: const Center(
             child: Icon(
               Icons.space_dashboard_rounded,
-              size: 16,
+              size: 14,
               color: primaryColor,
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Poppins_Regular', color: const Color(0xFF0F172A),
-            letterSpacing: -0.4,
+        const SizedBox(width: 7),
+        Flexible(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 15.0,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.2,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
       ],
     ),

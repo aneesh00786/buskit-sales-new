@@ -399,11 +399,11 @@ class OrderRevenueDatum {
   factory OrderRevenueDatum.fromJson(Map<String, dynamic> json) =>
       OrderRevenueDatum(
         orderTotal: json["order_total"],
-        orderCreatAt: DateTime.parse(json["order_creat_at"]),
+        orderCreatAt: json["order_creat_at"] != null ? DateTime.tryParse(json["order_creat_at"].toString()) : null,
         orderId: json["order_id"],
         orderStatus: json["order_status"],
         totalOrderRevenue: json["total_order_revenue"],
-        orderGeneratedDate: DateTime.parse(json["generated_date"]),
+        orderGeneratedDate: json["generated_date"] != null ? DateTime.tryParse(json["generated_date"].toString()) : null,
       );
 
   Map<String, dynamic> toJson() => {

@@ -1,4 +1,3 @@
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
@@ -56,48 +55,82 @@ class _CommunicationsDisplayWidgetState
                         showDialog(
                           context: context,
                           builder: (context) => Dialog(
-                            backgroundColor: white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                            backgroundColor: Colors.transparent,
+                            insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 return Container(
                                   height: MediaQuery.of(context).size.height * 0.85,
                                   width: MediaQuery.of(context).size.width * 0.9,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: const BoxDecoration(
-                                          color: primaryColor,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(10),
-                                            topRight: Radius.circular(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.15),
+                                        blurRadius: 24,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [primaryColor, Color(0xFF2D3748)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    padding: const EdgeInsets.all(6),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white.withOpacity(0.2),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 17),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    'Communication'.tr,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      fontFamily: 'Poppins_Regular',
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ],
+                                              ),
+                                              InkWell(
+                                                onTap: () => Navigator.of(context).pop(),
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(4),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white.withOpacity(0.2),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(Icons.close, color: Colors.white, size: 18),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                'Communication'.tr,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  fontFamily: 'Poppins_Regular',
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            dialogCloseButton1(context, red),
-                                          ],
-                                        ),
-                                      ),
-                                      const Expanded(child: ChatScreen()),
-                                    ],
+                                        const Expanded(child: ChatScreen()),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },

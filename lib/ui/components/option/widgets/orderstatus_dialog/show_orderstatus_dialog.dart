@@ -9,8 +9,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/de
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_dialog/widgets/orderstatus_heading_row.dart';
 import 'package:busskit_salesexecutive/ui/components/option/widgets/orderstatus_dialog/widgets/orderstatus_total_row.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
-import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -19,6 +17,40 @@ import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_model
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+Color _orderStatusBadgeColor(int? orderStatus) {
+  switch (orderStatus) {
+    case 2:
+      return const Color(0xFFDCFCE7);
+    case 7:
+      return const Color(0xFFFEF3C7);
+    case 0:
+      return const Color(0xFFDBEAFE);
+    case 4:
+      return const Color(0xFFF1F5F9);
+    case 3:
+      return const Color(0xFFFEE2E2);
+    default:
+      return const Color(0xffffdbb8);
+  }
+}
+
+Color _orderStatusTextColor(int? orderStatus) {
+  switch (orderStatus) {
+    case 2:
+      return const Color(0xFF064E3B);
+    case 7:
+      return const Color(0xFF78350F);
+    case 0:
+      return const Color(0xFF1E3A8A);
+    case 4:
+      return const Color(0xFF0F172A);
+    case 3:
+      return const Color(0xFF7F1D1D);
+    default:
+      return Colors.black;
+  }
+}
 
 void showOrderStatusDialog(
     BuildContext context,
@@ -39,14 +71,20 @@ void showOrderStatusDialog(
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: white,
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Material(
-                    color: white,
-                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.transparent,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(16),
                       child: FutureBuilder<OrderResponse>(
                         future: provider.orderResponse,
                         builder: (context, snapshot) {
@@ -94,31 +132,72 @@ void showOrderStatusDialog(
                                     ? availableWidth / 5
                                     : availableWidth / 10;
 
-                                return Stack(
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [primaryColor, Color(0xFF2D3748)],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white.withOpacity(0.2),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 17),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                'Orders'.tr,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontFamily: 'Poppins_Regular',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          InkWell(
+                                            onTap: () => Navigator.of(context).pop(),
+                                            borderRadius: BorderRadius.circular(20),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.2),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(Icons.close, color: Colors.white, size: 18),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Padding(
-                                          padding: EdgeInsets.only(
-                                              right: 40,
-                                              top: 10,
-                                              bottom: 10,
-                                              left: 20),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 10),
                                           child: Row(
-                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
                                             children: [
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    right:
-                                                        200), // Space between label and TextField
-                                                child: CustomText(
-                                                  content: 'Orders'.tr,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 22,
-                                                ),
-                                              ),
-                                              Expanded(
+                                              SizedBox(
+                                                width: isPhonePortrait(context)
+                                                    ? availableWidth - 40
+                                                    : 320,
                                                 child: TextField(
                                                   controller: _searchCtrl,
                                                   onChanged: (val) {
@@ -592,9 +671,9 @@ void showOrderStatusDialog(
                                                                         clipBehavior:
                                                                             Clip.antiAlias,
                                                                         decoration:
-                                                                            const BoxDecoration(
+                                                                            BoxDecoration(
                                                                           color:
-                                                                              Color(0xffffdbb8),
+                                                                              _orderStatusBadgeColor(order.orderStatus),
                                                                           borderRadius:
                                                                               BorderRadius.all(Radius.circular(15.0)),
                                                                         ),
@@ -613,7 +692,7 @@ void showOrderStatusDialog(
                                                                               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12.0),
                                                                                 child: Text(
                                                                                   getStatusName(order.orderStatus).tr,
-                                                                                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
+                                                                                  style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600, color: _orderStatusTextColor(order.orderStatus)),
                                                                                   textAlign: TextAlign.center,
                                                                                 ),
                                                                               ),
@@ -688,22 +767,6 @@ void showOrderStatusDialog(
                                         ),
                                       ],
                                     ),
-                                    // OrderStatusHeadingRow(
-                                    //   fontSize: fontSize,
-                                    //   flexWidth: flexWidth,
-                                    //   scrollController2: scrollController2,
-                                    // ),
-                                    Positioned(
-                                      top: 10,
-                                      right: 0,
-                                      child: SizedBox(
-                                        height: 45,
-                                        width: 45,
-                                        child: Center(
-                                            child: dialogCloseButton1(
-                                                context, red)),
-                                      ),
-                                    ),
                                   ],
                                 );
                               },
@@ -713,8 +776,8 @@ void showOrderStatusDialog(
                       ),
                     ),
                   ),
+                  ),
                 ),
-              ),
             ],
           );
         },

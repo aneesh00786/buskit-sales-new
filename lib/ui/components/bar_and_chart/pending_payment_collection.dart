@@ -8,7 +8,6 @@ import 'package:busskit_salesexecutive/ui/components/bar_and_chart/model/pending
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -686,41 +685,89 @@ void pendingPaymentCollectionDialog(
       // PendingPaymentController orderController =
       // Get.put(PendingPaymentController());
       return Dialog(
-        insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 45,
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: primaryColor,
-                //Color(0xff008000),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                ),
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+        child: Container(
+          width: double.infinity,
+          constraints: BoxConstraints(
+            maxWidth: isPhonePortrait(context) ? fullScreenWidth(context) : 950,
+            maxHeight: fullScreenHeight(context) * 0.85,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title.tr,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Poppins_Regular',
-                      fontWeight: FontWeight.w600,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [primaryColor, Color(0xFF2D3748)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                  dialogCloseButton1(context, red),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 1.3,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.pie_chart_rounded, color: Colors.white, size: 17),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                title.tr,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.of(context).pop(),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close, color: Colors.white, size: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+              width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ScrollbarTheme(
@@ -770,91 +817,105 @@ void pendingPaymentCollectionDialog(
                         dataRowHeight: 35,
                         headingRowHeight: 30,
                         columns: [
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Payment Method'.tr,
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Balance Amount'.tr,
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Received Amount'.tr,
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(
-                            label: DialogTableHeaderText(
-                              text: 'Remarks'.tr,
-                              fontSize: 11,
-                              align: TextAlign.start,
-                            ),
-                          ),
-                          DataColumn(label: Text('')),
-                        ],
+                           DataColumn(
+                             label: SizedBox(
+                               width: 150,
+                               child: DialogTableHeaderText(
+                                 text: 'Payment Method'.tr,
+                                 fontSize: 11,
+                                 align: TextAlign.start,
+                               ),
+                             ),
+                           ),
+                           DataColumn(
+                             label: SizedBox(
+                               width: 130,
+                               child: DialogTableHeaderText(
+                                 text: 'Balance Amount'.tr,
+                                 fontSize: 11,
+                                 align: TextAlign.start,
+                               ),
+                             ),
+                           ),
+                           DataColumn(
+                             label: SizedBox(
+                               width: 130,
+                               child: DialogTableHeaderText(
+                                 text: 'Received Amount'.tr,
+                                 fontSize: 11,
+                                 align: TextAlign.start,
+                               ),
+                             ),
+                           ),
+                           DataColumn(
+                             label: SizedBox(
+                               width: 150,
+                               child: DialogTableHeaderText(
+                                 text: 'Remarks'.tr,
+                                 fontSize: 11,
+                                 align: TextAlign.start,
+                               ),
+                             ),
+                           ),
+                           const DataColumn(label: Text('')),
+                         ],
                         rows: [
                           DataRow(
                             cells: [
-                              DataCell(
-                                DropdownButtonFormField<String>(
-                                  value: selectedPaymentMethod.value,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade300),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                  ),
-                                  dropdownColor: Colors.white,
-                                  items: [
-                                    DropdownMenuItem(
-                                        value: 'Cash', child: Text('Cash'.tr)),
-                                    DropdownMenuItem(
-                                        value: 'Cheque',
-                                        child: Text('Cheque'.tr)),
-                                    DropdownMenuItem(
-                                        value: 'Bank Transfer',
-                                        child: Text('Bank Transfer'.tr)),
-                                    DropdownMenuItem(
-                                        value: 'QR Payment',
-                                        child: Text('QR Payment'.tr)),
-                                  ],
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      selectedPaymentMethod.value =
-                                          value; // ← now valid
+                               DataCell(
+                                 SizedBox(
+                                   width: 150,
+                                   child: DropdownButtonFormField<String>(
+                                     isExpanded: true,
+                                     value: selectedPaymentMethod.value,
+                                     decoration: InputDecoration(
+                                       filled: true,
+                                       fillColor: Colors.white,
+                                       border: OutlineInputBorder(
+                                         borderSide: BorderSide(
+                                             color: Colors.grey.shade300),
+                                         borderRadius: BorderRadius.circular(10.0),
+                                       ),
+                                       contentPadding: const EdgeInsets.symmetric(
+                                           horizontal: 8.0, vertical: 4.0),
+                                     ),
+                                     dropdownColor: Colors.white,
+                                     items: [
+                                       DropdownMenuItem(
+                                           value: 'Cash', child: Text('Cash'.tr)),
+                                       DropdownMenuItem(
+                                           value: 'Cheque',
+                                           child: Text('Cheque'.tr)),
+                                       DropdownMenuItem(
+                                           value: 'Bank Transfer',
+                                           child: Text('Bank Transfer'.tr)),
+                                       DropdownMenuItem(
+                                           value: 'QR Payment',
+                                           child: Text('QR Payment'.tr)),
+                                     ],
+                                     onChanged: (value) {
+                                       if (value != null) {
+                                         selectedPaymentMethod.value = value;
 
-                                      selectedPaymentMethodInt.value =
-                                          switch (value) {
-                                        'Cash' => 0,
-                                        'Cheque' => 1,
-                                        'Bank Transfer' => 2,
-                                        'QR Payment' => 3,
-                                        _ => 0,
-                                      };
-                                    }
-                                  },
-                                  // itemHeight: 10,
-                                  hint: const Text('Select'),
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.black),
-                                  icon: const Icon(Icons.arrow_drop_down,
-                                      size: 24.0, color: Colors.black),
-                                  iconSize: 24.0,
-                                ),
-                              ),
+                                         selectedPaymentMethodInt.value =
+                                             switch (value) {
+                                           'Cash' => 0,
+                                           'Cheque' => 1,
+                                           'Bank Transfer' => 2,
+                                           'QR Payment' => 3,
+                                           _ => 0,
+                                         };
+                                       }
+                                     },
+                                     hint: Text('Select'.tr),
+                                     style: const TextStyle(
+                                         fontSize: 12, color: Colors.black),
+                                     icon: const Icon(Icons.arrow_drop_down,
+                                         size: 24.0, color: Colors.black),
+                                     iconSize: 24.0,
+                                   ),
+                                 ),
+                               ),
                               DataCell(
                                 Row(
                                   children: [
@@ -1100,17 +1161,23 @@ void pendingPaymentCollectionDialog(
                             headingRowHeight: 30,
                             columns: [
                               DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Payment Method'.tr,
-                                  fontSize: 11,
-                                  align: TextAlign.start,
+                                label: SizedBox(
+                                  width: 150,
+                                  child: DialogTableHeaderText(
+                                    text: 'Payment Method'.tr,
+                                    fontSize: 11,
+                                    align: TextAlign.start,
+                                  ),
                                 ),
                               ),
                               DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Balance Amount'.tr,
-                                  fontSize: 11,
-                                  align: TextAlign.start,
+                                label: SizedBox(
+                                  width: 130,
+                                  child: DialogTableHeaderText(
+                                    text: 'Balance Amount'.tr,
+                                    fontSize: 11,
+                                    align: TextAlign.start,
+                                  ),
                                 ),
                               ),
                             ],
@@ -1118,57 +1185,61 @@ void pendingPaymentCollectionDialog(
                               DataRow(
                                 cells: [
                                   DataCell(
-                                    DropdownButtonFormField<String>(
-                                      value: selectedPaymentMethod.value,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300),
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
+                                    SizedBox(
+                                      width: 150,
+                                      child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
+                                        value: selectedPaymentMethod.value,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade300),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 8.0, vertical: 4.0),
                                         ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 8.0),
-                                      ),
-                                      dropdownColor: Colors.white,
-                                      items: [
-                                        DropdownMenuItem(
-                                            value: 'Cash',
-                                            child: Text('Cash'.tr)),
-                                        DropdownMenuItem(
-                                            value: 'Cheque',
-                                            child: Text('Cheque'.tr)),
-                                        DropdownMenuItem(
-                                            value: 'Bank Transfer',
-                                            child: Text('Bank Transfer'.tr)),
-                                        DropdownMenuItem(
-                                            value: 'QR Payment',
-                                            child: Text('QR Payment'.tr)),
-                                      ],
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          selectedPaymentMethod.value =
-                                              value; // ← now valid
+                                        dropdownColor: Colors.white,
+                                        items: [
+                                          DropdownMenuItem(
+                                              value: 'Cash',
+                                              child: Text('Cash'.tr)),
+                                          DropdownMenuItem(
+                                              value: 'Cheque',
+                                              child: Text('Cheque'.tr)),
+                                          DropdownMenuItem(
+                                              value: 'Bank Transfer',
+                                              child: Text('Bank Transfer'.tr)),
+                                          DropdownMenuItem(
+                                              value: 'QR Payment',
+                                              child: Text('QR Payment'.tr)),
+                                        ],
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            selectedPaymentMethod.value =
+                                                value; // ← now valid
 
-                                          selectedPaymentMethodInt.value =
-                                              switch (value) {
-                                            'Cash' => 0,
-                                            'Cheque' => 1,
-                                            'Bank Transfer' => 2,
-                                            'QR Payment' => 3,
-                                            _ => 0,
-                                          };
-                                        }
-                                      },
-                                      hint: Text('Select'.tr),
-                                      style: const TextStyle(
-                                          fontSize: 12, color: Colors.black),
-                                      icon: const Icon(Icons.arrow_drop_down,
-                                          size: 24.0, color: Colors.black),
-                                      iconSize: 24.0,
+                                            selectedPaymentMethodInt.value =
+                                                switch (value) {
+                                              'Cash' => 0,
+                                              'Cheque' => 1,
+                                              'Bank Transfer' => 2,
+                                              'QR Payment' => 3,
+                                              _ => 0,
+                                            };
+                                          }
+                                        },
+                                        hint: Text('Select'.tr),
+                                        style: const TextStyle(
+                                            fontSize: 12, color: Colors.black),
+                                        icon: const Icon(Icons.arrow_drop_down,
+                                            size: 24.0, color: Colors.black),
+                                        iconSize: 24.0,
+                                      ),
                                     ),
                                   ),
                                   DataCell(
@@ -1206,19 +1277,25 @@ void pendingPaymentCollectionDialog(
                           DataTable(
                             dataRowHeight: 35,
                             headingRowHeight: 30,
-                            columns: const [
+                            columns: [
                               DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Received Amount',
-                                  fontSize: 11,
-                                  align: TextAlign.start,
+                                label: SizedBox(
+                                  width: 130,
+                                  child: DialogTableHeaderText(
+                                    text: 'Received Amount'.tr,
+                                    fontSize: 11,
+                                    align: TextAlign.start,
+                                  ),
                                 ),
                               ),
                               DataColumn(
-                                label: DialogTableHeaderText(
-                                  text: 'Remarks',
-                                  fontSize: 11,
-                                  align: TextAlign.start,
+                                label: SizedBox(
+                                  width: 150,
+                                  child: DialogTableHeaderText(
+                                    text: 'Remarks'.tr,
+                                    fontSize: 11,
+                                    align: TextAlign.start,
+                                  ),
                                 ),
                               ),
                               DataColumn(label: Text('')),
@@ -1384,6 +1461,8 @@ void pendingPaymentCollectionDialog(
               ],
             ),
           ],
+        ),
+          ),
         ),
       );
     },

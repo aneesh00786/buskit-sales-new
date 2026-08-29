@@ -11,6 +11,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
+  final ScrollController horizontalScrollController = ScrollController();
+  final ScrollController verticalScrollController = ScrollController();
   return LayoutBuilder(
     builder: (context, constraints) {
       double availableWidth = constraints.maxWidth;
@@ -29,7 +31,15 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
       if (topSellingProducts.isEmpty) {
         return const NodataWidget();
       } else {
-        return SingleChildScrollView(
+        return Scrollbar(
+          controller: horizontalScrollController,
+          thumbVisibility: true,
+          trackVisibility: true,
+          radius: const Radius.circular(8),
+          thickness: 6,
+          notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+          child: SingleChildScrollView(
+          controller: horizontalScrollController,
           scrollDirection: Axis.horizontal,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -38,8 +48,11 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 35,
-                  color: Colors.grey.shade100,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                   child: Row(
                     children: [
                       SizedBox(
@@ -47,10 +60,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "Sl.No.".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -60,10 +73,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "Product".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -73,10 +86,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "I/N".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -86,10 +99,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "Last Purchase".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -99,10 +112,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "Times".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -112,10 +125,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "Amount".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -125,10 +138,10 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                         child:  Center(
                           child: MyRegularText(
                             label: "Qty".tr,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF0F172A),
                             align: TextAlign.center,
-                            fontSize: 11.3,
+                            fontSize: 11.5,
                           ),
                         ),
                       ),
@@ -136,15 +149,29 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
+                  child: Scrollbar(
+                    controller: verticalScrollController,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    radius: const Radius.circular(8),
+                    thickness: 6,
+                    notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
+                    child: SingleChildScrollView(
+                    controller: verticalScrollController,
                     scrollDirection: Axis.vertical,
                     child: Column(
                       children: topSellingProducts.asMap().entries.map((entry) {
                         int index = entry.key;
                         var product = entry.value;
 
-                        return SizedBox(
+                        return Container(
                           height: 35,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: Colors.grey.shade100, width: 1),
+                            ),
+                          ),
                           child: Row(
                             children: [
                               SizedBox(
@@ -152,6 +179,7 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                 child: MyRegularText(
                                   label: "${index + 1}.",
                                   fontSize: fontSize,
+                                  color: const Color(0xFF0F172A),
                                   maxlines: 1,
                                   align: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
@@ -164,6 +192,8 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                                   label:
                                       '${product.productName} - ${product.variationName}',
                                   fontSize: fontSize,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF0F172A),
                                   maxlines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -290,9 +320,11 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                       }).toList(),
                     ),
                   ),
+                  ),
                 ),
               ],
             ),
+          ),
           ),
         );
       }

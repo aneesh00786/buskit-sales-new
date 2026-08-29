@@ -4,7 +4,6 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:flutter/material.dart';
@@ -13,15 +12,12 @@ import 'package:get/get.dart';
 void showValueCollectionDialog(
     BuildContext context, Collection collection, String title) {
   showDialog(
+    barrierDismissible: false,
     context: context,
     builder: (context) {
       return Dialog(
-        insetPadding: isPhonePortrait(context) || isPhoneLandscape(context)
-            ? EdgeInsets.zero
-            : null,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
         child: LayoutBuilder(
           builder: (context, constraints) {
             double dialogWidth = isPhonePortrait(context)
@@ -34,41 +30,80 @@ void showValueCollectionDialog(
             double listHeight = completedOrders.length * rowHeight;
             double contentHeight =
                 listHeight > maxDialogHeight ? maxDialogHeight : listHeight;
-            return ConstrainedBox(
+            return Container(
+              width: double.infinity,
               constraints: BoxConstraints(
+                maxWidth: dialogWidth,
                 maxHeight: maxDialogHeight,
               ),
-              child: SizedBox(
-                width: dialogWidth,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                       decoration: const BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
+                        gradient: LinearGradient(
+                          colors: [primaryColor, Color(0xFF2D3748)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontFamily: 'Poppins_Regular',
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 17),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    title.tr,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontFamily: 'Poppins_Regular',
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          dialogCloseButton1(context, red),
+                          InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close, color: Colors.white, size: 18),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -77,6 +112,19 @@ void showValueCollectionDialog(
                       height: headerHeight,
                       child:  Row(
                         children: [
+                          SizedBox(
+                            width: 50,
+                            child: Text(
+                              'Sl.No.'.tr,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                fontFamily: 'Poppins_Regular',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
                           Expanded(
                               child: DialogTableHeaderText(
                             text: 'Business Name'.tr,
@@ -143,6 +191,16 @@ void showValueCollectionDialog(
                                   height: rowHeight,
                                   child: Row(
                                     children: [
+                                      SizedBox(
+                                        width: 50,
+                                        child: Text(
+                                          '   ${index + 1}.',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: secondaryTextColor,
+                                          ),
+                                        ),
+                                      ),
                                       Expanded(
                                         child: Center(
                                           child: Text(

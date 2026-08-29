@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -32,11 +31,13 @@ class OrderStatusHeadingRow extends StatelessWidget {
               child: DataTable(
                   dataRowHeight: 0,
                   headingRowHeight: fullScreenWidth(context) > 740 ? 45 : 75,
-                  headingRowColor: const WidgetStatePropertyAll(primaryColor),
+                  headingRowColor:
+                      const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
                   columnSpacing: 10,
                   headingTextStyle: TextStyle(
+                      fontFamily: 'Poppins_Regular',
                       fontSize: fontSize + 1,
-                      color: white,
+                      color: const Color(0xFF0F172A),
                       fontWeight: FontWeight.w700),
                   columns: [
                     DataColumn(

@@ -96,10 +96,6 @@ class _OptionWidgetState extends State<OptionWidget> {
 
   late LinkedScrollControllerGroup _controllers;
 
-  late ScrollController _scrollController1;
-  late ScrollController _scrollController2;
-  late ScrollController _scrollController3;
-
   late ScrollController _scrollController4;
   late ScrollController _scrollController5;
   late ScrollController _scrollController6;
@@ -147,11 +143,6 @@ class _OptionWidgetState extends State<OptionWidget> {
     _initializeDraftCounts();
 
     _controllers = LinkedScrollControllerGroup();
-
-    // SET 1
-    _scrollController1 = _controllers.addAndGet();
-    _scrollController2 = _controllers.addAndGet();
-    _scrollController3 = _controllers.addAndGet();
 
     // SET 2
     _scrollController4 = _controllers.addAndGet();
@@ -255,9 +246,6 @@ class _OptionWidgetState extends State<OptionWidget> {
                 context,
                 provider,
                 OrderStatus.delivered,
-                _scrollController1,
-                _scrollController2,
-                _scrollController3,
               );
             }
           },
@@ -845,19 +833,30 @@ class _OptionWidgetState extends State<OptionWidget> {
                         Flexible(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              return Scrollbar(
+                              return ScrollbarTheme(
+                                data: ScrollbarThemeData(
+                                  thumbColor: WidgetStateProperty.resolveWith(
+                                    (states) => states.contains(WidgetState.dragged)
+                                        ? primaryColor
+                                        : primaryColor.withOpacity(0.55),
+                                  ),
+                                  trackColor: WidgetStateProperty.all(primaryColor.withOpacity(0.06)),
+                                  trackBorderColor: WidgetStateProperty.all(primaryColor.withOpacity(0.18)),
+                                  radius: const Radius.circular(10),
+                                  thickness: WidgetStateProperty.all(8),
+                                  minThumbLength: 60,
+                                  crossAxisMargin: 2,
+                                  mainAxisMargin: 2,
+                                ),
+                                child: Scrollbar(
                                 controller: verticalScrollController,
                                 thumbVisibility: true,
                                 trackVisibility: true,
-                                radius: const Radius.circular(8),
-                                thickness: 6,
                                 notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
                                 child: Scrollbar(
                                   controller: horizontalScrollController,
                                   thumbVisibility: true,
                                   trackVisibility: true,
-                                  radius: const Radius.circular(8),
-                                  thickness: 6,
                                   notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                                   child: SingleChildScrollView(
                                     controller: verticalScrollController,
@@ -1107,7 +1106,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                                   ),
                                 ),
                               ),
-                            );
+                              ),
+                              );
                             },
                           ),
                         ),
@@ -1354,19 +1354,30 @@ class _OptionWidgetState extends State<OptionWidget> {
                         Flexible(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              return Scrollbar(
+                              return ScrollbarTheme(
+                                data: ScrollbarThemeData(
+                                  thumbColor: WidgetStateProperty.resolveWith(
+                                    (states) => states.contains(WidgetState.dragged)
+                                        ? primaryColor
+                                        : primaryColor.withOpacity(0.55),
+                                  ),
+                                  trackColor: WidgetStateProperty.all(primaryColor.withOpacity(0.06)),
+                                  trackBorderColor: WidgetStateProperty.all(primaryColor.withOpacity(0.18)),
+                                  radius: const Radius.circular(10),
+                                  thickness: WidgetStateProperty.all(8),
+                                  minThumbLength: 60,
+                                  crossAxisMargin: 2,
+                                  mainAxisMargin: 2,
+                                ),
+                                child: Scrollbar(
                                 controller: verticalScrollController,
                                 thumbVisibility: true,
                                 trackVisibility: true,
-                                radius: const Radius.circular(8),
-                                thickness: 6,
                                 notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
                                 child: Scrollbar(
                                   controller: horizontalScrollController,
                                   thumbVisibility: true,
                                   trackVisibility: true,
-                                  radius: const Radius.circular(8),
-                                  thickness: 6,
                                   notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                                   child: SingleChildScrollView(
                                     controller: verticalScrollController,
@@ -1741,6 +1752,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                                     ),
                                   ),
                                 ),
+                              ),
                               ),
                             );
                           },

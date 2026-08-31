@@ -229,3 +229,54 @@ Widget filledIcon(String svgIconPath) {
     width: AppDimensions.instance.width * 0.014,
   );
 }
+
+class CustomButton2 extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const CustomButton2({
+    super.key,
+    required this.text,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: primaryColor),
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  color: primaryColor,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.add_circle_outline,
+              color: primaryColor,
+              size: 14,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

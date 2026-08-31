@@ -457,6 +457,11 @@ class _CustomBarChartCustomerDashState
                                         sideTitles: SideTitles(
                                           showTitles:
                                               false, // hide left titles here
+                                          reservedSize: dynamicMaxY
+                                                  .toString()
+                                                  .length *
+                                              7 +
+                                              10,
                                         ),
                                       ),
                                       bottomTitles: AxisTitles(
@@ -540,7 +545,6 @@ class _CustomBarChartCustomerDashState
                     Positioned(
                       left: 0,
                       top: 0,
-                      bottom: 10,
                       child: Container(
                         width: dynamicMaxY.toString().length * 7 + 10,
                         height: 300,
@@ -597,34 +601,34 @@ class _CustomBarChartCustomerDashState
 }
 
 Widget customUnderlinedText(String text) {
-  // 1. Truncate the text and add "...." if it exceeds 22 characters
-  String displayText = text.length > 20 ? '${text.substring(0, 20)}....' : text;
-
-  return Stack(
-    alignment: Alignment.centerLeft,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: MyRegularText(
-          label: displayText, // 2. Use the new displayText
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 13,
-            color: Colors.black,
+  return SizedBox(
+    width: 88,
+    child: Stack(
+      alignment: Alignment.centerLeft,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: MyRegularText(
+            label: text,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+              color: Colors.black,
+            ),
+            maxlines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          overflow: TextOverflow.ellipsis, // Kept as a fallback
         ),
-      ),
-      Positioned(
-        bottom: 6,
-        child: Container(
-          height: 1.5,
-          // 3. Calculate the underline width using the displayText length
-          width: displayText.length * 8.0,
-          color: primaryColor,
+        Positioned(
+          bottom: 6,
+          child: Container(
+            height: 1.5,
+            width: 70,
+            color: primaryColor,
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 

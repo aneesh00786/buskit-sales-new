@@ -73,3 +73,17 @@ Not applicable: the "Frequently Ordered Products" card (`topselling_product.dart
 - **Draft / Cancelled status styling**: in that same file, every order status (Delivered, Draft, Cancelled, Estimate, etc.) was rendered with one hardcoded orange badge color. Found the already-modern per-status color scheme used in `customer_option_widget.dart`'s `_buildStatusBadge` (green/delivered, amber/estimate, blue/booking, slate/draft, red/cancelled) and applied the same color mapping here via two small helpers (`_orderStatusBadgeColor`, `_orderStatusTextColor`), so Draft and Cancelled (and every other status) now get correct, distinct colors instead of all sharing one.
 
 - **"Frequently Ordered Products" scrollbars and content style**: `dash_frequently_table.dart` had plain `SingleChildScrollView`s with no visible scrollbar at all (unlike the persistent `Scrollbar`/`ScrollbarTheme` pattern used everywhere else, e.g. `orders_payments.dart`). Added matching horizontal + vertical `Scrollbar`s with `thumbVisibility`/`trackVisibility`. Also updated the header row to the same modern style used in `orders_payment_heading.dart` (rounded `Color(0xFFF1F5F9)` background instead of plain grey, bumped to `w700`/11.5px), added subtle row-separator borders, and darkened/bolded the product-name cell to match the "primary cell" text treatment used elsewhere (`0xFF0F172A`, `w600`).
+
+## Checked — "Customers & Orders" screen (2026-08-29, third pass)
+
+You asked me to bring this screen's design in line with admin. Compared the page title, filter bar, main data table (`FrozenHeaderTable`, inline in `customer_and_orders_screen.dart` vs admin's standalone `customer_and_orders_new/frozen_content_table.dart`), pagination bar, and status badges directly against admin's current code.
+
+**Finding: the design is already in sync.** Page title styling, column header styling, zebra-striped rows, customer avatars, `_buildStatusBadge`/`_buildModernEmptyState` helpers, and the numbered pagination bar (`_buildPagination`) all matched admin byte-for-byte or near enough that the only differences were import paths. Nothing stale to port.
+
+**What's actually different is new admin-only functionality**, not design debt — admin's `customer_and_orders_new/` folder has grown features sales doesn't have:
+- A bulk-select "Allocate" column (checkbox per row + `CustomerSalesmanAllocationDialog`) to assign a salesman to multiple customers at once.
+- A "Staff" column (present but commented out in sales' `TopTotalWidget`).
+- An editable "Credit Period" column (`editable_credit_period_cell.dart`).
+- A per-row `EditCustomerDialog` and `customer_discount_dialog.dart` for editing customer details/discounts inline from the table.
+
+These all require new dialog components and provider methods sales doesn't currently have, so — per your instruction — I didn't build them. If you want any of these, they're each a real feature to scope and implement rather than a copy-paste.

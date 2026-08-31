@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/^class FrozenHeaderTable/,0' /Users/aneesh/buskit-sales-new/lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart)",
+      "Bash(awk '/^class FrozenHeaderTable/,/^Widget buildYearDropdownWidget|^}\\\\s*$/{print}' /Users/aneesh/buskit-sales-new/lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart)",
+      "Read(//tmp/**)",
+      "Bash(diff /tmp/sales_frozen.dart /Users/aneesh/buskit_admin/lib/ui/view/ui/customer_and_orders/customer_and_orders_new/frozen_content_table.dart)",
+      "Bash(sed -n '978,1037p' /tmp/sales_frozen.dart)",
+      "Bash(sed -n '989,1048p' /Users/aneesh/buskit_admin/lib/ui/view/ui/customer_and_orders/customer_and_orders_new/frozen_content_table.dart)",
+      "Bash(sed -n '1038,1075p' /tmp/sales_frozen.dart)",
+      "Bash(sed -n '1049,1090p' /Users/aneesh/buskit_admin/lib/ui/view/ui/customer_and_orders/customer_and_orders_new/frozen_content_table.dart)",
+      "Bash(grep -n \"^        return Column\\\\|^      \\);\\\\s*$\\\\|^    }\\);\\\\s*$\" /tmp/sales_bottom_total.dart)",
+      "Read(//private/tmp/**)",
+      "Bash(sed -n '124,545p' /Users/aneesh/buskit_admin/lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart > /tmp/admin_top_appbar.dart *)",
+      "Bash(git -C /Users/aneesh/buskit_admin show e993df2b -- lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart)",
+      "Bash(sed -n '551,660p' /Users/aneesh/buskit-sales-new/lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart > /tmp/sales_filter.dart *)",
+      "Bash(awk 'NR==729,NR==690+? 0:0' /dev/null; sed -n '680,690p' /Users/aneesh/buskit_admin/lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart *)",
+      "Read(//dev/**)",
+      "Bash(awk 'NR==729,NR==1600' /Users/aneesh/buskit_admin/lib/ui/view/ui/customer_and_orders/customer_and_orders_screen.dart)",
+      "Bash(awk 'NR<=836 && /void _show|Widget _show/{f=$0; l=NR} END{}' lib/ui/components/option/option_widget.dart)",
+      "Bash(grep -n \"return Row\\(\\\\|return StatefulBuilder\\\\|FutureBuilder\\\\|ConnectionState.waiting\\\\|Container\\(\\\\s*$\\\\|gradient:\\\\|Column\\(\\\\s*$\")"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}

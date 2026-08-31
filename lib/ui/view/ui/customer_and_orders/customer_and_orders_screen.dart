@@ -834,8 +834,8 @@ class _TableeeState extends State<Tableee> {
 
           return SizedBox(
             height: 38,
-            width: 98,
-            child: CustomButton(
+            width: 108,
+            child: CustomButton2(
               onPressed: () {
                 showDialog(
                   barrierDismissible: false,
@@ -2679,50 +2679,6 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
           ],
         );
       },
-    );
-  }
-}
-
-class CustomButton extends StatelessWidget {
-  final String text;
-
-  final VoidCallback onPressed;
-
-  const CustomButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              text,
-              style: TextStyle(
-                color: primaryColor,
-                fontSize: 13,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.add_circle_outline,
-              color: Colors.black,
-              size: 14,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

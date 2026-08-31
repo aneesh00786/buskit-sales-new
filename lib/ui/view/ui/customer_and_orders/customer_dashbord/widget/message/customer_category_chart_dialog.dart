@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/cus_provider/cus_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -104,7 +105,12 @@ void showCustomerCategoryChartDialog(
                           future: provider.customersDashFuture,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
+                              return const Center(
+                                child: SpinKitFadingCube(
+                                  color: primaryColor,
+                                  size: 20.0,
+                                ),
+                              );
                             } else if (snapshot.hasError) {
                               return Center(
                                 child: Text('Error: ${snapshot.error}', style: const TextStyle(fontFamily: 'Poppins_Regular', color: Colors.red)),
@@ -114,7 +120,8 @@ void showCustomerCategoryChartDialog(
                             } else {
                               final responseModel = snapshot.data!;
                               final categoryPerformance = snapshot.data!.data.categoryPerformance;
-                              return Center(
+                              return SizedBox(
+                                height: 350,
                                 child: CustomBarChartCustomerDash(
                                   categoryPerformance: categoryPerformance,
                                   allCategory: responseModel.data.fullCategory,

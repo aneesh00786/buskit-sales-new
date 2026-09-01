@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/helpers.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/upgrade_plan_button.dart';
@@ -7,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:busskit_salesexecutive/exception_widget_handler/nk_widget_exception_handler.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class PendingPaymentBottomWidget extends StatefulWidget {
   final PendingPaymentController orderController;
@@ -25,33 +27,33 @@ class PendingPaymentBottomWidget extends StatefulWidget {
 
 class _PendingPaymentBottomWidgetState
     extends State<PendingPaymentBottomWidget> {
-  final ScrollController _headerScrollController = ScrollController();
-  final ScrollController _orderScrollController = ScrollController();
+  // LinkedScrollControllerGroup forwards the user's drag delta to every
+  // linked controller directly, instead of reacting to a finished position
+  // change with jumpTo() — the jumpTo-based approach could fight an in
+  // -progress drag/fling on the other controller and made the table feel
+  // like it randomly stopped responding to horizontal/vertical drags.
+  late final LinkedScrollControllerGroup _horizontalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _headerScrollController =
+      _horizontalGroup.addAndGet();
+  late final ScrollController _orderScrollController =
+      _horizontalGroup.addAndGet();
+
+  late final LinkedScrollControllerGroup _verticalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _customerListScrollController =
+      _verticalGroup.addAndGet();
+  late final ScrollController _orderRowsScrollController =
+      _verticalGroup.addAndGet();
+
   final subscriptionController = Get.find<SubscriptionController>();
-
-  @override
-  void initState() {
-    super.initState();
-
-    _headerScrollController.addListener(() {
-      if (_orderScrollController.hasClients &&
-          _headerScrollController.offset != _orderScrollController.offset) {
-        _orderScrollController.jumpTo(_headerScrollController.offset);
-      }
-    });
-
-    _orderScrollController.addListener(() {
-      if (_headerScrollController.hasClients &&
-          _orderScrollController.offset != _headerScrollController.offset) {
-        _headerScrollController.jumpTo(_orderScrollController.offset);
-      }
-    });
-  }
 
   @override
   void dispose() {
     _headerScrollController.dispose();
     _orderScrollController.dispose();
+    _customerListScrollController.dispose();
+    _orderRowsScrollController.dispose();
     super.dispose();
   }
 
@@ -66,7 +68,7 @@ class _PendingPaymentBottomWidgetState
 
       if (widget.orderController.isLoadingPayment.value) {
         return const Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(color: primaryColor),
         );
       }
       if (widget.orderController.orderDataList.isEmpty) {
@@ -79,7 +81,13 @@ class _PendingPaymentBottomWidgetState
         child: Stack(
           children: [
             buildHeader(context, _headerScrollController),
-            buildOrderList(context, widget.orderController,_orderScrollController),
+            buildOrderList(
+              context,
+              widget.orderController,
+              _orderScrollController,
+              _customerListScrollController,
+              _orderRowsScrollController,
+            ),
           ],
         ),
       );

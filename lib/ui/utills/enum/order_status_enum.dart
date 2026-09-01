@@ -106,6 +106,85 @@ extension OrderStatusExtension on OrderStatus {
         return primaryColor;
     }
   }
+
+  // Canonical status-pill palette used everywhere a status badge is shown
+  // (dashboard dialogs, orders list, customer & orders, pending payments...).
+  // Keep every screen pointed at these three getters instead of hardcoding
+  // its own colors, so a status always reads the same color app-wide.
+  Color get statusBgColor {
+    switch (this) {
+      case OrderStatus.delivered:
+        return const Color(0xFFDCFCE7);
+      case OrderStatus.cancelled:
+      case OrderStatus.rejected:
+        return const Color(0xFFFEE2E2);
+      case OrderStatus.estimates:
+      case OrderStatus.pending:
+        return const Color(0xFFFEF3C7);
+      case OrderStatus.preOrder:
+      case OrderStatus.processing:
+      case OrderStatus.quickSale:
+        return const Color(0xFFDBEAFE);
+      case OrderStatus.draft:
+        return const Color(0xFFF1F5F9);
+      case OrderStatus.outOfDelivery:
+        return const Color(0xFFEDE9FE);
+      case OrderStatus.newOrder:
+        return const Color(0xFFCCFBF1);
+      case OrderStatus.waitApproval:
+        return const Color(0xFFFFEDD5);
+    }
+  }
+
+  Color get statusTextColor {
+    switch (this) {
+      case OrderStatus.delivered:
+        return const Color(0xFF064E3B);
+      case OrderStatus.cancelled:
+      case OrderStatus.rejected:
+        return const Color(0xFF7F1D1D);
+      case OrderStatus.estimates:
+      case OrderStatus.pending:
+        return const Color(0xFF78350F);
+      case OrderStatus.preOrder:
+      case OrderStatus.processing:
+      case OrderStatus.quickSale:
+        return const Color(0xFF1E3A8A);
+      case OrderStatus.draft:
+        return const Color(0xFF0F172A);
+      case OrderStatus.outOfDelivery:
+        return const Color(0xFF4C1D95);
+      case OrderStatus.newOrder:
+        return const Color(0xFF134E4A);
+      case OrderStatus.waitApproval:
+        return const Color(0xFF7C2D12);
+    }
+  }
+
+  Color get statusDotColor {
+    switch (this) {
+      case OrderStatus.delivered:
+        return const Color(0xFF059669);
+      case OrderStatus.cancelled:
+      case OrderStatus.rejected:
+        return const Color(0xFFDC2626);
+      case OrderStatus.estimates:
+      case OrderStatus.pending:
+        return const Color(0xFFD97706);
+      case OrderStatus.preOrder:
+      case OrderStatus.processing:
+      case OrderStatus.quickSale:
+        return const Color(0xFF2563EB);
+      case OrderStatus.draft:
+        return const Color(0xFF475569);
+      case OrderStatus.outOfDelivery:
+        return const Color(0xFF7C3AED);
+      case OrderStatus.newOrder:
+        return const Color(0xFF0D9488);
+      case OrderStatus.waitApproval:
+        return const Color(0xFFEA580C);
+    }
+  }
 }
 
 class OrderHandlingClass {

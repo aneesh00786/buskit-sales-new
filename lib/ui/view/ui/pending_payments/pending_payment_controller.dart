@@ -27,6 +27,8 @@ class PendingPaymentController extends GetxController {
   RxDouble dueAmount = 0.0.obs;
   RxDouble overdueAmount = 0.0.obs;
   PaginationModel paginationModel = PaginationModel();
+  RxInt currentPageRx = 1.obs;
+  RxInt totalPageRx = 1.obs;
 
   RxList<IndividualPendingData> individualPendingPayments =
       <IndividualPendingData>[].obs;
@@ -82,11 +84,31 @@ class PendingPaymentController extends GetxController {
         nearlyDueAmount.value = data.nearlydueAmount.toDouble();
         dueAmount.value = data.dueAmount.toDouble();
         overdueAmount.value = data.overdueAmount.toDouble();
+        paginationModel.totalPage = data.pagination.totalPages;
+        paginationModel.totalItems = data.pagination.totalRecord;
+        totalPageRx.value = data.pagination.totalPages;
+        currentPageRx.value = paginationModel.currentPage;
       } else {
         orderDataList.clear();
       }
     } catch (e) {
       // Handle errors here
+    }
+  }
+
+  void goToNextPage() {
+    if (paginationModel.currentPage < paginationModel.totalPage) {
+      paginationModel.currentPage++;
+      currentPageRx.value = paginationModel.currentPage;
+      loadOrderData(chartIndex: selectedTabIndex.value);
+    }
+  }
+
+  void goToPreviousPage() {
+    if (paginationModel.currentPage > 1) {
+      paginationModel.currentPage--;
+      currentPageRx.value = paginationModel.currentPage;
+      loadOrderData(chartIndex: selectedTabIndex.value);
     }
   }
   // inside PendingPaymentController class
@@ -174,6 +196,8 @@ class PendingPaymentController extends GetxController {
 
   void updateTabIndex(int newIndex) {
     selectedTabIndex.value = newIndex;
+    paginationModel.currentPage = 1;
+    currentPageRx.value = 1;
     loadOrderData(chartIndex: newIndex);
   }
 

@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/dashboard_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -146,10 +147,10 @@ void pendingPaymentCollectionDialog(
                     horizontalMargin: 16,
                     columnSpacing: 24,
                     headingRowColor:
-                        MaterialStateProperty.all(Colors.grey.shade100),
-                    border: TableBorder(
-                      horizontalInside: BorderSide(color: Colors.grey.shade300),
-                      bottom: BorderSide(color: Colors.grey.shade300),
+                        MaterialStateProperty.all(const Color(0xFFF8FAFC)),
+                    border: const TableBorder(
+                      horizontalInside: BorderSide(color: Color(0xFFE2E8F0)),
+                      bottom: BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                     columns: [
                       DataColumn(
@@ -451,7 +452,8 @@ void pendingPaymentCollectionDialog(
       horizontalMargin: 15,
       dataRowHeight: 30,
       headingRowHeight: 40,
-      border: TableBorder.all(color: Colors.grey.shade300),
+      border: TableBorder.all(color: const Color(0xFFE2E8F0)),
+      headingRowColor: const WidgetStatePropertyAll(Color(0xFFF8FAFC)),
       columns: [
         DataColumn(
           label: DialogTableHeaderText(
@@ -528,21 +530,32 @@ void pendingPaymentCollectionDialog(
               DataCell(Center(child: Text(payment.orderId.toString()))),
               DataCell(Center(child: Text(formatAmount(payment.orderTotal)))),
               DataCell(Center(
-                  child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                      ),
-                      child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                          ),
-                          child: Text(
-                              getStatusName(payment.orderStatus?.toInt() ?? 0)
-                                  .tr,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              )))))),
+                  child: Builder(builder: (context) {
+                final orderStatus = OrderHandlingClass.fromType(
+                    payment.orderStatus?.toInt() ?? 0);
+                return Container(
+                    decoration: BoxDecoration(
+                      color: orderStatus.statusBgColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color:
+                              orderStatus.statusDotColor.withOpacity(0.35)),
+                    ),
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        child: Text(
+                            getStatusName(payment.orderStatus?.toInt() ?? 0)
+                                .tr,
+                            style: TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: orderStatus.statusTextColor,
+                            ))));
+              }))),
               DataCell(Center(
                   child: InkWell(
                       onTap: () {
@@ -589,7 +602,7 @@ void pendingPaymentCollectionDialog(
                           },
                           child: const Icon(
                             Icons.info,
-                            color: Colors.blue,
+                            color: primaryColor,
                             size: 20,
                           ),
                         )
@@ -775,13 +788,14 @@ void pendingPaymentCollectionDialog(
                     thumbColor:
                         WidgetStateProperty.resolveWith<Color>((states) {
                       if (states.contains(WidgetState.dragged)) {
-                        return Colors.blueAccent.shade700;
+                        return const Color(0xFF2D3748);
                       }
-                      return Colors.blueAccent.shade400;
+                      return primaryColor;
                     }),
-                    trackColor: WidgetStateProperty.all(Colors.blue.shade50),
+                    trackColor:
+                        WidgetStateProperty.all(const Color(0xFFF1F5F9)),
                     trackBorderColor:
-                        WidgetStateProperty.all(Colors.blue.shade100),
+                        WidgetStateProperty.all(const Color(0xFFE2E8F0)),
                     thickness: WidgetStateProperty.all(6),
                     radius: const Radius.circular(10),
                     minThumbLength: 50,
@@ -873,7 +887,7 @@ void pendingPaymentCollectionDialog(
                                        fillColor: Colors.white,
                                        border: OutlineInputBorder(
                                          borderSide: BorderSide(
-                                             color: Colors.grey.shade300),
+                                             color: Color(0xFFE2E8F0)),
                                          borderRadius: BorderRadius.circular(10.0),
                                        ),
                                        contentPadding: const EdgeInsets.symmetric(
@@ -930,7 +944,7 @@ void pendingPaymentCollectionDialog(
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
+                                                color: Color(0xFFE2E8F0)),
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
                                           ),
@@ -957,7 +971,7 @@ void pendingPaymentCollectionDialog(
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
+                                                color: Color(0xFFE2E8F0)),
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
                                           ),
@@ -979,7 +993,7 @@ void pendingPaymentCollectionDialog(
                                     fillColor: Colors.white,
                                     border: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                          color: Colors.grey.shade300),
+                                          color: Color(0xFFE2E8F0)),
                                       borderRadius: BorderRadius.circular(10.0),
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(
@@ -1123,7 +1137,7 @@ void pendingPaymentCollectionDialog(
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
+                                      backgroundColor: primaryButtonColor,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(10.0)),
@@ -1195,7 +1209,7 @@ void pendingPaymentCollectionDialog(
                                           fillColor: Colors.white,
                                           border: OutlineInputBorder(
                                             borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
+                                                color: Color(0xFFE2E8F0)),
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
                                           ),
@@ -1257,7 +1271,7 @@ void pendingPaymentCollectionDialog(
                                               border: OutlineInputBorder(
                                                 borderSide: BorderSide(
                                                     color:
-                                                        Colors.grey.shade300),
+                                                        Color(0xFFE2E8F0)),
                                                 borderRadius:
                                                     BorderRadius.circular(10.0),
                                               ),
@@ -1319,7 +1333,7 @@ void pendingPaymentCollectionDialog(
                                               border: OutlineInputBorder(
                                                 borderSide: BorderSide(
                                                     color:
-                                                        Colors.grey.shade300),
+                                                        Color(0xFFE2E8F0)),
                                                 borderRadius:
                                                     BorderRadius.circular(10.0),
                                               ),
@@ -1341,7 +1355,7 @@ void pendingPaymentCollectionDialog(
                                         fillColor: Colors.white,
                                         border: OutlineInputBorder(
                                           borderSide: BorderSide(
-                                              color: Colors.grey.shade300),
+                                              color: Color(0xFFE2E8F0)),
                                           borderRadius:
                                               BorderRadius.circular(10.0),
                                         ),
@@ -1431,7 +1445,7 @@ void pendingPaymentCollectionDialog(
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
+                                          backgroundColor: primaryButtonColor,
                                           // primaryColor.withOpacity(0.2),
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
@@ -1488,7 +1502,8 @@ Future<void> _startOnlinePayment(
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) =>
+          const Center(child: CircularProgressIndicator(color: primaryColor)),
     );
 
     final session = await ApiWorker().createOnlinePaymentSession(
@@ -1666,35 +1681,68 @@ void _showQRPaymentModal({
               const Text(
                 "Scan QR to Pay",
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
                 ),
               ),
               const SizedBox(height: 16),
-              QrImageView(
-                data: session.url,
-                size: 240,
-                backgroundColor: Colors.white,
+              Container(
                 padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: QrImageView(
+                  data: session.url,
+                  size: 220,
+                  backgroundColor: Colors.white,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
                 "Amount: ${addCurrencySymbol()}${totalAmount.toStringAsFixed(2)}",
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: Color(0xFF0F172A),
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
                 "Scan with Phone Camera\nGoogle Pay • Apple Pay • Card",
                 textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 12,
+                  color: Color(0xFF64748B),
+                ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  print("❌ User cancelled payment");
-                  pollTimer?.cancel();
-                  Navigator.of(ctx).pop();
-                },
-                child: const Text("Cancel"),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    print("❌ User cancelled payment");
+                    pollTimer?.cancel();
+                    Navigator.of(ctx).pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                        fontFamily: 'Poppins_Regular',
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
               ),
             ],
           ),

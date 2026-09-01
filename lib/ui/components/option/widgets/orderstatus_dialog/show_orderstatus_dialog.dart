@@ -78,37 +78,11 @@ Widget _buildOrdersDialogHeader(BuildContext context) {
 }
 
 Color _orderStatusBadgeColor(int? orderStatus) {
-  switch (orderStatus) {
-    case 2:
-      return const Color(0xFFDCFCE7);
-    case 7:
-      return const Color(0xFFFEF3C7);
-    case 0:
-      return const Color(0xFFDBEAFE);
-    case 4:
-      return const Color(0xFFF1F5F9);
-    case 3:
-      return const Color(0xFFFEE2E2);
-    default:
-      return const Color(0xffffdbb8);
-  }
+  return OrderHandlingClass.fromType(orderStatus ?? 0).statusBgColor;
 }
 
 Color _orderStatusTextColor(int? orderStatus) {
-  switch (orderStatus) {
-    case 2:
-      return const Color(0xFF064E3B);
-    case 7:
-      return const Color(0xFF78350F);
-    case 0:
-      return const Color(0xFF1E3A8A);
-    case 4:
-      return const Color(0xFF0F172A);
-    case 3:
-      return const Color(0xFF7F1D1D);
-    default:
-      return Colors.black;
-  }
+  return OrderHandlingClass.fromType(orderStatus ?? 0).statusTextColor;
 }
 
 void showOrderStatusDialog(

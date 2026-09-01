@@ -172,7 +172,11 @@ class _EditablePendingPaymentCellState
                   ? Colors.green[100]
                   : Colors.white,
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: primaryColor, width: 1.5),
                 borderRadius: BorderRadius.circular(10.0),
               ),
               hintText:
@@ -190,8 +194,10 @@ class _EditablePendingPaymentCellState
               ),
             ),
             style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
               fontSize: 12,
-              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF0F172A),
             ),
           ),
         ),

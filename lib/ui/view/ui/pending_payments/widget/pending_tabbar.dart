@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/pending_payment_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/pending_payments/widget/pending_payment_bottom_widget.dart';
@@ -78,19 +77,21 @@ class _PendingTabBarState extends State<PendingTabBar> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: MyCommnonContainer(
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color.fromARGB(255, 211, 211, 211)
-                        .withOpacity(0.2),
-                    blurRadius: 5,
-                    offset: const Offset(4, 4),
-                  ),
-                ],
-                borderRadius: 25,
+              child: Container(
                 height: MediaQuery.of(context).size.height * 0.4,
                 width: double.infinity,
-                isCommonBorder: true,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: PendingPaymentChart(
@@ -102,11 +103,17 @@ class _PendingTabBarState extends State<PendingTabBar> {
             ),
           ),
           const SliverToBoxAdapter(
-            child: SizedBox(height: 20),
+            child: SizedBox(height: 16),
           ),
           SliverToBoxAdapter(
-            child: SizedBox(
-              height: 40,
+            child: Container(
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+                ),
+              ),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: _tabs.length,
@@ -115,30 +122,44 @@ class _PendingTabBarState extends State<PendingTabBar> {
                   if (!_visibleTabs[index]) {
                     return const SizedBox.shrink();
                   }
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedTabIndex = index;
-                      });
-                      widget.orderController.updateTabIndex(_selectedTabIndex);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(
-                          left: 16, right: 16, top: 8, bottom: 0),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.cyan : Colors.transparent,
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                         ),
-                      ),
-                      child: Text(
-                        _tabs[index],
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          fontFamily: 'Poppins_Regular',
+                        onTap: () {
+                          setState(() {
+                            _selectedTabIndex = index;
+                          });
+                          widget.orderController
+                              .updateTabIndex(_selectedTabIndex);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? primaryColor
+                                : Colors.transparent,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            _tabs[index],
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : primaryColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5,
+                              fontFamily: 'Poppins_Regular',
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -4,6 +4,7 @@ import 'package:busskit_salesexecutive/common/time_convertion.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/detailed_invoice_dialogue.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
@@ -11,31 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 Widget _buildStatusBadge(int? orderStatus, String text) {
-  Color bg = const Color(0xFFF1F5F9);
-  Color textColor = const Color(0xFF0F172A);
-  Color dotColor = const Color(0xFF0F172A);
-
-  if (orderStatus == 2 || text.toLowerCase().contains('deliver')) {
-    bg = const Color(0xFFDCFCE7);
-    textColor = const Color(0xFF064E3B);
-    dotColor = const Color(0xFF059669);
-  } else if (orderStatus == 7 || text.toLowerCase().contains('estimate')) {
-    bg = const Color(0xFFFEF3C7);
-    textColor = const Color(0xFF78350F);
-    dotColor = const Color(0xFFD97706);
-  } else if (orderStatus == 0 || text.toLowerCase().contains('booking') || text.toLowerCase().contains('pre') || text.toLowerCase().contains('process')) {
-    bg = const Color(0xFFDBEAFE);
-    textColor = const Color(0xFF1E3A8A);
-    dotColor = const Color(0xFF2563EB);
-  } else if (orderStatus == 4 || text.toLowerCase().contains('draft')) {
-    bg = const Color(0xFFF1F5F9);
-    textColor = const Color(0xFF0F172A);
-    dotColor = const Color(0xFF475569);
-  } else if (orderStatus == 3 || text.toLowerCase().contains('cancel')) {
-    bg = const Color(0xFFFEE2E2);
-    textColor = const Color(0xFF7F1D1D);
-    dotColor = const Color(0xFFDC2626);
-  }
+  final status = OrderHandlingClass.fromType(orderStatus ?? 0);
+  final Color bg = status.statusBgColor;
+  final Color textColor = status.statusTextColor;
+  final Color dotColor = status.statusDotColor;
 
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),

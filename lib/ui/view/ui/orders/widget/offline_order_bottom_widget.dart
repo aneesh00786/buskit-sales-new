@@ -526,42 +526,13 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
 
   Widget orderStatus(Map<String, dynamic> order) {
     final status = order['order_status'] ?? -1;
-    Color statusColor;
-
-    switch (status) {
-      case -1:
-        statusColor = const Color.fromARGB(255, 255, 183, 134);
-        break;
-      case 0:
-        statusColor = const Color.fromARGB(255, 255, 183, 134);
-        break;
-      case 11:
-        statusColor = const Color.fromARGB(255, 225, 250, 191);
-        break;
-      case 12:
-        statusColor = const Color.fromARGB(255, 255, 222, 168);
-        break;
-      case 14:
-        statusColor = const Color.fromARGB(255, 190, 253, 247);
-        break;
-      case 5:
-        statusColor = const Color.fromARGB(255, 190, 253, 247);
-        break;
-      case 7:
-        statusColor = const Color.fromARGB(255, 222, 199, 246);
-        break;
-      case 1:
-        statusColor = const Color.fromARGB(255, 245, 195, 254);
-        break;
-      case 2:
-        statusColor = const Color.fromARGB(255, 222, 199, 246);
-        break;
-      case 13:
-        statusColor = const Color.fromARGB(255, 246, 199, 199);
-        break;
-      default:
-        statusColor = Colors.grey;
-    }
+    final bool hasStatus = status != null && status != -1;
+    final orderStatusEnum = OrderHandlingClass.fromType(hasStatus ? status as int : 0);
+    final Color statusColor =
+        hasStatus ? orderStatusEnum.statusBgColor : Colors.grey;
+    final Color statusTextColor =
+        hasStatus ? orderStatusEnum.statusTextColor : Colors.black;
+    final String statusLabel = hasStatus ? orderStatusEnum.name.tr : 'Unknown';
 
     // return Center(
     //   child: Padding(
@@ -607,9 +578,8 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CustomText(
-                          content: status != null
-                              ? OrderHandlingClass.fromType(status).name.tr
-                              : 'Unknown',
+                          content: statusLabel,
+                          color: statusTextColor,
                           fontSize: 11.0,
                           fontWeight: FontWeight.w600,
                         ),
@@ -647,14 +617,13 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    color: status != null ? statusColor : Colors.grey,
+                    color: statusColor,
                     borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                   ),
                   child: Center(
                     child: CustomText(
-                      content: status != null
-                          ? OrderHandlingClass.fromType(status).name.tr
-                          : 'Unknown',
+                      content: statusLabel,
+                      color: statusTextColor,
                       fontSize: 11,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.w600,

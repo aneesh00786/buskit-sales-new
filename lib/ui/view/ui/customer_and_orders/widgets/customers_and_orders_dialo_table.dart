@@ -6,6 +6,7 @@ import 'package:busskit_salesexecutive/ui/components/diloags/Invoice_dialogue/de
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/csord_model/customers_orders_model.dart';
@@ -189,10 +190,13 @@ Widget customerOrderDialogueMainDash({
               ),
               TableViewCell(
                 child: Center(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Color(0xffffdbb8),
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                  child: Builder(builder: (context) {
+                    final orderStatusEnum =
+                        OrderHandlingClass.fromType(order.orderStatus);
+                    return Container(
+                    decoration: BoxDecoration(
+                      color: orderStatusEnum.statusBgColor,
+                      borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -202,8 +206,9 @@ Widget customerOrderDialogueMainDash({
                         children: [
                           Text(
                             getStatusName(order.orderStatus).tr,
-                            style: const TextStyle(
-                                fontSize: 14.0, fontWeight: FontWeight.w400),
+                            style: TextStyle(
+                                fontSize: 14.0, fontWeight: FontWeight.w400,
+                                color: orderStatusEnum.statusTextColor),
                             textAlign: TextAlign.center,
                           ),
                           if (order.orderStatus == 2 &&
@@ -223,7 +228,8 @@ Widget customerOrderDialogueMainDash({
                         ],
                       ),
                     ),
-                  ),
+                    );
+                  }),
                 ),
               ),
             ],

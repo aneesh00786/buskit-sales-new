@@ -30,7 +30,13 @@ Widget buildHeader(
     child: Container(
       width: double.infinity,
       height: headerHeight,
-      color: primaryColor,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [primaryColor, Color(0xFF2D3748)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
       child: Padding(
         padding:
             EdgeInsets.all(ResponsiveInfo.isMobileDimension(context) ? 2 : 4),
@@ -50,9 +56,10 @@ Widget buildHeader(
             ),
             Expanded(
               child: ScrollbarTheme(
-                data: const ScrollbarThemeData(
-                    radius: Radius.circular(10),
-                    thumbColor: WidgetStatePropertyAll(Colors.cyanAccent)),
+                data: ScrollbarThemeData(
+                    radius: const Radius.circular(10),
+                    thumbColor:
+                        WidgetStatePropertyAll(Colors.white.withOpacity(0.6))),
                 child: Scrollbar(
                   controller: headerScrollController,
                   thumbVisibility: true,
@@ -151,7 +158,9 @@ Widget _buildHeaderText(String text, double fontSize) {
 Widget buildOrderList(
     BuildContext context,
     PendingPaymentController orderController,
-    ScrollController orderScrollController) {
+    ScrollController orderScrollController,
+    ScrollController customerListScrollController,
+    ScrollController orderRowsScrollController) {
   double headerHeight = ResponsiveInfo.isMobileDimension(context) ? 53 : 58;
   return Align(
     alignment: FractionalOffset.topCenter,
@@ -162,7 +171,7 @@ Widget buildOrderList(
           SizedBox(
             width: 210,
             child: ListView.builder(
-              primary: false,
+              controller: customerListScrollController,
               itemCount: orderController.orderDataList.length + 1,
               itemBuilder: (context, index) {
                 if (index < orderController.orderDataList.length) {
@@ -171,7 +180,9 @@ Widget buildOrderList(
                 } else {
                   return Container(
                     height: 58,
-                    color: Colors.grey[200],
+                    color: const Color(0xFFF8FAFC),
+                    alignment: Alignment.center,
+                    child: PaginationWidget(orderController: orderController),
                   );
                 }
               },
@@ -205,7 +216,7 @@ Widget buildOrderList(
                                 : fullScreenWidth(context) * 1.2
                         : fullScreenWidth(context) * 2,
                     child: ListView.builder(
-                      primary: false,
+                      controller: orderRowsScrollController,
                       itemCount: orderController.orderDataList.length + 1,
                       itemBuilder: (context, index) {
                         if (index < orderController.orderDataList.length) {
@@ -233,7 +244,12 @@ Widget _buildCustomerDetails(
   return GestureDetector(
     onTap: () => {},
     child: Container(
-      color: index.isEven ? Colors.grey[50] : Colors.white,
+      decoration: BoxDecoration(
+        color: index.isEven ? const Color(0xFFF8FAFC) : Colors.white,
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+        ),
+      ),
       height: 80,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -241,20 +257,20 @@ Widget _buildCustomerDetails(
           const SizedBox(width: 8),
           ClipOval(
             child: Container(
-              height: 24,
-              width: 24,
-              color: Colors.grey[200],
+              height: 28,
+              width: 28,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE2E8F0),
+                border: Border.all(color: primaryColor.withOpacity(0.2)),
+              ),
               child: Image.network(
                 '${ApiConstants.baseUrl}uploads/${customerData.imageUrl}',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[200],
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.grey,
-                      size: 30,
-                    ),
+                  return const Icon(
+                    Icons.person,
+                    color: Color(0xFF94A3B8),
+                    size: 20,
                   );
                 },
               ),
@@ -269,19 +285,20 @@ Widget _buildCustomerDetails(
                 Text(
                   customerData.businessName,
                   style: const TextStyle(
-                      color: Colors.black,
+                      color: Color(0xFF0F172A),
                       fontFamily: 'Poppins_Regular',
                       fontSize: 12,
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.w700),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   customerData.fullname,
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF64748B),
                     fontFamily: 'Poppins_Regular',
-                    fontSize: 10,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -289,9 +306,10 @@ Widget _buildCustomerDetails(
                 Text(
                   customerData.email,
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF64748B),
                     fontFamily: 'Poppins_Regular',
                     fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -310,7 +328,12 @@ Widget _buildOrderRow(
   double rowHeight = 80;
 
   return Container(
-    color: index.isEven ? Colors.grey[50] : Colors.white,
+    decoration: BoxDecoration(
+      color: index.isEven ? const Color(0xFFF8FAFC) : Colors.white,
+      border: const Border(
+        bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+      ),
+    ),
     height: rowHeight,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -419,10 +442,12 @@ Widget _buildRegularText(
   return Text(
     label,
     style: TextStyle(
-      color: Colors.black,
+      color: const Color(0xFF0F172A),
       fontFamily: 'Poppins_Regular',
-      fontSize: 10,
-      fontWeight: fontWeight,
+      fontSize: 12,
+      fontWeight: fontWeight == FontWeight.normal
+          ? FontWeight.w600
+          : fontWeight,
     ),
     maxLines: maxLines,
     overflow: overflow,
@@ -430,28 +455,29 @@ Widget _buildRegularText(
 }
 
 Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
+  final orderStatus = OrderHandlingClass.fromType(customerData.orderStatus);
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: IntrinsicHeight(
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xffffdbb8),
-          borderRadius: BorderRadius.circular(15),
+          color: orderStatus.statusBgColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: orderStatus.statusDotColor.withOpacity(0.35)),
         ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                content: OrderHandlingClass.fromType(customerData.orderStatus)
-                    .name
-                    .tr,
+                content: orderStatus.name.tr,
+                color: orderStatus.statusTextColor,
                 textAlign: TextAlign.center,
                 fontSize: 10,
                 overflow: TextOverflow.ellipsis,
                 maxLine: 1,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
               if (customerData.orderStatus == 2 &&
                   customerData.deliveryDate != null) ...[
@@ -503,10 +529,21 @@ Widget _buildPaymentCollectionButton(
           },
           child: IntrinsicHeight(
             child: Container(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xff5bc0de),
-                borderRadius: BorderRadius.circular(5),
+                gradient: const LinearGradient(
+                  colors: [primaryColor, Color(0xFF2D3748)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
@@ -516,7 +553,7 @@ Widget _buildPaymentCollectionButton(
                     fontSize: 10,
                     color: Colors.white,
                     fontFamily: 'Poppins_Regular',
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -527,21 +564,20 @@ Widget _buildPaymentCollectionButton(
         if ((customerData.hasActiveLink ?? 0) != 0) ...[
           const SizedBox(height: 4),
           Container(
-            // color: Colors.green,
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
             decoration: BoxDecoration(
-              color: Colors.green,
-              borderRadius: BorderRadius.circular(3),
+              color: const Color(0xFF16A34A).withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFF16A34A).withOpacity(0.35)),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: const Text(
-                'Payment Link Sent',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 9,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+            child: const Text(
+              'Payment Link Sent',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 9,
+                color: Color(0xFF16A34A),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -565,8 +601,10 @@ Widget _buildInvoiceNumber(CustomerData customerData, BuildContext context) {
       style: TextStyle(
         color: primaryColor,
         fontFamily: 'Poppins_Regular',
-        fontWeight: FontWeight.w600,
-        fontSize: 10,
+        fontWeight: FontWeight.w700,
+        fontSize: 11.5,
+        decoration: TextDecoration.underline,
+        decorationColor: primaryColor.withOpacity(0.4),
       ),
       maxLines: 1,
     ),
@@ -577,15 +615,16 @@ Widget _buildPageChanger(
     BuildContext context, PendingPaymentController totalValuesController) {
   return Container(
     height: 58,
-    color: Colors.grey[200],
+    decoration: const BoxDecoration(
+      color: Color(0xFFF8FAFC),
+      border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 0.6)),
+    ),
     child: Padding(
       padding: EdgeInsets.only(
           top: 10, bottom: 10, right: MediaQuery.of(context).size.width * 0.39),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (totalValuesController.orderDataList.length > 10)
-            PaginationWidget(),
           const Spacer(),
           if (totalValuesController.selectedTabIndex.value == 0)
             Text(
@@ -593,7 +632,8 @@ Widget _buildPageChanger(
               style: const TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
               ),
             )
           else if (totalValuesController.selectedTabIndex.value == 1)
@@ -602,7 +642,8 @@ Widget _buildPageChanger(
               style: const TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
               ),
             )
           else if (totalValuesController.selectedTabIndex.value == 2)
@@ -611,7 +652,8 @@ Widget _buildPageChanger(
               style: const TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
               ),
             )
           else if (totalValuesController.selectedTabIndex.value == 3)
@@ -620,7 +662,8 @@ Widget _buildPageChanger(
               style: const TextStyle(
                 fontFamily: 'Poppins_Regular',
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
               ),
             )
         ],

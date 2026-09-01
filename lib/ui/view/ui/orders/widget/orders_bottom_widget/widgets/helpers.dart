@@ -324,32 +324,12 @@ Widget paymentStatus(OrderData orderData) {
 }
 
 Widget orderStatus(OrderData orderData) {
-  Color statusColor;
-  switch (orderData.orderStatus) {
-    case 11:
-      statusColor = const Color.fromARGB(255, 225, 250, 191);
-      break;
-    case 12:
-      statusColor = const Color.fromARGB(255, 255, 222, 168);
-      break;
-    case 14:
-      statusColor = const Color.fromARGB(255, 190, 253, 247);
-      break;
-    case 5:
-      statusColor = const Color.fromARGB(255, 190, 253, 247);
-      break;
-    case 1:
-      statusColor = const Color.fromARGB(255, 245, 195, 254);
-      break;
-    case 2:
-      statusColor = const Color.fromARGB(255, 222, 199, 246);
-      break;
-    case 13:
-      statusColor = const Color.fromARGB(255, 246, 199, 199);
-      break;
-    default:
-      statusColor = Colors.grey;
-  }
+  final bool hasStatus = orderData.orderStatus != null;
+  final status = OrderHandlingClass.fromType(orderData.orderStatus ?? 0);
+  final Color statusColor = hasStatus ? status.statusBgColor : Colors.grey;
+  final Color statusTextColor =
+      hasStatus ? status.statusTextColor : Colors.black;
+  final String statusLabel = hasStatus ? status.name.tr : 'Unknown';
 
   return orderData.orderStatus == 14
       ? Center(
@@ -368,11 +348,8 @@ Widget orderStatus(OrderData orderData) {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CustomText(
-                        content: orderData.orderStatus != null
-                            ? OrderHandlingClass.fromType(
-                                    orderData.orderStatus!)
-                                .name.tr
-                            : 'Unknown',
+                        content: statusLabel,
+                        color: statusTextColor,
                         fontSize: 11.0,
                         fontWeight: FontWeight.w600,
                       ),
@@ -410,18 +387,13 @@ Widget orderStatus(OrderData orderData) {
               child: Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: orderData.orderStatus != null
-                      ? statusColor
-                      : Colors.grey,
+                  color: statusColor,
                   borderRadius: const BorderRadius.all(Radius.circular(15.0)),
                 ),
                 child: Center(
                   child: CustomText(
-                    content: orderData.orderStatus != null
-                        ? OrderHandlingClass.fromType(
-                                orderData.orderStatus!)
-                            .name.tr
-                        : 'Unknown',
+                    content: statusLabel,
+                    color: statusTextColor,
                     fontSize: 11,
                     textAlign: TextAlign.center,
                     fontWeight: FontWeight.w600,

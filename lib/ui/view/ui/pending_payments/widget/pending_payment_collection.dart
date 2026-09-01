@@ -10,6 +10,7 @@ import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/order_controller.dart';
@@ -131,10 +132,10 @@ void showOfflineInfoDialog(BuildContext context, String orderId) {
                   horizontalMargin: 16,
                   columnSpacing: 32,
                   headingRowColor:
-                      MaterialStateProperty.all(Colors.grey.shade100),
-                  border: TableBorder(
-                    horizontalInside: BorderSide(color: Colors.grey.shade300),
-                    bottom: BorderSide(color: Colors.grey.shade300),
+                      MaterialStateProperty.all(const Color(0xFFF8FAFC)),
+                  border: const TableBorder(
+                    horizontalInside: BorderSide(color: Color(0xFFE2E8F0)),
+                    bottom: BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   columns: const [
                     DataColumn(
@@ -313,7 +314,7 @@ void pendingPaymentCollectionDialog(
   // We do this regardless of online/offline status because the controller
   // determines the source (API or Hive).
   Get.dialog(
-    const Center(child: CircularProgressIndicator()),
+    const Center(child: CircularProgressIndicator(color: primaryColor)),
     barrierDismissible: false,
   );
 
@@ -634,7 +635,7 @@ void pendingPaymentCollectionDialog(
       return Dialog(
         insetPadding:
             const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: SizedBox(
           width: double.infinity,
           child: SingleChildScrollView(
@@ -643,22 +644,41 @@ void pendingPaymentCollectionDialog(
               children: [
                 // Header
                 Container(
-                  height: 45,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [primaryColor, Color(0xFF2D3748)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Payment'.tr,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600)),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.payments_outlined,
+                                color: Colors.white, size: 18),
+                          ),
+                          const SizedBox(width: 10),
+                          Text('Payment'.tr,
+                              style: const TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700)),
+                        ],
+                      ),
                       dialogCloseButton1(context, red),
                     ],
                   ),
@@ -673,7 +693,9 @@ void pendingPaymentCollectionDialog(
                           columnSpacing: 15.0,
                           dataRowHeight: 30,
                           headingRowHeight: 40,
-                          border: TableBorder.all(color: Colors.grey.shade300),
+                          border: TableBorder.all(color: const Color(0xFFE2E8F0)),
+                          headingRowColor:
+                              const WidgetStatePropertyAll(Color(0xFFF8FAFC)),
                           columns: [
                             DataColumn(
                                 label: DialogTableHeaderText(
@@ -723,6 +745,12 @@ void pendingPaymentCollectionDialog(
                                             // Optional: Add a specific format here if needed, like format: 'dd-MM-yyyy'
                                             )
                                         : 'N/A',
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF0F172A),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -764,29 +792,33 @@ void pendingPaymentCollectionDialog(
                                       style: const TextStyle(
                                         color: primaryColor,
                                         fontFamily: 'Poppins_Regular',
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 11.5,
                                       ),
                                       maxLines: 1,
                                     ),
                                     if ((payment.hasActiveLink ?? 0) != 0) ...[
                                       const SizedBox(height: 2),
                                       Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4, vertical: 1.5),
                                         decoration: BoxDecoration(
-                                          color: Colors.green,
+                                          color: const Color(0xFF16A34A)
+                                              .withOpacity(0.12),
                                           borderRadius:
-                                              BorderRadius.circular(3),
+                                              BorderRadius.circular(6),
+                                          border: Border.all(
+                                              color: const Color(0xFF16A34A)
+                                                  .withOpacity(0.35)),
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(1.0),
-                                          child: const Text(
-                                            'Payment Link Sent',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 8,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w700,
-                                            ),
+                                        child: const Text(
+                                          'Payment Link Sent',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins_Regular',
+                                            fontSize: 8,
+                                            color: Color(0xFF16A34A),
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                       ),
@@ -797,21 +829,39 @@ void pendingPaymentCollectionDialog(
 
                               DataCell(Center(
                                   child: Text(formatAmount(payment.orderTotal),
-                                      maxLines: 1))),
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF0F172A),
+                                      )))),
                               DataCell(Center(
-                                  child: Container(
-                                decoration: const BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4.0))),
-                                child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: Text(
-                                        getStatusName(payment.orderStatus).tr,
-                                        style: const TextStyle(
-                                            color: Colors.white))),
-                              ))),
+                                  child: Builder(builder: (context) {
+                                final orderStatus = OrderHandlingClass
+                                    .fromType(payment.orderStatus);
+                                return Container(
+                                  decoration: BoxDecoration(
+                                      color: orderStatus.statusBgColor,
+                                      borderRadius:
+                                          BorderRadius.circular(12),
+                                      border: Border.all(
+                                          color: orderStatus.statusDotColor
+                                              .withOpacity(0.35))),
+                                  child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      child: Text(
+                                          getStatusName(payment.orderStatus)
+                                              .tr,
+                                          style: TextStyle(
+                                              fontFamily: 'Poppins_Regular',
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color:
+                                                  orderStatus.statusTextColor))),
+                                );
+                              }))),
                               // Payment Status / Info Icon
                               DataCell(Center(
                                 child: isOfflinePending
@@ -821,7 +871,7 @@ void pendingPaymentCollectionDialog(
                                               payment.orderId.toString());
                                         },
                                         child: const Icon(Icons.info,
-                                            color: Colors.blue, size: 20),
+                                            color: primaryColor, size: 20),
                                       )
                                     : Container(
                                         decoration: BoxDecoration(
@@ -876,115 +926,153 @@ void pendingPaymentCollectionDialog(
                         )),
                   ),
                 ),
-                // const SizedBox(height: 10),
-                // Payment Input Table
+                // Payment Input Section
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    // padding: const EdgeInsets.all(8.0),
-                    child: DataTable(
-                      columnSpacing: 15.0,
-                      columns: [
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Payment Method'.tr,
-                                fontSize: 11,
-                                align: TextAlign.start)),
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Balance Amount'.tr,
-                                fontSize: 11,
-                                align: TextAlign.start)),
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Received Amount'.tr,
-                                fontSize: 11,
-                                align: TextAlign.start)),
-                        DataColumn(
-                            label: DialogTableHeaderText(
-                                text: 'Remarks'.tr,
-                                fontSize: 11,
-                                align: TextAlign.start)),
-                        DataColumn(label: Text('')),
-                      ],
-                      rows: [
-                        DataRow(cells: [
-                          // Dropdown
-                          DataCell(DropdownButtonFormField<String>(
-                            value: selectedPaymentMethod.value,
-                            items: [
-                              'Cash',
-                              'Cheque',
-                              'Bank Transfer',
-                              'QR Payment',
-                              'Payment Link'
-                            ]
-                                .map((e) => DropdownMenuItem(
-                                    value: e, child: Text(e.tr)))
-                                .toList(),
-                            onChanged: (val) {
-                              if (val != null)
-                                selectedPaymentMethod.value = val;
-                            },
-                          )),
-                          // Balance
-                          DataCell(Row(children: [
-                            Text(addCurrencySymbol()),
-                            const SizedBox(width: 5),
-                            Expanded(
-                                child: TextField(
-                                    readOnly: true,
-                                    controller: balanceAmountController,
-                                    decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0)),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 8.0))))
-                          ])),
-                          // Received
-                          DataCell(Row(children: [
-                            Text(addCurrencySymbol()),
-                            const SizedBox(width: 5),
-                            Expanded(
-                                child: TextField(
-                                    controller: receivedAmountController,
-                                    decoration: InputDecoration(
-                                        hintText: 'Enter Amount'.tr,
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        border: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.grey.shade300),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0)),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 8.0))))
-                          ])),
-                          // Remarks
-                          DataCell(TextField(
-                              controller: remarksController,
-                              decoration: InputDecoration(
-                                  hintText: 'Remarks'.tr,
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade300),
-                                      borderRadius:
-                                          BorderRadius.circular(10.0)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0)))),
-                          // Submit Button
-                          DataCell(Center(
-                              child: ElevatedButton(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Builder(builder: (context) {
+                    TextStyle fieldLabelStyle() => const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B),
+                        );
+                    InputDecoration fieldDecoration({String? hintText}) =>
+                        InputDecoration(
+                          hintText: hintText,
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Color(0xFFE2E8F0)),
+                              borderRadius: BorderRadius.circular(10.0)),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Color(0xFFE2E8F0)),
+                              borderRadius: BorderRadius.circular(10.0)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: primaryColor, width: 1.5),
+                              borderRadius: BorderRadius.circular(10.0)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 12.0),
+                        );
+                    const inputTextStyle = TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F172A),
+                    );
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(14),
+                        border:
+                            Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 14,
+                            runSpacing: 14,
+                            children: [
+                              SizedBox(
+                                width: 220,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Payment Method'.tr,
+                                        style: fieldLabelStyle()),
+                                    const SizedBox(height: 6),
+                                    DropdownButtonFormField<String>(
+                                      value: selectedPaymentMethod.value,
+                                      style: inputTextStyle,
+                                      decoration: fieldDecoration(),
+                                      items: [
+                                        'Cash',
+                                        'Cheque',
+                                        'Bank Transfer',
+                                        'QR Payment',
+                                        'Payment Link'
+                                      ]
+                                          .map((e) => DropdownMenuItem(
+                                              value: e, child: Text(e.tr)))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          selectedPaymentMethod.value = val;
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 180,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Balance Amount'.tr,
+                                        style: fieldLabelStyle()),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                      readOnly: true,
+                                      controller: balanceAmountController,
+                                      style: inputTextStyle,
+                                      decoration: fieldDecoration()
+                                          .copyWith(
+                                              prefixText:
+                                                  '${addCurrencySymbol()} '),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 180,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Received Amount'.tr,
+                                        style: fieldLabelStyle()),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                      controller: receivedAmountController,
+                                      style: inputTextStyle,
+                                      decoration: fieldDecoration(
+                                              hintText: 'Enter Amount'.tr)
+                                          .copyWith(
+                                              prefixText:
+                                                  '${addCurrencySymbol()} '),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Remarks'.tr, style: fieldLabelStyle()),
+                              const SizedBox(height: 6),
+                              TextField(
+                                controller: remarksController,
+                                style: inputTextStyle,
+                                decoration:
+                                    fieldDecoration(hintText: 'Remarks'.tr),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: ElevatedButton(
                             onPressed: () async {
                               // Validation
                               double enteredAmount = double.tryParse(
@@ -1109,21 +1197,25 @@ void pendingPaymentCollectionDialog(
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: primaryButtonColor,
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
+                                  borderRadius: BorderRadius.circular(20.0)),
                             ),
                             child: Obx(() => Text(
                                   selectedPaymentMethod.value == 'QR Payment'
                                       ? 'Pay'.tr
                                       : 'Submit'.tr,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white),
                                 )),
-                          ))),
-                        ]),
-                      ],
-                    ),
-                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -1216,7 +1308,11 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF335098),
+                    gradient: LinearGradient(
+                      colors: [primaryColor, Color(0xFF2D3748)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12)),
@@ -1227,9 +1323,10 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                       const Text(
                         "Share Payment Link",
                         style: TextStyle(
+                            fontFamily: 'Poppins_Regular',
                             color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700),
                       ),
                       InkWell(
                         onTap: () => Navigator.pop(context),
@@ -1248,7 +1345,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -1256,7 +1353,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                           children: [
                             Checkbox(
                               value: isEmailSelected,
-                              activeColor: const Color(0xFF335098),
+                              activeColor: primaryColor,
                               side: BorderSide(
                                   color: Colors.grey.shade400, width: 1.5),
                               shape: RoundedRectangleBorder(
@@ -1290,13 +1387,18 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300)),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFFE2E8F0))),
                                       enabledBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300)),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFFE2E8F0))),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: const BorderSide(
+                                              color: primaryColor, width: 1.5)),
                                     ),
                                   ),
                                 ],
@@ -1310,7 +1412,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -1318,7 +1420,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                           children: [
                             Checkbox(
                               value: isMobileSelected,
-                              activeColor: const Color(0xFF335098),
+                              activeColor: primaryColor,
                               side: BorderSide(
                                   color: Colors.grey.shade400, width: 1.5),
                               shape: RoundedRectangleBorder(
@@ -1352,13 +1454,18 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300)),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFFE2E8F0))),
                                       enabledBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300)),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFFE2E8F0))),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: const BorderSide(
+                                              color: primaryColor, width: 1.5)),
                                     ),
                                   ),
                                 ],
@@ -1373,7 +1480,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -1381,8 +1488,8 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                           children: [
                             Checkbox(
                               value: isWhatsappSelected,
-                              activeColor: const Color(
-                                  0xFF335098), // Or a green color like Color(0xFF25D366) if you want it to look like WhatsApp!
+                              activeColor:
+                                  primaryColor, // Or a green color like Color(0xFF25D366) if you want it to look like WhatsApp!
                               side: BorderSide(
                                   color: Colors.grey.shade400, width: 1.5),
                               shape: RoundedRectangleBorder(
@@ -1416,13 +1523,18 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                                       border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300)),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFFE2E8F0))),
                                       enabledBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(6),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade300)),
+                                          borderSide: const BorderSide(
+                                              color: Color(0xFFE2E8F0))),
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          borderSide: const BorderSide(
+                                              color: primaryColor, width: 1.5)),
                                     ),
                                   ),
                                 ],
@@ -1439,9 +1551,9 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
                         height: 48,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF335098),
+                            backgroundColor: primaryButtonColor,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
+                                borderRadius: BorderRadius.circular(20)),
                             elevation: 0,
                           ),
                           onPressed: isSending
@@ -1742,7 +1854,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
 //                           children: [
 //                             Checkbox(
 //                               value: isEmailSelected,
-//                               activeColor: const Color(0xFF335098),
+//                               activeColor: primaryColor,
 //                               side: BorderSide(
 //                                   color: Colors.grey.shade400, width: 1.5),
 //                               shape: RoundedRectangleBorder(
@@ -1804,7 +1916,7 @@ void _showSharePaymentLinkDialog(BuildContext context, String url, String email,
 //                           children: [
 //                             Checkbox(
 //                               value: isMobileSelected,
-//                               activeColor: const Color(0xFF335098),
+//                               activeColor: primaryColor,
 //                               side: BorderSide(
 //                                   color: Colors.grey.shade400, width: 1.5),
 //                               shape: RoundedRectangleBorder(

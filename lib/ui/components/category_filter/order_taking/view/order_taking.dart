@@ -879,12 +879,12 @@ class _OrderTakingState extends State<OrderTaking>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomSearchBar(
-                                      text: "Search customer...".tr,
+                                      text: "Customer".tr,
                                       controller: customerSearchController,
                                       onChange: (value) {
                                         filterCustomers(value);
                                       },
-                                      icon: EneftyIcons.profile_outline,
+                                      icon: Icons.search,
                                     ),
                                     if (customerSearchController.text.isNotEmpty)
                                       isLoading
@@ -1365,12 +1365,12 @@ class _OrderTakingState extends State<OrderTaking>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CustomSearchBar(
-                                text: "Search customer...".tr,
+                                text: "Customer".tr,
                                 controller: customerSearchController,
                                 onChange: (value) {
                                   filterCustomers(value);
                                 },
-                                icon: EneftyIcons.profile_outline,
+                                icon: Icons.search,
                               ),
                               Expanded(
                                 child: isLoading

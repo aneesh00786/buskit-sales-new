@@ -57,11 +57,11 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       // Update reactive query
       widget.orderController.searchQuery.value = query;
 
-  // Trigger search IMMEDIATELY — no delay, no debounce
-  _triggerSearch(); 
-});
-  
+      // Trigger search IMMEDIATELY — no delay, no debounce
+      _triggerSearch();
+    });
   }
+
   void _triggerSearch() {
     final hasOffline = widget.orderController.hasOfflineOrders.value;
     final index = _selectedTabIndex;
@@ -143,11 +143,11 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
           return notificationController.recentOrderCountData.mainNotification
                   ?.packedAndReadyForDelivery ??
               0.toInt();
-       case 6:
-        return notificationController.recentOrderCountData.mainNotification
-                  ?.delivered ??
+        case 6:
+          return notificationController
+                  .recentOrderCountData.mainNotification?.delivered ??
               0.toInt();
-          
+
         case 7:
           return 0;
         default:
@@ -177,8 +177,8 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                   ?.packedAndReadyForDelivery ??
               0.toInt();
         case 5:
-          return notificationController.recentOrderCountData.mainNotification
-                  ?.delivered ??
+          return notificationController
+                  .recentOrderCountData.mainNotification?.delivered ??
               0.toInt();
         case 6:
           return 0;
@@ -390,7 +390,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                       left: 16, right: 16, top: 8, bottom: 0),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? Colors.cyan
+                                        ? primaryColor
                                         : Colors.transparent,
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(10),
@@ -406,9 +406,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                         style: TextStyle(
                                           color: isSelected
                                               ? Colors.white
-                                              : Colors.blue,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
+                                              : primaryColor,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12.5,
                                           fontFamily: 'Poppins_Regular',
                                         ),
                                       ),
@@ -463,7 +463,7 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                       left: 16, right: 16, top: 8, bottom: 0),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? Colors.cyan
+                                        ? primaryColor
                                         : Colors.transparent,
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(10),
@@ -479,9 +479,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                                         style: TextStyle(
                                           color: isSelected
                                               ? Colors.white
-                                              : Colors.blue,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
+                                              : primaryColor,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12.5,
                                           fontFamily: 'Poppins_Regular',
                                         ),
                                       ),
@@ -521,26 +521,34 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
             padding: const EdgeInsets.fromLTRB(5, 8, 400, 8),
             child: TextField(
               controller: _searchController,
+              style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                color: Color(0xFF0F172A),
+              ),
               decoration: InputDecoration(
                 // hintText: "Search in ${tabs[_selectedTabIndex]}...",
-                hintText: 'Search Order Id / Invoice No.'.tr,
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                hintText: 'Order Id / Invoice No.'.tr,
+                hintStyle: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  color: Color(0xFF94A3B8),
+                ),
+                prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
 
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: const Color(0xFFF8FAFC),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.blue, width: 2),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                 ),
 
                 // Focused state border
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.blue, width: 2.5),
+                  borderSide: const BorderSide(color: primaryColor, width: 1.5),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),

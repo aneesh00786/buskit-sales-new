@@ -11,7 +11,6 @@ class OrdersBottomList extends StatelessWidget {
     required this.widget,
     required this.tabIndex,
     required this.orderList,
-
   }) : _scrollController2 = scrollController2;
 
   final ScrollController _scrollController2;
@@ -31,10 +30,15 @@ class OrdersBottomList extends StatelessWidget {
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
           // OrderData orderData = widget.orderController.orderDataList[index];
-            OrderData orderData = orderList[index];
+          OrderData orderData = orderList[index];
           if (orderData.cart == null) {
             return Container(
-              color: index.isEven ? Colors.white : Colors.grey[50],
+              decoration: BoxDecoration(
+                color: index.isEven ? Colors.white : const Color(0xFFF8FAFC),
+                border: const Border(
+                  bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+                ),
+              ),
               height:
                   (MediaQuery.of(context).orientation == Orientation.portrait)
                       ? (fullScreenHeight(context) - 250) / 10
@@ -53,7 +57,12 @@ class OrdersBottomList extends StatelessWidget {
             );
           }
           return Container(
-            color: index.isEven ? Colors.white : Colors.grey[50],
+            decoration: BoxDecoration(
+              color: index.isEven ? Colors.white : const Color(0xFFF8FAFC),
+              border: const Border(
+                bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+              ),
+            ),
             height: (MediaQuery.of(context).orientation == Orientation.portrait)
                 ? (fullScreenHeight(context) - 250) / 10
                 : 70,

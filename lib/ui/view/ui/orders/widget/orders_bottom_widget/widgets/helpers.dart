@@ -80,8 +80,7 @@ Widget customerDetailsWidget(CustomerDetails orderData) {
   );
 }
 
-Widget orderNumberWidget(
-    OrderData orderDetailsData, int selectedTabIndex) {
+Widget orderNumberWidget(OrderData orderDetailsData, int selectedTabIndex) {
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +109,9 @@ Widget orderNumberWidget(
     ),
   );
 }
-Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
+
+Widget orderCreatedDateWidget(
+    OrderData orderDetailsData, int selectedTabIndex) {
   // 1. Determine which date string to use based on the tab index
   String? rawDateString;
 
@@ -139,11 +140,11 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
 
   // 4. Format the Date and Time strings
   final String dateString = parsedDate != null
-      ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
+      ? NKDateUtils.commonDayFormat2(parsedDate.toLocal())
       : 'N/A';
 
   final String timeString = parsedDate != null
-      ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
+      ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a')
       : 'N/A';
 
   return Center(
@@ -187,18 +188,18 @@ Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) 
 // Widget orderCreatedDateWidget(OrderData orderDetailsData, int selectedTabIndex) {
 //   // 1. Safely parse the date string once at the top
 //   final bool hasDate = orderDetailsData.generatedDate != null && orderDetailsData.generatedDate!.isNotEmpty;
-  
+
 //   // Assuming generatedDate is a String since it was passed to formatStringUTCDateTime
 //   final DateTime? parsedDate = hasDate ? DateTime.tryParse(orderDetailsData.generatedDate!) : null;
 
 //   // 2. Prepare the Date string (Keeping your old NKDateUtils logic as requested)
-//   final String dateString = parsedDate != null 
-//       ? NKDateUtils.commonDayFormat2(parsedDate.toLocal()) 
+//   final String dateString = parsedDate != null
+//       ? NKDateUtils.commonDayFormat2(parsedDate.toLocal())
 //       : 'N/A';
 
 //   // 3. Prepare the Time string (Using your NEW TimeUtils logic for time only)
-//   final String timeString = parsedDate != null 
-//       ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a') 
+//   final String timeString = parsedDate != null
+//       ? TimeUtils.formatTimeInZone(parsedDate, format: 'hh:mm a')
 //       : 'N/A';
 
 //   return Center(
@@ -243,15 +244,15 @@ Widget orderCreatedByWidget(OrderData orderData) {
   // 1. Check if the order came from the web store
   if (orderData.orderSource == 'web_store') {
     displayLabel = 'Web Store';
-  } 
+  }
   // 2. Otherwise, format the user's name
   else {
     final String firstName = orderData.fullname ?? '';
     final String lastName = orderData.lastname ?? '';
-    
+
     // .trim() removes any extra spaces if one of the names is missing
     displayLabel = '$firstName $lastName'.trim();
-    
+
     // Fallback just in case the name is completely empty
     if (displayLabel.isEmpty) {
       displayLabel = 'N/A';
@@ -288,36 +289,55 @@ Widget orderPrice(OrderData orderDetailsData) {
       fontWeight: FontWeight.w600,
       fontSize: 11,
       maxlines: 1,
+      color: const Color(0xFF0F172A),
     ),
   );
 }
 
+// NOTE: paymentStatus's integer codes (0/1/3) are a distinct concept from
+// OrderStatus's type codes (0=Booking, 1=Out for Delivery, 3=Cancelled, ...)
+// — mapping them onto OrderHandlingClass.fromType() would show the wrong
+// semantics (e.g. a paid order tagged "Out for Delivery" purple). So this
+// keeps its own color-per-case switch, just repainted with the same soft
+// rounded-pill chrome (and the same design-token color pairs) used by
+// orderStatus() below instead of a saturated CircleAvatar.
 Widget paymentStatus(OrderData orderData) {
-  Color statusColor;
+  Color bgColor;
+  Color iconColor;
   switch (orderData.paymentStatus) {
     case 0:
-      statusColor = Colors.red;
+      bgColor = const Color(0xFFFEE2E2);
+      iconColor = const Color(0xFFDC2626);
       break;
     case 1:
-      statusColor = Colors.green;
+      bgColor = const Color(0xFFDCFCE7);
+      iconColor = const Color(0xFF059669);
       break;
     case 3:
-      statusColor = Colors.orange;
+      bgColor = const Color(0xFFFEF3C7);
+      iconColor = const Color(0xFFD97706);
       break;
     default:
-      statusColor = Colors.grey;
+      bgColor = const Color(0xFFF1F5F9);
+      iconColor = const Color(0xFF475569);
   }
 
   return Center(
-    child: CircleAvatar(
-      backgroundColor: statusColor,
-      radius: 12,
-      child: Icon(
-        orderData.paymentStatus == 0
-            ? Icons.close
-            : Icons.check,
-        size: 20,
-        color: white,
+    child: Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: IntrinsicHeight(
+        child: Container(
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+          ),
+          child: Icon(
+            orderData.paymentStatus == 0 ? Icons.close : Icons.check,
+            size: 18,
+            color: iconColor,
+          ),
+        ),
       ),
     ),
   );
@@ -360,7 +380,7 @@ Widget orderStatus(OrderData orderData) {
                             Expanded(
                               child: Container(
                                   color: Colors.blue,
-                                  child:  Center(
+                                  child: Center(
                                     child: Text(
                                       'Quick Sale'.tr,
                                       style: TextStyle(
@@ -404,11 +424,13 @@ Widget orderStatus(OrderData orderData) {
           ),
         );
 }
-Widget viewOrder(OrderController orderController, OrderData orderData, BuildContext context) {
+
+Widget viewOrder(OrderController orderController, OrderData orderData,
+    BuildContext context) {
   int selectedTabIndex = orderController.hasOfflineOrders.value
       ? orderController.selectedTabIndex.value - 1
       : orderController.selectedTabIndex.value;
-      
+
   return Center(
     child: IconButton(
       onPressed: () async {
@@ -420,14 +442,14 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
             await orderController.loadSpecificOrderInvoiceData(
               orderId: orderData.orderId!,
             );
-            
+
             Get.back(); // Dismiss loading/dialog if applicable
 
             if (orderController.fetchSpecificOrderData != null) {
               Get.dialog(
                 OrderProcessInvoiceDialog(
                   // Pass data to specificData argument
-                  specificData: orderController.fetchSpecificOrderData, 
+                  specificData: orderController.fetchSpecificOrderData,
                   selectedTabIndex: selectedTabIndex,
                   orderController: orderController,
                 ),
@@ -440,18 +462,20 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
             Get.back();
             Get.snackbar('Error', e.toString());
           }
-        } 
-        
+        }
+
         // ---------------------------------------------------------
         // CONDITION 2: All other tabs (except 4 & 5) -> Call OLD API
         // ---------------------------------------------------------
-        else if (selectedTabIndex >= 1 && selectedTabIndex != 4 && selectedTabIndex != 5) {
+        else if (selectedTabIndex >= 1 &&
+            selectedTabIndex != 4 &&
+            selectedTabIndex != 5) {
           try {
             await orderController.loadOrderProcessInvoiceData(
               orderId: orderData.orderId!,
               orderStatus: orderData.orderStatus!,
             );
-            
+
             Get.back();
 
             // ignore: unnecessary_null_comparison
@@ -459,7 +483,7 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
               Get.dialog(
                 OrderProcessInvoiceDialog(
                   // Pass data to invoiceData argument
-                  invoiceData: orderController.orderProcessInvoiceData, 
+                  invoiceData: orderController.orderProcessInvoiceData,
                   selectedTabIndex: selectedTabIndex,
                   orderController: orderController,
                 ),
@@ -472,8 +496,8 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
             Get.back();
             // Get.snackbar('Error', e.toString());
           }
-        } 
-        
+        }
+
         // ---------------------------------------------------------
         // CONDITION 3: Tabs 4 & 5 -> Show Online Preview
         // ---------------------------------------------------------
@@ -484,7 +508,7 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
           );
         }
       },
-      icon: const Icon(Icons.visibility, size: 16),
+      icon: const Icon(Icons.visibility, size: 16, color: Color(0xFF64748B)),
     ),
   );
 }
@@ -492,7 +516,7 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
 //   int selectedTabIndex = orderController.hasOfflineOrders.value
 //       ? orderController.selectedTabIndex.value - 1
 //       : orderController.selectedTabIndex.value;
-      
+
 //   return Center(
 //     child: IconButton(
 //       onPressed: () async {
@@ -503,7 +527,7 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
 //             await orderController.loadSpecificOrderInvoiceData(
 //               orderId: orderData.orderId!,
 //             );
-            
+
 //             Get.back(); // Dismiss loading/dialog if applicable
 
 //             // 2. Check if the specific data was loaded successfully
@@ -524,7 +548,7 @@ Widget viewOrder(OrderController orderController, OrderData orderData, BuildCont
 //             Get.back();
 //             Get.snackbar('Error', e.toString());
 //           }
-//         } 
+//         }
 //         // Handle online previews
 //         else if (selectedTabIndex == 4 || selectedTabIndex == 5) {
 //           showInvoicePreviewOnline(

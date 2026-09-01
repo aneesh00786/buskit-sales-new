@@ -154,12 +154,11 @@ void showOrderStatusDialog(
                             final lower = search.toLowerCase();
                             final matchesOrderId =
                                 order.orderId.toLowerCase().contains(lower);
-                            final matchesInvoiceId =
-                                order.invoice.isNotEmpty
-                                    ? order.invoice[0].invoiceId
-                                        .toLowerCase()
-                                        .contains(lower)
-                                    : false;
+                            final matchesInvoiceId = order.invoice.isNotEmpty
+                                ? order.invoice[0].invoiceId
+                                    .toLowerCase()
+                                    .contains(lower)
+                                : false;
                             return matchesOrderId || matchesInvoiceId;
                           }).toList();
 
@@ -188,40 +187,33 @@ void showOrderStatusDialog(
                                         onChanged: (val) =>
                                             setState(() => search = val),
                                         decoration: InputDecoration(
-                                          hintText:
-                                              'Search Order ID or Invoice ID'
-                                                  .tr,
+                                          hintText: 'Order ID or Invoice ID'.tr,
                                           prefixIcon: const Icon(Icons.search,
                                               color: Colors.blue),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                             borderSide: const BorderSide(
-                                                color: Colors.blue,
-                                                width: 1.5),
+                                                color: Colors.blue, width: 1.5),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                             borderSide: const BorderSide(
-                                                color: Colors.blue,
-                                                width: 2.0),
+                                                color: Colors.blue, width: 2.0),
                                           ),
                                           filled: true,
                                           fillColor: Colors.grey[50],
                                           contentPadding:
                                               const EdgeInsets.symmetric(
-                                                  horizontal: 14,
-                                                  vertical: 12),
+                                                  horizontal: 14, vertical: 12),
                                           suffixIcon: search.isNotEmpty
                                               ? IconButton(
-                                                  icon: const Icon(
-                                                      Icons.clear,
+                                                  icon: const Icon(Icons.clear,
                                                       color: Colors.blue),
                                                   onPressed: () {
                                                     searchCtrl.clear();
-                                                    setState(
-                                                        () => search = '');
+                                                    setState(() => search = '');
                                                   },
                                                 )
                                               : null,
@@ -234,8 +226,8 @@ void showOrderStatusDialog(
                               ),
                               if (filteredOrders.isEmpty)
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 40),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 40),
                                   child: Center(
                                     child: Text(
                                       'Record Not Found'.tr,
@@ -251,10 +243,9 @@ void showOrderStatusDialog(
                                 Flexible(
                                   child: LayoutBuilder(
                                     builder: (context, constraints) {
-                                      double fontSize =
-                                          isPhonePortrait(context)
-                                              ? 12.5
-                                              : 13.0;
+                                      double fontSize = isPhonePortrait(context)
+                                          ? 12.5
+                                          : 13.0;
                                       return ScrollbarTheme(
                                         data: ScrollbarThemeData(
                                           thumbColor:
@@ -272,370 +263,239 @@ void showOrderStatusDialog(
                                                   primaryColor
                                                       .withOpacity(0.18)),
                                           radius: const Radius.circular(10),
-                                          thickness:
-                                              WidgetStateProperty.all(8),
+                                          thickness: WidgetStateProperty.all(8),
                                           minThumbLength: 60,
                                           crossAxisMargin: 2,
                                           mainAxisMargin: 2,
                                         ),
                                         child: Scrollbar(
-                                        controller: verticalScrollController,
-                                        thumbVisibility: true,
-                                        trackVisibility: true,
-                                        notificationPredicate: (notif) =>
-                                            notif.metrics.axis ==
-                                            Axis.vertical,
-                                        child: Scrollbar(
-                                          controller:
-                                              horizontalScrollController,
+                                          controller: verticalScrollController,
                                           thumbVisibility: true,
                                           trackVisibility: true,
                                           notificationPredicate: (notif) =>
                                               notif.metrics.axis ==
-                                              Axis.horizontal,
-                                          child: SingleChildScrollView(
+                                              Axis.vertical,
+                                          child: Scrollbar(
                                             controller:
-                                                verticalScrollController,
-                                            scrollDirection: Axis.vertical,
+                                                horizontalScrollController,
+                                            thumbVisibility: true,
+                                            trackVisibility: true,
+                                            notificationPredicate: (notif) =>
+                                                notif.metrics.axis ==
+                                                Axis.horizontal,
                                             child: SingleChildScrollView(
                                               controller:
-                                                  horizontalScrollController,
-                                              scrollDirection:
-                                                  Axis.horizontal,
-                                              child: ConstrainedBox(
-                                                constraints: BoxConstraints(
-                                                    minWidth:
-                                                        constraints.maxWidth),
-                                                child: DataTable(
-                                                  headingRowColor:
-                                                      WidgetStateProperty.all(
-                                                          const Color(
-                                                              0xFFF1F5F9)),
-                                                  headingTextStyle:
-                                                      _headerStyle,
-                                                  dataRowMinHeight: 58,
-                                                  dataRowMaxHeight: 82,
-                                                  columnSpacing: 14,
-                                                  horizontalMargin: 16,
-                                                  columns: [
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Customer'
-                                                                    .tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Order No.'
-                                                                    .tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Created'.tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Created By'
-                                                                    .tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Amount'.tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Invoice'.tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Payment Status'
-                                                                    .tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                    DataColumn(
-                                                        headingRowAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        label: Center(
-                                                            child: Text(
-                                                                'Status'.tr,
-                                                                style:
-                                                                    _headerStyle))),
-                                                  ],
-                                                  rows:
-                                                      filteredOrders.map((order) {
-                                                    final customer = order
-                                                            .customer
-                                                            .isNotEmpty
-                                                        ? order.customer[0]
-                                                        : null;
-                                                    return DataRow(
-                                                      cells: [
-                                                        DataCell(
-                                                          SizedBox(
-                                                            width: 210,
-                                                            child: Row(
-                                                              children: [
-                                                                ClipOval(
-                                                                  child:
-                                                                      Container(
-                                                                    height:
-                                                                        30,
-                                                                    width: 30,
-                                                                    color: Colors
-                                                                            .grey[
-                                                                        200],
+                                                  verticalScrollController,
+                                              scrollDirection: Axis.vertical,
+                                              child: SingleChildScrollView(
+                                                controller:
+                                                    horizontalScrollController,
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                      minWidth:
+                                                          constraints.maxWidth),
+                                                  child: DataTable(
+                                                    headingRowColor:
+                                                        WidgetStateProperty.all(
+                                                            const Color(
+                                                                0xFFF1F5F9)),
+                                                    headingTextStyle:
+                                                        _headerStyle,
+                                                    dataRowMinHeight: 58,
+                                                    dataRowMaxHeight: 82,
+                                                    columnSpacing: 14,
+                                                    horizontalMargin: 16,
+                                                    columns: [
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Customer'.tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Order No.'
+                                                                      .tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Created'.tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Created By'
+                                                                      .tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Amount'.tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Invoice'.tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Payment Status'
+                                                                      .tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                      DataColumn(
+                                                          headingRowAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          label: Center(
+                                                              child: Text(
+                                                                  'Status'.tr,
+                                                                  style:
+                                                                      _headerStyle))),
+                                                    ],
+                                                    rows: filteredOrders
+                                                        .map((order) {
+                                                      final customer = order
+                                                              .customer
+                                                              .isNotEmpty
+                                                          ? order.customer[0]
+                                                          : null;
+                                                      return DataRow(
+                                                        cells: [
+                                                          DataCell(
+                                                            SizedBox(
+                                                              width: 210,
+                                                              child: Row(
+                                                                children: [
+                                                                  ClipOval(
                                                                     child:
-                                                                        Image
-                                                                            .network(
-                                                                      '${ApiConstants.baseUrl1}/uploads/${customer?.imageUrl}',
-                                                                      fit: BoxFit
-                                                                          .cover,
-                                                                      errorBuilder:
-                                                                          (context,
-                                                                              error,
-                                                                              stackTrace) {
-                                                                        return Container(
-                                                                          color:
-                                                                              const Color(0xffe6ecff),
-                                                                          child:
-                                                                              const Icon(
-                                                                            Icons.person,
+                                                                        Container(
+                                                                      height:
+                                                                          30,
+                                                                      width: 30,
+                                                                      color: Colors
+                                                                              .grey[
+                                                                          200],
+                                                                      child: Image
+                                                                          .network(
+                                                                        '${ApiConstants.baseUrl1}/uploads/${customer?.imageUrl}',
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        errorBuilder: (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                          return Container(
                                                                             color:
-                                                                                Colors.blue,
-                                                                            size:
-                                                                                18,
-                                                                          ),
-                                                                        );
-                                                                      },
+                                                                                const Color(0xffe6ecff),
+                                                                            child:
+                                                                                const Icon(
+                                                                              Icons.person,
+                                                                              color: Colors.blue,
+                                                                              size: 18,
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                      ),
                                                                     ),
                                                                   ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 8),
-                                                                Expanded(
-                                                                  child:
-                                                                      Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Text(
-                                                                        customer !=
-                                                                                null
-                                                                            ? customer.businessName
-                                                                            : 'N/A',
-                                                                        style: TextStyle(
-                                                                            fontSize: fontSize,
-                                                                            fontWeight: FontWeight.bold),
-                                                                        maxLines:
-                                                                            1,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                      ),
-                                                                      Text(
-                                                                        customer !=
-                                                                                null
-                                                                            ? customer.mobileNo
-                                                                            : 'N/A',
-                                                                        style: TextStyle(
-                                                                            fontSize: fontSize - 1,
-                                                                            fontWeight: FontWeight.w400),
-                                                                        maxLines:
-                                                                            1,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                      ),
-                                                                      Text(
-                                                                        customer !=
-                                                                                null
-                                                                            ? customer.email
-                                                                            : 'N/A',
-                                                                        style: TextStyle(
-                                                                            fontSize: fontSize - 1,
-                                                                            fontWeight: FontWeight.w400),
-                                                                        maxLines:
-                                                                            1,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                      ),
-                                                                    ],
+                                                                  const SizedBox(
+                                                                      width: 8),
+                                                                  Expanded(
+                                                                    child:
+                                                                        Column(
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      children: [
+                                                                        Text(
+                                                                          customer != null
+                                                                              ? customer.businessName
+                                                                              : 'N/A',
+                                                                          style: TextStyle(
+                                                                              fontSize: fontSize,
+                                                                              fontWeight: FontWeight.bold),
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                        ),
+                                                                        Text(
+                                                                          customer != null
+                                                                              ? customer.mobileNo
+                                                                              : 'N/A',
+                                                                          style: TextStyle(
+                                                                              fontSize: fontSize - 1,
+                                                                              fontWeight: FontWeight.w400),
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                        ),
+                                                                        Text(
+                                                                          customer != null
+                                                                              ? customer.email
+                                                                              : 'N/A',
+                                                                          style: TextStyle(
+                                                                              fontSize: fontSize - 1,
+                                                                              fontWeight: FontWeight.w400),
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                        ),
+                                                                      ],
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          InkWell(
-                                                            onTap: () async {
-                                                              bool isOnline =
-                                                                  await ConnectivityService()
-                                                                      .isOnline();
-                                                              if (isOnline) {
-                                                                showDetailedOrderInvoiceDialog(
-                                                                    context,
-                                                                    order
-                                                                        .orderId,
-                                                                    false);
-                                                              } else {
-                                                                showCustomToastDisplay(
-                                                                    context,
-                                                                    "You are Offline!"
-                                                                        .tr,
-                                                                    red,
-                                                                    Icons
-                                                                        .warning);
-                                                              }
-                                                            },
-                                                            child: Text(
-                                                              order.orderId,
-                                                              style: TextStyle(
-                                                                  color:
-                                                                      primaryColor,
-                                                                  fontSize:
-                                                                      fontSize,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                TimeUtils
-                                                                    .formatTimeInZone(
-                                                                  order.generatedAt ??
-                                                                      DateTime
-                                                                          .now(),
-                                                                  format:
-                                                                      'dd/MM/yyyy',
-                                                                ),
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
+                                                                ],
                                                               ),
-                                                              Text(
-                                                                TimeUtils
-                                                                    .formatTimeInZone(
-                                                                  order.generatedAt ??
-                                                                      DateTime
-                                                                          .now(),
-                                                                  format:
-                                                                      'hh:mm a',
-                                                                ),
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        fontSize -
-                                                                            1,
-                                                                    color: Colors
-                                                                        .black54),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          SizedBox(
-                                                            width: 130,
-                                                            child: Text(
-                                                              '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
-                                                              style:
-                                                                  TextStyle(
-                                                                fontSize:
-                                                                    fontSize,
-                                                              ),
-                                                              maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
                                                             ),
                                                           ),
-                                                        ),
-                                                        DataCell(
-                                                          Text(
-                                                            formatAmount(order
-                                                                .orderTotal),
-                                                            maxLines: 1,
-                                                            style: TextStyle(
-                                                              fontSize:
-                                                                  fontSize,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          InkWell(
-                                                            onTap: () async {
-                                                              if (order
-                                                                  .invoice
-                                                                  .isNotEmpty) {
+                                                          DataCell(
+                                                            InkWell(
+                                                              onTap: () async {
                                                                 bool isOnline =
                                                                     await ConnectivityService()
                                                                         .isOnline();
                                                                 if (isOnline) {
-                                                                  showDialog(
-                                                                    barrierDismissible:
-                                                                        false,
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return InvoicePreview(
-                                                                          orderId:
-                                                                              order.orderId);
-                                                                    },
-                                                                  );
+                                                                  showDetailedOrderInvoiceDialog(
+                                                                      context,
+                                                                      order
+                                                                          .orderId,
+                                                                      false);
                                                                 } else {
                                                                   showCustomToastDisplay(
                                                                       context,
@@ -645,191 +505,307 @@ void showOrderStatusDialog(
                                                                       Icons
                                                                           .warning);
                                                                 }
-                                                              }
-                                                            },
-                                                            child: Text(
-                                                              order.invoice
-                                                                      .isEmpty
-                                                                  ? ''
-                                                                  : order
-                                                                      .invoice[
-                                                                          0]
-                                                                      .invoiceId,
-                                                              style: TextStyle(
-                                                                  color:
-                                                                      primaryColor,
-                                                                  fontSize:
-                                                                      fontSize,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: order
-                                                                          .paymentStatus ==
-                                                                      0
-                                                                  ? Colors.red
-                                                                  : Colors
-                                                                      .green,
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              border: Border.all(
-                                                                  color: order.paymentStatus ==
-                                                                          0
-                                                                      ? Colors
-                                                                          .red
-                                                                      : Colors
-                                                                          .green),
-                                                            ),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(
-                                                                      4.0),
-                                                              child: Icon(
-                                                                  order.paymentStatus ==
-                                                                          0
-                                                                      ? Icons
-                                                                          .close
-                                                                      : Icons
-                                                                          .done,
-                                                                  color:
-                                                                      white,
-                                                                  size: 14.0),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        DataCell(
-                                                          Container(
-                                                            clipBehavior:
-                                                                Clip.antiAlias,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: _orderStatusBadgeColor(
-                                                                  order
-                                                                      .orderStatus),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          15.0),
-                                                            ),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      vertical:
-                                                                          4.0),
-                                                              child: Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical:
-                                                                            2,
-                                                                        horizontal:
-                                                                            12.0),
-                                                                    child:
-                                                                        Text(
-                                                                      getStatusName(
-                                                                              order.orderStatus)
-                                                                          .tr,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              fontSize,
-                                                                          fontWeight:
-                                                                              FontWeight.w600,
-                                                                          color:
-                                                                              _orderStatusTextColor(order.orderStatus)),
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                      maxLines:
-                                                                          1,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                    ),
-                                                                  ),
-                                                                  if (order.orderStatus ==
-                                                                          2 &&
-                                                                      order.deliveryDate !=
-                                                                          null) ...[
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                          horizontal:
-                                                                              8.0),
-                                                                      child:
-                                                                          Text(
-                                                                        order.deliveryDate !=
-                                                                                null
-                                                                            ? TimeUtils.formatTimeInZone(
-                                                                                order.deliveryDate!,
-                                                                                format: 'dd-MM-yyyy hh:mm ',
-                                                                              )
-                                                                            : 'N/A',
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                        maxLines:
-                                                                            2,
-                                                                        style: TextStyle(
-                                                                            fontSize: fontSize - 2,
-                                                                            fontWeight: FontWeight.w400),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                  if (order
-                                                                          .orderStatus ==
-                                                                      14) ...[
-                                                                    const SizedBox(
-                                                                        height:
-                                                                            5),
-                                                                    Container(
-                                                                      padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                          horizontal:
-                                                                              8,
-                                                                          vertical:
-                                                                              2),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color:
-                                                                            Colors.blue,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                      ),
-                                                                      child:
-                                                                          Text(
-                                                                        'Quick Sale'
-                                                                            .tr,
-                                                                        style: const TextStyle(
-                                                                            color: Colors.white,
-                                                                            fontWeight: FontWeight.bold,
-                                                                            fontSize: 10),
-                                                                      ),
-                                                                    ),
-                                                                  ]
-                                                                ],
+                                                              },
+                                                              child: Text(
+                                                                order.orderId,
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        primaryColor,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  }).toList(),
+                                                          DataCell(
+                                                            Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Text(
+                                                                  TimeUtils
+                                                                      .formatTimeInZone(
+                                                                    order.generatedAt ??
+                                                                        DateTime
+                                                                            .now(),
+                                                                    format:
+                                                                        'dd/MM/yyyy',
+                                                                  ),
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          fontSize),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                                Text(
+                                                                  TimeUtils
+                                                                      .formatTimeInZone(
+                                                                    order.generatedAt ??
+                                                                        DateTime
+                                                                            .now(),
+                                                                    format:
+                                                                        'hh:mm a',
+                                                                  ),
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          fontSize -
+                                                                              1,
+                                                                      color: Colors
+                                                                          .black54),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          DataCell(
+                                                            SizedBox(
+                                                              width: 130,
+                                                              child: Text(
+                                                                '${order.fullname.nkStringCapitalizeFirstCaracter} ${order.lastname}',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      fontSize,
+                                                                ),
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          DataCell(
+                                                            Text(
+                                                              formatAmount(order
+                                                                  .orderTotal),
+                                                              maxLines: 1,
+                                                              style: TextStyle(
+                                                                fontSize:
+                                                                    fontSize,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          DataCell(
+                                                            InkWell(
+                                                              onTap: () async {
+                                                                if (order
+                                                                    .invoice
+                                                                    .isNotEmpty) {
+                                                                  bool
+                                                                      isOnline =
+                                                                      await ConnectivityService()
+                                                                          .isOnline();
+                                                                  if (isOnline) {
+                                                                    showDialog(
+                                                                      barrierDismissible:
+                                                                          false,
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (context) {
+                                                                        return InvoicePreview(
+                                                                            orderId:
+                                                                                order.orderId);
+                                                                      },
+                                                                    );
+                                                                  } else {
+                                                                    showCustomToastDisplay(
+                                                                        context,
+                                                                        "You are Offline!"
+                                                                            .tr,
+                                                                        red,
+                                                                        Icons
+                                                                            .warning);
+                                                                  }
+                                                                }
+                                                              },
+                                                              child: Text(
+                                                                order.invoice
+                                                                        .isEmpty
+                                                                    ? ''
+                                                                    : order
+                                                                        .invoice[
+                                                                            0]
+                                                                        .invoiceId,
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        primaryColor,
+                                                                    fontSize:
+                                                                        fontSize,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          DataCell(
+                                                            Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: order.paymentStatus ==
+                                                                        0
+                                                                    ? Colors.red
+                                                                    : Colors
+                                                                        .green,
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                                border: Border.all(
+                                                                    color: order.paymentStatus ==
+                                                                            0
+                                                                        ? Colors
+                                                                            .red
+                                                                        : Colors
+                                                                            .green),
+                                                              ),
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        4.0),
+                                                                child: Icon(
+                                                                    order.paymentStatus ==
+                                                                            0
+                                                                        ? Icons
+                                                                            .close
+                                                                        : Icons
+                                                                            .done,
+                                                                    color:
+                                                                        white,
+                                                                    size: 14.0),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          DataCell(
+                                                            Container(
+                                                              clipBehavior: Clip
+                                                                  .antiAlias,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: _orderStatusBadgeColor(
+                                                                    order
+                                                                        .orderStatus),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15.0),
+                                                              ),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets
+                                                                    .symmetric(
+                                                                    vertical:
+                                                                        4.0),
+                                                                child: Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                          vertical:
+                                                                              2,
+                                                                          horizontal:
+                                                                              12.0),
+                                                                      child:
+                                                                          Text(
+                                                                        getStatusName(order.orderStatus)
+                                                                            .tr,
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                fontSize,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                            color: _orderStatusTextColor(order.orderStatus)),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        maxLines:
+                                                                            1,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ),
+                                                                    if (order.orderStatus ==
+                                                                            2 &&
+                                                                        order.deliveryDate !=
+                                                                            null) ...[
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            horizontal:
+                                                                                8.0),
+                                                                        child:
+                                                                            Text(
+                                                                          order.deliveryDate != null
+                                                                              ? TimeUtils.formatTimeInZone(
+                                                                                  order.deliveryDate!,
+                                                                                  format: 'dd-MM-yyyy hh:mm ',
+                                                                                )
+                                                                              : 'N/A',
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                          maxLines:
+                                                                              2,
+                                                                          style: TextStyle(
+                                                                              fontSize: fontSize - 2,
+                                                                              fontWeight: FontWeight.w400),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                    if (order
+                                                                            .orderStatus ==
+                                                                        14) ...[
+                                                                      const SizedBox(
+                                                                          height:
+                                                                              5),
+                                                                      Container(
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            horizontal:
+                                                                                8,
+                                                                            vertical:
+                                                                                2),
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Colors.blue,
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(10),
+                                                                        ),
+                                                                        child:
+                                                                            Text(
+                                                                          'Quick Sale'
+                                                                              .tr,
+                                                                          style: const TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              fontSize: 10),
+                                                                        ),
+                                                                      ),
+                                                                    ]
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    }).toList(),
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
                                         ),
                                       );
                                     },
@@ -873,8 +849,7 @@ void showOrderStatusDialog(
                                             Text(
                                               '${'Total'.tr}: ',
                                               style: const TextStyle(
-                                                  fontFamily:
-                                                      'Poppins_Regular',
+                                                  fontFamily: 'Poppins_Regular',
                                                   fontSize: 12.5,
                                                   fontWeight: FontWeight.w700,
                                                   color: Colors.black),
@@ -882,8 +857,7 @@ void showOrderStatusDialog(
                                             Text(
                                               formatAmount(overallTotal),
                                               style: const TextStyle(
-                                                  fontFamily:
-                                                      'Poppins_Regular',
+                                                  fontFamily: 'Poppins_Regular',
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w800,
                                                   color: primaryColor),

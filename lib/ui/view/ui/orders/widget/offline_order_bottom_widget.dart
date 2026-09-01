@@ -13,6 +13,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_de
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import '../../orders/order_controller.dart';
 
 class OfflineOrderBottomWidget extends StatefulWidget {
@@ -25,29 +26,46 @@ class OfflineOrderBottomWidget extends StatefulWidget {
 }
 
 class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
-  final ScrollController _scrollController2 = ScrollController();
-  final ScrollController _scrollController1 = ScrollController();
+  // LinkedScrollControllerGroup forwards the user's drag delta to every
+  // linked controller directly, instead of reacting to a finished position
+  // change with jumpTo() — mirrors the fix applied to lead_bottom_screen.dart
+  // and sales_return.dart, keeping the frozen (Sl.No/Offline Orders) column's
+  // list in sync with the scrollable columns' list.
+  late final LinkedScrollControllerGroup _verticalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _scrollController1 = _verticalGroup.addAndGet();
+  late final ScrollController _scrollController2 = _verticalGroup.addAndGet();
+
+  // Keeps the scrollable columns' header row moving in sync with the
+  // scrollable columns' body rows underneath it — the header is drawn once
+  // as a single full-width gradient bar overlaid on top of the body (see
+  // _buildHeader/_buildBody below), instead of two separate gradient boxes
+  // side by side, which produced a visible seam.
+  late final LinkedScrollControllerGroup _horizontalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _headerHorizontalController =
+      _horizontalGroup.addAndGet();
+  late final ScrollController _bodyHorizontalController =
+      _horizontalGroup.addAndGet();
 
   @override
   void initState() {
     super.initState();
     widget.orderController.loadOfflineOrders();
-
-    _scrollController1.addListener(() {
-      if (_scrollController2.hasClients &&
-          _scrollController1.position.pixels !=
-              _scrollController2.position.pixels) {
-        _scrollController2.jumpTo(_scrollController1.position.pixels);
-      }
-    });
-    _scrollController2.addListener(() {
-      if (_scrollController1.hasClients &&
-          _scrollController2.position.pixels !=
-              _scrollController1.position.pixels) {
-        _scrollController1.jumpTo(_scrollController2.position.pixels);
-      }
-    });
   }
+
+  @override
+  void dispose() {
+    _scrollController1.dispose();
+    _scrollController2.dispose();
+    _headerHorizontalController.dispose();
+    _bodyHorizontalController.dispose();
+    super.dispose();
+  }
+
+  double _tableWidth(BuildContext context) => isTabletOrPhoneLandscape(context)
+      ? MediaQuery.of(context).size.width
+      : fullScreenWidth(context) * 2;
 
   @override
   Widget build(BuildContext context) {
@@ -60,303 +78,304 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
           return const Center(child: Text('No Offline Orders'));
         }
 
-        return Row(
+        return Stack(
+          children: [
+            _buildBody(context),
+            _buildHeader(context),
+          ],
+        );
+      },
+    );
+  }
+
+  // Single continuous gradient bar spanning the frozen (Sl.No/Offline
+  // Orders) column and the horizontally-scrollable columns, overlaid on top
+  // of the body via a Stack — avoids the visible seam that two side-by-side
+  // gradient containers produced. Mirrors order_bottom_widget.dart /
+  // lead_bottom_screen.dart's _buildHeader.
+  Widget _buildHeader(BuildContext context) {
+    const double headerHeight = 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Container(
+        width: double.infinity,
+        height: headerHeight,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
               width: 300,
-              child: Column(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    height: 50,
-                    color: primaryColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 5),
-                          Expanded(
-                            flex: 2,
-                            child: Center(
-                              child: CustomText(
-                                  content: 'Sl No.'.tr,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            flex: 8,
-                            child: Center(
-                              child: CustomText(
-                                  content: 'Offline Orders',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white),
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                        ],
-                      ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: CustomText(
+                          content: 'Sl No.'.tr,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFamily: 'Poppins_Regular'),
                     ),
                   ),
-                  ...[
-                    Expanded(
-                      child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        physics: const ClampingScrollPhysics(),
-                        controller: _scrollController1,
-                        itemCount: widget.orderController.offlineOrders.length,
-                        shrinkWrap: true,
-                        itemBuilder: (BuildContext context, int index) {
-                          final order = Map<String, dynamic>.from(widget
-                              .orderController.offlineOrders[index] as Map);
-
-                          return Container(
-                            color:
-                                index.isEven ? Colors.white : Colors.grey[50],
-                            height: (MediaQuery.of(context).orientation ==
-                                    Orientation.portrait)
-                                ? (fullScreenHeight(context) - 250) / 10
-                                : 70,
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 5),
-                                Expanded(
-                                  flex: 2,
-                                  child: Center(
-                                    child: CustomText(
-                                      content:
-                                          '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
-                                      maxLine: 1,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Expanded(
-                                  flex: 8,
-                                  child: customerDetailsWidget(order),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    flex: 8,
+                    child: Center(
+                      child: CustomText(
+                          content: 'Offline Orders'.tr,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFamily: 'Poppins_Regular'),
                     ),
-                    Container(
-                      width: 300,
-                      padding: const EdgeInsets.all(3),
-                      height: 50,
-                      color: Colors.grey[200],
-                    ),
-                  ],
+                  ),
+                  const SizedBox(width: 5),
                 ],
               ),
             ),
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                controller: _headerHorizontalController,
+                primary: false,
                 child: SizedBox(
-                  width: isTabletOrPhoneLandscape(context)
-                      ? MediaQuery.of(context).size.width
-                      : fullScreenWidth(context) * 2,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 50,
-                        color: primaryColor,
-                        child: Padding(
-                          padding: const EdgeInsets.all(0),
+                  width: _tableWidth(context),
+                  child: _buildHeaderCells(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderCells() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(width: 5),
+        _headerCell('Order NO'.tr, 4),
+        const SizedBox(width: 5),
+        _headerCell('Created'.tr, 4),
+        const SizedBox(width: 5),
+        _headerCell('Created By'.tr, 4),
+        const SizedBox(width: 5),
+        _headerCell('Order Amount'.tr, 5, textAlign: TextAlign.center),
+        const SizedBox(width: 5),
+        _headerCell('Payment Status'.tr, 4),
+        const SizedBox(width: 5),
+        _headerCell('Status'.tr, 4),
+        const SizedBox(width: 15),
+        const Expanded(flex: 2, child: SizedBox()),
+        const Expanded(flex: 2, child: SizedBox()),
+        const SizedBox(width: 5),
+      ],
+    );
+  }
+
+  Widget _headerCell(String text, int flex, {TextAlign? textAlign}) {
+    return Expanded(
+      flex: flex,
+      child: Center(
+        child: CustomText(
+          content: text,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Poppins_Regular',
+          fontSize: 12,
+          textAlign: textAlign,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    const double headerHeight = 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(top: headerHeight),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 300,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      physics: const ClampingScrollPhysics(),
+                      controller: _scrollController1,
+                      itemCount: widget.orderController.offlineOrders.length,
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int index) {
+                        final order = Map<String, dynamic>.from(
+                            widget.orderController.offlineOrders[index] as Map);
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: index.isEven
+                                ? Colors.white
+                                : const Color(0xFFF8FAFC),
+                            border: const Border(
+                              bottom: BorderSide(
+                                  color: Color(0xFFE2E8F0), width: 0.6),
+                            ),
+                          ),
+                          height: (MediaQuery.of(context).orientation ==
+                                  Orientation.portrait)
+                              ? (fullScreenHeight(context) - 250) / 10
+                              : 70,
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(width: 5),
                               Expanded(
-                                flex: 4,
-                                child: Center(
-                                  child: CustomText(
-                                      content: 'Order NO',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                flex: 4,
-                                child: Center(
-                                  child: CustomText(
-                                      content: 'Created',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                flex: 4,
-                                child: Center(
-                                  child: CustomText(
-                                      content: 'Created By',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                flex: 5,
-                                child: Center(
-                                  child: CustomText(
-                                      content: 'Order Amount',
-                                      fontWeight: FontWeight.w700,
-                                      fontFamily: 'Poppins_Regular',
-                                      fontSize: 12,
-                                      textAlign: TextAlign.center,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                flex: 4,
-                                child: Center(
-                                  child: CustomText(
-                                      content: 'Payment Status',
-                                      fontFamily: 'Poppins_Regular',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                flex: 4,
-                                child: Center(
-                                  child: CustomText(
-                                      content: 'Status',
-                                      fontFamily: 'Poppins_Regular',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              const Expanded(
                                 flex: 2,
                                 child: Center(
-                                  child: Text(
-                                    ' ',
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins_Regular',
-                                        fontStyle: FontStyle.normal,
-                                        fontSize: 12,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              // const SizedBox(width: 5),
-                              const Expanded(
-                                flex: 2,
-                                child: Center(
-                                  child: Text(
-                                    ' ',
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins_Regular',
-                                        fontStyle: FontStyle.normal,
-                                        fontSize: 12,
-                                        color: Colors.white),
+                                  child: CustomText(
+                                    content:
+                                        '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                    maxLine: 1,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF0F172A),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 5),
+                              Expanded(
+                                flex: 8,
+                                child: customerDetailsWidget(order),
+                              ),
                             ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    width: 300,
+                    padding: const EdgeInsets.all(3),
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      border: Border(
+                        top: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _bodyHorizontalController,
+                primary: false,
+                child: SizedBox(
+                  width: _tableWidth(context),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          physics: const ClampingScrollPhysics(),
+                          controller: _scrollController2,
+                          itemCount:
+                              widget.orderController.offlineOrders.length,
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            final order = Map<String, dynamic>.from(widget
+                                .orderController.offlineOrders[index] as Map);
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: index.isEven
+                                    ? Colors.white
+                                    : const Color(0xFFF8FAFC),
+                                border: const Border(
+                                  bottom: BorderSide(
+                                      color: Color(0xFFE2E8F0), width: 0.6),
+                                ),
+                              ),
+                              height: (MediaQuery.of(context).orientation ==
+                                      Orientation.portrait)
+                                  ? (fullScreenHeight(context) - 250) / 10
+                                  : 70,
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    flex: 4,
+                                    child: orderNumberWidget(order),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    flex: 4,
+                                    child: orderCreatedDateWidget(order),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    flex: 4,
+                                    child: orderCreatedByWidget(order),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    flex: 5,
+                                    child: orderPrice(order),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    flex: 4,
+                                    child: paymentStatus(order),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    flex: 4,
+                                    child: orderStatus(order),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(flex: 2, child: deleteOrder(order)),
+                                  Expanded(flex: 2, child: viewOrder(order)),
+                                  const SizedBox(width: 5),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        height: 50,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF8FAFC),
+                          border: Border(
+                            top: BorderSide(
+                                color: Color(0xFFE2E8F0), width: 0.6),
                           ),
                         ),
                       ),
-                      ...[
-                        Expanded(
-                          child: ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            physics: const ClampingScrollPhysics(),
-                            controller: _scrollController2,
-                            itemCount:
-                                widget.orderController.offlineOrders.length,
-                            shrinkWrap: true,
-                            itemBuilder: (BuildContext context, int index) {
-                              final order = Map<String, dynamic>.from(widget
-                                  .orderController.offlineOrders[index] as Map);
-                              return Container(
-                                color: index.isEven
-                                    ? Colors.white
-                                    : Colors.grey[50],
-                                height: (MediaQuery.of(context).orientation ==
-                                        Orientation.portrait)
-                                    ? (fullScreenHeight(context) - 250) / 10
-                                    : 70,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 4,
-                                      child: orderNumberWidget(order),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 4,
-                                      child: orderCreatedDateWidget(order),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 4,
-                                      child: orderCreatedByWidget(order),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 5,
-                                      child: orderPrice(order),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 4,
-                                      child: paymentStatus(order),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 4,
-                                      child: orderStatus(order),
-                                    ),
-                                    const SizedBox(width: 15),
-                                    Expanded(
-                                        flex: 2, child: deleteOrder(order)),
-                                    Expanded(flex: 2, child: viewOrder(order)),
-                                    const SizedBox(width: 5),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          height: 50,
-                          color: Colors.grey[200],
-                        ),
-                      ],
                     ],
                   ),
                 ),
               ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -501,24 +520,36 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
         fontWeight: FontWeight.w600,
         fontSize: 11,
         maxlines: 1,
+        color: const Color(0xFF0F172A),
       ),
     );
   }
 
+  // NOTE: offline orders track payment via a raw 'paid'/'not paid' string,
+  // a different concept from OrderStatus's type codes, so this keeps its own
+  // paid/not-paid check — only the chrome changes, to the same soft rounded
+  // -pill treatment (and matching color tokens) used by the online table's
+  // paymentStatus() in orders_bottom_widget/widgets/helpers.dart.
   Widget paymentStatus(Map<String, dynamic> order) {
     final paymentType = order['paymentType']?.toString() ?? '';
-    Color statusColor =
-        paymentType.toLowerCase() == 'paid' ? Colors.green : Colors.red;
-    IconData icon =
-        paymentType.toLowerCase() == 'paid' ? Icons.check : Icons.close;
+    final bool isPaid = paymentType.toLowerCase() == 'paid';
+    final Color bgColor =
+        isPaid ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2);
+    final Color iconColor =
+        isPaid ? const Color(0xFF059669) : const Color(0xFFDC2626);
+    final IconData icon = isPaid ? Icons.check : Icons.close;
     return Center(
-      child: CircleAvatar(
-        backgroundColor: statusColor,
-        radius: 12,
-        child: Icon(
-          icon,
-          size: 20,
-          color: white,
+      child: Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: IntrinsicHeight(
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+            ),
+            child: Icon(icon, size: 18, color: iconColor),
+          ),
         ),
       ),
     );
@@ -527,40 +558,14 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
   Widget orderStatus(Map<String, dynamic> order) {
     final status = order['order_status'] ?? -1;
     final bool hasStatus = status != null && status != -1;
-    final orderStatusEnum = OrderHandlingClass.fromType(hasStatus ? status as int : 0);
+    final orderStatusEnum =
+        OrderHandlingClass.fromType(hasStatus ? status as int : 0);
     final Color statusColor =
         hasStatus ? orderStatusEnum.statusBgColor : Colors.grey;
     final Color statusTextColor =
         hasStatus ? orderStatusEnum.statusTextColor : Colors.black;
     final String statusLabel = hasStatus ? orderStatusEnum.name.tr : 'Unknown';
 
-    // return Center(
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(0),
-    //     child: IntrinsicHeight(
-    //       child: Container(
-    //         clipBehavior: Clip.antiAlias,
-    //         padding: const EdgeInsets.symmetric(vertical: 5),
-    //         decoration: BoxDecoration(
-    //           color: statusColor,
-    //           borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-    //         ),
-    //         child: Center(
-    //           child: Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             children: [
-    //               CustomText(
-    //                 content: status,
-    //                 fontSize: 11.0,
-    //                 fontWeight: FontWeight.w600,
-    //               ),
-    //             ],
-    //           ),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
     return status == 14
         ? Center(
             child: Padding(
@@ -590,7 +595,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
                               Expanded(
                                 child: Container(
                                     color: Colors.blue,
-                                    child:  Center(
+                                    child: Center(
                                       child: Text(
                                         'Quick Sale'.tr,
                                         style: TextStyle(
@@ -646,7 +651,7 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
             barrierDismissible: true,
           );
         },
-        icon: const Icon(Icons.visibility, size: 16),
+        icon: const Icon(Icons.visibility, size: 16, color: Color(0xFF64748B)),
       ),
     );
   }
@@ -658,17 +663,65 @@ class _OfflineOrderBottomWidgetState extends State<OfflineOrderBottomWidget> {
           final confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title:  Text('Delete Order'.tr),
-              content:  Text(
-                  'Are you sure you want to delete this offline order?'.tr),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                'Delete Order'.tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              content: Text(
+                'Are you sure you want to delete this offline order?'.tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 13,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+              actionsPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               actions: [
                 TextButton(
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                  ),
                   onPressed: () => Navigator.of(context).pop(false),
-                  child:  Text('Cancel'.tr),
+                  child: Text(
+                    'Cancel'.tr,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFFEE2E2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                  ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child:  Text('Delete'.tr),
+                  child: Text(
+                    'Delete'.tr,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF7F1D1D),
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -55,8 +55,12 @@ class OrderPaginationWidget extends StatelessWidget {
       return Container(
         width: 280,
         decoration: BoxDecoration(
-          color: primaryColor,
-          borderRadius: BorderRadius.circular(3.0),
+          gradient: const LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20.0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -123,6 +127,7 @@ class OrderPaginationWidget extends StatelessWidget {
                                 fontSize: 13,
                                 color: isCurrent ? primaryColor : Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
                               ),
                             ),
                           ),
@@ -158,6 +163,7 @@ class OrderPaginationWidget extends StatelessWidget {
                                 fontSize: 13,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
                               ),
                             ),
                           ),
@@ -193,6 +199,7 @@ class OrderPaginationWidget extends StatelessWidget {
                                 fontSize: 13,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
                               ),
                             ),
                           ),

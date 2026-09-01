@@ -12,12 +12,13 @@ import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_wi
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/orders_bottom_widget/widgets/orders_bottom_title_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class OrderBottomWidget extends StatefulWidget {
   final OrderController orderController;
   final int selectedTabIndex;
   final bool hasOfflineOrders;
-  final List<OrderData>? overrideOrders;  // New: for search results
+  final List<OrderData>? overrideOrders; // New: for search results
   final bool isSearchMode;
   const OrderBottomWidget({
     super.key,
@@ -33,8 +34,27 @@ class OrderBottomWidget extends StatefulWidget {
 }
 
 class _OrderBottomWidgetState extends State<OrderBottomWidget> {
-  final ScrollController _scrollController2 = ScrollController();
-  final ScrollController _scrollController1 = ScrollController();
+  // LinkedScrollControllerGroup forwards the user's drag delta to every
+  // linked controller directly, instead of reacting to a finished position
+  // change with jumpTo() — mirrors the fix applied to lead_bottom_screen.dart
+  // and sales_return.dart, keeping the frozen (Sl.No/Customer) column's list
+  // in sync with the scrollable columns' list.
+  late final LinkedScrollControllerGroup _verticalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _scrollController1 = _verticalGroup.addAndGet();
+  late final ScrollController _scrollController2 = _verticalGroup.addAndGet();
+
+  // Keeps the scrollable columns' header row moving in sync with the
+  // scrollable columns' body rows underneath it — the header is drawn once
+  // as a single full-width gradient bar overlaid on top of the body (see
+  // _buildHeader/_buildBody below), instead of two separate gradient boxes
+  // side by side, which produced a visible seam.
+  late final LinkedScrollControllerGroup _horizontalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _headerHorizontalController =
+      _horizontalGroup.addAndGet();
+  late final ScrollController _bodyHorizontalController =
+      _horizontalGroup.addAndGet();
 
   NotificationController notificationController =
       Get.find<NotificationController>();
@@ -80,21 +100,6 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     _connectivityTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _checkConnectivity();
     });
-
-    _scrollController1.addListener(() {
-      if (_scrollController2.hasClients &&
-          _scrollController1.position.pixels !=
-              _scrollController2.position.pixels) {
-        _scrollController2.jumpTo(_scrollController1.position.pixels);
-      }
-    });
-    _scrollController2.addListener(() {
-      if (_scrollController1.hasClients &&
-          _scrollController2.position.pixels !=
-              _scrollController1.position.pixels) {
-        _scrollController1.jumpTo(_scrollController2.position.pixels);
-      }
-    });
   }
 
   Future<void> _checkConnectivity() async {
@@ -110,6 +115,8 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     _connectivityTimer?.cancel();
     _scrollController1.dispose();
     _scrollController2.dispose();
+    _headerHorizontalController.dispose();
+    _bodyHorizontalController.dispose();
     super.dispose();
   }
 
@@ -202,8 +209,9 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     }
   }
 
-
-
+  double _tableWidth(BuildContext context) => isTabletOrPhoneLandscape(context)
+      ? MediaQuery.of(context).size.width
+      : fullScreenWidth(context) * 2;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +229,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab == 0) {
-          return  Center(child: Text('Record Not Found'.tr));
+          return Center(child: Text('Record Not Found'.tr));
         }
 
         if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
@@ -241,168 +249,233 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
         return NkWidgetExceptionHandel(
           onRetryPressed: () => {},
           data: widget.orderController.orderDataList,
-          child: Row(
+          child: Stack(
             children: [
-              SizedBox(
-                width: 300,
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 50,
-                      color: primaryColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(width: 5),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: CustomText(
-                                    content: 'Sl No.'.tr,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              flex: 8,
-                              child: Center(
-                                child: CustomText(
-                                    content: '$option'.tr + ' ' + 'List'.tr,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // ignore: unnecessary_null_comparison
-                    if (widget.orderController.orderDataList != null) ...[
-                      Expanded(
-                        child: ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          physics: const ClampingScrollPhysics(),
-                          controller: _scrollController1,
-                          itemCount:
-                              widget.orderController.orderDataList.length,
-                          shrinkWrap: true,
-                          itemBuilder: (BuildContext context, int index) {
-                            OrderData orderData =
-                                widget.orderController.orderDataList[index];
-                            if (orderData.cart == null ||
-                                orderData.cart!.isEmpty) {
-                              return Container(
-                                color: index.isEven
-                                    ? Colors.white
-                                    : Colors.grey[50],
-                                height: (fullScreenHeight(context) - 242) / 10,
-                                child: Row(
-                                  children: [
-                                    // Expanded(
-                                    //     flex: 2, child: placeholderWidget()),
-                                    // Expanded(
-                                    //     flex: 8, child: placeholderWidget()),
-                                    Expanded(
-                                      flex: 2,
-                                      child: Center(
-                                        child: CustomText(
-                                          content:
-                                              '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
-                                          maxLine: 1,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Expanded(
-                                      flex: 8,
-                                      child: customerDetailsWidget(
-                                          orderData.customer!.first),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                            return Container(
-                              color:
-                                  index.isEven ? Colors.white : Colors.grey[50],
-                              height: (MediaQuery.of(context).orientation ==
-                                      Orientation.portrait)
-                                  ? (fullScreenHeight(context) - 250) / 10
-                                  : 70,
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 5),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Center(
-                                      child: CustomText(
-                                        content:
-                                            '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
-                                        maxLine: 1,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Expanded(
-                                    flex: 8,
-                                    child: customerDetailsWidget(
-                                        orderData.customer!.first),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Container(
-                        width: 300,
-                        padding: const EdgeInsets.all(3),
-                        height: 50,
-                        color: Colors.grey[200],
-                        child: Row(
-                          children: [
-                            OrderPaginationWidget(
-                                orderController: widget.orderController),
-                            const Spacer()
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: isTabletOrPhoneLandscape(context)
-                        ? MediaQuery.of(context).size.width
-                        : fullScreenWidth(context) * 2,
-                    child:OrdersBottomTitleRow(
-                widget: widget,
-                scrollController2: _scrollController2,
-                tabIndex: tabIndex,
-                orderList: widget.orderController.orderDataList, // Pass correct list
-              ),
-                  ),
-                ),
-              ),
+              _buildBody(context, tabIndex),
+              _buildHeader(context, tabIndex),
             ],
           ),
         );
       },
+    );
+  }
+
+  // Single continuous gradient bar spanning the frozen (Sl.No/List) column
+  // and the horizontally-scrollable columns, overlaid on top of the body via
+  // a Stack — avoids the visible seam that two side-by-side gradient
+  // containers produced. Mirrors lead_bottom_screen.dart/sales_return.dart's
+  // _buildHeader.
+  Widget _buildHeader(BuildContext context, int tabIndex) {
+    const double headerHeight = 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Container(
+        width: double.infinity,
+        height: headerHeight,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 300,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 5),
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: CustomText(
+                          content: 'Sl No.'.tr,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFamily: 'Poppins_Regular'),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    flex: 8,
+                    child: Center(
+                      child: CustomText(
+                          content: '$option'.tr + ' ' + 'List'.tr,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFamily: 'Poppins_Regular'),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _headerHorizontalController,
+                primary: false,
+                child: SizedBox(
+                  width: _tableWidth(context),
+                  child: buildOrdersHeaderCells(tabIndex),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, int tabIndex) {
+    const double headerHeight = 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(top: headerHeight),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 300,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      physics: const ClampingScrollPhysics(),
+                      controller: _scrollController1,
+                      itemCount: widget.orderController.orderDataList.length,
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int index) {
+                        OrderData orderData =
+                            widget.orderController.orderDataList[index];
+                        if (orderData.cart == null || orderData.cart!.isEmpty) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: index.isEven
+                                  ? Colors.white
+                                  : const Color(0xFFF8FAFC),
+                              border: const Border(
+                                bottom: BorderSide(
+                                    color: Color(0xFFE2E8F0), width: 0.6),
+                              ),
+                            ),
+                            height: (fullScreenHeight(context) - 242) / 10,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Center(
+                                    child: CustomText(
+                                      content:
+                                          '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                      maxLine: 1,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  flex: 8,
+                                  child: customerDetailsWidget(
+                                      orderData.customer!.first),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: index.isEven
+                                ? Colors.white
+                                : const Color(0xFFF8FAFC),
+                            border: const Border(
+                              bottom: BorderSide(
+                                  color: Color(0xFFE2E8F0), width: 0.6),
+                            ),
+                          ),
+                          height: (MediaQuery.of(context).orientation ==
+                                  Orientation.portrait)
+                              ? (fullScreenHeight(context) - 250) / 10
+                              : 70,
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: CustomText(
+                                    content:
+                                        '${((widget.orderController.currentPage.value - 1) * 10) + (index + 1)}.',
+                                    maxLine: 1,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF0F172A),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                flex: 8,
+                                child: customerDetailsWidget(
+                                    orderData.customer!.first),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    width: 300,
+                    padding: const EdgeInsets.all(3),
+                    height: 50,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFC),
+                      border: Border(
+                        top: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        OrderPaginationWidget(
+                            orderController: widget.orderController),
+                        const Spacer()
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _bodyHorizontalController,
+                primary: false,
+                child: SizedBox(
+                  width: _tableWidth(context),
+                  child: OrdersBottomTitleRow(
+                    widget: widget,
+                    scrollController2: _scrollController2,
+                    tabIndex: tabIndex,
+                    orderList: widget
+                        .orderController.orderDataList, // Pass correct list
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

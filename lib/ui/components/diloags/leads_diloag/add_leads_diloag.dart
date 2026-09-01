@@ -74,7 +74,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Dialog(
                       insetPadding: EdgeInsets.zero,
-                      backgroundColor: const Color.fromARGB(255, 237, 238, 243),
+                      backgroundColor: Colors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
                         side: BorderSide.none,
@@ -92,21 +92,44 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                   topLeft: Radius.circular(10),
                                   topRight: Radius.circular(10),
                                 ),
-                                color: Color(0xFF7578EA),
+                                gradient: LinearGradient(
+                                  colors: [primaryColor, Color(0xFF2D3748)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
+                                  horizontal: 16, vertical: 14),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                   Text(
-                                    'Add Leads'.tr,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Colors.white.withOpacity(0.18),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(
+                                            Icons.person_add_alt_1_outlined,
+                                            color: Colors.white,
+                                            size: 18),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        'Add Leads'.tr,
+                                        style: const TextStyle(
+                                          fontFamily: 'Poppins_Regular',
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   dialogCloseButton1(context, red),
                                 ],
@@ -194,7 +217,12 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     child: Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text('Contact Details'.tr,
-                                          style: TextStyle(fontSize: 18)),
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins_Regular',
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF0F172A),
+                                          )),
                                     ),
                                   ),
                                   Row(
@@ -228,9 +256,15 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     child: Row(
                                       children: [
                                          Text('Delivery Address    '.tr,
-                                            style: TextStyle(fontSize: 18)),
+                                            style: const TextStyle(
+                                              fontFamily: 'Poppins_Regular',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF0F172A),
+                                            )),
                                         Checkbox(
                                           value: sameAsAbove,
+                                          activeColor: primaryColor,
                                           onChanged: (bool? value) {
                                             setState(() {
                                               sameAsAbove = value ?? false;
@@ -342,16 +376,12 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                       Expanded(
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.grey.shade100,
+                                            color: Colors.white,
                                             borderRadius:
-                                                BorderRadius.circular(8.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey.shade300,
-                                                blurRadius: 6.0,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
+                                                BorderRadius.circular(10.0),
+                                            border: Border.all(
+                                                color:
+                                                    const Color(0xFFE2E8F0)),
                                           ),
                                           child: TextField(
                                             controller: widget.leadsController
@@ -370,14 +400,14 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(8.0),
                                                 borderSide: const BorderSide(
-                                                    color: Colors.blue,
+                                                    color: primaryColor,
                                                     width: 1.5),
                                               ),
                                               enabledBorder: OutlineInputBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(8.0),
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey.shade400,
+                                                borderSide: const BorderSide(
+                                                    color: Color(0xFFE2E8F0),
                                                     width: 1.0),
                                               ),
                                               filled: true,
@@ -434,16 +464,12 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                             },
                                             child: Container(
                                               decoration: BoxDecoration(
-                                                color: Colors.grey.shade100,
+                                                color: Colors.white,
                                                 borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey.shade300,
-                                                    blurRadius: 6.0,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
+                                                    BorderRadius.circular(10.0),
+                                                border: Border.all(
+                                                    color: const Color(
+                                                        0xFFE2E8F0)),
                                               ),
                                               child: Padding(
                                                 padding:
@@ -932,10 +958,15 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                   }
                                                 },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: primaryColor,
+                                            backgroundColor:
+                                                primaryButtonColor,
+                                            padding: const EdgeInsets
+                                                .symmetric(
+                                                horizontal: 28, vertical: 12),
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(4.0)),
+                                                    BorderRadius.circular(
+                                                        20.0)),
                                           ),
                                           child: isAddingLeads
                                               ? const SizedBox(
@@ -950,8 +981,12 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                                             Colors.white),
                                                   ),
                                                 )
-                                              :  Text('Add Leads'.tr,
-                                                  style: TextStyle(
+                                              : Text('Add Leads'.tr,
+                                                  style: const TextStyle(
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                       color: Colors.white)),
                                         ),
                                        
@@ -984,15 +1019,9 @@ Widget buildInputField(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade100, // Subtle background color
-        borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300, // Light shadow
-            blurRadius: 6.0,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: TextField(
         maxLength: length,
@@ -1005,14 +1034,14 @@ Widget buildInputField(
               TextStyle(color: const Color(0xFF0F172A)), // Modern label color
           prefixIcon: filledIcon(icon),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(10.0),
             borderSide: const BorderSide(
-                color: Colors.blue, width: 1.5), // Highlight color
+                color: primaryColor, width: 1.5), // Highlight color
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(
-                color: Colors.grey.shade400, width: 1.0), // Neutral border
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: const BorderSide(
+                color: Color(0xFFE2E8F0), width: 1.0), // Neutral border
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
@@ -1043,29 +1072,33 @@ class CustomButtonLeads extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
+          border: Border.all(color: primaryColor),
           borderRadius: BorderRadius.circular(4.0),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Flexible(
               child: Text(
                 text,
-                style: TextStyle(
-                  color: primaryColor,
-                  fontSize: 13,
-                ),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  color: primaryColor,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             const SizedBox(width: 4),
-            Icon(
+            const Icon(
               Icons.add_circle_outline,
-              color: Colors.black,
+              color: primaryColor,
               size: 14,
             ),
           ],

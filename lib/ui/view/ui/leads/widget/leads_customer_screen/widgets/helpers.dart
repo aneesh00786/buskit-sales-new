@@ -1,22 +1,10 @@
-  import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_responce/lead_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/widget/lead_table_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Widget buildTableHeader1(Widget child, double width) {
+Widget buildTableHeader() {
     return Container(
-      width: width,
-      alignment: Alignment.center,
-      color: primaryColor,
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      child: child,
-    );
-  }
-
-  Widget buildTableHeader() {
-    return Container(
-      color: primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,7 +41,12 @@ Widget buildTableHeader1(Widget child, double width) {
   Widget buildTableRow(LeadCustomerData leadCustomerData, BuildContext context,
       int index, double fixedRowHeight) {
     return Container(
-      color: index.isEven ? Colors.grey[50] : Colors.white,
+      decoration: BoxDecoration(
+        color: index.isEven ? const Color(0xFFF8FAFC) : Colors.white,
+        border: const Border(
+          bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+        ),
+      ),
       height: fixedRowHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

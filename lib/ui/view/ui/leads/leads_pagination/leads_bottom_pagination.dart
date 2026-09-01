@@ -55,8 +55,12 @@ class LeadsBottomPaginationWidget extends StatelessWidget {
       return Container(
         width: 280,
         decoration: BoxDecoration(
-          color: primaryColor,
-          borderRadius: BorderRadius.circular(3.0),
+          gradient: const LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20.0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

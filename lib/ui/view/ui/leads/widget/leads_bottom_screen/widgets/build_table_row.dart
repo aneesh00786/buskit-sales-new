@@ -23,7 +23,12 @@ Widget buildTableRow(
   SubscriptionController subscriptionController,
 ) {
   return Container(
-    color: index.isEven ? Colors.grey[50] : Colors.white,
+    decoration: BoxDecoration(
+      color: index.isEven ? const Color(0xFFF8FAFC) : Colors.white,
+      border: const Border(
+        bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+      ),
+    ),
     height: fixedRowHeight,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -148,20 +153,89 @@ Widget buildTableRow(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title:  Text('Delete Lead'.tr),
-                              content:  Text(
-                                  'Are you sure you want to delete this lead?'.tr),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              backgroundColor: Colors.white,
+                              title: Row(
+                                children: [
+                                  const Icon(Icons.info_outline,
+                                      color: Colors.red),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Delete Lead'.tr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              content: Text(
+                                'Are you sure you want to delete this lead?'
+                                    .tr,
+                                style: const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 16,
+                                    color: Colors.black87),
+                                textAlign: TextAlign.center,
+                              ),
                               actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child:  Text('Cancel'.tr),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    Navigator.pop(context, true);
-                                  },
-                                  child:  Text('Confirm'.tr),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () => Navigator.of(context)
+                                            .pop(false),
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(
+                                              color: Colors.grey, width: 2),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(24)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12),
+                                        ),
+                                        child: Text(
+                                          'Cancel'.tr,
+                                          style: const TextStyle(
+                                              fontFamily: 'Poppins_Regular',
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context, true);
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(
+                                              color: Colors.redAccent,
+                                              width: 2),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(24)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12),
+                                        ),
+                                        child: Text(
+                                          'Confirm'.tr,
+                                          style: const TextStyle(
+                                              fontFamily: 'Poppins_Regular',
+                                              color: Colors.redAccent,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             );

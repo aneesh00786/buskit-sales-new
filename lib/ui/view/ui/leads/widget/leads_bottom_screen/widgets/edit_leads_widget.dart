@@ -151,9 +151,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: const BoxDecoration(
-              color: primaryColor,
+              gradient: LinearGradient(
+                colors: [primaryColor, Color(0xFF2D3748)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
@@ -162,14 +166,28 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                 Text(
-                  'Update Lead'.tr,
-                  style: TextStyle(
-                    color: white,
-                    fontSize: 16,
-                    fontFamily: 'Poppins_Regular',
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.person_add_alt_1_outlined,
+                          color: Colors.white, size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Update Lead'.tr,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins_Regular',
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
                 dialogCloseButton1(context, red)
               ],
@@ -191,7 +209,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
                         child: TextField(
                           controller: businessNameController,
@@ -212,7 +230,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
                         child: TextField(
                           controller: addressController,
@@ -237,7 +255,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(color: Colors.grey),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
                                 ),
                                 child: TextField(
                                   controller: townController,
@@ -261,7 +279,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: stateController,
@@ -284,7 +302,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: zipcodeController,
@@ -312,7 +330,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 maxLength: 10,
@@ -337,7 +355,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: emailController,
@@ -360,7 +378,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: businessRegNoController,
@@ -388,7 +406,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: fullnameController,
@@ -411,7 +429,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 maxLength: 10,
@@ -436,9 +454,15 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       child: Row(
                         children: [
                            Text('Delivery Address'.tr,
-                              style: TextStyle(fontSize: 18)),
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                              )),
                           Checkbox(
                             value: sameAsAbove,
+                            activeColor: primaryColor,
                             onChanged: (bool? value) {
                               setState(() {
                                 sameAsAbove = value ?? false;
@@ -473,7 +497,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
                         child: TextField(
                           controller: deliveryAddressController,
@@ -498,7 +522,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(color: Colors.grey),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
                                 ),
                                 child: TextField(
                                   controller: deliveryTownController,
@@ -522,7 +546,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: deliveryStateController,
@@ -545,7 +569,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(color: Colors.grey),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
                               ),
                               child: TextField(
                                 controller: deliveryZipcodeController,
@@ -569,7 +593,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
                         child: TextField(
                           controller: deliveryContactNumController,
@@ -597,7 +621,7 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(color: Colors.grey),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
                                 ),
                                 child: TextField(
                                   controller: remarkController,
@@ -968,9 +992,11 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColor,
+                                backgroundColor: primaryButtonColor,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 28, vertical: 12),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
+                                  borderRadius: BorderRadius.circular(20.0),
                                 ),
                               ),
                               child: isUpdatingLeads
@@ -984,9 +1010,13 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                                                 Colors.white),
                                       ),
                                     )
-                                  :  Text(
+                                  : Text(
                                       'Update'.tr,
-                                      style: TextStyle(color: white),
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                             ),
                           // ElevatedButton(

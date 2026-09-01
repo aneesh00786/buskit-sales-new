@@ -1,20 +1,8 @@
-  import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Widget buildTableHeader1(Widget child, double width) {
+Widget buildTableHeader() {
     return Container(
-      width: width,
-      alignment: Alignment.center,
-      color: primaryColor,
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      child: child,
-    );
-  }
-
-  Widget buildTableHeader() {
-    return Container(
-      color: primaryColor,
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

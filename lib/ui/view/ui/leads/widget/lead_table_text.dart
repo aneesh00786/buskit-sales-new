@@ -24,6 +24,8 @@ class LeadTableText extends StatelessWidget {
               textAlign: TextAlign.center,
               content: content,
               fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF0F172A),
               overflow: TextOverflow.ellipsis,
               maxLine: 3,
             ),

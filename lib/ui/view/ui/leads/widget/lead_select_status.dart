@@ -2,6 +2,7 @@
 
 import 'package:busskit_salesexecutive/api_handler/dio_client.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_customer_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/leads/leads_rejected_controller.dart';
@@ -55,21 +56,24 @@ class _LeadsStatusSelectState extends State<LeadsStatusSelect> {
   Widget build(BuildContext context) {
     List<String> dropdownItems = ['Select', 'Accept', 'Reject'];
     return Container(
-      height: 26,
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: const Color.fromARGB(255, 197, 247, 252),
-          border: Border.all(color: const Color.fromARGB(255, 215, 215, 215))),
+          color: primaryColor.withOpacity(0.08),
+          border: Border.all(color: primaryColor.withOpacity(0.25))),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedValue,
           isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-          iconSize: 15,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+              color: primaryColor),
+          iconSize: 16,
           style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
             fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
+            fontWeight: FontWeight.w700,
+            color: primaryColor,
           ),
           onChanged: _onDropdownChanged,
           items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
@@ -147,21 +151,25 @@ class _LeadsRejectedStatusSelectState extends State<LeadsRejectedStatusSelect> {
   Widget build(BuildContext context) {
     List<String> dropdownItems = ['Rejected', 'Accept', 'Move to Leads'];
     return Container(
-      height: 26,
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: const Color.fromARGB(255, 220, 231, 236),
+        borderRadius: BorderRadius.circular(20),
+        color: primaryColor.withOpacity(0.08),
+        border: Border.all(color: primaryColor.withOpacity(0.25)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedValue,
           isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-          iconSize: 15,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+              color: primaryColor),
+          iconSize: 16,
           style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
             fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
+            fontWeight: FontWeight.w700,
+            color: primaryColor,
           ),
           onChanged: _onDropdownChanged,
           items: dropdownItems.map<DropdownMenuItem<String>>((String value) {

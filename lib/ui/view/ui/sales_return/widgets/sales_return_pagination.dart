@@ -1,4 +1,3 @@
-
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
@@ -8,8 +7,6 @@ import 'package:get/get.dart';
 
 class SalesReturnPagination extends StatelessWidget {
   final SalesReturnController salesReturnController;
-
-  
 
   const SalesReturnPagination({super.key, required this.salesReturnController});
 
@@ -58,8 +55,12 @@ class SalesReturnPagination extends StatelessWidget {
       return Container(
         width: 280,
         decoration: BoxDecoration(
-          color: primaryColor,
-          borderRadius: BorderRadius.circular(3.0),
+          gradient: const LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20.0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -69,9 +70,9 @@ class SalesReturnPagination extends StatelessWidget {
                 final isOnline = await ConnectivityService().isOnline();
                 if (!isOnline) {
                   showCustomToastDisplay(
-                      context, 'You are offline!', red, Icons.close,
-                      // duration: 3
-                      );
+                    context, 'You are offline!', red, Icons.close,
+                    // duration: 3
+                  );
                   return;
                 }
                 if (salesReturnController.currentPage.value > 1) {
@@ -90,7 +91,8 @@ class SalesReturnPagination extends StatelessWidget {
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: _buildPagination(salesReturnController.currentPage.value,
+                children: _buildPagination(
+                        salesReturnController.currentPage.value,
                         salesReturnController.totalPages.value)
                     .map<Widget>((item) {
                   if (item is int) {
@@ -103,10 +105,11 @@ class SalesReturnPagination extends StatelessWidget {
                               final isOnline =
                                   await ConnectivityService().isOnline();
                               if (!isOnline) {
-                                showCustomToastDisplay(context,
-                                    'You are offline!', red, Icons.close,
-                                    // duration: 3
-                                    );
+                                showCustomToastDisplay(
+                                  context,
+                                  'You are offline!', red, Icons.close,
+                                  // duration: 3
+                                );
                                 return;
                               }
                               salesReturnController.goToPage(item);
@@ -128,6 +131,7 @@ class SalesReturnPagination extends StatelessWidget {
                                 fontSize: 13,
                                 color: isCurrent ? primaryColor : Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
                               ),
                             ),
                           ),
@@ -141,9 +145,9 @@ class SalesReturnPagination extends StatelessWidget {
                         final isOnline = await ConnectivityService().isOnline();
                         if (!isOnline) {
                           showCustomToastDisplay(
-                              context, 'You are offline!', red, Icons.close,
-                              // duration: 3
-                              );
+                            context, 'You are offline!', red, Icons.close,
+                            // duration: 3
+                          );
                           return;
                         }
                         salesReturnController.goToPage(page);
@@ -164,6 +168,7 @@ class SalesReturnPagination extends StatelessWidget {
                                 fontSize: 13,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
                               ),
                             ),
                           ),
@@ -177,9 +182,9 @@ class SalesReturnPagination extends StatelessWidget {
                         final isOnline = await ConnectivityService().isOnline();
                         if (!isOnline) {
                           showCustomToastDisplay(
-                              context, 'You are offline!', red, Icons.close,
-                              // duration: 3
-                              );
+                            context, 'You are offline!', red, Icons.close,
+                            // duration: 3
+                          );
                           return;
                         }
                         salesReturnController.goToPage(page);
@@ -200,6 +205,7 @@ class SalesReturnPagination extends StatelessWidget {
                                 fontSize: 13,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
                               ),
                             ),
                           ),
@@ -217,9 +223,9 @@ class SalesReturnPagination extends StatelessWidget {
                 final isOnline = await ConnectivityService().isOnline();
                 if (!isOnline) {
                   showCustomToastDisplay(
-                      context, 'You are offline!', red, Icons.close,
-                      // duration: 3
-                      );
+                    context, 'You are offline!', red, Icons.close,
+                    // duration: 3
+                  );
                   return;
                 }
                 if (salesReturnController.currentPage.value <

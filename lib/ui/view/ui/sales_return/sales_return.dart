@@ -39,41 +39,42 @@ class _SalesReturnState extends State<SalesReturn> {
   final TextEditingController _customerSearchCtrl = TextEditingController();
   final TextEditingController _orderORIdSearchCtrl = TextEditingController();
 
-  final ScrollController vertical = ScrollController();
-  final ScrollController vertical1 = ScrollController();
+  // LinkedScrollControllerGroup forwards the user's drag delta to every
+  // linked controller directly, instead of reacting to a finished position
+  // change with jumpTo() — the previous jumpTo-based approach could fight an
+  // in-progress drag/fling on the other controller and made the table feel
+  // like it randomly stopped responding to scroll input. Mirrors the fix
+  // applied to lead_bottom_screen.dart.
+  late final LinkedScrollControllerGroup _verticalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController vertical = _verticalGroup.addAndGet();
+  late final ScrollController vertical1 = _verticalGroup.addAndGet();
 
-  late LinkedScrollControllerGroup _controllers;
-
-  late ScrollController _scrollController1;
-  late ScrollController _scrollController2;
-  late ScrollController _scrollController3;
+  // Keeps the scrollable header row moving in sync with the scrollable body
+  // rows underneath it, the same way Pending Payments/Leads do — the header
+  // is drawn once as a single full-width gradient bar overlaid on top of the
+  // body, instead of two separate gradient boxes side by side (which
+  // produced a visible seam).
+  late final LinkedScrollControllerGroup _horizontalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController headerHorizontal = _horizontalGroup.addAndGet();
+  late final ScrollController bodyHorizontal = _horizontalGroup.addAndGet();
 
   @override
   void initState() {
     super.initState();
 
-    _controllers = LinkedScrollControllerGroup();
     salesReturnController.selectedFilter.value = FilterDateEnum.thisMonth;
     initializeData();
+  }
 
-    // SET 1
-    _scrollController1 = _controllers.addAndGet();
-    _scrollController2 = _controllers.addAndGet();
-    _scrollController3 = _controllers.addAndGet();
-
-    vertical.addListener(() {
-      if (vertical1.hasClients &&
-          vertical.position.pixels != vertical1.position.pixels) {
-        vertical1.jumpTo(vertical.position.pixels);
-      }
-    });
-
-    vertical1.addListener(() {
-      if (vertical.hasClients &&
-          vertical1.position.pixels != vertical.position.pixels) {
-        vertical.jumpTo(vertical1.position.pixels);
-      }
-    });
+  @override
+  void dispose() {
+    vertical.dispose();
+    vertical1.dispose();
+    headerHorizontal.dispose();
+    bodyHorizontal.dispose();
+    super.dispose();
   }
 
   void initializeData() async {
@@ -118,12 +119,13 @@ class _SalesReturnState extends State<SalesReturn> {
         children: [
           Row(
             children: [
-              Text('Sales Return'.tr, style: const TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF0F172A),
-              )),
+              Text('Sales Return'.tr,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0F172A),
+                  )),
               const Spacer(),
               const NotificationWidget(
                 startDate: '',
@@ -139,6 +141,9 @@ class _SalesReturnState extends State<SalesReturn> {
                     ? fullScreenWidth(context) * 1
                     : fullScreenWidth(context) * 1.1,
             child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: EdgeInsets.all(cardPadding),
                 child: SingleChildScrollView(
@@ -162,6 +167,16 @@ class _SalesReturnState extends State<SalesReturn> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: MyCommnonContainer(
+                color: Colors.white,
+                borderRadius: 16,
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
                 child: _buildTableLayout(context, fixedRowHeight),
               ),
             ),
@@ -199,7 +214,7 @@ class _SalesReturnState extends State<SalesReturn> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
             boxShadow: [
               BoxShadow(
@@ -249,7 +264,9 @@ class _SalesReturnState extends State<SalesReturn> {
                         SizedBox(width: 8),
                         Text('Month'.tr,
                             style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.w600)),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins_Regular')),
                       ],
                     ),
                   ),
@@ -261,7 +278,9 @@ class _SalesReturnState extends State<SalesReturn> {
                         SizedBox(width: 8),
                         Text('Day'.tr,
                             style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.w600)),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins_Regular')),
                       ],
                     ),
                   ),
@@ -274,7 +293,9 @@ class _SalesReturnState extends State<SalesReturn> {
                         SizedBox(width: 8),
                         Text('Year'.tr,
                             style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.w600)),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins_Regular')),
                       ],
                     ),
                   ),
@@ -286,13 +307,15 @@ class _SalesReturnState extends State<SalesReturn> {
                         SizedBox(width: 8),
                         Text('Range'.tr,
                             style: TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.w600)),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins_Regular')),
                       ],
                     ),
                   ),
                 ],
                 isExpanded: true,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 underline: Container(),
                 icon: Icon(Icons.keyboard_arrow_down,
                     size: 20, color: Colors.grey[600]),
@@ -302,6 +325,7 @@ class _SalesReturnState extends State<SalesReturn> {
                   color: Colors.black87,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins_Regular',
                 ),
               ),
             ),
@@ -367,17 +391,19 @@ class _SalesReturnState extends State<SalesReturn> {
               salesReturnController.setCustomerSearch(value.trim());
             },
             controller: _customerSearchCtrl,
+            style: const TextStyle(fontFamily: 'Poppins_Regular'),
             decoration: InputDecoration(
               hintText: 'Search by name...'.tr,
-              hintStyle: const TextStyle(color: Colors.grey),
+              hintStyle: const TextStyle(
+                  color: Colors.grey, fontFamily: 'Poppins_Regular'),
               filled: true,
               fillColor: Colors.grey.shade200,
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(color: Colors.grey, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(color: Colors.blue, width: 2),
               ),
             ),
@@ -398,17 +424,19 @@ class _SalesReturnState extends State<SalesReturn> {
             onChanged: (value) {
               salesReturnController.setOrderORIdSearch(value);
             },
+            style: const TextStyle(fontFamily: 'Poppins_Regular'),
             decoration: InputDecoration(
               hintText: 'Search by Order ID or Invoice ID...'.tr,
-              hintStyle: const TextStyle(color: Colors.grey),
+              hintStyle: const TextStyle(
+                  color: Colors.grey, fontFamily: 'Poppins_Regular'),
               filled: true,
               fillColor: Colors.grey.shade200,
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(color: Colors.grey, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(color: Colors.blue, width: 2),
               ),
             ),
@@ -438,7 +466,7 @@ class _SalesReturnState extends State<SalesReturn> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.15),
@@ -482,7 +510,7 @@ class _SalesReturnState extends State<SalesReturn> {
                   shadowColor: Colors.transparent,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -493,6 +521,7 @@ class _SalesReturnState extends State<SalesReturn> {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
+                    fontFamily: 'Poppins_Regular',
                   ),
                 ),
               ),
@@ -548,7 +577,6 @@ class _SalesReturnState extends State<SalesReturn> {
 
   Widget _buildTableLayout(BuildContext context, double fixedRowHeight) {
     double totalTableWidth = 130 + 360 + 150 + 150 + 150 + 150 + 150 + 110;
-    final ScrollController _horizontalScrollController = ScrollController();
     bool isArabic = Get.locale?.languageCode == 'ar';
     double slNoWidth = isArabic ? 80 : 60;
     double customerDetailsWidth = isArabic ? 220 : 240;
@@ -558,249 +586,11 @@ class _SalesReturnState extends State<SalesReturn> {
     return Column(
       children: [
         Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              SizedBox(
-                width: 300,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        buildSalesReturnTableHeader1(
-                          Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 2.0),
-                              child: Text(
-                                // Replaced CustomText with Text to ensure overflow works
-                                "Sl.No.".tr,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow
-                                    .ellipsis, // Adds ... if it still overflows
-                              ),
-                            ),
-                          ),
-                          slNoWidth, // Uses dynamic width
-                        ),
-                        buildSalesReturnTableHeader1(
-                          Padding(
-                            // Better for RTL than a hardcoded SizedBox(width: 40)
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  // Forces the text to respect the parent width constraint
-                                  child: Text(
-                                    "Customer Details".tr,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow
-                                        .ellipsis, // Adds ... if text is too long
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          customerDetailsWidth, // Uses dynamic width
-                        ),
-                      ],
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        controller: vertical,
-                        physics: const ClampingScrollPhysics(),
-                        child: Obx(() {
-                          final list = salesReturnController.filteredList;
-
-                          if (list.isEmpty) {
-                            return SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.1,
-                              child: Center(
-                                child: CustomText(
-                                  content: "No delivered orders found".tr,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          }
-
-                          int currentPage =
-                              salesReturnController.currentPage.value;
-                          int startIndex = (currentPage - 1) * itemsPerPage;
-
-                          var displayList = list.length > itemsPerPage
-                              ? list
-                                  .skip(startIndex)
-                                  .take(itemsPerPage)
-                                  .toList()
-                              : list;
-
-                          if (displayList.isEmpty && list.isNotEmpty) {
-                            displayList = list.take(itemsPerPage).toList();
-                            startIndex = 0;
-                          }
-
-                          return Column(
-                            children: displayList.asMap().entries.map((entry) {
-                              int index = entry.key;
-                              var data = entry.value;
-
-                              int serialNumber = (list.length > itemsPerPage)
-                                  ? startIndex + index + 1
-                                  : index + 1;
-
-                              return Container(
-                                height: 90,
-                                color: index.isEven
-                                    ? Colors.grey[50]
-                                    : Colors.white,
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 60,
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 20),
-                                        child: CustomText(
-                                          content:
-                                              "$serialNumber", // Use calculated Sl.No
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 30,
-                                            backgroundColor: Colors.grey[200],
-                                            backgroundImage:
-                                                (data.imageUrl != null &&
-                                                        data.imageUrl!
-                                                            .trim()
-                                                            .isNotEmpty)
-                                                    ? NetworkImage(
-                                                        "${ApiConstants.imageBaseUrl}/${data.imageUrl!.trim()}",
-                                                      )
-                                                    : null,
-                                            child: (data.imageUrl == null ||
-                                                    data.imageUrl!
-                                                        .trim()
-                                                        .isEmpty)
-                                                ? const Icon(
-                                                    Icons.person,
-                                                    color: Colors.blue,
-                                                    size: 30,
-                                                  )
-                                                : null,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                CustomText(
-                                                  content:
-                                                      data.businessName ?? '-',
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                CustomText(
-                                                  content: data.mobileno ?? '',
-                                                  fontSize: 12,
-                                                ),
-                                                CustomText(
-                                                  content: data.email ?? '',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  fontSize: 12,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  controller: _horizontalScrollController,
-                  child: SizedBox(
-                    width: totalTableWidth,
-                    child: Column(
-                      children: [
-                        buildSalesReturnTableHeader(),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            controller: vertical1,
-                            physics: const ClampingScrollPhysics(),
-                            child: Obx(() {
-                              final list = salesReturnController.filteredList;
-
-                              int currentPage =
-                                  salesReturnController.currentPage.value;
-                              int startIndex = (currentPage - 1) * itemsPerPage;
-
-                              var displayList = list.length > itemsPerPage
-                                  ? list
-                                      .skip(startIndex)
-                                      .take(itemsPerPage)
-                                      .toList()
-                                  : list;
-
-                              if (displayList.isEmpty && list.isNotEmpty) {
-                                displayList = list.take(itemsPerPage).toList();
-                                startIndex = 0;
-                              }
-
-                              return Column(
-                                children:
-                                    displayList.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  var data = entry.value;
-
-                                  return buildTableRow(
-                                      context, index, 90, data);
-                                }).toList(),
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              _buildTableHeader(
+                  slNoWidth, customerDetailsWidth, totalTableWidth),
+              _buildTableBody(context, totalTableWidth, itemsPerPage),
             ],
           ),
         ),
@@ -821,12 +611,303 @@ class _SalesReturnState extends State<SalesReturn> {
               const SizedBox(height: 8),
               CustomHorizontalScrollbar(
                 thumbColor: Colors.blue,
-                controller: _horizontalScrollController,
+                controller: bodyHorizontal,
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  // Single continuous gradient bar spanning the frozen (Sl.No/Customer
+  // Details) columns and the horizontally-scrollable columns, overlaid on
+  // top of the body via a Stack — avoids the visible seam that two
+  // side-by-side gradient containers produced. Mirrors
+  // lead_bottom_screen.dart's _buildHeader.
+  Widget _buildTableHeader(
+      double slNoWidth, double customerDetailsWidth, double totalTableWidth) {
+    const double headerHeight = 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Container(
+        width: double.infinity,
+        height: headerHeight,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 300,
+              child: Row(
+                children: [
+                  buildSalesReturnTableHeader1(
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Text(
+                          // Replaced CustomText with Text to ensure overflow works
+                          "Sl.No.".tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow
+                              .ellipsis, // Adds ... if it still overflows
+                        ),
+                      ),
+                    ),
+                    slNoWidth, // Uses dynamic width
+                  ),
+                  buildSalesReturnTableHeader1(
+                    Padding(
+                      // Better for RTL than a hardcoded SizedBox(width: 40)
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            // Forces the text to respect the parent width constraint
+                            child: Text(
+                              "Customer Details".tr,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins_Regular',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow
+                                  .ellipsis, // Adds ... if text is too long
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    customerDetailsWidth, // Uses dynamic width
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: headerHorizontal,
+                primary: false,
+                child: SizedBox(
+                  width: totalTableWidth,
+                  child: buildSalesReturnTableHeader(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableBody(
+      BuildContext context, double totalTableWidth, int itemsPerPage) {
+    const double headerHeight = 50;
+
+    return Align(
+      alignment: FractionalOffset.topCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(top: headerHeight),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 300,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      controller: vertical,
+                      physics: const ClampingScrollPhysics(),
+                      child: Obx(() {
+                        final list = salesReturnController.filteredList;
+
+                        if (list.isEmpty) {
+                          return SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.1,
+                            child: Center(
+                              child: CustomText(
+                                content: "No delivered orders found".tr,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }
+
+                        int currentPage =
+                            salesReturnController.currentPage.value;
+                        int startIndex = (currentPage - 1) * itemsPerPage;
+
+                        var displayList = list.length > itemsPerPage
+                            ? list.skip(startIndex).take(itemsPerPage).toList()
+                            : list;
+
+                        if (displayList.isEmpty && list.isNotEmpty) {
+                          displayList = list.take(itemsPerPage).toList();
+                          startIndex = 0;
+                        }
+
+                        return Column(
+                          children: displayList.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            var data = entry.value;
+
+                            int serialNumber = (list.length > itemsPerPage)
+                                ? startIndex + index + 1
+                                : index + 1;
+
+                            return Container(
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: index.isEven
+                                    ? const Color(0xFFF8FAFC)
+                                    : Colors.white,
+                                border: const Border(
+                                  bottom: BorderSide(
+                                      color: Color(0xFFE2E8F0), width: 0.6),
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 60,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 20),
+                                      child: CustomText(
+                                        content:
+                                            "$serialNumber", // Use calculated Sl.No
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 30,
+                                          backgroundColor: Colors.grey[200],
+                                          backgroundImage:
+                                              (data.imageUrl != null &&
+                                                      data.imageUrl!
+                                                          .trim()
+                                                          .isNotEmpty)
+                                                  ? NetworkImage(
+                                                      "${ApiConstants.imageBaseUrl}/${data.imageUrl!.trim()}",
+                                                    )
+                                                  : null,
+                                          child: (data.imageUrl == null ||
+                                                  data.imageUrl!.trim().isEmpty)
+                                              ? const Icon(
+                                                  Icons.person,
+                                                  color: Colors.blue,
+                                                  size: 30,
+                                                )
+                                              : null,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              CustomText(
+                                                content:
+                                                    data.businessName ?? '-',
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color(0xFF0F172A),
+                                              ),
+                                              CustomText(
+                                                content: data.mobileno ?? '',
+                                                fontSize: 12,
+                                                color: const Color(0xFF64748B),
+                                              ),
+                                              CustomText(
+                                                content: data.email ?? '',
+                                                overflow: TextOverflow.ellipsis,
+                                                fontSize: 12,
+                                                color: const Color(0xFF64748B),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: bodyHorizontal,
+                primary: false,
+                child: SizedBox(
+                  width: totalTableWidth,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    controller: vertical1,
+                    physics: const ClampingScrollPhysics(),
+                    child: Obx(() {
+                      final list = salesReturnController.filteredList;
+
+                      int currentPage = salesReturnController.currentPage.value;
+                      int startIndex = (currentPage - 1) * itemsPerPage;
+
+                      var displayList = list.length > itemsPerPage
+                          ? list.skip(startIndex).take(itemsPerPage).toList()
+                          : list;
+
+                      if (displayList.isEmpty && list.isNotEmpty) {
+                        displayList = list.take(itemsPerPage).toList();
+                        startIndex = 0;
+                      }
+
+                      return Column(
+                        children: displayList.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          var data = entry.value;
+
+                          return buildTableRow(context, index, 90, data);
+                        }).toList(),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

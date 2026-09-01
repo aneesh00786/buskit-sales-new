@@ -3,6 +3,7 @@ import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/common/time_convertion.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/orders/widget/offline_order_details_dialog.dart';
@@ -16,10 +17,10 @@ import 'package:busskit_salesexecutive/ui/view/ui/sales_return/widgets/custom_sc
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class ProductReturnDialogContent extends StatefulWidget {
   final String orderId;
@@ -69,14 +70,23 @@ class _ProductReturnDialogContentState
   }
 
   late final ProductReturnController _ctrl;
-  final ScrollController _horizontalScrollController = ScrollController();
+  // Single-continuous-gradient table header: the frozen "Item" header cell
+  // and the scrollable header row must stay in sync horizontally while
+  // being painted by one shared gradient container (see _buildReturnTable),
+  // matching the pattern already used for Leads/Pending Payments tables.
+  final LinkedScrollControllerGroup _horizontalGroup =
+      LinkedScrollControllerGroup();
+  late final ScrollController _headerHorizontalController =
+      _horizontalGroup.addAndGet();
+  late final ScrollController _bodyHorizontalController =
+      _horizontalGroup.addAndGet();
   late final PendingReturnsController _returnInfoCtrl;
   @override
   void initState() {
     super.initState();
     _ctrl = Get.find<ProductReturnController>();
     _returnInfoCtrl = Get.find<PendingReturnsController>();
-    _horizontalScrollController.addListener(() {
+    _bodyHorizontalController.addListener(() {
       setState(() {});
     });
 
@@ -132,27 +142,42 @@ class _ProductReturnDialogContentState
     _ctrl.globalRemarkCtrl.clear();
   }
 
+  @override
+  void dispose() {
+    _headerHorizontalController.dispose();
+    _bodyHorizontalController.dispose();
+    super.dispose();
+  }
+
   InputDecoration _numberFieldDecoration() => InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.blue, width: 2),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: primaryColor, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(6),
       );
 
   InputDecoration _reasonFieldDecoration() => InputDecoration(
         hintText: 'Reason',
+        hintStyle: const TextStyle(
+          fontFamily: 'Poppins_Regular',
+          color: Color(0xFF94A3B8),
+        ),
+        filled: true,
+        fillColor: Colors.white,
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.blue, width: 2),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: primaryColor, width: 1.5),
         ),
         contentPadding: const EdgeInsets.all(6),
       );
@@ -160,6 +185,7 @@ class _ProductReturnDialogContentState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Expanded(child: Obx(() {
@@ -168,129 +194,217 @@ class _ProductReturnDialogContentState
                 child: CircularProgressIndicator(),
               );
             }
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Product Return - Invoice #${(_ctrl.orderData.value!.invoice != null && _ctrl.orderData.value!.invoice!.isNotEmpty) ? _ctrl.orderData.value!.invoice!.first.invoiceId : "N/A"}',
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: SizedBox(
-                          // height: 50,
-                          // width: 50,
-                          child: const FaIcon(
-                            FontAwesomeIcons.circleXmark,
-                            color: Colors.red,
-                            size: 35,
+            // ---------- HEADER (single gradient bar acting as the
+            // AlertDialog's missing header, since the outer AlertDialog
+            // shape/call-site can't be edited here) + scrollable body ----------
+            return Column(
+              children: [
+                _buildDialogHeader(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ---------- COMPANY / CUSTOMER ----------
+                        _buildCompanyCustomerRow(),
+                        const SizedBox(height: 16),
+
+                        // ---------- TABLE (your pattern) ----------
+                        _buildReturnTable(context),
+
+                        const SizedBox(height: 16),
+
+                        // ---------- TOTALS ----------
+                        _buildTotals(),
+                        const SizedBox(height: 16),
+                        _buildTaxTotal(),
+                        const SizedBox(height: 16),
+                        // ---------- PAYMENT INFO ----------
+                        _buildPaymentInfo(),
+                        const SizedBox(height: 16),
+
+                        // ---------- REMARK ----------
+                        const Text('Remark *',
+                            style: TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              color: Colors.red,
+                              fontWeight: FontWeight.w600,
+                            )),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: _ctrl.globalRemarkCtrl,
+                          maxLines: 3,
+                          style: const TextStyle(
+                              fontFamily: 'Poppins_Regular', fontSize: 13),
+                          decoration: InputDecoration(
+                            hintText: 'Additional remarks or notes...',
+                            hintStyle: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              color: Color(0xFF94A3B8),
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            contentPadding: const EdgeInsets.all(12),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                                width: 1.0,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: primaryColor,
+                                width: 1.5,
+                              ),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFFE2E8F0)),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Divider(color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-
-                  // ---------- COMPANY / CUSTOMER ----------
-                  _buildCompanyCustomerRow(),
-                  const SizedBox(height: 16),
-
-                  // ---------- TABLE (your pattern) ----------
-                  _buildReturnTable(context),
-
-                  const SizedBox(height: 16),
-
-                  // ---------- TOTALS ----------
-                  _buildTotals(),
-                  const SizedBox(height: 16),
-                  _buildTaxTotal(),
-                  const SizedBox(height: 16),
-                  // ---------- PAYMENT INFO ----------
-                  _buildPaymentInfo(),
-                  const SizedBox(height: 16),
-
-                  // ---------- REMARK ----------
-                  const Text('Remark *', style: TextStyle(color: Colors.red)),
-                  TextField(
-                    controller: _ctrl.globalRemarkCtrl,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Additional remarks or notes...',
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blue,
-                          width: 2.0,
-                        ),
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF94A3B8),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 22, vertical: 13),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14.0),
+                                ),
+                              ),
+                              onPressed: () {
+                                Get.back();
+                              },
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 22, vertical: 13),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14.0),
+                                ),
+                              ),
+                              onPressed: _ctrl.isSubmitting.value
+                                  ? null
+                                  : () => _ctrl.submitReturn(),
+                              child: _ctrl.isSubmitting.value
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Submit Return',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(8.0), // Radius of 8
-                          ),
-                        ),
-                        onPressed: () {
-                          Get.back();
-                        },
-                        child: CustomText(
-                          content: 'Cancel',
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        onPressed: _ctrl.isSubmitting.value
-                            ? null
-                            : () => _ctrl.submitReturn(),
-                        child: _ctrl.isSubmitting.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : CustomText(
-                                content: 'Submit Return',
-                                color: Colors.white,
-                              ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
+                ),
+              ],
             );
           })),
+        ],
+      ),
+    );
+  }
+
+  /* --------------------------------------------------------------
+     DIALOG HEADER – gradient bar standing in for the (unstyled,
+     out-of-scope) outer AlertDialog header. The close action below is
+     the exact same `Navigator.of(context).pop()` the plain FaIcon button
+     used to call — only the visuals changed.
+     -------------------------------------------------------------- */
+  Widget _buildDialogHeader(BuildContext context) {
+    final order = _ctrl.orderData.value;
+    final invoiceId = (order?.invoice != null && order!.invoice!.isNotEmpty)
+        ? order.invoice!.first.invoiceId
+        : 'N/A';
+    return Container(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        gradient: LinearGradient(
+          colors: [primaryColor, Color(0xFF2D3748)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.assignment_return_outlined,
+                      color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Product Return - Invoice #$invoiceId',
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          InkResponse(
+            onTap: () => Navigator.of(context).pop(),
+            child: const CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: Icon(Icons.close, color: Colors.white, size: 22),
+            ),
+          ),
         ],
       ),
     );
@@ -305,68 +419,114 @@ class _ProductReturnDialogContentState
       return const Center(child: SizedBox());
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            ApiConstants.imageEndpoint), // your network image
-                        fit: BoxFit.cover,
+    const labelStyle = TextStyle(
+      fontFamily: 'Poppins_Regular',
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.4,
+      color: Color(0xFF94A3B8),
+    );
+    const nameStyle = TextStyle(
+      fontFamily: 'Poppins_Regular',
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      color: Color(0xFF0F172A),
+    );
+    const metaStyle = TextStyle(
+      fontFamily: 'Poppins_Regular',
+      fontSize: 12.5,
+      color: Color(0xFF64748B),
+      height: 1.5,
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('FROM', style: labelStyle),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: primaryColor.withOpacity(0.15), width: 2),
+                        image: DecorationImage(
+                          image: NetworkImage(ApiConstants.imageEndpoint),
+                          fit: BoxFit.cover,
+                        ),
                       ),
+                      child: order.imageUrl == null
+                          ? const Icon(Icons.person,
+                              size: 22, color: Color(0xFF94A3B8))
+                          : null,
                     ),
-                    child: order.imageUrl == null
-                        ? const Icon(Icons.person,
-                            size: 24, color: Color.fromARGB(255, 244, 8, 8))
-                        : null,
+                    const SizedBox(width: 10),
+                    const Expanded(child: Text('JRBS', style: nameStyle)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text('470 St Kilda Rd', style: metaStyle),
+                const Text('VIC, Australia', style: metaStyle),
+                const SizedBox(height: 4),
+                const Text('Email: buskit@google.com', style: metaStyle),
+                const Text('Phone: 1800865022', style: metaStyle),
+              ],
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text('TO', style: labelStyle),
+                const SizedBox(height: 8),
+                Text(order.businessName ?? 'N/A',
+                    textAlign: TextAlign.right, style: nameStyle),
+                const SizedBox(height: 8),
+                Text(order.address ?? '',
+                    textAlign: TextAlign.right, style: metaStyle),
+                Text('Email: ${order.email}',
+                    textAlign: TextAlign.right, style: metaStyle),
+                Text('Phone: ${order.mobileno}',
+                    textAlign: TextAlign.right, style: metaStyle),
+                const SizedBox(height: 10),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 8),
-                  const Text('JRBS',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text('470 St Kilda Rd'),
-              const Text('VIC, Australia'),
-              const SizedBox(height: 4),
-              const Text('Email: buskit@google.com'),
-              const Text('Phone: 1800865022'),
-            ],
+                  child: Text(
+                    '${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : "N/A"} | ${order.invoice?.isNotEmpty == true && order.invoice!.first.createdAt != null ? TimeUtils.formatTimeInZone(order.invoice!.first.createdAt!, format: "dd/MM/yyyy hh:mm a") : "N/A"}',
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(order.businessName ?? 'N/A',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(order.address ?? ''),
-              Text('Email: ${order.email}'),
-              Text('Phone: ${order.mobileno}'),
-              const SizedBox(height: 8),
-              Text(
-                'Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : "N/A"} | ${order.invoice?.isNotEmpty == true && order.invoice!.first.createdAt != null ? TimeUtils.formatTimeInZone(order.invoice!.first.createdAt!, format: "dd/MM/yyyy hh:mm a") : "N/A"}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              // Text(
-              //   'Invoice: ${order.invoice?.isNotEmpty == true ? order.invoice!.first.invoiceId : 'N/A'} | ${NKDateUtils.commonFullDateTimeFormat2(order.invoice!.firstOrNull!.createdAt!)}',
-              //   style: const TextStyle(fontWeight: FontWeight.bold),
-              // ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -405,231 +565,269 @@ class _ProductReturnDialogContentState
         colImg +
         colReason;
 
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // LEFT: Item Name
-        SizedBox(
-          width: 250,
-          child: Column(
-            children: [
-              _buildHeader1(
-                Center(
-                  child: CustomText(
-                      content: 'Item',
-                      textAlign: TextAlign.center,
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-                250,
+        // ---------- SINGLE CONTINUOUS GRADIENT HEADER ----------
+        // Drawn as ONE gradient Container spanning the frozen "Item" column
+        // and the scrollable columns together, instead of two separate
+        // gradient boxes side by side — two independently-sized gradients
+        // each normalize to their own bounds and produce a visible seam at
+        // the boundary. Same fix as LeadBottomScreen._buildHeader for its
+        // frozen-column + scrollable table.
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [primaryColor, Color(0xFF2D3748)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              ..._ctrl.cartItems.asMap().entries.map((e) {
-                return Container(
-                  height: ProductReturnDialogContent._fixedRowHeight,
-                  width: double.infinity,
-                  color: e.key.isEven ? Colors.grey[50] : Colors.white,
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    children: [
-                      // Product Name - takes available space
-                      Expanded(
-                        child: ProductNameWithTax(
-                          productName: '${e.value.productName ?? '-'}',
-                          variationName: '${e.value.variationName ?? '-'}',
-                          isInclTax: e.value.inclTax == "incl_tax",
-                          maxWidth: isPhonePortrait(context)
-                              ? fullScreenWidth(context) * 0.4
-                              : fullScreenWidth(context) * 0.2,
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
-                    ],
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 11),
+            child: Row(
+              children: [
+                _buildHeader1(
+                  Center(
+                    child: CustomText(
+                        content: 'Item',
+                        textAlign: TextAlign.center,
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   ),
-                );
-              }),
-            ],
+                  250,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _headerHorizontalController,
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: totalTableWidth - 250,
+                      child: _buildScrollableHeader(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
 
-        // RIGHT: Scrollable
+        // ---------- BODY ----------
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // LEFT: Item Name
+            SizedBox(
+              width: 250,
+              child: Column(
+                children: [
+                  ..._ctrl.cartItems.asMap().entries.map((e) {
+                    return Container(
+                      height: ProductReturnDialogContent._fixedRowHeight,
+                      width: double.infinity,
+                      color:
+                          e.key.isEven ? const Color(0xFFF8FAFC) : Colors.white,
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
+                        children: [
+                          // Product Name - takes available space
+                          Expanded(
+                            child: ProductNameWithTax(
+                              productName: '${e.value.productName ?? '-'}',
+                              variationName: '${e.value.variationName ?? '-'}',
+                              isInclTax: e.value.inclTax == "incl_tax",
+                              maxWidth: isPhonePortrait(context)
+                                  ? fullScreenWidth(context) * 0.4
+                                  : fullScreenWidth(context) * 0.2,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
 
-        Expanded(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                controller: _horizontalScrollController,
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: totalTableWidth - 250,
-                  child: Column(
-                    children: [
-                      _buildScrollableHeader(),
-                      ..._ctrl.cartItems.asMap().entries.map((e) {
-                        final cart = e.value;
-                        final productReturnRowController =
-                            ProductReturnRowController(cart);
-                        _ctrl.rowControllers.add(productReturnRowController);
-                        File? selectedImage;
+            // RIGHT: Scrollable
 
-                        return Container(
-                          height: ProductReturnDialogContent._fixedRowHeight,
-                          color: e.key.isEven ? Colors.grey[50] : Colors.white,
-                          child: Row(
-                            children: [
-                              _col(formatAmount(cart.price), colUnit),
-                              _col(
-                                  '${cart.pieces ?? 0} (${cart.quantity ?? 0} ${cart.packType ?? ''})'
-                                      .trim(),
-                                  colQty),
-                              _col(
-                                formatAmount(cart.totalPrice),
-                                colAmt,
-                                align: TextAlign.right,
-                              ),
+            Expanded(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    controller: _bodyHorizontalController,
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: totalTableWidth - 250,
+                      child: Column(
+                        children: [
+                          ..._ctrl.cartItems.asMap().entries.map((e) {
+                            final cart = e.value;
+                            final productReturnRowController =
+                                ProductReturnRowController(cart);
+                            _ctrl.rowControllers
+                                .add(productReturnRowController);
+                            File? selectedImage;
 
-                              _col(
-                                formatAmount(
-                                    cart.discountAmount), // e.g., ₹ 100.00
-                                colDisc,
-                                align: TextAlign.right,
-                              ),
+                            return Container(
+                              height:
+                                  ProductReturnDialogContent._fixedRowHeight,
+                              color: e.key.isEven
+                                  ? const Color(0xFFF8FAFC)
+                                  : Colors.white,
+                              child: Row(
+                                children: [
+                                  _col(formatAmount(cart.price), colUnit),
+                                  _col(
+                                      '${cart.pieces ?? 0} (${cart.quantity ?? 0} ${cart.packType ?? ''})'
+                                          .trim(),
+                                      colQty),
+                                  _col(
+                                    formatAmount(cart.totalPrice),
+                                    colAmt,
+                                    align: TextAlign.right,
+                                  ),
 
-                              _col(
-                                formatAmount(cart.tax), // e.g., ₹ 270.00
-                                colTax,
-                                align: TextAlign.right,
-                              ),
+                                  _col(
+                                    formatAmount(
+                                        cart.discountAmount), // e.g., ₹ 100.00
+                                    colDisc,
+                                    align: TextAlign.right,
+                                  ),
 
-                              _col(
-                                formatAmount(cart.totalPrice),
-                                colTotal,
-                                align: TextAlign.right,
-                              ),
-                              // ---------- SUPPLIED QTY + INFO BUTTON (only if pending return exists) ----------
+                                  _col(
+                                    formatAmount(cart.tax), // e.g., ₹ 270.00
+                                    colTax,
+                                    align: TextAlign.right,
+                                  ),
+
+                                  _col(
+                                    formatAmount(cart.totalPrice),
+                                    colTotal,
+                                    align: TextAlign.right,
+                                  ),
+                                  // ---------- SUPPLIED QTY + INFO BUTTON (only if pending return exists) ----------
 // ---------- SUPPLIED QTY + INFO BUTTON ----------
 
-                              _suppQtyCol(
-                                (cart.suppliedQty ?? 0).toString(),
-                                colAvail,
-                                align: TextAlign.center,
-                                cart: cart,
-                              ),
+                                  _suppQtyCol(
+                                    (cart.suppliedQty ?? 0).toString(),
+                                    colAvail,
+                                    align: TextAlign.center,
+                                    cart: cart,
+                                  ),
 
-                              SizedBox(
-                                width: 10,
-                              ),
-                              // SizedBox(width: 80,child: _editableNumberField()),
-                              SizedBox(
-                                width: 80,
-                                child: TextField(
-                                    controller:
-                                        productReturnRowController.damageCtrl,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    decoration: _numberFieldDecoration()),
-                              ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  // SizedBox(width: 80,child: _editableNumberField()),
+                                  SizedBox(
+                                    width: 80,
+                                    child: TextField(
+                                        controller: productReturnRowController
+                                            .damageCtrl,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: _numberFieldDecoration()),
+                                  ),
 
-                              SizedBox(
-                                width: 30,
-                              ),
-                              //  SizedBox(width: 80,child: _editableNumberField()),
-                              SizedBox(
-                                width: 80,
-                                child: TextField(
-                                    controller:
-                                        productReturnRowController.returnCtrl,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    decoration: _numberFieldDecoration()),
-                              ),
-                              // SizedBox(
+                                  SizedBox(
+                                    width: 30,
+                                  ),
+                                  //  SizedBox(width: 80,child: _editableNumberField()),
+                                  SizedBox(
+                                    width: 80,
+                                    child: TextField(
+                                        controller: productReturnRowController
+                                            .returnCtrl,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: _numberFieldDecoration()),
+                                  ),
+                                  // SizedBox(
 
-                              SizedBox(
-                                width: 20,
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 80,
+                                    child: _uploadImageBtn(
+                                      onPicked: (File file) =>
+                                          setState(() => cart.image = file),
+                                      currentFile: cart.image,
+                                    ),
+                                  ),
+                                  //  SizedBox(width:80,child:  _uploadImageBtn()),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  SizedBox(
+                                    width: 310,
+                                    child: TextField(
+                                      controller:
+                                          productReturnRowController.reasonCtrl,
+                                      decoration: _reasonFieldDecoration(),
+                                    ),
+                                  ),
+                                  // SizedBox(width:310, child: _reasonDropdown()),
+                                ],
                               ),
-                              SizedBox(
-                                width: 80,
-                                child: _uploadImageBtn(
-                                  onPicked: (File file) =>
-                                      setState(() => cart.image = file),
-                                  currentFile: cart.image,
-                                ),
-                              ),
-                              //  SizedBox(width:80,child:  _uploadImageBtn()),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              SizedBox(
-                                width: 310,
-                                child: TextField(
-                                  controller:
-                                      productReturnRowController.reasonCtrl,
-                                  decoration: _reasonFieldDecoration(),
-                                ),
-                              ),
-                              // SizedBox(width:310, child: _reasonDropdown()),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: CustomHorizontalScrollbar(
+                      controller: _bodyHorizontalController,
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: CustomHorizontalScrollbar(
-                  controller: _horizontalScrollController,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
   }
 
   /* --------------------------------------------------------------
-     Header helpers (exact copy of your code)
+     Header helpers – background/gradient now lives on the single
+     continuous Container in _buildReturnTable (see comment there), so
+     these only provide the width/alignment/cell layout.
      -------------------------------------------------------------- */
-  Widget _buildHeader1(Widget child, double width) => Container(
+  Widget _buildHeader1(Widget child, double width) => SizedBox(
         width: width,
-        alignment: Alignment.center,
-        // color: primaryColor,
-        color: const Color.fromARGB(255, 7, 127, 226),
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        child: child,
+        child: Center(child: child),
       );
 
   Widget _buildScrollableHeader() {
-    return Container(
-      // color: primaryColor,
-      color: const Color.fromARGB(255, 7, 127, 226),
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      child: Row(
-        children: [
-          _headerCell('Unit Price', 130),
-          _headerCell('Quantity', 150),
-          _headerCell('Amount', 150),
-          _headerCell('Discount', 150),
-          _headerCell('Tax', 150),
-          _headerCell('Total', 150),
-          _headerCell('Sup. Qty', 110),
-          _headerCell('Dam. Qty', 110),
-          _headerCell('Ret. Qty', 110),
-          _headerCell('Image', 80),
-          _headerCell('Reason', 300),
-        ],
-      ),
+    return Row(
+      children: [
+        _headerCell('Unit Price', 130),
+        _headerCell('Quantity', 150),
+        _headerCell('Amount', 150),
+        _headerCell('Discount', 150),
+        _headerCell('Tax', 150),
+        _headerCell('Total', 150),
+        _headerCell('Sup. Qty', 110),
+        _headerCell('Dam. Qty', 110),
+        _headerCell('Ret. Qty', 110),
+        _headerCell('Image', 80),
+        _headerCell('Reason', 300),
+      ],
     );
   }
 
@@ -757,7 +955,7 @@ class _ProductReturnDialogContentState
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
           ),
           elevation: 10,
           child: PendingReturnsPopup(
@@ -792,30 +990,75 @@ class _ProductReturnDialogContentState
           barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Select Method'),
-              actions: [
-                IconButton(
-                  onPressed: () async {
-                    final file = await pickImages(
-                      ImageSource.camera,
-                    );
-                    if (file != null) onPicked(file);
-                    Navigator.of(context).pop();
-                  },
-                  icon: const Icon(EneftyIcons.camera_outline),
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              backgroundColor: Colors.white,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 340),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Select Method',
+                            style: TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.close,
+                                size: 20,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _selectMethodOption(
+                        context: context,
+                        icon: EneftyIcons.camera_outline,
+                        label: 'Camera',
+                        onTap: () async {
+                          final file = await pickImages(
+                            ImageSource.camera,
+                          );
+                          if (file != null) onPicked(file);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      _selectMethodOption(
+                        context: context,
+                        icon: EneftyIcons.gallery_bold,
+                        label: 'Gallery',
+                        onTap: () async {
+                          final file = await pickImages(
+                            ImageSource.gallery,
+                          );
+                          if (file != null) onPicked(file);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  onPressed: () async {
-                    final file = await pickImages(
-                      ImageSource.gallery,
-                    );
-                    if (file != null) onPicked(file);
-                    Navigator.of(context).pop();
-                  },
-                  icon: const Icon(EneftyIcons.gallery_bold),
-                ),
-              ],
+              ),
             );
           },
         );
@@ -823,17 +1066,68 @@ class _ProductReturnDialogContentState
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
-          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: primaryColor),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.upload, size: 16, color: Colors.blue),
+            const Icon(Icons.upload, size: 16, color: primaryColor),
             const SizedBox(width: 4),
             if (currentFile != null)
               const Icon(Icons.check_circle, color: Colors.green, size: 16),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Modern rounded list-item row used by the "Select Method" picker above.
+  /// Purely presentational — the tap callback passed in is whatever the
+  /// caller already wired up (camera/gallery picking), unchanged.
+  Widget _selectMethodOption({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: const Color(0xFFF8FAFC),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: primaryColor),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const Spacer(),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: Color(0xFF94A3B8)),
+            ],
+          ),
         ),
       ),
     );
@@ -851,7 +1145,7 @@ class _ProductReturnDialogContentState
     }
 
     double taxTotal = 0.0;
-    final List<String> taxParts = [];
+    final List<Widget> chips = [];
 
     for (var t in order.tax!) {
       final amount = double.tryParse(t.taxAmount.toString()) ?? 0.0;
@@ -859,38 +1153,51 @@ class _ProductReturnDialogContentState
 
       final taxName = t.taxName ?? '';
       final taxRate = t.tax ?? '';
-      final formatted = formatAmount(amount);
 
-      taxParts.add('$taxName - $taxRate% : $formatted');
+      chips.add(Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Text(
+          '$taxName - $taxRate% : ${formatAmount(amount)}',
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF64748B),
+          ),
+        ),
+      ));
     }
 
-    final middle = taxParts.join('   ');
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 14, color: Colors.black),
-              children: [
-                const TextSpan(
-                  text: 'TAX : ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: middle),
-                const TextSpan(
-                  text: '  TOTAL : ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: formatAmount(taxTotal)),
-              ],
-            ),
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        const Text(
+          'TAX',
+          style: TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
           ),
-          const SizedBox(width: 10),
-        ],
-      ),
+        ),
+        ...chips,
+        Text(
+          'Total: ${formatAmount(taxTotal)}',
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+      ],
     );
   }
 
@@ -902,44 +1209,54 @@ class _ProductReturnDialogContentState
     final double subtotal = double.tryParse(order.subTotal.toString()) ?? 0.0;
     final double discount = 0.0;
 
-    final List<Widget> rows = [];
-
-    rows.add(_totalRow('Subtotal:', formatAmount(subtotal)));
-
-    rows.add(_totalRow('Discount:', '${formatAmount(discount)}'));
-
-    rows.add(
-      Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: _totalRow(
-          'Total:',
-          formatAmount(orderTotal),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        width: 260,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(
+          children: [
+            _totalRow('Subtotal', formatAmount(subtotal)),
+            const SizedBox(height: 6),
+            _totalRow('Discount', formatAmount(discount)),
+            const SizedBox(height: 10),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            const SizedBox(height: 10),
+            _totalRow(
+              'Total',
+              formatAmount(orderTotal),
+              isEmphasis: true,
+            ),
+          ],
         ),
       ),
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: rows,
-        ),
-      ],
     );
   }
 
-  Widget _totalRow(String label, String value, {TextStyle? style}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Text(label, style: style),
-          const SizedBox(width: 16),
-          Text(value, style: style),
-        ],
-      ),
+  Widget _totalRow(String label, String value, {bool isEmphasis = false}) {
+    final labelStyle = TextStyle(
+      fontFamily: 'Poppins_Regular',
+      fontSize: isEmphasis ? 13.5 : 12.5,
+      fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
+      color: isEmphasis ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+    );
+    final valueStyle = TextStyle(
+      fontFamily: 'Poppins_Regular',
+      fontSize: isEmphasis ? 15 : 12.5,
+      fontWeight: FontWeight.w700,
+      color: isEmphasis ? primaryColor : const Color(0xFF0F172A),
+    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: labelStyle),
+        Text(value, style: valueStyle),
+      ],
     );
   }
 
@@ -981,21 +1298,53 @@ class _ProductReturnDialogContentState
       }
     }
 
+    Color statusColor;
+    switch (order.paymentStatus) {
+      case 1:
+        statusColor = const Color(0xFF059669); // paid - green
+        break;
+      case 3:
+        statusColor = const Color(0xFF2563EB); // partially paid - blue
+        break;
+      case 0:
+        statusColor = const Color(0xFFD97706); // pending - amber
+        break;
+      default:
+        statusColor = const Color(0xFF64748B); // unknown - grey
+    }
+
     // ---- Final UI ----
-    return Row(
-      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 10,
+      runSpacing: 8,
       children: [
-        Text(
-          'Payment Status: $paymentStatusText',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: statusColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            paymentStatusText,
+            style: TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: statusColor,
+            ),
+          ),
         ),
-        SizedBox(
-          width: 10,
-        ),
-        Text(
-          'Payment Method: $paymentMethodText',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        if (paymentMethodText.isNotEmpty)
+          Text(
+            'Paid via $paymentMethodText',
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF64748B),
+            ),
+          ),
       ],
     );
   }

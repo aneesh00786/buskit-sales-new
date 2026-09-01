@@ -1,9 +1,7 @@
 import 'dart:math';
 
-
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/sales_return/model/sales_return_model.dart';
@@ -11,12 +9,16 @@ import 'package:busskit_salesexecutive/ui/view/ui/sales_return/product_return/re
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
+// NOTE: These two builders intentionally paint no background of their own.
+// They are composed inside a single continuous gradient bar drawn once by
+// the caller (see SalesReturn._buildTableHeader in sales_return.dart) —
+// giving each builder its own `color: primaryColor` block produced a
+// visible seam between the frozen (Sl.No/Customer Details) header and the
+// scrollable columns' header.
 Widget buildSalesReturnTableHeader1(Widget child, double width) {
   return Container(
     width: width,
     alignment: Alignment.center,
-    color: primaryColor,
     padding: const EdgeInsets.symmetric(vertical: 11),
     child: child,
   );
@@ -24,7 +26,6 @@ Widget buildSalesReturnTableHeader1(Widget child, double width) {
 
 Widget buildSalesReturnTableHeader() {
   return Container(
-    color: primaryColor,
     padding: const EdgeInsets.symmetric(vertical: 11),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,7 +65,12 @@ Widget buildTableRow(
   GetRecentOrderReturnData salesReturnData,
 ) {
   return Container(
-    color: index.isEven ? Colors.grey[50] : Colors.white,
+    decoration: BoxDecoration(
+      color: index.isEven ? const Color(0xFFF8FAFC) : Colors.white,
+      border: const Border(
+        bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.6),
+      ),
+    ),
     height: fixedRowHeight,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,16 +96,19 @@ Widget buildOrderDetails(GetRecentOrderReturnData data) {
         content: data.orderId,
         fontWeight: FontWeight.bold,
         fontSize: 14,
+        color: const Color(0xFF0F172A),
       ),
       SizedBox(height: 4),
       CustomText(
         content: NKDateUtils.commonFullDateTimeFormat2(data.generatedDate!),
         fontSize: 12,
+        color: const Color(0xFF64748B),
       ),
       SizedBox(height: 4),
       CustomText(
         content: 'Admin',
         fontSize: 12,
+        color: const Color(0xFF64748B),
       ),
     ],
   );
@@ -108,16 +117,25 @@ Widget buildOrderDetails(GetRecentOrderReturnData data) {
 Widget buildInvoice(GetRecentOrderReturnData buildInvoiceData) {
   // ✅ Simply use the flat invoiceId field
   final String invoiceIdValue = buildInvoiceData.invoiceId ?? "-";
-  
+
   if (invoiceIdValue == "-") {
-    return const Center(child: Text("-"));
+    return const Center(
+      child: Text(
+        "-",
+        style: TextStyle(
+          fontFamily: 'Poppins_Regular',
+          color: Color(0xFF64748B),
+        ),
+      ),
+    );
   }
-  
+
   return Center(
     child: CustomText(
       content: invoiceIdValue,
       fontWeight: FontWeight.bold,
       fontSize: 14,
+      color: const Color(0xFF0F172A),
     ),
   );
 }
@@ -153,13 +171,16 @@ Widget buildDeleveredDate(GetRecentOrderReturnData DeliveredDateData) {
         content:
             NKDateUtils.commonDayFormat(DeliveredDateData.deliveryDatetime!),
         fontWeight: FontWeight.bold,
+        color: const Color(0xFF0F172A),
       ),
       CustomText(
         content: NKDateUtils.commonTimeOnlyFormat(
             DeliveredDateData.deliveryDatetime!),
+        color: const Color(0xFF64748B),
       ),
       CustomText(
         content: 'Admin',
+        color: const Color(0xFF64748B),
       )
     ],
   );
@@ -174,6 +195,7 @@ Widget buildOrderAmout(GetRecentOrderReturnData orderAmountData) {
         content: formatAmount(orderAmountData.orderTotal.toString()),
         fontWeight: FontWeight.bold,
         fontSize: 14,
+        color: const Color(0xFF0F172A),
       ),
     ],
   );
@@ -266,6 +288,11 @@ Widget buildAction(
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
+              insetPadding: const EdgeInsets.all(16),
+              contentPadding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               content: SizedBox(
                 width: isPhonePortrait(context)
                     ? fullScreenWidth(context) * 2.3
@@ -277,8 +304,11 @@ Widget buildAction(
                     : fullScreenHeight(context) > 640
                         ? fullScreenHeight(context) * 1
                         : fullScreenHeight(context) * 1.1, // Set desired height
-                child: ProductReturnDialogContent(
-                  orderId: salesReturnData.orderId!,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: ProductReturnDialogContent(
+                    orderId: salesReturnData.orderId!,
+                  ),
                 ),
               ),
             ),
@@ -289,7 +319,7 @@ Widget buildAction(
           height: 50,
           decoration: BoxDecoration(
             color: Colors.red,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Padding(
             padding: const EdgeInsets.all(10.0),

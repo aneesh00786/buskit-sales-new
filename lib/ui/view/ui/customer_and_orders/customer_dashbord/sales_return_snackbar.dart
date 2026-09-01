@@ -30,6 +30,11 @@ class DialogContent extends StatelessWidget {
       showDialog(
         context: outerContext,
         builder: (ctx) => AlertDialog(
+          insetPadding: const EdgeInsets.all(16),
+          contentPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           content: SizedBox(
             width: isPhonePortrait(outerContext)
                 ? fullScreenWidth(outerContext) * 2.3
@@ -41,8 +46,11 @@ class DialogContent extends StatelessWidget {
                 : fullScreenHeight(outerContext) > 640
                     ? fullScreenHeight(outerContext) * 1
                     : fullScreenHeight(outerContext) * 1.1,
-            child: ProductReturnDialogContent(
-              orderId: orderId,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: ProductReturnDialogContent(
+                orderId: orderId,
+              ),
             ),
           ),
         ),
@@ -80,7 +88,8 @@ class DialogContent extends StatelessWidget {
                       autofocus: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
-                        hintText: 'Invoice No /  Variant name / Item Number (I/N)',
+                        hintText:
+                            'Invoice No /  Variant name / Item Number (I/N)',
                         hintStyle: TextStyle(color: Colors.white70),
                         border: OutlineInputBorder(),
                         isDense: true,

@@ -94,7 +94,6 @@ class _ProductVariantDialoguePromoState
       child: LayoutBuilder(
         builder: (context, constraints) {
           final fontSize = constraints.maxWidth / 55;
-          final iconSize = constraints.maxWidth / 45;
           final columnSpacing = screenWidth / 40;
           return SingleChildScrollView(
             child: Column(
@@ -568,10 +567,9 @@ class _ProductVariantDialoguePromoState
                                       ),
                                     ),
                                     DataCell(
-                                      Container(
-                                        // width: 200,
-                                        // padding: const EdgeInsets.symmetric(
-                                        //     horizontal: 12),
+                                      widget.promo?.promoType ==
+                                              "tiered_discount"
+                                          ? Container(
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5),
@@ -579,9 +577,7 @@ class _ProductVariantDialoguePromoState
                                               255, 240, 239, 239),
                                         ),
                                         child:
-                                            widget.promo?.promoType ==
-                                                    "tiered_discount"
-                                                ? ValueListenableBuilder<Tier?>(
+                                                ValueListenableBuilder<Tier?>(
                                                     valueListenable:
                                                         selectedTiers[i],
                                                     builder: (context, value,
@@ -643,228 +639,245 @@ class _ProductVariantDialoguePromoState
                                                         },
                                                       ),
                                                     ),
-                                                  )
-                                                : Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    children: [
-                                                      Container(
-                                                        decoration:
-                                                            const BoxDecoration(
-                                                          color: primaryColor,
-                                                          borderRadius:
-                                                              BorderRadius.only(
-                                                            topLeft:
-                                                                Radius.circular(
-                                                                    5),
-                                                            bottomLeft:
-                                                                Radius.circular(
-                                                                    5),
-                                                          ),
-                                                        ),
-                                                        child: InkWell(
-                                                          onTap: () {
-                                                            setState(() {
-                                                              if (localCounts[
-                                                                      i] >
-                                                                  0) {
-                                                                localCounts[
-                                                                    i]--;
+                                                  ),
+                                              )
+                                            : Center(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Material(
+                                                      color:
+                                                          Colors.transparent,
+                                                      child: InkWell(
+                                                        onTap: localCounts[i] >
+                                                                0
+                                                            ? () {
+                                                                setState(() {
+                                                                  localCounts[
+                                                                      i]--;
+                                                                });
                                                               }
-                                                            });
-                                                          },
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(5),
-                                                            child: Icon(
-                                                              Icons.remove,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: iconSize,
-                                                            ),
+                                                            : null,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: Container(
+                                                          width: 30,
+                                                          height: 30,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: localCounts[
+                                                                        i] >
+                                                                    0
+                                                                ? primaryColor
+                                                                : Colors.grey
+                                                                    .shade300,
+                                                            shape: BoxShape
+                                                                .circle,
+                                                          ),
+                                                          child: Icon(
+                                                            Icons.remove,
+                                                            color: localCounts[
+                                                                        i] >
+                                                                    0
+                                                                ? Colors.white
+                                                                : Colors.grey
+                                                                    .shade500,
+                                                            size: 16,
                                                           ),
                                                         ),
                                                       ),
-                                                      const SizedBox(width: 8),
-                                                      CustomText(
-                                                        content: localCounts[i]
-                                                            .toStringAsFixed(0),
-                                                        fontSize: fontSize,
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Container(
-                                                        decoration:
-                                                            const BoxDecoration(
-                                                          color: primaryColor,
-                                                          borderRadius:
-                                                              BorderRadius.only(
-                                                            topRight:
-                                                                Radius.circular(
-                                                                    5),
-                                                            bottomRight:
-                                                                Radius.circular(
-                                                                    5),
-                                                          ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    SizedBox(
+                                                      width: 24,
+                                                      child: Center(
+                                                        child: CustomText(
+                                                          content: localCounts[
+                                                                  i]
+                                                              .toStringAsFixed(
+                                                                  0),
+                                                          fontSize: fontSize,
                                                         ),
-                                                        child: InkWell(
-                                                          onTap: () {
-                                                            setState(() {
-                                                              detail.saleBy ??=
-                                                                  'Pack';
-                                                              if (detail
-                                                                      .stock ==
-                                                                  0) {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (BuildContext
-                                                                          context) {
-                                                                    return AlertDialog(
-                                                                      shape:
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(15),
-                                                                      ),
-                                                                      backgroundColor:
-                                                                          Colors
-                                                                              .white,
-                                                                      title:
-                                                                          const Row(
-                                                                        children: [
-                                                                          Icon(
-                                                                              Icons.info_outline,
-                                                                              color: Colors.red),
-                                                                          SizedBox(
-                                                                              width: 8),
-                                                                          Text(
-                                                                            'Out of Stock',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 20,
-                                                                              fontWeight: FontWeight.bold,
-                                                                              color: Colors.black,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      content:
-                                                                          const Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          Text(
-                                                                            'This item is out of stock.',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 16,
-                                                                              color: Colors.black87,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                          SizedBox(
-                                                                              height: 10),
-                                                                          Text(
-                                                                            'Do you want to add this as a booking?',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 16,
-                                                                              fontWeight: FontWeight.bold,
-                                                                              color: Colors.black,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      actions: [
-                                                                        ElevatedButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            Navigator.of(context).pop();
-                                                                          },
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Material(
+                                                      color:
+                                                          Colors.transparent,
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            detail.saleBy ??=
+                                                                'Pack';
+                                                            if (detail.stock ==
+                                                                0) {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (BuildContext
+                                                                        context) {
+                                                                  return AlertDialog(
+                                                                    shape:
+                                                                        RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius
+                                                                              .circular(15),
+                                                                    ),
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    title:
+                                                                        const Row(
+                                                                      children: [
+                                                                        Icon(
+                                                                            Icons.info_outline,
+                                                                            color: Colors.red),
+                                                                        SizedBox(
+                                                                            width: 8),
+                                                                        Text(
+                                                                          'Out of Stock',
                                                                           style:
-                                                                              ElevatedButton.styleFrom(
-                                                                            backgroundColor:
-                                                                                Colors.redAccent,
-                                                                            shape:
-                                                                                RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(8),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              const Text(
-                                                                            'No',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: Colors.white,
-                                                                              fontWeight: FontWeight.bold,
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        ElevatedButton(
-                                                                          onPressed:
-                                                                              () {
-                                                                            setState(() {
-                                                                              localCounts[i]++;
-                                                                            });
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                          style:
-                                                                              ElevatedButton.styleFrom(
-                                                                            backgroundColor:
-                                                                                Colors.green,
-                                                                            shape:
-                                                                                RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(8),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              const Text(
-                                                                            'Yes',
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: Colors.white,
-                                                                              fontWeight: FontWeight.bold,
-                                                                            ),
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color:
+                                                                                Colors.black,
                                                                           ),
                                                                         ),
                                                                       ],
-                                                                    );
-                                                                  },
-                                                                );
-                                                              } else if (detail
-                                                                      .stock ==
-                                                                  0) {
-                                                                localCounts[
-                                                                    i]++;
-                                                              } else {
-                                                                localCounts[
-                                                                    i]++;
-                                                              }
-                                                            });
-                                                          },
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(5),
-                                                            child: Icon(
-                                                              Icons.add,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: iconSize,
-                                                            ),
+                                                                    ),
+                                                                    content:
+                                                                        Column(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        Text(
+                                                                          'This item is out of stock.'
+                                                                              .tr,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            color:
+                                                                                Colors.black87,
+                                                                          ),
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                        ),
+                                                                        SizedBox(
+                                                                            height:
+                                                                                10),
+                                                                        Text(
+                                                                          'Do you want to add this as a booking?'
+                                                                              .tr,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color:
+                                                                                Colors.black,
+                                                                          ),
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    actions: [
+                                                                      Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceEvenly,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                OutlinedButton(
+                                                                              onPressed: () {
+                                                                                Navigator.of(context).pop();
+                                                                              },
+                                                                              style: OutlinedButton.styleFrom(
+                                                                                side: const BorderSide(color: Colors.redAccent, width: 2),
+                                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                              ),
+                                                                              child: const Text(
+                                                                                'No',
+                                                                                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                              width: 12),
+                                                                          Expanded(
+                                                                            child:
+                                                                                OutlinedButton(
+                                                                              onPressed: () {
+                                                                                setState(() {
+                                                                                  localCounts[i]++;
+                                                                                });
+                                                                                Navigator.of(context).pop();
+                                                                              },
+                                                                              style: OutlinedButton.styleFrom(
+                                                                                side: const BorderSide(color: Colors.green, width: 2),
+                                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                              ),
+                                                                              child: const Text(
+                                                                                'Yes',
+                                                                                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            } else if (detail
+                                                                    .stock ==
+                                                                0) {
+                                                              localCounts[
+                                                                  i]++;
+                                                            } else {
+                                                              localCounts[
+                                                                  i]++;
+                                                            }
+                                                          });
+                                                        },
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: Container(
+                                                          width: 30,
+                                                          height: 30,
+                                                          decoration:
+                                                              const BoxDecoration(
+                                                            color:
+                                                                primaryColor,
+                                                            shape: BoxShape
+                                                                .circle,
+                                                          ),
+                                                          child: const Icon(
+                                                            Icons.add,
+                                                            color:
+                                                                Colors.white,
+                                                            size: 16,
                                                           ),
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                     ),
                                   ],
                                 );

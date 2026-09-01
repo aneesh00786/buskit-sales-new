@@ -105,6 +105,7 @@ class _OrderTakingState extends State<OrderTaking>
   bool _isCartCountFetched = false;
 
   int selectedIndex = 0;
+  bool _hasBulkOffers = false;
 
   @override
   void initState() {
@@ -131,6 +132,18 @@ class _OrderTakingState extends State<OrderTaking>
     });
     if (widget.isDirectDialogue) {}
     fetchAndSetCustomers();
+    // Preload promotion/bulk offer availability so the tab badges can show
+    // without requiring the user to open those tabs first.
+    widget.productsController.fetchPromotions().then((_) {
+      if (mounted) setState(() {});
+    });
+    apiWorker.getBulkVolumes().then((bulk) {
+      if (mounted) {
+        setState(() {
+          _hasBulkOffers = (bulk.data ?? []).isNotEmpty;
+        });
+      }
+    }).catchError((_) {});
     animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -308,6 +321,135 @@ class _OrderTakingState extends State<OrderTaking>
     });
   }
 
+  Widget _buildOrderTypeTab({
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    bool showBadge = false,
+  }) {
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(9),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.all(3),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            gradient: isSelected
+                ? const LinearGradient(
+                    colors: [primaryColor, Color(0xFF2D3748)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(9),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(icon,
+                      size: 16,
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF334155)),
+                  if (showBadge)
+                    Positioned(
+                      top: -3,
+                      right: -4,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? primaryColor : Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderTypeTabBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildOrderTypeTab(
+            label: "Products".tr,
+            icon: Icons.storefront_outlined,
+            isSelected: selectedIndex == 0,
+            onTap: () => setState(() => selectedIndex = 0),
+          ),
+          _buildOrderTypeTab(
+            label: "Promotions".tr,
+            icon: Icons.local_offer_outlined,
+            isSelected: selectedIndex == 1,
+            showBadge: widget.productsController.promotions.isNotEmpty,
+            onTap: () async {
+              widget.productsController.fetchPromotions();
+              setState(() => selectedIndex = 1);
+            },
+          ),
+          _buildOrderTypeTab(
+            label: "Bulk".tr,
+            icon: Icons.inventory_2_outlined,
+            isSelected: selectedIndex == 2,
+            showBadge: _hasBulkOffers,
+            onTap: () => setState(() => selectedIndex = 2),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // log('Final Amount${widget.productsController.finalAmount.value.toStringAsFixed(0)}');
@@ -482,128 +624,9 @@ class _OrderTakingState extends State<OrderTaking>
                       SizedBox(height: 10),
                       Row(
                         children: [
-                          Container(
+                          SizedBox(
                             width: fullScreenWidth(context) * 0.6,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: Colors.grey.shade400, width: 1),
-                            ),
-                            child: Row(
-                              children: [
-                                // Products tab
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10),
-                                    ),
-                                    onTap: () {
-                                      setState(() => selectedIndex = 0);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: selectedIndex == 0
-                                            ? skyBlueColor
-                                            : Colors.white,
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10),
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      child: Text(
-                                        "Products".tr,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: selectedIndex == 0
-                                              ? Colors.white
-                                              : Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Promotions tab
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    ),
-                                    onTap: () async {
-                                      widget.productsController
-                                          .fetchPromotions();
-                                      setState(() => selectedIndex = 1);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: selectedIndex == 1
-                                            ? skyBlueColor
-                                            : Colors.white,
-                                        borderRadius: const BorderRadius.only(
-                                          topRight: Radius.circular(10),
-                                          bottomRight: Radius.circular(10),
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      child: Text(
-                                        "Promotions".tr,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: selectedIndex == 1
-                                              ? Colors.white
-                                              : Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    ),
-                                    onTap: () {
-                                      setState(() => selectedIndex = 2);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: selectedIndex == 2
-                                            ? skyBlueColor
-                                            : Colors.white,
-                                        borderRadius: const BorderRadius.only(
-                                          topRight: Radius.circular(10),
-                                          bottomRight: Radius.circular(10),
-                                        ),
-                                      ),
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
-                                      child: Text(
-                                        "Bulk".tr,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: selectedIndex == 2
-                                              ? Colors.white
-                                              : Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            child: _buildOrderTypeTabBar(),
                           ),
                         ],
                       )
@@ -617,127 +640,9 @@ class _OrderTakingState extends State<OrderTaking>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
+                      SizedBox(
                         width: fullScreenWidth(context) * 0.6,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border:
-                              Border.all(color: Colors.grey.shade400, width: 1),
-                        ),
-                        child: Row(
-                          children: [
-                            // Products tab
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  bottomLeft: Radius.circular(10),
-                                ),
-                                onTap: () {
-                                  setState(() => selectedIndex = 0);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: selectedIndex == 0
-                                        ? skyBlueColor
-                                        : Colors.white,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10),
-                                    ),
-                                  ),
-                                  alignment: Alignment.center,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    "Products".tr,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: selectedIndex == 0
-                                          ? Colors.white
-                                          : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            // Promotions tab
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                                onTap: () async {
-                                  widget.productsController.fetchPromotions();
-                                  setState(() => selectedIndex = 1);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: selectedIndex == 1
-                                        ? skyBlueColor
-                                        : Colors.white,
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  alignment: Alignment.center,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    "Promotions".tr,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: selectedIndex == 1
-                                          ? Colors.white
-                                          : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            Expanded(
-                              child: InkWell(
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                                onTap: () {
-                                  setState(() => selectedIndex = 2);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: selectedIndex == 2
-                                        ? skyBlueColor
-                                        : Colors.white,
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(10),
-                                      bottomRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  alignment: Alignment.center,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    "Bulk".tr,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: selectedIndex == 2
-                                          ? Colors.white
-                                          : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        child: _buildOrderTypeTabBar(),
                       ),
                       SizedBox(width: 20),
                       Flexible(

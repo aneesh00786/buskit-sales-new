@@ -15,36 +15,41 @@ class PromotionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(10),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.blueGrey.shade50,
-          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFFF8FAFC),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           children: [
             _buildHeader(),
-            const SizedBox(height: 10),
 
             /// Reactive UI with GetX
             Expanded(
               child: Obx(() {
                 if (controller.isPromotionLoading.value) {
                   return const Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: primaryColor),
                   );
                 }
 
                 if (controller.promotions.isEmpty) {
-                  return const Center(
-                    child: Text("No promotions available"),
-                  );
+                  return _buildEmptyState();
                 }
 
                 return ListView.separated(
+                  padding: const EdgeInsets.all(10),
                   itemCount: controller.promotions.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final promo = controller.promotions[index];
                     return _buildPromotionCard(promo, context);
@@ -61,53 +66,52 @@ class PromotionList extends StatelessWidget {
   /// Header Bar
   Widget _buildHeader() {
     return Container(
-      height: 40,
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [primaryColor, Color(0xFF2D3748)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
-      child: Stack(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-           Center(
-            child: Text(
-              "Active Promotions".tr,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.local_offer_rounded,
+                    color: Colors.white, size: 16),
               ),
-            ),
+              const SizedBox(width: 10),
+              Text(
+                "Active Promotions".tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
-          // Close button only shown in drawer mode
           if (isDrawer)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Builder(
-                builder: (context) => SizedBox(
-                  height: 40,
-                  width: 40,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: white, width: 1)),
-                        child: IconButton(
-                          icon: const Icon(Icons.close,
-                              color: Colors.white, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ),
+            Builder(
+              builder: (context) => InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
                   ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 18),
                 ),
               ),
             ),
@@ -116,118 +120,138 @@ class PromotionList extends StatelessWidget {
     );
   }
 
-  /// Promotion Card Item
-  
-  Widget _buildPromotionCard(PromotionReponse promo, BuildContext context) {
-    return Obx(
-       () {
-        final isSelected = controller.selectedPromotion.value?.id == promo.id;
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          height: 100,
-          width: double.maxFinite,
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.deepPurple.shade50 : white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? Colors.deepPurple : Colors.grey.shade400,
-              width: isSelected ? 2 :2,
-              )
-              ,
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.local_offer_outlined,
+                size: 28, color: primaryColor.withOpacity(0.6)),
           ),
-          child: Row(
-            children: [
-              Container(
-                height: 100,
-                width: 8,
-                decoration:  BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: isSelected
-                    ?  [Color(0xFF764ba2), Color(0xFF667eea)]
-                    : const [Color(0xFF667eea), Color(0xFF764ba2)],
-                    // colors: [
-                    //   Color(0xFF667eea),
-                    //   Color(0xFF764ba2),
-                    // ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListTile(
-                  title: Text(promo.title ?? "Untitled"),
-                  subtitle: Text(
-                    (promo.description == null || promo.description!.isEmpty)
-                        ? "No description"
-                        : promo.description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-                  onTap: () {
-                    controller.selectPromotion(promo);
-                    // Close drawer if in drawer mode
-                    if (isDrawer) {
-                      Navigator.of(context).pop();
-                    }
-                  }, // 👈 important
-                ),
-              ),
-            ],
+          const SizedBox(height: 10),
+          Text(
+            "No promotions available".tr,
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF64748B),
+            ),
           ),
-        );
-      }
+        ],
+      ),
     );
   }
-  // Widget _buildPromotionCard(PromotionReponse promo, BuildContext context) {
-  //   return Container(
-  //     clipBehavior: Clip.antiAlias,
-  //     height: 100,
-  //     width: double.maxFinite,
-  //     decoration: BoxDecoration(
-  //       color: white,
-  //       borderRadius: BorderRadius.circular(10),
-  //       border: Border.all(color: Colors.grey.shade400),
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Container(
-  //           height: 100,
-  //           width: 8,
-  //           decoration: const BoxDecoration(
-  //             gradient: LinearGradient(
-  //               begin: Alignment.topCenter,
-  //               end: Alignment.bottomCenter,
-  //               colors: [
-  //                 Color(0xFF667eea),
-  //                 Color(0xFF764ba2),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //         Expanded(
-  //           child: ListTile(
-  //             title: Text(promo.title ?? "Untitled"),
-  //             subtitle: Text(
-  //               (promo.description == null || promo.description!.isEmpty)
-  //                   ? "No description"
-  //                   : promo.description!,
-  //               maxLines: 2,
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //             trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-  //             onTap: () {
-  //               controller.selectPromotion(promo);
-  //               // Close drawer if in drawer mode
-  //               if (isDrawer) {
-  //                 Navigator.of(context).pop();
-  //               }
-  //             }, // 👈 important
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+
+  /// Promotion Card Item
+  Widget _buildPromotionCard(PromotionReponse promo, BuildContext context) {
+    return Obx(
+      () {
+        final isSelected = controller.selectedPromotion.value?.id == promo.id;
+        return Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              controller.selectPromotion(promo);
+              if (isDrawer) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: isSelected ? primaryColor.withOpacity(0.06) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? primaryColor : const Color(0xFFE2E8F0),
+                  width: isSelected ? 1.5 : 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isSelected
+                              ? [primaryColor, const Color(0xFF2D3748)]
+                              : [const Color(0xFFE2E8F0), const Color(0xFFE2E8F0)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Icon(
+                        Icons.local_offer_rounded,
+                        size: 15,
+                        color: isSelected ? Colors.white : const Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            promo.title ?? "Untitled".tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            (promo.description == null ||
+                                    promo.description!.isEmpty)
+                                ? "No description".tr
+                                : promo.description!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.chevron_right_rounded,
+                        size: 20,
+                        color: isSelected ? primaryColor : const Color(0xFF94A3B8)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -14,56 +14,48 @@ class _PromoStockStatusChipState extends State<PromoStockStatusChip>
 
   @override
   Widget build(BuildContext context) {
+    const Color statusColor = Color(0xFFDC2626);
+
     return GestureDetector(
       onTap: () => setState(() => _expanded = !_expanded),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(50),
-          color: Colors.red.shade400,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(
+          vertical: 7,
+          horizontal: _expanded ? 12 : 8,
         ),
-        padding: const EdgeInsets.all(2),
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: _expanded ? 16 : 10,
-            ),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(50)),
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromARGB(255, 255, 203, 203), // Light red
-                  Color.fromARGB(255, 255, 185, 185), // Slightly darker light red
-                ],
+        decoration: BoxDecoration(
+          color: statusColor.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: statusColor.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 7,
+              height: 7,
+              decoration: const BoxDecoration(
+                color: statusColor,
+                shape: BoxShape.circle,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.red,
-                  radius: 5,
+            if (_expanded) ...[
+              const SizedBox(width: 7),
+              Text(
+                "Out of Stock".tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: statusColor,
                 ),
-                if (_expanded) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    "Out of Stock".tr,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.red.shade800,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ],
-            ),
-          ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 import 'package:busskit_salesexecutive/ui/components/category_filter/category_model.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -71,8 +72,15 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
       padding: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width * 0.3,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade500),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -126,12 +134,21 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
                         });
                       },
                       child: Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
+                          color: isExpanded ? primaryColor : Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: isExpanded
+                              ? [
+                                  BoxShadow(
+                                    color: primaryColor.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  )
+                                ]
+                              : null,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,11 +158,19 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
                               style: GoogleFonts.poppins(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w600,
+                                color:
+                                    isExpanded ? Colors.white : Colors.black87,
                               ),
                             ),
-                            isExpanded
-                                ? const Icon(Icons.keyboard_arrow_up, size: 16)
-                                : const Icon(Icons.keyboard_arrow_down, size: 16),
+                            Icon(
+                              isExpanded
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                              size: 18,
+                              color: isExpanded
+                                  ? Colors.white
+                                  : Colors.grey.shade600,
+                            ),
                           ],
                         ),
                       ),
@@ -154,7 +179,7 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: category.subCategoryItem!.map((option) {
                             return GestureDetector(
                               onTap: () {
@@ -167,19 +192,22 @@ class _CategoryListPromoState extends State<CategoryListPromo> {
                                 widget.onDrawerToggle();
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom: 7.0, left: 10, right: 10),
+                                padding: const EdgeInsets.only(bottom: 4.0),
                                 child: Container(
-                                  padding: const EdgeInsets.all(10),
+                                  padding: const EdgeInsets.only(
+                                      left: 32, right: 14, top: 12, bottom: 12),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     option.subCategory ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: GoogleFonts.poppins(
                                       fontSize: 12.0,
-                                      color: Colors.black,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),

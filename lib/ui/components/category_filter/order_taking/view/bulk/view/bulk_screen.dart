@@ -1,10 +1,9 @@
-
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/local_database/cart_database.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/view/bulk/model/bulk_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/promotions/widgets/promo_status_chip.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
@@ -39,22 +38,28 @@ class _BulkScreenState extends State<BulkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE),
+      backgroundColor: const Color(0xFFF8FAFC),
 
       // Use the AppBar/Header structure from previous UI
       body: FutureBuilder<Bulk>(
         future: _bulkFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: primaryColor),
+            );
           }
           if (snapshot.hasError) {
-            return Center(
-                child:
-                    Text('Error: ${snapshot.error}')); // Simplified for brevity
+            return _buildStatusMessage(
+              icon: Icons.error_outline_rounded,
+              message: 'Error: ${snapshot.error}',
+            );
           }
           if (!snapshot.hasData || snapshot.data!.data!.isEmpty) {
-            return const Center(child: Text('No bulk volumes found'));
+            return _buildStatusMessage(
+              icon: Icons.inventory_2_outlined,
+              message: 'No bulk volumes found'.tr,
+            );
           }
 
           final bulkList = snapshot.data!.data!;
@@ -71,9 +76,38 @@ class _BulkScreenState extends State<BulkScreen> {
       ),
     );
   }
+
+  Widget _buildStatusMessage({required IconData icon, required String message}) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 32, color: primaryColor.withOpacity(0.6)),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF64748B),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 }
 class DynamicBulkCard extends StatefulWidget {
-  final dynamic data; 
+  final dynamic data;
 
   const DynamicBulkCard({super.key, required this.data});
 
@@ -89,7 +123,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
   Widget build(BuildContext context) {
     // Access data via widget.data
     final data = widget.data;
-    
+
     // Calculate values from your data
     final discountText = data.discountPercentage != null
         ? '${data.discountPercentage!.toStringAsFixed(1)}% OFF'
@@ -102,26 +136,84 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
     // Total savings per bulk unit * selected quantity
     final double savings = ((unitPrice * qty) - bulkPrice) * _currentQuantity;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data.volumeName ?? "Bulk Item",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 28)),
-                            Builder(
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [primaryColor, Color(0xFF2D3748)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.inventory_2_rounded,
+                      color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.volumeName ?? "Bulk Item",
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${'Category'.tr}: ${data.categoryName ?? 'N/A'}',
+                          style: const TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Builder(
                   builder: (context) {
                     final int availableStock = int.tryParse(data.stock?.toString() ?? '0') ?? 0;
                      final int itemsPerBulk = data.itemNumbers ?? 1;
-                    // You can change this to `availableStock < (data.itemNumbers ?? 1)` 
+                    // You can change this to `availableStock < (data.itemNumbers ?? 1)`
                     // if you want strict bulk availability checking.
                     if (availableStock <= 0 || availableStock < itemsPerBulk) {
                       return const PromoStockStatusChip();
@@ -131,50 +223,59 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text('Category'.tr + ': ${data.categoryName ?? 'N/A'}',
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Product Details Section
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F7F9),
-                borderRadius: BorderRadius.circular(8),
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Column(
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CustomText(
-                        content: "Product".tr,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        "Product".tr,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                        ),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CustomText(
-                                   content:
-    '${data.variationName ?? "N/A"} ${data.unitType ?? ""} - ${data.productName ?? "N/A"}',
+                            Text(
+                              '${data.variationName ?? "N/A"} ${data.unitType ?? ""} - ${data.productName ?? "N/A"}',
                               overflow: TextOverflow.ellipsis,
-                              fontWeight: FontWeight.bold, fontSize: 16,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF0F172A),
+                              ),
                             ),
-                            CustomText(
-                                content: "(${data.subcategoryName ?? 'N/A'})",
-                                fontSize: 12,
-                                color: Colors.grey
-                                ),
+                            Text(
+                              "(${data.subcategoryName ?? 'N/A'})",
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 11,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
                           ],
                         ),
                       )
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -188,7 +289,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // Dynamic Savings Banner
             Container(
@@ -196,24 +297,31 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
                 color: const Color(0xFFEDF7EE),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF22C55E).withOpacity(0.25)),
               ),
-              child: Center(
-                child: CustomText(
-                  content:
-                      'You Save'.tr + ': \u200E${formatAmount(savings.toStringAsFixed(2))} ($discountText)',
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.savings_rounded, color: Color(0xFF16A34A), size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${'You Save'.tr}: ‎${formatAmount(savings.toStringAsFixed(2))} ($discountText)',
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      color: Color(0xFF16A34A),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             _buildActionButtons(context),
           ],
         ),
-      ),
     );
   }
 
@@ -222,108 +330,98 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
       children: [
         Text(label,
             style: const TextStyle(
-              color: Colors.black,
-              fontSize: 20,
+              fontFamily: 'Poppins_Regular',
+              color: Color(0xFF64748B),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
             )),
+        const SizedBox(height: 2),
         Text(price,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: Color(0xFF0F172A),
+            )),
       ],
     );
   }
 
   // --- Quantity Manager Widget ---
   Widget _buildQuantityManager() {
-    const Color primaryColor = Color(0xFF4285F4); 
-
-    return Container(
-      width: 120, 
-      height: 45,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: const Color.fromARGB(255, 241, 240, 240),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Decrement Button
-          Container(
-            height: 45,
-            decoration: const BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(15),
+            onTap: _currentQuantity > 1
+                ? () {
+                    setState(() {
+                      _currentQuantity--;
+                    });
+                  }
+                : null,
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: _currentQuantity > 1
+                    ? primaryColor
+                    : Colors.grey.shade300,
+                shape: BoxShape.circle,
               ),
-            ),
-            child: InkWell(
-              onTap: () {
-                if (_currentQuantity > 1) {
-                  setState(() {
-                    _currentQuantity--;
-                  });
-                }
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Center(
-                  child: Text(
-                    '-',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              child: Icon(
+                Icons.remove,
+                size: 16,
+                color: _currentQuantity > 1
+                    ? Colors.white
+                    : Colors.grey.shade500,
               ),
             ),
           ),
-          
-          // Quantity Display
-          Text(
+        ),
+        SizedBox(
+          width: 34,
+          child: Text(
             _currentQuantity.toString(),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          
-          // Increment Button
-          Container(
-            height: 45,
-            decoration: const BoxDecoration(
-              color: primaryColor,
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
-              ),
-            ),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  _currentQuantity++;
-                });
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Center(
-                   child: Text(
-                    '+',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
             ),
           ),
-        ],
-      ),
+        ),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(15),
+            onTap: () {
+              setState(() {
+                _currentQuantity++;
+              });
+            },
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: const BoxDecoration(
+                color: primaryColor,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.add, size: 16, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildActionButtons(BuildContext context) {
     final data = widget.data;
-    
+
     // Calculate Total Amount dynamically
     final double bulkPrice = double.tryParse(data.volumePrice.toString()) ?? 0.0;
     final double totalAmount = bulkPrice * _currentQuantity;
@@ -332,32 +430,36 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
       children: [
         // 1. Quantity Manager
         _buildQuantityManager(),
-        
-        const SizedBox(width: 15),
+
+        const SizedBox(width: 16),
 
         // 2. Total Amount Display (New)
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text("Total:".tr, style: TextStyle(color: const Color(0xFF0F172A), fontSize: 12)),
+             Text("Total:".tr,
+                 style: const TextStyle(
+                   fontFamily: 'Poppins_Regular',
+                   color: Color(0xFF64748B),
+                   fontSize: 11,
+                   fontWeight: FontWeight.w600,
+                 )),
             Text(
               formatAmount(totalAmount.toStringAsFixed(2)),
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22, // Slightly larger to be prominent
-                color: Colors.black
+                fontFamily: 'Poppins_Regular',
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                color: Color(0xFF0F172A),
               ),
             ),
           ],
         ),
-        
-       Spacer(),
-        
-        SizedBox(
-          width: 200,
-          height: 45,
-          child: ElevatedButton(
-            onPressed: () async {
+
+       const Spacer(),
+
+        ElevatedButton(
+          onPressed: () async {
                final int availableStock =
                   int.tryParse(data.stock?.toString() ?? '0') ?? 0;
               final int itemsPerBulk = data.itemNumbers ?? 1;
@@ -377,7 +479,8 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
         Text(
           "Out of Stock".tr,
           style: const TextStyle(
-            color: Colors.black87,
+            fontFamily: 'Poppins_Regular',
+            color: Color(0xFF0F172A),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -385,26 +488,28 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
     ),
     content: Text(
       "${data.productName} is currently out of stock.",
-      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
+      style: const TextStyle(
+          fontFamily: 'Poppins_Regular',
+          color: Color(0xFF0F172A),
+          fontSize: 15),
     ),
     actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
     actions: [
-      TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.blue.shade50,
+      OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: primaryColor, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
         onPressed: () => Navigator.pop(context),
-        child:  Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: Text(
-            "OK".tr,
-            style: TextStyle(
-              color: Color(0xFF4285F4),
-              fontWeight: FontWeight.bold,
-            ),
+        child: Text(
+          "OK".tr,
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -442,7 +547,8 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
         Text(
           "Insufficient Stock".tr,
           style: const TextStyle(
-            color: Colors.black87,
+            fontFamily: 'Poppins_Regular',
+            color: Color(0xFF0F172A),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -450,26 +556,28 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
     ),
     content: Text(
        "Only $availableStock items available. You requested $totalRequestedStock items ($_currentQuantity bulks of $itemsPerBulk).",
-      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
+      style: const TextStyle(
+          fontFamily: 'Poppins_Regular',
+          color: Color(0xFF0F172A),
+          fontSize: 15),
     ),
     actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
     actions: [
-      TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.blue.shade50,
+      OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: primaryColor, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
         onPressed: () => Navigator.pop(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: Text(
-            "OK".tr,
-            style: const TextStyle(
-              color: Color(0xFF4285F4), // Or you can change back to primaryColor here
-              fontWeight: FontWeight.bold,
-            ),
+        child: Text(
+          "OK".tr,
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            color: primaryColor, // Or you can change back to primaryColor here
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -478,7 +586,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
 );
                 // showDialog(
                 //   context: context,
-                //   builder: (context) => 
+                //   builder: (context) =>
                 //   AlertDialog(
                 //     title:  Text("Insufficient Stock".tr,
                 //         style: TextStyle(color: Colors.orange)),
@@ -552,13 +660,13 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                 await CartDatabaseManager().addToCart(
                   customerId: customerId,
                   // Pass the selected quantity
-                  localCount: _currentQuantity, 
+                  localCount: _currentQuantity,
                   productName: data.productName ?? '',
                   isPack: true,
                   isChcked: true,
                   catId: int.tryParse(data.categoryId?.toString() ?? '0') ?? 0,
                   inclTax: data.inclTax ?? '',
-                  catTax: fetchedCatTax, 
+                  catTax: fetchedCatTax,
                   bulkId: data.bulkId,
                   detail: Detail(
                       id: int.tryParse(data.productVariantId?.toString() ?? '0'),
@@ -571,7 +679,7 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                       packtype: 'Bulk',
                       unitType: "",
                       // Pass quantity as stock/count for cart logic
-                      stock: _currentQuantity, 
+                      stock: _currentQuantity,
                       bulkId: data.bulkId,
                       bulkDiscount: data.discountPercentage ?? 0,
                       bulkDiscountAmount: num.tryParse(data.discountAmount?.toString() ?? '0') ?? 0,
@@ -595,12 +703,12 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
                     "Added $_currentQuantity Bulk Pack(s) to cart",
                     Colors.green,
                     Icons.shopping_cart_checkout);
-                    
+
                 // Optional: Reset quantity to 1 after adding
                 setState(() {
                   _currentQuantity = 1;
                 });
-                
+
               } catch (e) {
                 print("Error adding to cart: $e");
                 showCustomToastDisplay(context, "Error adding to cart: $e",
@@ -608,19 +716,26 @@ class _DynamicBulkCardState extends State<DynamicBulkCard> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4285F4),
+              backgroundColor: primaryButtonColor,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(20),
               ),
-             
-              // minimumSize: const Size(double.infinity, 45), 
             ),
-            child:  Text("Add".tr,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22)),
-          ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Add".tr,
+                    style: const TextStyle(
+                        fontFamily: 'Poppins_Regular',
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14)),
+                const SizedBox(width: 6),
+                const Icon(Icons.shopping_bag_outlined,
+                    color: Colors.white, size: 16),
+              ],
+            ),
         ),
       ],
     );

@@ -10,6 +10,7 @@ class DiloagAppBar extends PreferredSize {
   final Size? appBarSize;
   final String title;
   final Color? backgroundColor;
+  final Gradient? gradient;
   final void Function()? onCloseTap;
 
   DiloagAppBar(
@@ -18,6 +19,7 @@ class DiloagAppBar extends PreferredSize {
       this.appBarSize,
       required this.title,
       this.backgroundColor,
+      this.gradient,
       this.onCloseTap})
       : super(
             child: Container(),
@@ -31,7 +33,10 @@ class DiloagAppBar extends PreferredSize {
         height: 55,
         padding: const EdgeInsets.all(14),
 
-        decoration: BoxDecoration(color: backgroundColor ?? primaryColor),
+        decoration: BoxDecoration(
+          color: gradient == null ? (backgroundColor ?? primaryColor) : null,
+          gradient: gradient,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,

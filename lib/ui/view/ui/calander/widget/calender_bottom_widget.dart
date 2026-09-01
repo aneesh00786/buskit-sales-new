@@ -87,14 +87,21 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                   : 0.5,
       headerStyle: HeaderStyle(
         decoration: BoxDecoration(
-          color: primaryColor.withOpacity(0.4),
-          borderRadius: BorderRadius.circular(10),
+          gradient: const LinearGradient(
+            colors: [primaryColor, Color(0xFF2D3748)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
         ),
         headerTextStyle: const TextStyle(
-          color: black,
-          fontSize: 20,
+          fontFamily: 'Poppins_Regular',
+          color: Colors.white,
+          fontSize: 16,
           fontWeight: FontWeight.w700,
         ),
+        leftIconConfig: IconDataConfig(color: Colors.white),
+        rightIconConfig: IconDataConfig(color: Colors.white),
       ),
       onPageChange: (date, page) async {
         final isOnline = await ConnectivityService().isOnline();
@@ -166,22 +173,23 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
             }
           },
           child: MyCommnonContainer(
-            borderRadiusGeometry: BorderRadius.circular(15),
-            border: Border.all(color: black.withOpacity(0.1)),
+            borderRadiusGeometry: BorderRadius.circular(16),
+            border: Border.all(
+              color: isToday ? primaryColor : const Color(0xFFE2E8F0),
+            ),
             boxShadow: isInMonth
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 20,
-                      offset: const Offset(3, 3),
-                      spreadRadius: 1,
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     )
                   ]
                 : [],
             color: isToday
                 ? primaryColor
                 : !isInMonth
-                    ? secondaryTextColor.withOpacity(0.08)
+                    ? const Color(0xFFF8FAFC)
                     : white,
             padding: nkRegularPadding(),
             child: isCurrentMonth && isWorkingDay
@@ -195,8 +203,8 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                             color: isToday
                                 ? buttonTextColor
                                 : !isInMonth
-                                    ? secondaryTextColor.withOpacity(0.5)
-                                    : null,
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF0F172A),
                             fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -227,8 +235,8 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                             color: isToday
                                 ? buttonTextColor
                                 : !isInMonth
-                                    ? secondaryTextColor.withOpacity(0.5)
-                                    : null,
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF0F172A),
                             fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -253,7 +261,7 @@ class _CalenderBottomWidgetState extends State<CalenderBottomWidget> {
                 : Center(
                     child: MyRegularText(
                       label: date.day.toString(),
-                      color: secondaryTextColor.withOpacity(0.5),
+                      color: const Color(0xFF94A3B8),
                       fontSize: (isTabletOrPhoneLandscape(context)) ? 22 : 18,
                       fontWeight: FontWeight.bold,
                     ),

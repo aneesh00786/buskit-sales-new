@@ -51,6 +51,8 @@ import 'package:flutter/material.dart'
         InputDecoration,
         OutlineInputBorder,
         Material,
+        MaterialTapTargetSize,
+        VisualDensity,
         Card;
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -242,7 +244,6 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
     _endController.addListener(_onTextChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-
       if (mounted) {
         setState(() {
           _isDrawerOpen = true;
@@ -258,6 +259,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
       }
     });
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -266,6 +268,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
       routeObserver.subscribe(this, modalRoute);
     }
   }
+
   @override
   void didPopNext() {
     // We check if the drawer is closed, and if so, pop it open.
@@ -362,7 +365,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 child: Text(
                   result.businessName!,
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins_Regular',
+                      color: Color(0xFF0F172A)),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -372,11 +378,12 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Divider(),
+              const Divider(color: Color(0xFFE2E8F0)),
               const SizedBox(height: 10),
               CustomText(
                 content: 'Reached Customer?'.tr,
                 fontSize: 17,
+                color: const Color(0xFF64748B),
               ),
             ],
           ),
@@ -389,9 +396,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   onPressed: () async {
                     // 1. Capture provider while context is valid
@@ -454,8 +462,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       );
                     });
                   },
-                  child:  Text("Go to Customer".tr,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text("Go to Customer".tr,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins_Regular',
+                          color: Colors.white)),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton(
@@ -463,7 +474,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     side: BorderSide(color: Theme.of(context).primaryColor),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -490,7 +501,11 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       );
                     }
                   },
-                  child:  Text('Continue Navigation'.tr),
+                  child: Text('Continue Navigation'.tr,
+                      style: TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w600)),
                 ),
                 TextButton(
                   onPressed: () {
@@ -502,8 +517,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       });
                     }
                   },
-                  child:
-                      Text('Cancel'.tr, style: TextStyle(color: const Color(0xFF0F172A))),
+                  child: Text('Cancel'.tr,
+                      style: const TextStyle(
+                          color: Color(0xFF0F172A),
+                          fontFamily: 'Poppins_Regular')),
                 ),
                 // TextButton(
                 //   onPressed: () => Navigator.of(context).pop(),
@@ -518,32 +535,66 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
     );
   }
 
+  // Shared "go back" behaviour: clears in-flight customer context and pops
+  // the route. Used by both the PopScope system-back handler and the
+  // visible back button below, so both trigger EXACTLY the same logic.
+  void _clearContextAndPop(BuildContext context) {
+    // Clear customer context before going back
+    final productsController = Get.find<ProductsController>();
+    productsController.selectedCustomerId.value = '';
+    productsController.selectedCustomerName.value = '';
+    productsController.customerAndOrderData.update((val) {
+      if (val != null) val.customerId = '';
+    });
+
+    final customerOrderController = Get.find<CustomerAndOrderController>();
+    customerOrderController.setCustomerId('');
+    customerOrderController.isActive.value = false;
+
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
         if (didPop) return;
-
-        // Clear customer context before going back
-        final productsController = Get.find<ProductsController>();
-        productsController.selectedCustomerId.value = '';
-        productsController.selectedCustomerName.value = '';
-        productsController.customerAndOrderData.update((val) {
-          if (val != null) val.customerId = '';
-        });
-
-        final customerOrderController = Get.find<CustomerAndOrderController>();
-        customerOrderController.setCustomerId('');
-        customerOrderController.isActive.value = false;
-
-        Navigator.of(context).pop();
+        _clearContextAndPop(context);
       },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leadingWidth: 50,
+          leadingWidth: 64,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 12, top: 8),
+            child: ClipOval(
+              child: InkWell(
+                onTap: () => _clearContextAndPop(context),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back,
+                    color: Color(0xFF0F172A),
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
         extendBodyBehindAppBar: true,
         body: Stack(
@@ -558,35 +609,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               }),
             ),
 
-            // 2. SIDEBAR (FIXED LEFT STRIP)
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 80),
-                child: Container(
-                  width: 50,
-                  color: primaryColor.withOpacity(0.2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.menu,
-                          size: 24,
-                          color: primaryColor,
-                        ),
-                        onPressed: _toggleDrawer,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // 3. OVERLAY (Closes drawer on tap)
+            // 2. OVERLAY (Closes drawer on tap)
             if (_isDrawerOpen)
               Positioned.fill(
                 child: GestureDetector(
@@ -606,16 +629,16 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               duration: const Duration(milliseconds: 300),
               top: 0,
               bottom: 0,
-              left: _isDrawerOpen ? 50 : -_drawerWidth,
+              left: _isDrawerOpen ? 0 : -_drawerWidth,
               child: Padding(
                 padding: const EdgeInsets.only(top: 80),
                 child: Container(
                   width: _drawerWidth,
                   decoration: BoxDecoration(color: Colors.white, boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      spreadRadius: 2,
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     )
                   ]),
                   child: Column(
@@ -664,8 +687,9 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor,
+                                elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
+                                    borderRadius: BorderRadius.circular(14)),
                               ),
                               onPressed: _isRouteCalculating
                                   ? null
@@ -746,6 +770,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                   : const Text("Refresh route map",
                                       style: TextStyle(
                                           color: Colors.white,
+                                          fontFamily: 'Poppins_Regular',
                                           fontWeight: FontWeight.bold)),
                             ),
                           ),
@@ -758,197 +783,216 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                             Text(
-                              'Customer List'.tr,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Text(
+                                'Customer List'.tr,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  color: Color(0xFF0F172A),
+                                  fontFamily: 'Poppins_Regular',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 8),
                             TextButton.icon(
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.green.withOpacity(0.1),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                    horizontal: 6, vertical: 2),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
                               ),
                               icon: const Icon(Icons.play_arrow_rounded,
-                                  color: Colors.green, size: 20),
-                              label:  Text("Start Navigation".tr,
-                                  style: TextStyle(
+                                  color: Colors.green, size: 16),
+                              label: Text("Start Navigation".tr,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
                                       color: Colors.green,
+                                      fontSize: 11,
+                                      fontFamily: 'Poppins_Regular',
                                       fontWeight: FontWeight.bold)),
-                                          onPressed: () async {
-                              final nextCustomer = _getNextUnvisitedCustomer();
+                              onPressed: () async {
+                                final nextCustomer =
+                                    _getNextUnvisitedCustomer();
 
-                              if (nextCustomer != null) {
-                                if (subscriptionController
-                                        .visitNavigation.value ==
-                                    "true") {
-                                  // --- 1. CHECK ATTENDANCE STATUS ---
-                                  bool isAttendanceCheckedIn =
-                                      await ApiWorker().loadSwitchState();
+                                if (nextCustomer != null) {
+                                  if (subscriptionController
+                                          .visitNavigation.value ==
+                                      "true") {
+                                    // --- 1. CHECK ATTENDANCE STATUS ---
+                                    bool isAttendanceCheckedIn =
+                                        await ApiWorker().loadSwitchState();
 
-                                  if (!isAttendanceCheckedIn) {
-                                    // Show the required check-in dialog
-                                    bool? confirmCheckIn =
-                                        await showDialog<bool>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          titlePadding:
-                                              const EdgeInsets.fromLTRB(
-                                                  16.0, 16.0, 16.0, 0),
-                                          contentPadding:
-                                              const EdgeInsets.fromLTRB(
-                                                  16.0, 8.0, 16.0, 12.0),
-                                          actionsPadding:
-                                              const EdgeInsets.fromLTRB(
-                                                  16.0, 0, 16.0, 16.0),
-                                          title:Row(
-                                            children: [
-                                              Icon(
-                                                Icons.warning_amber_rounded,
-                                                size: 25.0,
-                                                color:
-                                                    primaryColor, // Assuming primaryColor is globally defined in your file
+                                    if (!isAttendanceCheckedIn) {
+                                      // Show the required check-in dialog
+                                      bool? confirmCheckIn =
+                                          await showDialog<bool>(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                            titlePadding:
+                                                const EdgeInsets.fromLTRB(
+                                                    16.0, 16.0, 16.0, 0),
+                                            contentPadding:
+                                                const EdgeInsets.fromLTRB(
+                                                    16.0, 8.0, 16.0, 12.0),
+                                            actionsPadding:
+                                                const EdgeInsets.fromLTRB(
+                                                    16.0, 0, 16.0, 16.0),
+                                            title: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.warning_amber_rounded,
+                                                  size: 25.0,
+                                                  color:
+                                                      primaryColor, // Assuming primaryColor is globally defined in your file
+                                                ),
+                                                SizedBox(width: 8.0),
+                                                Text(
+                                                  'Required'.tr,
+                                                  style: TextStyle(
+                                                    fontSize: 20.0,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily:
+                                                        'Poppins_Regular',
+                                                    color: Color(0xFF0F172A),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            content: Text(
+                                              'You are required to sign in to proceed with navigation.'
+                                                  .tr,
+                                              style: TextStyle(
+                                                fontSize: 19.0,
+                                                fontFamily: 'Poppins_Regular',
+                                                color: Color(0xFF64748B),
                                               ),
-                                              SizedBox(width: 8.0),
-                                              Text(
-                                                'Required'.tr,
-                                                style: TextStyle(
-                                                  fontSize: 20.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black87,
+                                            ),
+                                            actions: [
+                                              OutlinedButton(
+                                                style: OutlinedButton.styleFrom(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 16.0,
+                                                      vertical: 10.0),
+                                                  side: const BorderSide(
+                                                      color: primaryColor,
+                                                      width: 2.0),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            14.0),
+                                                  ),
+                                                  backgroundColor: Colors.white,
+                                                  elevation: 3,
+                                                ),
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(false),
+                                                child: Text(
+                                                  'Cancel'.tr,
+                                                  style: TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: primaryColor,
+                                                    fontFamily:
+                                                        'Poppins_Regular',
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: primaryColor,
+                                                  foregroundColor: Colors.white,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 16.0,
+                                                      vertical: 10.0),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            14.0),
+                                                  ),
+                                                  elevation: 0,
+                                                ),
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(true),
+                                                child: Text(
+                                                  'Check-In'.tr,
+                                                  style: TextStyle(
+                                                    fontSize: 14.0,
+                                                    fontFamily:
+                                                        'Poppins_Regular',
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                                 ),
                                               ),
                                             ],
-                                          ),
-                                          content:Text(
-                                            'You are required to sign in to proceed with navigation.'.tr,
-                                            style: TextStyle(
-                                              fontSize: 19.0,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          actions: [
-                                            OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 16.0,
-                                                        vertical: 10.0),
-                                                side: const BorderSide(
-                                                    color: primaryColor,
-                                                    width: 2.0),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                backgroundColor: Colors.white,
-                                                elevation: 3,
-                                              ),
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(false),
-                                              child: Text(
-                                                'Cancel'.tr,
-                                                style: TextStyle(
-                                                  fontSize: 14.0,
-                                                  color: primaryColor,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                            ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: primaryColor,
-                                                foregroundColor: Colors.white,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 16.0,
-                                                        vertical: 10.0),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                elevation: 4,
-                                                shadowColor: primaryColor
-                                                    .withOpacity(0.4),
-                                              ),
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(true),
-                                              child:Text(
-                                                'Check-In'.tr,
-                                                style: TextStyle(
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
+                                          );
+                                        },
+                                      );
 
-                                    if (confirmCheckIn == true) {
-                                  
-                                      await CheckInService()
-                                          .performCheckIn(context);
+                                      if (confirmCheckIn == true) {
+                                        await CheckInService()
+                                            .performCheckIn(context);
 
-                                    
-                                      bool verifyAttendance =
-                                          await ApiWorker().loadSwitchState();
-                                      if (!verifyAttendance) {
-                                      
+                                        bool verifyAttendance =
+                                            await ApiWorker().loadSwitchState();
+                                        if (!verifyAttendance) {
+                                          return;
+                                        }
+                                      } else {
                                         return;
                                       }
-                                    } else {
-                                     
-                                      return;
                                     }
+
+                                    selectedResult = nextCustomer;
+                                    navigatedToMap = true;
+                                    final currentLatitude = _mapController
+                                            .currentLatLng.value?.latitude ??
+                                        0.0;
+                                    final currentLongitude = _mapController
+                                            .currentLatLng.value?.longitude ??
+                                        0.0;
+
+                                    // Close drawer and start nav
+                                    setState(() => _isDrawerOpen = false);
+
+                                    navigateToo(
+                                      currentLatitude,
+                                      currentLongitude,
+                                      double.parse(nextCustomer.latitude!),
+                                      double.parse(nextCustomer.longitude!),
+                                    );
+                                  } else {
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (context) =>
+                                          const UpgradePlanScreen(),
+                                    );
                                   }
-                                 
-
-                                 
-                                  selectedResult = nextCustomer;
-                                  navigatedToMap = true;
-                                  final currentLatitude = _mapController
-                                          .currentLatLng.value?.latitude ??
-                                      0.0;
-                                  final currentLongitude = _mapController
-                                          .currentLatLng.value?.longitude ??
-                                      0.0;
-
-                                  // Close drawer and start nav
-                                  setState(() => _isDrawerOpen = false);
-
-                                  navigateToo(
-                                    currentLatitude,
-                                    currentLongitude,
-                                    double.parse(nextCustomer.latitude!),
-                                    double.parse(nextCustomer.longitude!),
-                                  );
                                 } else {
-                                  showDialog(
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder: (context) =>
-                                        const UpgradePlanScreen(),
-                                  );
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text(
+                                        "Route completed! All customers visited."),
+                                    backgroundColor: Colors.green,
+                                  ));
                                 }
-                              } else {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                  content: Text(
-                                      "Route completed! All customers visited."),
-                                  backgroundColor: Colors.green,
-                                ));
-                              }
-                            },
+                              },
                               // onPressed: () {
                               //   final nextCustomer =
                               //       _getNextUnvisitedCustomer();
@@ -1005,7 +1049,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                       ),
                       _buildRouteSummary(),
 
-                      const Divider(),
+                      const Divider(color: Color(0xFFE2E8F0), height: 1),
 
                       // List of Customers
                       Expanded(
@@ -1048,7 +1092,10 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                 child: Card(
                                   color: Colors.white,
                                   elevation: 3,
-                                  shadowColor: Colors.black.withOpacity(0.2),
+                                  shadowColor: Colors.black.withOpacity(0.05),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                   child: ListTile(
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 0),
@@ -1144,353 +1191,355 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(
-                                                    EneftyIcons.routing_outline,
-                                                    color: primaryColor,
-                                                    size: 14),
-                                                const SizedBox(width: 2),
-                                                isLoading
-                                                    ? const SizedBox(
-                                                        width: 10,
-                                                        height: 10,
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                                strokeWidth: 2))
-                                                    : Text(distance,
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            fontSize: 11)),
-                                              ],
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                    EneftyIcons.clock_2_outline,
-                                                    color: Colors.red,
-                                                    size: 14),
-                                                const SizedBox(width: 2),
-                                                isLoading
-                                                    ? const SizedBox(
-                                                        width: 10,
-                                                        height: 10,
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                                strokeWidth: 2))
-                                                    : Text(duration,
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            fontSize: 11)),
-                                              ],
-                                            ),
-                                            Obx(() {
-                                              if (_mapController
-                                                      .currentLatLng.value ==
-                                                  null) {
-                                                return const SizedBox(
-                                                    width: 15,
-                                                    height: 15,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                            strokeWidth: 2));
-                                              }
-                                              return 
-                                               InkWell(
-                                              onTap: () async {
-                                                if (subscriptionController
-                                                        .visitNavigation
-                                                        .value ==
-                                                    "true") {
-                                                  // --- 1. CHECK ATTENDANCE STATUS ---
-                                                  bool isAttendanceCheckedIn =
-                                                      await ApiWorker()
-                                                          .loadSwitchState();
-
-                                                  if (!isAttendanceCheckedIn) {
-                                                    // Show the required check-in dialog
-                                                    bool? confirmCheckIn =
-                                                        await showDialog<bool>(
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                          context) {
-                                                        return AlertDialog(
-                                                          titlePadding:
-                                                              const EdgeInsets
-                                                                  .fromLTRB(
-                                                                  16.0,
-                                                                  16.0,
-                                                                  16.0,
-                                                                  0),
-                                                          contentPadding:
-                                                              const EdgeInsets
-                                                                  .fromLTRB(
-                                                                  16.0,
-                                                                  8.0,
-                                                                  16.0,
-                                                                  12.0),
-                                                          actionsPadding:
-                                                              const EdgeInsets
-                                                                  .fromLTRB(
-                                                                  16.0,
-                                                                  0,
-                                                                  16.0,
-                                                                  16.0),
-                                                          title: Row(
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .warning_amber_rounded,
-                                                                size: 25.0,
-                                                                color:
-                                                                    primaryColor, 
-                                                              ),
-                                                              SizedBox(
-                                                                  width: 8.0),
-                                                              Text(
-                                                                'Required'.tr,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize:
-                                                                      20.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .black87,
-                                                                ),
-                                                              ),
-                                                            ],
+                                            // Distance group: wrapped in Flexible
+                                            // so the Text inside can safely
+                                            // ellipsize instead of overflowing
+                                            // when the value is long.
+                                            Flexible(
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                      EneftyIcons
+                                                          .routing_outline,
+                                                      color: primaryColor,
+                                                      size: 14),
+                                                  const SizedBox(width: 2),
+                                                  isLoading
+                                                      ? const SizedBox(
+                                                          width: 10,
+                                                          height: 10,
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2))
+                                                      : Flexible(
+                                                          child: Text(
+                                                            distance,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 11),
                                                           ),
-                                                          content:Text(
-                                                            'You are required to sign in to proceed with navigation.'.tr,
-                                                            style: TextStyle(
-                                                              fontSize: 19.0,
-                                                              color: Colors
-                                                                  .black87,
-                                                            ),
-                                                          ),
-                                                          actions: [
-                                                            OutlinedButton(
-                                                              style:
-                                                                  OutlinedButton
-                                                                      .styleFrom(
-                                                                padding: const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        16.0,
-                                                                    vertical:
-                                                                        10.0),
-                                                                side: const BorderSide(
-                                                                    color:
-                                                                        primaryColor,
-                                                                    width: 2.0),
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10.0),
-                                                                ),
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                elevation: 3,
-                                                              ),
-                                                              onPressed: () =>
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          false),
-                                                              child:Text(
-                                                                'Cancel'.tr,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color:
-                                                                      primaryColor,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            ElevatedButton(
-                                                              style:
-                                                                  ElevatedButton
-                                                                      .styleFrom(
-                                                                backgroundColor:
-                                                                    primaryColor,
-                                                                foregroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                padding: const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        16.0,
-                                                                    vertical:
-                                                                        10.0),
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10.0),
-                                                                ),
-                                                                elevation: 4,
-                                                                shadowColor:
-                                                                    primaryColor
-                                                                        .withOpacity(
-                                                                            0.4),
-                                                              ),
-                                                              onPressed: () =>
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          true),
-                                                              child:Text(
-                                                                'Check-In'.tr,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    );
-
-                                                    if (confirmCheckIn ==
-                                                        true) {
-                                               
-                                                      await CheckInService()
-                                                          .performCheckIn(
-                                                              context);
-
-                                                      
-                                                      bool verifyAttendance =
-                                                          await ApiWorker()
-                                                              .loadSwitchState();
-                                                      if (!verifyAttendance) {
-                                                 
-                                                        return;
-                                                      }
-                                                    } else {
-                                                    
-                                                      return;
-                                                    }
-                                                  }
-                                                  
-                                                  selectedResult =
-                                                      result; 
-                                                  navigatedToMap = true;
-                                                  final currentLatitude =
-                                                      _mapController
-                                                              .currentLatLng
-                                                              .value
-                                                              ?.latitude ??
-                                                          0.0;
-                                                  final currentLongitude =
-                                                      _mapController
-                                                              .currentLatLng
-                                                              .value
-                                                              ?.longitude ??
-                                                          0.0;
-
-                                                  
-                                                  setState(() =>
-                                                      _isDrawerOpen = false);
-
-                                                  navigateToo(
-                                                    currentLatitude,
-                                                    currentLongitude,
-                                                    double.parse(
-                                                        result.latitude!),
-                                                    double.parse(
-                                                        result.longitude!),
-                                                  );
-                                                } else {
-                                                  showDialog(
-                                                    barrierDismissible: false,
-                                                    context: context,
-                                                    builder: (context) =>
-                                                        const UpgradePlanScreen(),
-                                                  );
-                                                }
-                                              },
-                                              child: const Padding(
-                                                padding: EdgeInsets.all(4.0),
-                                                child: Icon(
-                                                    Icons.near_me_outlined,
-                                                    size: 18,
-                                                    color: Colors.blue),
+                                                        ),
+                                                ],
                                               ),
-                                            );
-                                              // InkWell(
-                                              //   onTap: () {
-                                              //     if (subscriptionController
-                                              //             .visitNavigation
-                                              //             .value ==
-                                              //         "true") {
-                                              //       selectedResult = result;
-                                              //       navigatedToMap = true;
-                                              //       final currentLatitude =
-                                              //           _mapController
-                                              //                   .currentLatLng
-                                              //                   .value
-                                              //                   ?.latitude ??
-                                              //               0.0;
-                                              //       final currentLongitude =
-                                              //           _mapController
-                                              //                   .currentLatLng
-                                              //                   .value
-                                              //                   ?.longitude ??
-                                              //               0.0;
-
-                                              //       // Close drawer
-                                              //       setState(() =>
-                                              //           _isDrawerOpen = false);
-
-                                              //       navigateToo(
-                                              //         currentLatitude,
-                                              //         currentLongitude,
-                                              //         double.parse(
-                                              //             result.latitude!),
-                                              //         double.parse(
-                                              //             result.longitude!),
-                                              //       );
-                                              //     } else {
-                                              //       showDialog(
-                                              //         barrierDismissible: false,
-                                              //         context: context,
-                                              //         builder: (context) =>
-                                              //             const UpgradePlanScreen(),
-                                              //       );
-                                              //     }
-                                              //   },
-                                              //   child: const Padding(
-                                              //     padding: EdgeInsets.all(4.0),
-                                              //     child: Icon(
-                                              //         Icons.near_me_outlined,
-                                              //         size: 18,
-                                              //         color: Colors.blue),
-                                              //   ),
-                                              // );
-                                            })
+                                            ),
+                                            const SizedBox(width: 6),
+                                            // Duration group: same Flexible
+                                            // treatment as the distance group.
+                                            Flexible(
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                      EneftyIcons
+                                                          .clock_2_outline,
+                                                      color: Colors.red,
+                                                      size: 14),
+                                                  const SizedBox(width: 2),
+                                                  isLoading
+                                                      ? const SizedBox(
+                                                          width: 10,
+                                                          height: 10,
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                                  strokeWidth:
+                                                                      2))
+                                                      : Flexible(
+                                                          child: Text(
+                                                            duration,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 11),
+                                                          ),
+                                                        ),
+                                                ],
+                                              ),
+                                            ),
                                           ],
-                                        )
+                                        ),
                                       ],
                                     ),
+                                    // FIX: relocated out of the subtitle Row
+                                    // (which caused a RenderFlex overflow)
+                                    // into ListTile's dedicated trailing slot.
+                                    trailing: Obx(() {
+                                      if (_mapController.currentLatLng.value ==
+                                          null) {
+                                        return const SizedBox(
+                                            width: 15,
+                                            height: 15,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2));
+                                      }
+                                      return InkWell(
+                                        onTap: () async {
+                                          if (subscriptionController
+                                                  .visitNavigation.value ==
+                                              "true") {
+                                            // --- 1. CHECK ATTENDANCE STATUS ---
+                                            bool isAttendanceCheckedIn =
+                                                await ApiWorker()
+                                                    .loadSwitchState();
+
+                                            if (!isAttendanceCheckedIn) {
+                                              // Show the required check-in dialog
+                                              bool? confirmCheckIn =
+                                                  await showDialog<bool>(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20)),
+                                                    titlePadding:
+                                                        const EdgeInsets
+                                                            .fromLTRB(16.0,
+                                                            16.0, 16.0, 0),
+                                                    contentPadding:
+                                                        const EdgeInsets
+                                                            .fromLTRB(16.0, 8.0,
+                                                            16.0, 12.0),
+                                                    actionsPadding:
+                                                        const EdgeInsets
+                                                            .fromLTRB(16.0, 0,
+                                                            16.0, 16.0),
+                                                    title: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons
+                                                              .warning_amber_rounded,
+                                                          size: 25.0,
+                                                          color: primaryColor,
+                                                        ),
+                                                        SizedBox(width: 8.0),
+                                                        Text(
+                                                          'Required'.tr,
+                                                          style: TextStyle(
+                                                            fontSize: 20.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily:
+                                                                'Poppins_Regular',
+                                                            color: Color(
+                                                                0xFF0F172A),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    content: Text(
+                                                      'You are required to sign in to proceed with navigation.'
+                                                          .tr,
+                                                      style: TextStyle(
+                                                        fontSize: 19.0,
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        color:
+                                                            Color(0xFF64748B),
+                                                      ),
+                                                    ),
+                                                    actions: [
+                                                      OutlinedButton(
+                                                        style: OutlinedButton
+                                                            .styleFrom(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      16.0,
+                                                                  vertical:
+                                                                      10.0),
+                                                          side: const BorderSide(
+                                                              color:
+                                                                  primaryColor,
+                                                              width: 2.0),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        14.0),
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          elevation: 3,
+                                                        ),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(false),
+                                                        child: Text(
+                                                          'Cancel'.tr,
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            color: primaryColor,
+                                                            fontFamily:
+                                                                'Poppins_Regular',
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              primaryColor,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      16.0,
+                                                                  vertical:
+                                                                      10.0),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        14.0),
+                                                          ),
+                                                          elevation: 0,
+                                                        ),
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(true),
+                                                        child: Text(
+                                                          'Check-In'.tr,
+                                                          style: TextStyle(
+                                                            fontSize: 14.0,
+                                                            fontFamily:
+                                                                'Poppins_Regular',
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+
+                                              if (confirmCheckIn == true) {
+                                                await CheckInService()
+                                                    .performCheckIn(context);
+
+                                                bool verifyAttendance =
+                                                    await ApiWorker()
+                                                        .loadSwitchState();
+                                                if (!verifyAttendance) {
+                                                  return;
+                                                }
+                                              } else {
+                                                return;
+                                              }
+                                            }
+
+                                            selectedResult = result;
+                                            navigatedToMap = true;
+                                            final currentLatitude =
+                                                _mapController.currentLatLng
+                                                        .value?.latitude ??
+                                                    0.0;
+                                            final currentLongitude =
+                                                _mapController.currentLatLng
+                                                        .value?.longitude ??
+                                                    0.0;
+
+                                            setState(
+                                                () => _isDrawerOpen = false);
+
+                                            navigateToo(
+                                              currentLatitude,
+                                              currentLongitude,
+                                              double.parse(result.latitude!),
+                                              double.parse(result.longitude!),
+                                            );
+                                          } else {
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) =>
+                                                  const UpgradePlanScreen(),
+                                            );
+                                          }
+                                        },
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(4.0),
+                                          child: Icon(Icons.near_me_outlined,
+                                              size: 18, color: Colors.blue),
+                                        ),
+                                      );
+                                      // InkWell(
+                                      //   onTap: () {
+                                      //     if (subscriptionController
+                                      //             .visitNavigation
+                                      //             .value ==
+                                      //         "true") {
+                                      //       selectedResult = result;
+                                      //       navigatedToMap = true;
+                                      //       final currentLatitude =
+                                      //           _mapController
+                                      //                   .currentLatLng
+                                      //                   .value
+                                      //                   ?.latitude ??
+                                      //               0.0;
+                                      //       final currentLongitude =
+                                      //           _mapController
+                                      //                   .currentLatLng
+                                      //                   .value
+                                      //                   ?.longitude ??
+                                      //               0.0;
+
+                                      //       // Close drawer
+                                      //       setState(() =>
+                                      //           _isDrawerOpen = false);
+
+                                      //       navigateToo(
+                                      //         currentLatitude,
+                                      //         currentLongitude,
+                                      //         double.parse(
+                                      //             result.latitude!),
+                                      //         double.parse(
+                                      //             result.longitude!),
+                                      //       );
+                                      //     } else {
+                                      //       showDialog(
+                                      //         barrierDismissible: false,
+                                      //         context: context,
+                                      //         builder: (context) =>
+                                      //             const UpgradePlanScreen(),
+                                      //       );
+                                      //     }
+                                      //   },
+                                      //   child: const Padding(
+                                      //     padding: EdgeInsets.all(4.0),
+                                      //     child: Icon(
+                                      //         Icons.near_me_outlined,
+                                      //         size: 18,
+                                      //         color: Colors.blue),
+                                      //   ),
+                                      // );
+                                    }),
                                   ),
                                 ),
                               );
@@ -1499,6 +1548,41 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                         }),
                       ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+
+            // 5. MENU TOGGLE (floating button, always on top so it stays
+            // reachable even while the drawer is open)
+            Positioned(
+              left: 12,
+              top: 84,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: _toggleDrawer,
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      _isDrawerOpen
+                          ? Icons.menu_open_rounded
+                          : Icons.menu_rounded,
+                      size: 20,
+                      color: primaryColor,
+                    ),
                   ),
                 ),
               ),
@@ -1518,7 +1602,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 22),
+        Icon(icon, size: 20, color: const Color(0xFF64748B)),
         const SizedBox(width: 8),
         Expanded(
           child: Autocomplete<Map<String, dynamic>>(
@@ -1554,25 +1638,39 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               return TextFormField(
                 controller: textController,
                 focusNode: focusNode,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 13,
+                  color: Color(0xFF0F172A),
+                ),
                 decoration: InputDecoration(
                   hintText: hint,
+                  hintStyle: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 13,
+                    color: Color(0xFF64748B),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
                   contentPadding:
-                      const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.black, width: 1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFE2E8F0), width: 1),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
-                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: primaryColor, width: 1.5),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   border: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   suffixIcon: textController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 16),
+                          icon: const Icon(Icons.clear,
+                              size: 16, color: Color(0xFF64748B)),
                           onPressed: () {
                             textController.clear();
                             controller.clear();
@@ -1590,24 +1688,34 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
                 alignment: Alignment.topLeft,
                 child: Material(
                   elevation: 8.0,
-                  borderRadius: BorderRadius.circular(10),
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(14),
                   child: Container(
                     // Constrain width to slightly less than drawer width
                     width: _drawerWidth - 60,
                     constraints: const BoxConstraints(maxHeight: 200),
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
                     child: ListView.separated(
                       padding: EdgeInsets.zero,
                       shrinkWrap: true,
                       itemCount: options.length,
-                      separatorBuilder: (ctx, i) => const Divider(height: 1),
+                      separatorBuilder: (ctx, i) =>
+                          const Divider(height: 1, color: Color(0xFFE2E8F0)),
                       itemBuilder: (BuildContext context, int index) {
                         final option = options.elementAt(index);
                         return ListTile(
                           dense: true,
                           title: Text(
                             option['description'],
-                            style: const TextStyle(fontSize: 13),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Poppins_Regular',
+                              color: Color(0xFF0F172A),
+                            ),
                           ),
                           onTap: () => onSelected(option),
                         );
@@ -1632,7 +1740,7 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.blue.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.blue.withOpacity(0.2)),
       ),
       child: Row(
@@ -1647,18 +1755,25 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Total Distance",
-                      style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text("Total Distance".tr,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Poppins_Regular',
+                          color: Color(0xFF64748B))),
                   Text(
                     isEmpty ? "--" : totals['distance']!,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold),
+                        fontSize: 14,
+                        fontFamily: 'Poppins_Regular',
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A)),
                   ),
                 ],
               ),
             ],
           ),
-          Container(height: 30, width: 1, color: Colors.grey[300]), // Divider
+          Container(
+              height: 30, width: 1, color: const Color(0xFFE2E8F0)), // Divider
           // Total Time
           Row(
             children: [
@@ -1668,12 +1783,18 @@ class _CustomerMapScreenState extends State<CustomerMapScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Est. Time",
-                      style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text("Est. Time".tr,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Poppins_Regular',
+                          color: Color(0xFF64748B))),
                   Text(
                     isEmpty ? "--" : totals['duration']!,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold),
+                        fontSize: 14,
+                        fontFamily: 'Poppins_Regular',
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A)),
                   ),
                 ],
               ),

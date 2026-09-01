@@ -808,19 +808,50 @@ Future<BitmapDescriptor> createCustomMarkerBitmap(String text, String? index, Co
   void showPermissionDeniedDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text("Permission Denied"),
-        content:
-            const Text("Location permission is required to access the map."),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          "Permission Denied",
+          style: TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        content: const Text(
+          "Location permission is required to access the map.",
+          style: TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 13.5,
+            color: Color(0xFF64748B),
+          ),
+        ),
         actions: [
           TextButton(
-            child: const Text("Go to Settings"),
+            child: const Text(
+              "Go to Settings",
+              style: TextStyle(
+                fontFamily: 'Poppins_Regular',
+                color: primaryColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             onPressed: () {
               openAppSettings();
               Get.back();
             },
           ),
           TextButton(
-            child: const Text("Cancel"),
+            child: const Text(
+              "Cancel",
+              style: TextStyle(
+                fontFamily: 'Poppins_Regular',
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             onPressed: () {
               Get.back();
             },

@@ -1,4 +1,5 @@
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calendar_responce/calender_all_event_response.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
@@ -90,42 +91,84 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
       child: Container(
         width: dialogWidth,
         constraints: const BoxConstraints(minHeight: 350),
-        padding: const EdgeInsets.all(25),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
+            Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                gradient: LinearGradient(
+                  colors: [primaryColor, Color(0xFF2D3748)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Show Route'.tr,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  InkResponse(
+                    onTap: () => Navigator.pop(context),
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      child: Icon(Icons.close, color: Colors.white, size: 22),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(25, 20, 25, 25),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[300]!),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
                   child: Text(
                     'Daily Route Credit -'.tr + ' \u200E$dailyCreditCount/3',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color:
-                          dailyCreditCount >= 3 ? Colors.red : Colors.black87,
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: dailyCreditCount >= 3
+                          ? Colors.red
+                          : const Color(0xFF0F172A),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 28),
-                  onPressed: () => Navigator.pop(context),
-                )
-              ],
-            ),
-            const SizedBox(height: 10),
+              ),
+            const SizedBox(height: 14),
             Text(
               "Set your trip’s start location".tr,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              ),
             ),
             const SizedBox(height: 10),
             _buildLocationField(
@@ -138,7 +181,12 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
             const SizedBox(height: 20),
             Text(
               "Set your trip’s end location".tr,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              ),
             ),
             const SizedBox(height: 10),
             _buildLocationField(
@@ -156,8 +204,8 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
+                      borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
                 ),
                 onPressed: isLoading ? null : () => _handleShowRoute(),
                 child: isLoading
@@ -167,6 +215,9 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
                             color: Color.fromRGBO(255, 255, 255, 1),
                             fontSize: 18,
                             fontWeight: FontWeight.bold)),
+              ),
+            ),
+                ],
               ),
             ),
           ],
@@ -289,9 +340,9 @@ class _RouteInputDialogState extends State<RouteInputDialog> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!, width: 1.5),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
       ),
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(

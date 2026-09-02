@@ -1,6 +1,5 @@
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
@@ -28,25 +27,25 @@ class _StaffTimeSheetDialogState extends State<StaffTimeSheetDialog> {
     super.initState();
     _loadTimesheetData();
   }
-void _loadTimesheetData() async {
-  // 1. Get the current tab index (0 = Jan, 1 = Feb, etc.)
-  int monthIndex = widget.staffController.tabController.index + 1;
-  
-  // 2. Generate the full Month Name (e.g., "March")
-  // using any year (e.g., 2026) is fine to just get the month string
-  String monthName = DateFormat('MMMM').format(DateTime(2026, monthIndex));
-  
-  // 3. Pass "March" to the controller
-  await widget.staffController.loadTimesheetData(monthName);
-}
+
+  void _loadTimesheetData() async {
+    // 1. Get the current tab index (0 = Jan, 1 = Feb, etc.)
+    int monthIndex = widget.staffController.tabController.index + 1;
+
+    // 2. Generate the full Month Name (e.g., "March")
+    // using any year (e.g., 2026) is fine to just get the month string
+    String monthName = DateFormat('MMMM').format(DateTime(2026, monthIndex));
+
+    // 3. Pass "March" to the controller
+    await widget.staffController.loadTimesheetData(monthName);
+  }
   // void _loadTimesheetData() async {
   //   final String startDate = DateFormat('yyyy-MM-dd').format(
   //     DateTime(DateTime.now().year,
   //         widget.staffController.tabController.index + 1, 1),
   //   );
   //   final int year = DateTime.now().year;
-    
-    
+
   //   await widget.staffController.loadTimesheetData(year.toString());
   // }
 
@@ -57,43 +56,58 @@ void _loadTimesheetData() async {
       backgroundColor: white,
       surfaceTintColor: white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Obx(() {
-        return widget.staffController.isTimesheetLoading.value
-            ? SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7,
-                height: 200,
-                child: const Center(child: Text('LOADING')),
-              )
-            : widget.staffController.staffTimesheetData.isEmpty
-                ? SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    height: 200,
-                    child: Stack(
-                      children: [
-                        const Center(
-                            child: Text('NO TIMESHEET DATA',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold))),
-                        Positioned(
-                            top: 10,
-                            right: 10,
-                            child: dialogCloseButton1(context, red))
-                      ],
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: Obx(() {
+          return widget.staffController.isTimesheetLoading.value
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildHeader(context),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      height: 200,
+                      child: const Center(
+                        child: CircularProgressIndicator(color: primaryColor),
+                      ),
                     ),
-                  )
-                : IntrinsicWidth(
-                    child: Column(
+                  ],
+                )
+              : widget.staffController.staffTimesheetData.isEmpty
+                  ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildHeader(context),
-                        _buildTable(context),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          height: 200,
+                          child: Center(
+                            child: Text(
+                              'NO TIMESHEET DATA'.tr,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
-                    ),
-                  );
-      }),
+                    )
+                  : IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildHeader(context),
+                          _buildTable(context),
+                        ],
+                      ),
+                    );
+        }),
+      ),
     );
   }
 
@@ -112,28 +126,58 @@ void _loadTimesheetData() async {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      height: 50,
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: const BoxDecoration(
-        color: primaryColor,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        gradient: LinearGradient(
+          colors: [primaryColor, Color(0xFF2D3748)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-           Text(
-            'Time Sheet'.tr,
-            style: TextStyle(
-              color: white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins_Regular',
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.access_time_rounded,
+                      color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Time Sheet'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Poppins_Regular',
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-          dialogCloseButton1(context, red)
+          const SizedBox(width: 10),
+          InkResponse(
+            onTap: () => Navigator.of(context).pop(),
+            child: const CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: Icon(Icons.close, color: Colors.white, size: 22),
+            ),
+          ),
         ],
       ),
     );
@@ -144,41 +188,50 @@ void _loadTimesheetData() async {
       width: isPhonePortrait(context)
           ? fullScreenWidth(context)
           : fullScreenWidth(context) * 0.7,
-      padding: const EdgeInsets.all(8.0),
-      child: Table(
-        border: TableBorder.all(color: Colors.grey),
-        columnWidths: const {
-          0: FlexColumnWidth(2),
-          1: FlexColumnWidth(3),
-          2: FlexColumnWidth(3),
-          3: FlexColumnWidth(2),
-        },
-        children: [
-          TableRow(
-            decoration: BoxDecoration(color: Colors.grey[300]),
-            children: [
-              _buildTableHeader('Date'.tr),
-              _buildTableHeader('Check-In'.tr),
-              _buildTableHeader('Check-Out'.tr),
-              _buildTableHeader('Hrs'.tr),
-            ],
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Table(
+          border: const TableBorder(
+            horizontalInside: BorderSide(color: Color(0xFFE2E8F0), width: 1),
           ),
-          ..._buildDataRows(),
-        ],
+          columnWidths: const {
+            0: FlexColumnWidth(2),
+            1: FlexColumnWidth(3),
+            2: FlexColumnWidth(3),
+            3: FlexColumnWidth(2),
+          },
+          children: [
+            TableRow(
+              decoration: const BoxDecoration(color: Color(0xFFF8FAFC)),
+              children: [
+                _buildTableHeader('Date'.tr),
+                _buildTableHeader('Check-In'.tr),
+                _buildTableHeader('Check-Out'.tr),
+                _buildTableHeader('Hrs'.tr),
+              ],
+            ),
+            ..._buildDataRows(),
+          ],
+        ),
       ),
     );
   }
 
   List<TableRow> _buildDataRows() {
     final keys = widget.staffController.staffTimesheetData.keys.toList();
-    return keys.map((date) {
+    return keys.asMap().entries.map((mapEntry) {
+      final index = mapEntry.key;
+      final date = mapEntry.value;
       final entry = widget.staffController.staffTimesheetData[date]!;
       final checkIn = _formatTo12HourFormat(entry.checkIn ?? '');
       final checkOut = _formatTo12HourFormat(entry.checkOut ?? '');
       final hoursWorked =
           _calculateTimeDifference(entry.checkIn ?? '', entry.checkOut ?? '');
+      final rowColor = index.isEven ? Colors.white : const Color(0xFFF8FAFC);
 
       return TableRow(
+        decoration: BoxDecoration(color: rowColor),
         children: [
           _buildTableCell(NKDateUtils.commonDayFormat(DateTime.parse(date))),
           _buildTableCell(checkIn),
@@ -214,10 +267,15 @@ void _loadTimesheetData() async {
 
   Widget _buildTableHeader(String text) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
       child: Text(text,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold)),
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontWeight: FontWeight.w700,
+            fontSize: 12.5,
+            color: Color(0xFF0F172A),
+          )),
     );
   }
 
@@ -225,7 +283,15 @@ void _loadTimesheetData() async {
     return SizedBox(
       height: 50,
       child: Center(
-        child: Text(text, textAlign: TextAlign.center),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 12.5,
+            color: Color(0xFF0F172A),
+          ),
+        ),
       ),
     );
   }

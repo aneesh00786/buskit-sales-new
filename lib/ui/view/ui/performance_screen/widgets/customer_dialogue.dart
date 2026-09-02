@@ -1,6 +1,5 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/customer_data_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,7 @@ Widget buildCustomersDialogContent(
           staffController.customerDatas.value!.data == null ||
           staffController.customerDatas.value!.data!.isEmpty)
       ? [
-           TableViewRow(
+          TableViewRow(
             height: 60,
             cells: [
               TableViewCell(child: Text("Record Not Found".tr)),
@@ -34,7 +33,7 @@ Widget buildCustomersDialogContent(
           ),
         ]
       : staffController.customerDatas.value!.data!.map((customer) {
-        print('customer image : ${customer.imageUrl}');
+          print('customer image : ${customer.imageUrl}');
           return TableViewRow(
             height: 80,
             cells: [
@@ -42,26 +41,26 @@ Widget buildCustomersDialogContent(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                       ClipOval(
-                          child: Container(
-                            height: 35,
-                            width: 35,
-                            child: Image.network(
-                              '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}',
-                              // 👇 Removed condition, now safely accessing invoiceData
-                              // 'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
+                    ClipOval(
+                      child: Container(
+                        height: 35,
+                        width: 35,
+                        child: Image.network(
+                          '${ApiConstants.imageBaseUrl}${customer.imageUrl ?? ''}',
+                          // 👇 Removed condition, now safely accessing invoiceData
+                          // 'https://test.thrivewoo.com/uploads/${customer.imageUrl ?? ''}',
 
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.lightBlue[100],
-                                  child: const Icon(Icons.person,
-                                      color: Colors.blue),
-                                );
-                              },
-                            ),
-                          ),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.lightBlue[100],
+                              child:
+                                  const Icon(Icons.person, color: Colors.blue),
+                            );
+                          },
                         ),
+                      ),
+                    ),
                     // CircleAvatar(
                     //   radius: 20,
                     //   backgroundColor: const Color(0xffe6ecff),
@@ -81,14 +80,19 @@ Widget buildCustomersDialogContent(
                           Text(
                             customer.businessName ?? 'N/A',
                             style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             customer.address ?? 'N/A',
                             style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 12,
+                                color: Color(0xFF64748B)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -102,128 +106,155 @@ Widget buildCustomersDialogContent(
                   child: Text(
                 textAlign: TextAlign.center,
                 customer.customerId ?? 'N/A',
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0F172A)),
               )),
               TableViewCell(
                   child: Text(
                 customer.address ?? 'N/A',
                 textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontFamily: 'Poppins_Regular', color: Color(0xFF0F172A)),
               )),
               TableViewCell(
                   child: Text(
                 customer.businessNo ?? 'N/A',
                 textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontFamily: 'Poppins_Regular', color: Color(0xFF0F172A)),
               )),
               TableViewCell(
                 child: Text(
                   formatNullableDate(customer.createAt),
                   textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontFamily: 'Poppins_Regular', color: Color(0xFF0F172A)),
                 ),
               ),
             ],
           );
         }).toList();
 
-  return LayoutBuilder(
-    builder: (BuildContext context, BoxConstraints constraints) {
-      double availableWidth = constraints.maxWidth;
-      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
-      double headerHeight = 60;
-      double rowHeight = 60;
-      double contentHeight = headerHeight + (rows.length * rowHeight);
-      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+  return Material(
+    type: MaterialType.transparency,
+    child: LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        double availableWidth = constraints.maxWidth;
+        double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+        double headerHeight = 60;
+        double rowHeight = 60;
+        double contentHeight = headerHeight + (rows.length * rowHeight);
+        double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-      return Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
+        return Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                gradient: LinearGradient(
+                  colors: [primaryColor, Color(0xFF2D3748)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-              color: primaryColor,
+              height: headerHeight,
             ),
-            height: headerHeight,
-          ),
-          SizedBox(
-            width: availableWidth,
-            height: containerHeight,
-            child: Column(
-              children: [
-                Container(
-                  height: headerHeight,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+            SizedBox(
+              width: availableWidth,
+              height: containerHeight,
+              child: Column(
+                children: [
+                  Container(
+                    height: headerHeight,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [primaryColor, Color(0xFF2D3748)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                    color: primaryColor,
-                  ),
-                  child: Row(
-                    children: headers.map((label) {
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            label,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                Flexible(
-                  child: ListView.builder(
-                    itemCount: rows.length,
-                    shrinkWrap: true,
-                    physics: contentHeight > maxDialogHeight
-                        ? const AlwaysScrollableScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.shade300,
-                              width: 0.5,
-                            ),
-                          ),
-                        ),
-                        child: Row(
-                          children: rows[index].cells.map((cell) {
-                            return Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: cell.child,
+                    child: Row(
+                      children: headers.map((label) {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              label,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: rows.length,
+                      shrinkWrap: true,
+                      physics: contentHeight > maxDialogHeight
+                          ? const AlwaysScrollableScrollPhysics()
+                          : const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: index.isEven
+                                ? Colors.white
+                                : const Color(0xFFF8FAFC),
+                            border: const Border(
+                              bottom: BorderSide(
+                                color: Color(0xFFE2E8F0),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: rows[index].cells.map((cell) {
+                              return Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: cell.child,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 12,
+              child: InkResponse(
+                onTap: () => Navigator.of(context).pop(),
+                child: const CircleAvatar(
+                  radius: 14,
+                  backgroundColor: Colors.transparent,
+                  child: Icon(Icons.close, color: Colors.white, size: 22),
                 ),
-              ],
+              ),
             ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              height: 45,
-              width: 45,
-              child: Center(child: dialogCloseButton1(context, red)),
-            ),
-          ),
-        ],
-      );
-    },
+          ],
+        );
+      },
+    ),
   );
 }
 

@@ -218,9 +218,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                                   color: primaryColor),
                               SizedBox(width: isSmallScreen ? 4 : 8),
                               Text(year,
-                                  style: TextStyle(
+                                  style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w600)),
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF0F172A))),
                             ],
                           ),
                         );
@@ -228,12 +230,13 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       isExpanded: true,
                       borderRadius: BorderRadius.circular(12),
                       underline: Container(),
-                      icon: Icon(Icons.keyboard_arrow_down,
-                          size: 20, color: Colors.grey[600]),
+                      icon: const Icon(Icons.keyboard_arrow_down,
+                          size: 20, color: Color(0xFF64748B)),
                       dropdownColor: Colors.white,
                       elevation: 8,
-                      style: TextStyle(
-                        color: Colors.black87,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins_Regular',
+                        color: Color(0xFF0F172A),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -286,18 +289,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: const Color.fromARGB(255, 211, 211, 211)
-                        .withOpacity(0.2),
-                    blurRadius: 5,
-                    spreadRadius: 5,
-                    offset: const Offset(4, 4),
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: const Color.fromARGB(255, 205, 204, 204),
-                  width: 0.5,
+                  color: const Color(0xFFE2E8F0),
+                  width: 1,
                 ),
               ),
               child: Wrap(
@@ -339,88 +340,52 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                             "No internet connection . please check your network");
                       }
                     },
-                    child: Stack(
-                      children: [
-                        // Main card container
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12.0, horizontal: 16.0),
-                          decoration: BoxDecoration(
-                            color:
-                                isSelected ? Colors.white : Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                      spreadRadius: 0,
-                                    ),
-                                  ]
-                                : [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                            border: Border.all(
-                              color: isSelected
-                                  ? primaryColor.withOpacity(0.3)
-                                  : Colors.transparent,
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                isSelected
-                                    ? Icons.calendar_month
-                                    : Icons.calendar_today,
-                                size: 18,
-                                color: isSelected
-                                    ? primaryColor
-                                    : Colors.grey[600],
-                              ),
-                              const SizedBox(width: 10),
-                              CustomText(
-                                content: monthName.tr,
-                                color: isSelected
-                                    ? Colors.black87
-                                    : Colors.grey[700],
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.w500,
-                                fontSize: 13,
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Bottom indicator for selected tab
-                        if (isSelected)
-                          Positioned(
-                            bottom: -2,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              height: 3,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    primaryColor,
-                                    primaryColor.withOpacity(0.5),
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: isSelected ? primaryColor : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
+                              ]
+                            : null,
+                        border: Border.all(
+                          color: isSelected
+                              ? primaryColor
+                              : const Color(0xFFE2E8F0),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isSelected
+                                ? Icons.calendar_month
+                                : Icons.calendar_today,
+                            size: 18,
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF64748B),
                           ),
-                      ],
+                          const SizedBox(width: 10),
+                          CustomText(
+                            content: monthName.tr,
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF64748B),
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -553,18 +518,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                         decoration: BoxDecoration(
                           boxShadow: [
                             BoxShadow(
-                              color: const Color.fromARGB(255, 211, 211, 211)
-                                  .withOpacity(0.2),
-                              blurRadius: 5,
-                              spreadRadius: 5,
-                              offset: const Offset(4, 4),
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(25),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: const Color.fromARGB(255, 205, 204, 204),
-                            width: 0.5,
+                            color: const Color(0xFFE2E8F0),
+                            width: 1,
                           ),
                         ),
                         child: Padding(
@@ -588,18 +551,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: const Color.fromARGB(255, 211, 211, 211)
-                              .withOpacity(0.2),
-                          blurRadius: 4,
-                          spreadRadius: 5,
-                          offset: const Offset(4, 4),
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: const Color.fromARGB(255, 205, 204, 204),
-                        width: 0.5,
+                        color: const Color(0xFFE2E8F0),
+                        width: 1,
                       ),
                     ),
                     child: (targetType == '1')
@@ -766,11 +727,11 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(20),
                 color: Colors.white,
               ),
               child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10), child: content),
+                  borderRadius: BorderRadius.circular(20), child: content),
             ),
           ),
         ],

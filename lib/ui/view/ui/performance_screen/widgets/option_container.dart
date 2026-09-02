@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class PerformanceWidget extends StatelessWidget {
   final String title;
   final String count;
@@ -12,7 +13,7 @@ class PerformanceWidget extends StatelessWidget {
     required this.count,
     required this.svg,
     required this.svgBgColor,
-    this.month, 
+    this.month,
     this.width,
   });
 
@@ -24,34 +25,34 @@ class PerformanceWidget extends StatelessWidget {
       // Note: Removed padding from here and moved it inside the Stack below
       decoration: BoxDecoration(
         boxShadow: [
-            BoxShadow(
-              color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
-              blurRadius: 2,
-              offset: const Offset(4, 4),
-            ),
-          ],
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color.fromARGB(255, 205, 204, 204),
-          width: 0.5,
+          color: const Color(0xFFE2E8F0),
+          width: 1,
         ),
       ),
       child: Stack(
         children: [
           // Main content with your original padding
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
                   height: 50,
                   width: 35,
                   decoration: BoxDecoration(
-                    color: svgBgColor,
-                    borderRadius: BorderRadius.circular(20)
-                  ),
+                      color: svgBgColor,
+                      borderRadius: BorderRadius.circular(20)),
                   child: Center(
                     child: Image.asset(
                       svg,
@@ -60,26 +61,33 @@ class PerformanceWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                const SizedBox(width: 10),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         count,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Color(0xFF0F172A),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+                          color: Color(0xFF64748B),
                         ),
                       ),
                     ],
@@ -88,7 +96,7 @@ class PerformanceWidget extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // 3. The Month text positioned at the top right
           if (month != null && month!.isNotEmpty)
             Positioned(
@@ -96,10 +104,11 @@ class PerformanceWidget extends StatelessWidget {
               right: 40,
               child: Text(
                 month!,
-                style: TextStyle(
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: Color(0xFF64748B),
                 ),
               ),
             ),

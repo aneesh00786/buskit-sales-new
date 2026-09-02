@@ -126,7 +126,9 @@ class CustomerItem {
         imageUrl: json["image_url"],
         salesmanId: createdByValues.map[json["salesman_id"]],
         status: json["status"],
-        createAt: DateTime.parse(json["create_at"]),
+        createAt: json["create_at"] != null
+            ? DateTime.tryParse(json["create_at"])
+            : null,
         createdBy: createdByValues.map[json["created_by"]],
         salesmanName: salesmanNameValues.map[json["salesman_name"]],
         discount: json["discount"],

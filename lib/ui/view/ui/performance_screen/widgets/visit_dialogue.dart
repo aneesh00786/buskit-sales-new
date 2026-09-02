@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/visit_data_modfel.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
@@ -34,139 +33,156 @@ Widget buildVisitsDialogContent(
           return [
             formattedDate,
             visit.businessName ?? 'N/A',
-            visit.status!=null?visit.status.toString():'__',
+            visit.status != null ? visit.status.toString() : '__',
           ];
         }).toList();
 
-  return LayoutBuilder(
-    builder: (BuildContext context, BoxConstraints constraints) {
-      double availableWidth = constraints.maxWidth;
-      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
-      double headerHeight = 60;
-      double rowHeight = 60;
-      double contentHeight = headerHeight + (rows.length * rowHeight);
-      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+  return Material(
+    type: MaterialType.transparency,
+    child: LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        double availableWidth = constraints.maxWidth;
+        double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+        double headerHeight = 60;
+        double rowHeight = 60;
+        double contentHeight = headerHeight + (rows.length * rowHeight);
+        double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-      return Stack(
-        children: [
-          SizedBox(
-            width: availableWidth,
-            height: containerHeight,
-            child: Column(
-              children: [
-
-                Container(
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
+        return Stack(
+          children: [
+            SizedBox(
+              width: availableWidth,
+              height: containerHeight,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [primaryColor, Color(0xFF2D3748)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                    color: primaryColor,
-                  ),
-                  height: headerHeight,
-                  child: Row(
-                    children: headers.map((label) {
-                      return Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            label,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                Flexible(
-                  child: ListView.builder(
-                    itemCount: rows.length,
-                    shrinkWrap: true,
-                    physics: contentHeight > maxDialogHeight
-                        ? const AlwaysScrollableScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.shade300,
-                              width: 0.5,
-                            ),
-                          ),
-                        ),
-                        child: Row(
-                          children: rows[index].asMap().entries.map((entry) {
-                            int columnIndex = entry.key;
-                            String cellValue = entry.value;
-                            TextStyle cellStyle;
-                            switch (columnIndex) {
-                              case 0:
-                                cellStyle = const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                );
-                                break;
-                              case 3:
-                                cellStyle = const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.blueGrey,
-                                );
-                                break;
-                              case 5:
-                                cellStyle = const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                );
-                                break;
-                              default:
-                                cellStyle = const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black87,
-                                );
-                            }
-
-                            return Expanded(
-                              flex: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  cellValue,
-                                  style: cellStyle,
-                                  textAlign: TextAlign.center,
-                                ),
+                    height: headerHeight,
+                    child: Row(
+                      children: headers.map((label) {
+                        return Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              label,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: rows.length,
+                      shrinkWrap: true,
+                      physics: contentHeight > maxDialogHeight
+                          ? const AlwaysScrollableScrollPhysics()
+                          : const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: index.isEven
+                                ? Colors.white
+                                : const Color(0xFFF8FAFC),
+                            border: const Border(
+                              bottom: BorderSide(
+                                color: Color(0xFFE2E8F0),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: rows[index].asMap().entries.map((entry) {
+                              int columnIndex = entry.key;
+                              String cellValue = entry.value;
+                              TextStyle cellStyle;
+                              switch (columnIndex) {
+                                case 0:
+                                  cellStyle = const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF0F172A),
+                                  );
+                                  break;
+                                case 3:
+                                  cellStyle = const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF64748B),
+                                  );
+                                  break;
+                                case 5:
+                                  cellStyle = const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF0F172A),
+                                  );
+                                  break;
+                                default:
+                                  cellStyle = const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 14,
+                                    color: Color(0xFF0F172A),
+                                  );
+                              }
 
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              height: 30,
-              width: 30,
-              child: Center(child: dialogCloseButton1(context, red)),
+                              return Expanded(
+                                flex: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    cellValue,
+                                    style: cellStyle,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      );
-    },
+            Positioned(
+              top: 10,
+              right: 12,
+              child: InkResponse(
+                onTap: () => Navigator.of(context).pop(),
+                child: const CircleAvatar(
+                  radius: 14,
+                  backgroundColor: Colors.transparent,
+                  child: Icon(Icons.close, color: Colors.white, size: 20),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ),
   );
 }
 

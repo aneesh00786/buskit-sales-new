@@ -5,7 +5,6 @@ import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/utills/const_string.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/performance_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/settings_model.dart';
@@ -48,26 +47,32 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
       _focusedDay = now; // Set to today's exact date
     } else {
       // Otherwise, find the first working day of that specific month
-      _focusedDay = _getFirstWorkingDay(widget.selectedYear, widget.selectedMonth);
+      _focusedDay =
+          _getFirstWorkingDay(widget.selectedYear, widget.selectedMonth);
     }
     _selectedDay = _focusedDay;
     _initializeData();
   }
+
   DateTime _getFirstWorkingDay(int year, int month) {
     DateTime firstDayOfMonth = DateTime(year, month, 1);
 
     // Grab the valid working days from SessionHelper
-    final rawDayList = SessionHelper.settingsData?.firstWhere(
-          (setting) => setting.key == 'day_list',
-          orElse: () => AllCompanySettingsData(
-            key: 'day_list',
-            value: '',
-          ),
-        ).value ?? '';
+    final rawDayList = SessionHelper.settingsData
+            ?.firstWhere(
+              (setting) => setting.key == 'day_list',
+              orElse: () => AllCompanySettingsData(
+                key: 'day_list',
+                value: '',
+              ),
+            )
+            .value ??
+        '';
 
     if (rawDayList.isEmpty) return firstDayOfMonth;
 
-    List<String> dayList = rawDayList.split(',').map((day) => day.trim()).toList();
+    List<String> dayList =
+        rawDayList.split(',').map((day) => day.trim()).toList();
 
     const Map<String, int> dayNameToInt = {
       'Monday': DateTime.monday,
@@ -96,6 +101,7 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
 
     return firstDayOfMonth; // Fallback
   }
+
   Future<void> _initializeData() async {
     DateTime startDate = DateTime(_focusedDay.year, _focusedDay.month, 1);
     DateTime endDate = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
@@ -174,26 +180,27 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
 
     setState(() {});
   }
+
   void _onMonthChanged(DateTime focusedDay) {
     final startOfMonth = DateTime(focusedDay.year, focusedDay.month, 1);
     final endOfMonth = DateTime(focusedDay.year, focusedDay.month + 1, 0);
-    
+
     widget.staffController.loadScheduleData(
       startOfMonth,
       endOfMonth,
     );
-    
+
     setState(() {
       _focusedDay = focusedDay;
-      
+
       // Clear the underlying data for the list
       visits = [];
       appointmentCount = 0;
       checkInCount = 0;
-      
-      // Optional: Clear the selected day so the user doesn't see a random day 
+
+      // Optional: Clear the selected day so the user doesn't see a random day
       // highlighted from the previous month's selection.
-      _selectedDay = null; 
+      _selectedDay = null;
     });
   }
 
@@ -231,406 +238,476 @@ class _StaffRouteDialogState extends State<StaffRouteDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: isPhonePortrait(context) ? EdgeInsets.zero : null,
+      backgroundColor: white,
+      surfaceTintColor: white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(20.0),
       ),
-      child: Obx(
-        () {
-          return widget.staffController.isScheduleLoading.value
-              ? SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  height: 200,
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              : SizedBox(
-                  width: isPhonePortrait(context)
-                      ? fullScreenWidth(context)
-                      : fullScreenWidth(context) * 0.7,
-                  child: Column(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: Obx(
+          () {
+            return widget.staffController.isScheduleLoading.value
+                ? Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // --- TITLE BAR ---
-                      Container(
-                        height: 45,
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                             Text(
-                              'Staff Visits'.tr,
-                              style: TextStyle(
-                                color: white,
-                                fontSize: 16,
-                                fontFamily: 'Poppins_Regular',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            dialogCloseButton1(context, red),
-                          ],
+                      _buildTitleBar(context),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        height: 200,
+                        child: const Center(
+                          child: CircularProgressIndicator(color: primaryColor),
                         ),
                       ),
+                    ],
+                  )
+                : SizedBox(
+                    width: isPhonePortrait(context)
+                        ? fullScreenWidth(context)
+                        : fullScreenWidth(context) * 0.7,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // --- TITLE BAR ---
+                        _buildTitleBar(context),
 
-                      // --- CALENDAR ---
-                      Container(
-                        width: isPhonePortrait(context)
-                            ? fullScreenWidth(context)
-                            : fullScreenWidth(context) * 0.7,
-                        padding: const EdgeInsets.all(15.0),
-                        child: TableCalendar(
-                          firstDay: DateTime.utc(2020, 1, 1),
-                          lastDay: DateTime.utc(2030, 12, 31),
-                          focusedDay: _focusedDay,
-                          selectedDayPredicate: (day) {
-                            return isSameDay(_selectedDay, day);
-                          },
-                          onDaySelected: _onDaySelected,
-                          calendarFormat: CalendarFormat.month,
-                          onPageChanged: _onMonthChanged,
-                          headerStyle: HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                            leftChevronIcon: Container(
-                              decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(Icons.chevron_left,
-                                  color: Colors.white),
-                            ),
-                            rightChevronIcon: Container(
-                              decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(Icons.chevron_right,
-                                  color: Colors.white),
-                            ),
-                          ),
-                          daysOfWeekHeight: 40,
-                          daysOfWeekStyle: DaysOfWeekStyle(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.blueGrey.shade100,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          calendarStyle: CalendarStyle(
-                            todayDecoration: BoxDecoration(
-                              color: primaryColor.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            selectedDecoration: const BoxDecoration(
-                              color: primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            todayTextStyle: const TextStyle(
-                                color: black, fontWeight: FontWeight.w600),
-                            selectedTextStyle: const TextStyle(
-                                color: white, fontWeight: FontWeight.w600),
-                          ),
-                          calendarBuilders: CalendarBuilders(
-                            defaultBuilder: (context, day, focusedDay) {
-                              Color indicatorColor = shouldShowIndicator(
-                                  day, widget.staffController.scheduleList);
-                              return Stack(
-                                alignment: Alignment.topRight,
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      '${day.day}',
-                                      style: const TextStyle(
-                                          fontSize: 16, color: Colors.black),
-                                    ),
-                                  ),
-                                  if (indicatorColor != Colors.transparent)
-                                    Positioned(
-                                      right: 10,
-                                      top: 7,
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: indicatorColor,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 5),
-
-                      // --- TABLE HEADERS (New Implementation) ---
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                            border: Border(
-                          bottom:
-                              BorderSide(color: Colors.grey.shade300, width: 1),
-                          top:
-                              BorderSide(color: Colors.grey.shade200, width: 1),
-                        )),
-                        child: Row(
-                          children: [
-                            // Header: Customer
-                            Expanded(
-                              flex: 5,
-                              child: Row(
-                                children: [
-                                   Text("Customer".tr,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: myFont,
-                                          fontSize: 13)),
-                                  const SizedBox(width: 5),
-                                  if (appointmentCount > 0)
-                                    _buildBadge(
-                                        appointmentCount, Colors.redAccent),
-                                ],
-                              ),
-                            ),
-                            // Header: Check-In
-                            Expanded(
-                              flex: 3,
-                              child: Row(
-                                children: [
-                                   Text("Check-In".tr,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: myFont,
-                                          fontSize: 13)),
-                                  const SizedBox(width: 5),
-                                  if (checkInCount > 0)
-                                    _buildBadge(checkInCount, Colors.redAccent),
-                                ],
-                              ),
-                            ),
-                            // Header: Check-Out
-                             Expanded(
-                              flex: 2,
-                              child: Text("Check-Out".tr,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: myFont,
-                                      fontSize: 13)),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // --- LIST VIEW ---
-                      Flexible(
-                        child: Container(
+                        // --- CALENDAR ---
+                        Container(
                           width: isPhonePortrait(context)
                               ? fullScreenWidth(context)
                               : fullScreenWidth(context) * 0.7,
-                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          // Use ConstrainedBox or Flexible to let ListView take remaining space
-                          child: visits.isEmpty
-                              ? const Padding(
-                                  padding: EdgeInsets.all(20.0),
-                                  child: Center(
-                                      child: Text("No visits scheduled.",
-                                          style:
-                                              TextStyle(color: Colors.grey))),
-                                )
-                              : ListView.separated(
-                                  shrinkWrap: true,
-                                  itemCount: visits.length,
-                                  separatorBuilder: (context, index) =>
-                                      const Divider(
-                                          height: 1, color: Colors.transparent),
-                                  itemBuilder: (context, index) {
-                                    final item = visits[index];
+                          padding: const EdgeInsets.all(15.0),
+                          child: TableCalendar(
+                            firstDay: DateTime.utc(2020, 1, 1),
+                            lastDay: DateTime.utc(2030, 12, 31),
+                            focusedDay: _focusedDay,
+                            selectedDayPredicate: (day) {
+                              return isSameDay(_selectedDay, day);
+                            },
+                            onDaySelected: _onDaySelected,
+                            calendarFormat: CalendarFormat.month,
+                            onPageChanged: _onMonthChanged,
+                            headerStyle: HeaderStyle(
+                              formatButtonVisible: false,
+                              titleCentered: true,
+                              leftChevronIcon: Container(
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Icon(Icons.chevron_left,
+                                    color: Colors.white),
+                              ),
+                              rightChevronIcon: Container(
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Icon(Icons.chevron_right,
+                                    color: Colors.white),
+                              ),
+                            ),
+                            daysOfWeekHeight: 40,
+                            daysOfWeekStyle: DaysOfWeekStyle(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.blueGrey.shade100,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            calendarStyle: CalendarStyle(
+                              todayDecoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              selectedDecoration: const BoxDecoration(
+                                color: primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                              todayTextStyle: const TextStyle(
+                                  color: black, fontWeight: FontWeight.w600),
+                              selectedTextStyle: const TextStyle(
+                                  color: white, fontWeight: FontWeight.w600),
+                            ),
+                            calendarBuilders: CalendarBuilders(
+                              defaultBuilder: (context, day, focusedDay) {
+                                Color indicatorColor = shouldShowIndicator(
+                                    day, widget.staffController.scheduleList);
+                                return Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    Center(
+                                      child: Text(
+                                        '${day.day}',
+                                        style: const TextStyle(
+                                            fontSize: 16, color: Colors.black),
+                                      ),
+                                    ),
+                                    if (indicatorColor != Colors.transparent)
+                                      Positioned(
+                                        right: 10,
+                                        top: 7,
+                                        child: Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color: indicatorColor,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
 
-                                    dynamic data = item is Map
-                                        ? item
-                                        : (item as dynamic).toJson();
+                        const SizedBox(height: 5),
 
-                                    String name = data['business_name'] ??
-                                        data['businessName'] ??
-                                        '';
-                                    String address = data['address'] ?? '';
-                                    String town = data['town'] ?? '';
-                                    String? rawImgUrl =
-                                        data['image_url'] ?? data['imageUrl'];
+                        // --- TABLE HEADERS (New Implementation) ---
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF8FAFC),
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: Color(0xFFE2E8F0), width: 1),
+                              top: BorderSide(
+                                  color: Color(0xFFE2E8F0), width: 1),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              // Header: Customer
+                              Expanded(
+                                flex: 5,
+                                child: Row(
+                                  children: [
+                                    Text("Customer".tr,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontFamily: myFont,
+                                            color: Color(0xFF0F172A),
+                                            fontSize: 13)),
+                                    const SizedBox(width: 5),
+                                    if (appointmentCount > 0)
+                                      _buildBadge(
+                                          appointmentCount, Colors.redAccent),
+                                  ],
+                                ),
+                              ),
+                              // Header: Check-In
+                              Expanded(
+                                flex: 3,
+                                child: Row(
+                                  children: [
+                                    Text("Check-In".tr,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontFamily: myFont,
+                                            color: Color(0xFF0F172A),
+                                            fontSize: 13)),
+                                    const SizedBox(width: 5),
+                                    if (checkInCount > 0)
+                                      _buildBadge(
+                                          checkInCount, Colors.redAccent),
+                                  ],
+                                ),
+                              ),
+                              // Header: Check-Out
+                              Expanded(
+                                flex: 2,
+                                child: Text("Check-Out".tr,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontFamily: myFont,
+                                        color: Color(0xFF0F172A),
+                                        fontSize: 13)),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                                    // 2. Construct the URL
-                                    // If it already starts with http, use it. Otherwise, prepend your base URL.
-                                    String finalImageUrl = '';
-                                    if (rawImgUrl != null &&
-                                        rawImgUrl.isNotEmpty) {
-                                      if (rawImgUrl.startsWith('http')) {
-                                        finalImageUrl = rawImgUrl;
-                                      } else {
-                                        finalImageUrl =
-                                        '${ApiConstants.imageBaseUrl}$rawImgUrl';
-                                            // 'https://test.thrivewoo.com/uploads/$rawImgUrl';
+                        // --- LIST VIEW ---
+                        Flexible(
+                          child: Container(
+                            width: isPhonePortrait(context)
+                                ? fullScreenWidth(context)
+                                : fullScreenWidth(context) * 0.7,
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 15.0),
+                            // Use ConstrainedBox or Flexible to let ListView take remaining space
+                            child: visits.isEmpty
+                                ? const Padding(
+                                    padding: EdgeInsets.all(20.0),
+                                    child: Center(
+                                        child: Text("No visits scheduled.",
+                                            style: TextStyle(
+                                                fontFamily: myFont,
+                                                color: Color(0xFF64748B)))),
+                                  )
+                                : ListView.separated(
+                                    shrinkWrap: true,
+                                    itemCount: visits.length,
+                                    separatorBuilder: (context, index) =>
+                                        const Divider(
+                                            height: 1,
+                                            color: Colors.transparent),
+                                    itemBuilder: (context, index) {
+                                      final item = visits[index];
+
+                                      dynamic data = item is Map
+                                          ? item
+                                          : (item as dynamic).toJson();
+
+                                      String name = data['business_name'] ??
+                                          data['businessName'] ??
+                                          '';
+                                      String address = data['address'] ?? '';
+                                      String town = data['town'] ?? '';
+                                      String? rawImgUrl =
+                                          data['image_url'] ?? data['imageUrl'];
+
+                                      // 2. Construct the URL
+                                      // If it already starts with http, use it. Otherwise, prepend your base URL.
+                                      String finalImageUrl = '';
+                                      if (rawImgUrl != null &&
+                                          rawImgUrl.isNotEmpty) {
+                                        if (rawImgUrl.startsWith('http')) {
+                                          finalImageUrl = rawImgUrl;
+                                        } else {
+                                          finalImageUrl =
+                                              '${ApiConstants.imageBaseUrl}$rawImgUrl';
+                                          // 'https://test.thrivewoo.com/uploads/$rawImgUrl';
+                                        }
                                       }
-                                    }
 
-                                    String checkIn = _formatTime(
-                                        data['check_in'] ?? data['checkIn']);
-                                    // If check_out exists in customer object:
-                                    String checkOut = _formatTime(
-                                        data['check_out'] ?? data['checkOut']);
+                                      String checkIn = _formatTime(
+                                          data['check_in'] ?? data['checkIn']);
+                                      // If check_out exists in customer object:
+                                      String checkOut = _formatTime(
+                                          data['check_out'] ??
+                                              data['checkOut']);
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12.0),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // COLUMN 1: Avatar + Details
-                                          Expanded(
-                                            flex: 5,
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ClipOval(
-                                                  child: Container(
-                                                    height: 35,
-                                                    width: 35,
-                                                    color: Colors.blue
-                                                        .shade50, // Background if image loads slowly
-                                                    child: Image.network(
-                                                      finalImageUrl,
-                                                      fit: BoxFit.cover,
-                                                      errorBuilder: (context,
-                                                          error, stackTrace) {
-                                                        return Container(
-                                                          color: Colors
-                                                              .lightBlue[100],
-                                                          child: const Icon(
-                                                              Icons.person,
-                                                              color:
-                                                                  Colors.blue,
-                                                              size: 20),
-                                                        );
-                                                      },
+                                      final rowColor = index.isEven
+                                          ? Colors.white
+                                          : const Color(0xFFF8FAFC);
+
+                                      return Container(
+                                        color: rowColor,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0, vertical: 12.0),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // COLUMN 1: Avatar + Details
+                                            Expanded(
+                                              flex: 5,
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  ClipOval(
+                                                    child: Container(
+                                                      height: 35,
+                                                      width: 35,
+                                                      color: Colors.blue
+                                                          .shade50, // Background if image loads slowly
+                                                      child: Image.network(
+                                                        finalImageUrl,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
+                                                          return Container(
+                                                            color: Colors
+                                                                .lightBlue[100],
+                                                            child: const Icon(
+                                                                Icons.person,
+                                                                color:
+                                                                    Colors.blue,
+                                                                size: 20),
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                // CircleAvatar(
-                                                //   radius: 18,
-                                                //   backgroundColor: Colors.blue.shade100,
-                                                //   backgroundImage: (imgUrl != null && imgUrl.isNotEmpty)
-                                                //       ? NetworkImage(imgUrl) // Or use your specific image provider
-                                                //       : null,
-                                                //   child: (imgUrl == null || imgUrl.isEmpty)
-                                                //       ? const Icon(Icons.person, color: Colors.blue, size: 20)
-                                                //       : null,
-                                                // ),
-                                                const SizedBox(width: 10),
-                                                // Text Details
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        name,
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 13,
-                                                            color:
-                                                                Colors.black87),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                      const SizedBox(height: 2),
-                                                      Text(
-                                                        address,
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .grey.shade600,
-                                                            fontSize: 11,
-                                                            fontFamily: myFont),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                      Text(
-                                                        town,
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .grey.shade600,
-                                                            fontSize: 11,
-                                                            fontFamily: myFont),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ],
+                                                  // CircleAvatar(
+                                                  //   radius: 18,
+                                                  //   backgroundColor: Colors.blue.shade100,
+                                                  //   backgroundImage: (imgUrl != null && imgUrl.isNotEmpty)
+                                                  //       ? NetworkImage(imgUrl) // Or use your specific image provider
+                                                  //       : null,
+                                                  //   child: (imgUrl == null || imgUrl.isEmpty)
+                                                  //       ? const Icon(Icons.person, color: Colors.blue, size: 20)
+                                                  //       : null,
+                                                  // ),
+                                                  const SizedBox(width: 10),
+                                                  // Text Details
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          name,
+                                                          style: const TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              fontSize: 13,
+                                                              fontFamily:
+                                                                  myFont,
+                                                              color: Color(
+                                                                  0xFF0F172A)),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 2),
+                                                        Text(
+                                                          address,
+                                                          style: const TextStyle(
+                                                              color: Color(
+                                                                  0xFF64748B),
+                                                              fontSize: 11,
+                                                              fontFamily:
+                                                                  myFont),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        Text(
+                                                          town,
+                                                          style: const TextStyle(
+                                                              color: Color(
+                                                                  0xFF64748B),
+                                                              fontSize: 11,
+                                                              fontFamily:
+                                                                  myFont),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            // COLUMN 2: Check-In Time
+                                            Expanded(
+                                              flex: 3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4.0),
+                                                child: Text(
+                                                  checkIn,
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontFamily: myFont,
+                                                      color: Color(0xFF0F172A)),
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-
-                                          // COLUMN 2: Check-In Time
-                                          Expanded(
-                                            flex: 3,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 4.0),
-                                              child: Text(
-                                                checkIn,
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.black),
                                               ),
                                             ),
-                                          ),
 
-                                          // COLUMN 3: Check-Out Time
-                                          Expanded(
-                                            flex: 2,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 4.0),
-                                              child: Text(
-                                                checkOut,
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.black),
+                                            // COLUMN 3: Check-Out Time
+                                            Expanded(
+                                              flex: 2,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4.0),
+                                                child: Text(
+                                                  checkOut,
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontFamily: myFont,
+                                                      color: Color(0xFF0F172A)),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        gradient: LinearGradient(
+          colors: [primaryColor, Color(0xFF2D3748)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                );
-        },
+                  child: const Icon(Icons.route_outlined,
+                      color: Colors.white, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Staff Visits'.tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Poppins_Regular',
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          InkResponse(
+            onTap: () => Navigator.of(context).pop(),
+            child: const CircleAvatar(
+              backgroundColor: Colors.transparent,
+              child: Icon(Icons.close, color: Colors.white, size: 22),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -12,24 +12,21 @@ class OptionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: options.map((e) {
-          return GestureDetector(
+    return Row(
+      children: options.map((e) {
+        return Expanded(
+          child: GestureDetector(
             onTap: e.onTap,
             child: PerformanceWidget(
               title: e.title,
               count: e.count,
               svg: e.svg,
               svgBgColor: e.svgBgColor,
-              month: e.month, 
-              width: e.width,
+              month: e.month,
             ),
-          );
-        }).toList(),
-      ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

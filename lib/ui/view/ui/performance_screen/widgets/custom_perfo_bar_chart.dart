@@ -223,7 +223,7 @@ class _CustomPerfoBarChartState extends State<CustomPerfoBarChart> {
                                                     show: true,
                                                     border: Border.all(
                                                       color: const Color(
-                                                          0xffe0e0e0),
+                                                          0xFFE2E8F0),
                                                       width: 0.9,
                                                     ),
                                                   ),

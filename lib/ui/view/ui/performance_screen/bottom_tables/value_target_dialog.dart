@@ -189,107 +189,134 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
             ),
           )
         : SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 50,
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: const BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 50,
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [primaryColor, Color(0xFF2D3748)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Target by value',
+                          style: TextStyle(
+                            color: white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins_Regular',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Target by value',
+                  nkSmallSizeBox(),
+                  if (!staffController.isWeekly.value) ...[
+                    Container(
+                      width: double.maxFinite,
+                      padding:
+                          const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                      child: Table(
+                        border: TableBorder(
+                          horizontalInside: BorderSide(
+                              color: const Color(0xFFE2E8F0), width: 0.6),
+                        ),
+                        columnWidths: const {
+                          0: FlexColumnWidth(2),
+                          1: FlexColumnWidth(3),
+                          2: FlexColumnWidth(3),
+                        },
+                        children: [
+                          TableRow(
+                            decoration:
+                                const BoxDecoration(color: Color(0xFFF8FAFC)),
+                            children: [
+                              _buildValueTableHeader('Month'),
+                              _buildValueTableHeader('Target'),
+                              if (widget.isProjection)
+                                _buildValueTableHeader('Projection'),
+                            ],
+                          ),
+                          ..._buildCategoryRows(),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (staffController.isWeekly.value) ...[
+                    Container(
+                      padding:
+                          const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                      child: Table(
+                        border: TableBorder(
+                          horizontalInside: BorderSide(
+                              color: const Color(0xFFE2E8F0), width: 0.6),
+                        ),
+                        columnWidths: const {
+                          0: FlexColumnWidth(2),
+                          1: FlexColumnWidth(3),
+                          2: FlexColumnWidth(3),
+                        },
+                        children: [
+                          TableRow(
+                            decoration:
+                                const BoxDecoration(color: Color(0xFFF8FAFC)),
+                            children: [
+                              _buildValueTableHeader('Week'),
+                              _buildValueTableHeader('Target'),
+                              _buildValueTableHeader('Projection'),
+                            ],
+                          ),
+                          ..._buildCategoryWeeklyRows(),
+                        ],
+                      ),
+                    ),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 32),
+                      ),
+                      onPressed: _saveTargets,
+                      child: const Text(
+                        'Save',
                         style: TextStyle(
-                          color: white,
-                          fontSize: 15,
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins_Regular',
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                nkSmallSizeBox(),
-                if (!staffController.isWeekly.value) ...[
-                  Container(
-                    width: double.maxFinite,
-                    padding:
-                        const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                    child: Table(
-                      border: TableBorder.all(color: Colors.grey),
-                      columnWidths: const {
-                        0: FlexColumnWidth(2),
-                        1: FlexColumnWidth(3),
-                        2: FlexColumnWidth(3),
-                      },
-                      children: [
-                        TableRow(
-                          decoration: BoxDecoration(color: Colors.grey[300]),
-                          children: [
-                            buildTableHeader('Month'),
-                            buildTableHeader('Target'),
-                            if (widget.isProjection)
-                              buildTableHeader('Projection'),
-                          ],
-                        ),
-                        ..._buildCategoryRows(),
-                      ],
                     ),
                   ),
                 ],
-                if (staffController.isWeekly.value) ...[
-                  Container(
-                    padding:
-                        const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                    child: Table(
-                      border: TableBorder.all(color: Colors.grey),
-                      columnWidths: const {
-                        0: FlexColumnWidth(2),
-                        1: FlexColumnWidth(3),
-                        2: FlexColumnWidth(3),
-                      },
-                      children: [
-                        TableRow(
-                          decoration: BoxDecoration(color: Colors.grey[300]),
-                          children: [
-                            buildTableHeader('Week'),
-                            buildTableHeader('Target'),
-                            buildTableHeader('Projection'),
-                          ],
-                        ),
-                        ..._buildCategoryWeeklyRows(),
-                      ],
-                    ),
-                  ),
-                ],
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      // backgroundColor: red,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 30),
-                    ),
-                    onPressed: _saveTargets,
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           );
   }
@@ -302,11 +329,14 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
       return List.generate(12, (index) {
         final monthName = getMonthName(index + 1);
         return TableRow(
+          decoration: BoxDecoration(
+            color: index.isEven ? Colors.white : const Color(0xFFF8FAFC),
+          ),
           children: [
-            buildTableCell(monthName),
-            buildTableCell('__'),
+            _buildValueTableCell(monthName),
+            _buildValueTableCell('—'),
             if (widget.isProjection)
-              buildTableTextField(index, _projectionControllers[index]),
+              _buildValueTableTextField(_projectionControllers[index]),
           ],
         );
       });
@@ -319,13 +349,16 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
                 : null;
 
         return TableRow(
+          decoration: BoxDecoration(
+            color: index.isEven ? Colors.white : const Color(0xFFF8FAFC),
+          ),
           children: [
-            buildTableCell(monthName),
-            buildTableCell(
+            _buildValueTableCell(monthName),
+            _buildValueTableCell(
               targetData?.target?.toString() ?? '',
             ),
             if (widget.isProjection)
-              buildTableTextField(index, _projectionControllers[index]),
+              _buildValueTableTextField(_projectionControllers[index]),
           ],
         );
       });
@@ -370,24 +403,45 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
 
       allWeeklyRows.add(
         TableRow(
+          decoration: BoxDecoration(
+            color: i.isEven ? Colors.white : const Color(0xFFF8FAFC),
+          ),
           children: [
-            buildTableCell(week.replaceAll('week', "Week ")),
-            buildTableCell("$target"),
+            _buildValueTableCell(week.replaceAll('week', "Week ")),
+            _buildValueTableCell("$target"),
             Container(
               height: 50,
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: _weeklyProjectionControllers[i],
                 textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF0F172A),
+                  fontFamily: 'Poppins_Regular',
+                  fontWeight: FontWeight.w600,
+                ),
                 onChanged: (newValue) {
                   setState(() {});
                 },
                 decoration: InputDecoration(
-                  fillColor: Colors.blueGrey.shade50,
+                  hintText: 'Enter value',
+                  hintStyle: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    color: Color(0xFF94A3B8),
+                    fontWeight: FontWeight.normal,
+                  ),
+                  prefixIcon: const Icon(Icons.edit_outlined,
+                      size: 16, color: primaryColor),
+                  fillColor: Colors.white,
                   filled: true,
-                  border: OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide:
+                        const BorderSide(color: primaryColor, width: 1.5),
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 5),
                 ),
@@ -399,6 +453,75 @@ class _StaffValueTargetDialogState extends State<StaffValueTargetDialog>
     }
 
     return allWeeklyRows;
+  }
+
+  Widget _buildValueTableHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF0F172A),
+          fontFamily: 'Poppins_Regular',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildValueTableCell(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF0F172A),
+            fontFamily: 'Poppins_Regular',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildValueTableTextField(TextEditingController textController) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.all(8.0),
+      child: TextField(
+        controller: textController,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Color(0xFF0F172A),
+          fontFamily: 'Poppins_Regular',
+          fontWeight: FontWeight.w600,
+        ),
+        decoration: InputDecoration(
+          hintText: 'Enter value',
+          hintStyle: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            color: Color(0xFF94A3B8),
+            fontWeight: FontWeight.normal,
+          ),
+          prefixIcon:
+              const Icon(Icons.edit_outlined, size: 16, color: primaryColor),
+          fillColor: Colors.white,
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: primaryColor, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 5),
+        ),
+      ),
+    );
   }
 
   void _saveTargets() async {

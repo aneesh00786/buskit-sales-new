@@ -88,7 +88,6 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     )
         .then((_) {
       setState(() {
-
         _targetControllers = widget.staffController.salesmanTargetTableList
             .map((data) => TextEditingController(text: data.target.toString()))
             .toList();
@@ -197,137 +196,168 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
               ),
             )
           : SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: const BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 50,
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [primaryColor, Color(0xFF2D3748)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Target by Category'.tr,
+                            style: const TextStyle(
+                              color: white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins_Regular',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child:  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Target by Category'.tr,
-                          style: TextStyle(
-                            color: white,
-                            fontSize: 15,
+                    nkSmallSizeBox(),
+                    if (widget.staffController.isWeekly.value == false) ...[
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                        child: Table(
+                          border: TableBorder(
+                            horizontalInside: BorderSide(
+                                color: const Color(0xFFE2E8F0), width: 0.6),
+                          ),
+                          columnWidths: const {
+                            0: FlexColumnWidth(2),
+                            1: FlexColumnWidth(3),
+                            2: FlexColumnWidth(3),
+                          },
+                          children: [
+                            TableRow(
+                              decoration:
+                                  const BoxDecoration(color: Color(0xFFF8FAFC)),
+                              children: [
+                                _buildTableHeader('Category'.tr),
+                                _buildTableHeader('Monthly Target'.tr),
+                                if (widget.isProjection)
+                                  _buildTableHeader('Projection'.tr),
+                              ],
+                            ),
+                            ..._buildCategoryRows(),
+                          ],
+                        ),
+                      ),
+                    ],
+                    if (widget.staffController.isWeekly.value == true) ...[
+                      Builder(
+                        builder: (context) {
+                          final relevantWeeks = widget.staffController.weekList;
+                          return SizedBox(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 1.5,
+                                padding: const EdgeInsets.only(
+                                    bottom: 8, left: 8, right: 8),
+                                child: Table(
+                                  border: TableBorder(
+                                    horizontalInside: BorderSide(
+                                        color: const Color(0xFFE2E8F0),
+                                        width: 0.6),
+                                  ),
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(150)
+                                  },
+                                  children: [
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFFF8FAFC)),
+                                      children: [
+                                        _buildTableHeader('Category'),
+                                        ...relevantWeeks.map((week) {
+                                          return _buildTableHeader(
+                                              week.replaceAll('week', "Week "));
+                                        }),
+                                      ],
+                                    ),
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFFF8FAFC)),
+                                      children: [
+                                        _buildTableHeader(''),
+                                        ...relevantWeeks.map((week) {
+                                          return Row(
+                                            children: [
+                                              Expanded(
+                                                child:
+                                                    _buildTableHeader('Target'),
+                                              ),
+                                              if (widget.isProjection) ...[
+                                                Expanded(
+                                                  child: _buildTableHeader(
+                                                      'Projection'),
+                                                ),
+                                              ],
+                                            ],
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                    ..._buildCategoryWeeklyRows(relevantWeeks),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    ],
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 32),
+                        ),
+                        onPressed: _saveTargets,
+                        child: Text(
+                          'Save'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins_Regular',
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  nkSmallSizeBox(),
-                  if (widget.staffController.isWeekly.value == false) ...[
-                    Container(
-                      padding:
-                          const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                      child: Table(
-                        border: TableBorder.all(color: Colors.grey),
-                        columnWidths: const {
-                          0: FlexColumnWidth(2),
-                          1: FlexColumnWidth(3),
-                          2: FlexColumnWidth(3),
-                        },
-                        children: [
-                          TableRow(
-                            decoration: BoxDecoration(color: Colors.grey[300]),
-                            children: [
-                              _buildTableHeader('Category'.tr),
-                              _buildTableHeader('Monthly Target'.tr),
-                              if (widget.isProjection)
-                                _buildTableHeader('Projection'.tr),
-                            ],
-                          ),
-                          ..._buildCategoryRows(),
-                        ],
                       ),
                     ),
                   ],
-                  if (widget.staffController.isWeekly.value == true) ...[
-                    Builder(
-                      builder: (context) {
-                        final relevantWeeks =widget.staffController.weekList;
-                        return SizedBox(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 1.5,
-                              padding: const EdgeInsets.only(
-                                  bottom: 8, left: 8, right: 8),
-                              child: Table(
-                                border: TableBorder.all(color: Colors.grey),
-                                columnWidths: const {0: FixedColumnWidth(150)},
-                                children: [
-                                  TableRow(
-                                    decoration:
-                                        BoxDecoration(color: Colors.grey[300]),
-                                    children: [
-                                      _buildTableHeader('Category'),
-                                      ...relevantWeeks.map((week) {
-                                        return _buildTableHeader(week.replaceAll('week', "Week "));
-                                      }),
-                                    ],
-                                  ),
-                                  TableRow(
-                                    decoration:
-                                        BoxDecoration(color: Colors.grey[300]),
-                                    children: [
-                                      _buildTableHeader(''),
-                                      ...relevantWeeks.map((week) {
-                                        return Row(
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  _buildTableHeader('Target'),
-                                            ),
-                                            if (widget.isProjection) ...[
-                                              Expanded(
-                                                child: _buildTableHeader(
-                                                    'Projection'),
-                                              ),
-                                            ],
-                                          ],
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                  ..._buildCategoryWeeklyRows(relevantWeeks),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  ],
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 30),
-                      ),
-                      onPressed: _saveTargets,
-                      child:  Text(
-                        'Save'.tr,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
     });
@@ -473,7 +503,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         textAlign: TextAlign.center,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          color: Colors.black,
+          color: Color(0xFF0F172A),
+          fontFamily: 'Poppins_Regular',
         ),
       ),
     );
@@ -484,6 +515,9 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         (index) {
       final targetData = widget.staffController.salesmanTargetTableList[index];
       return TableRow(
+        decoration: BoxDecoration(
+          color: index.isEven ? Colors.white : const Color(0xFFF8FAFC),
+        ),
         children: [
           _buildTableCell(targetData.categoryName.toString()),
           _buildTableTextField(index),
@@ -492,6 +526,7 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       );
     });
   }
+
   List<TableRow> _buildCategoryWeeklyRows(List<String> relevantWeeks) {
     final allWeeklyRows = <TableRow>[];
 
@@ -504,7 +539,15 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
         Container(
           height: 50,
           padding: const EdgeInsets.all(8.0),
-          child: Center(child: Text(target.categoryName ?? '')),
+          child: Center(
+            child: Text(
+              target.categoryName ?? '',
+              style: const TextStyle(
+                color: Color(0xFF0F172A),
+                fontFamily: 'Poppins_Regular',
+              ),
+            ),
+          ),
         ),
       ];
 
@@ -537,14 +580,23 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                     enabled: false,
                     controller: targetControllerForWeek,
                     textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF0F172A),
+                      fontFamily: 'Poppins_Regular',
+                    ),
                     decoration: InputDecoration(
+                      fillColor: const Color(0xFFF8FAFC),
+                      filled: true,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 5),
                       hintText: '0',
-                      hintStyle: const TextStyle(color: Colors.grey),
+                      hintStyle: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontFamily: 'Poppins_Regular',
+                      ),
                     ),
                   ),
                 ),
@@ -557,8 +609,12 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                     child: TextField(
                       controller: projectionControllerForWeek,
                       textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF0F172A),
+                        fontFamily: 'Poppins_Regular',
+                      ),
                       decoration: InputDecoration(
-                        fillColor: Colors.blueGrey.shade50,
+                        fillColor: const Color(0xFFF8FAFC),
                         filled: true,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -566,7 +622,10 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
                         ),
                         contentPadding: const EdgeInsets.symmetric(vertical: 5),
                         hintText: '0',
-                        hintStyle: const TextStyle(color: Colors.grey),
+                        hintStyle: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontFamily: 'Poppins_Regular',
+                        ),
                       ),
                       onChanged: (value) {
                         projectionControllerForWeek.value =
@@ -584,7 +643,12 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           ),
         );
       }
-      allWeeklyRows.add(TableRow(children: rowColumns));
+      allWeeklyRows.add(TableRow(
+        decoration: BoxDecoration(
+          color: categoryIndex.isEven ? Colors.white : const Color(0xFFF8FAFC),
+        ),
+        children: rowColumns,
+      ));
     }
     return allWeeklyRows;
   }
@@ -597,7 +661,8 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
           text,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: Colors.black,
+            color: Color(0xFF0F172A),
+            fontFamily: 'Poppins_Regular',
           ),
         ),
       ),
@@ -608,7 +673,15 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
     return Container(
       height: 50,
       padding: const EdgeInsets.all(8.0),
-      child: Center(child: Text(_targetControllers[index].text)),
+      child: Center(
+        child: Text(
+          _targetControllers[index].text,
+          style: const TextStyle(
+            color: Color(0xFF0F172A),
+            fontFamily: 'Poppins_Regular',
+          ),
+        ),
+      ),
     );
   }
 
@@ -619,12 +692,29 @@ class _StaffTargetDialogState extends State<StaffTargetDialog>
       child: TextField(
         controller: _projectionControllers[index],
         textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Color(0xFF0F172A),
+          fontFamily: 'Poppins_Regular',
+          fontWeight: FontWeight.w600,
+        ),
         decoration: InputDecoration(
-          fillColor: Colors.blueGrey.shade50,
+          hintText: 'Enter value',
+          hintStyle: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            color: Color(0xFF94A3B8),
+            fontWeight: FontWeight.normal,
+          ),
+          prefixIcon:
+              const Icon(Icons.edit_outlined, size: 16, color: primaryColor),
+          fillColor: Colors.white,
           filled: true,
-          border: OutlineInputBorder(
+          enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: primaryColor, width: 1.5),
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 5),
         ),

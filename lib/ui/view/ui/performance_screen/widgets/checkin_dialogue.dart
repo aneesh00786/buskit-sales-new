@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/performance_screen/model/checkin_checkout_model.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/staff_controller.dart';
 import 'package:flutter/material.dart';
@@ -55,19 +54,26 @@ Widget buildCheckInOutDialogContent(
                           Text(
                             check.fullname ?? 'N/A',
                             style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.bold),
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             check.mobileno ?? 'N/A',
                             style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 12,
+                                color: Color(0xFF64748B)),
                           ),
                           Text(
                             check.email ?? 'N/A',
                             style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 12,
+                                color: Color(0xFF64748B)),
                           ),
                         ],
                       ),
@@ -79,21 +85,31 @@ Widget buildCheckInOutDialogContent(
                 child: Text(
                   check.customerId ?? 'N/A',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF0F172A)),
                 ),
               ),
               TableViewCell(
                   child: Text(check.eventId ?? 'N/A',
-                      textAlign: TextAlign.center)),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          color: Color(0xFF0F172A)))),
               TableViewCell(
                   child: Text(
                 check.individualVisit?.toString() ?? 'N/A',
                 textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontFamily: 'Poppins_Regular', color: Color(0xFF0F172A)),
               )),
               TableViewCell(
                   child: Text(
                 check.totalVisits?.toString() ?? 'N/A',
                 textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontFamily: 'Poppins_Regular', color: Color(0xFF0F172A)),
               )),
               TableViewCell(
                 child: Text(
@@ -101,144 +117,162 @@ Widget buildCheckInOutDialogContent(
                       ? DateFormat('dd/MM/yyyy').format(check.checkIn!)
                       : 'N/A',
                   textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontFamily: 'Poppins_Regular', color: Color(0xFF0F172A)),
                 ),
               ),
             ],
           );
         }).toList();
 
-  return LayoutBuilder(
-    builder: (BuildContext context, BoxConstraints constraints) {
-      double availableWidth = constraints.maxWidth;
-      double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
-      double headerHeight = 60;
-      double rowHeight = 80;
-      double contentHeight = headerHeight + (rows.length * rowHeight);
-      double containerHeight = contentHeight.clamp(0, maxDialogHeight);
+  return Material(
+    type: MaterialType.transparency,
+    child: LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        double availableWidth = constraints.maxWidth;
+        double maxDialogHeight = MediaQuery.of(context).size.height * 0.8;
+        double headerHeight = 60;
+        double rowHeight = 80;
+        double contentHeight = headerHeight + (rows.length * rowHeight);
+        double containerHeight = contentHeight.clamp(0, maxDialogHeight);
 
-      return Stack(
-        children: [
-
-          Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
+        return Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                gradient: LinearGradient(
+                  colors: [primaryColor, Color(0xFF2D3748)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-              color: primaryColor,
+              height: headerHeight,
             ),
-            height: headerHeight,
-          ),
-
-          SizedBox(
-            width: availableWidth,
-            height: containerHeight,
-            child: Column(
-              children: [
-
-                Container(
-                  height: headerHeight,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                    color: primaryColor,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            headers[0],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+            SizedBox(
+              width: availableWidth,
+              height: containerHeight,
+              child: Column(
+                children: [
+                  Container(
+                    height: headerHeight,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
-                      ...headers.sublist(1).map((label) {
-                        return Expanded(
-                          flex: 1,
+                      gradient: LinearGradient(
+                        colors: [primaryColor, Color(0xFF2D3748)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
                           child: Padding(
                             padding: const EdgeInsets.all(10),
                             child: Text(
-                              label,
+                              headers[0],
                               style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 14,
                               ),
                               textAlign: TextAlign.center,
                             ),
                           ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: ListView.builder(
-                    itemCount: rows.length,
-                    shrinkWrap: true,
-                    physics: contentHeight > maxDialogHeight
-                        ? const AlwaysScrollableScrollPhysics()
-                        : const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.shade300,
-                              width: 0.5,
-                            ),
-                          ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: rows[index].cells[0].child,
+                        ...headers.sublist(1).map((label) {
+                          return Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins_Regular',
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                            ...rows[index]
-                                .cells
-                                .sublist(1)
-                                .map((cell) => Expanded(
-                                      flex: 1,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: cell.child,
-                                      ),
-                                    )),
-                          ],
-                        ),
-                      );
-                    },
+                          );
+                        }),
+                      ],
+                    ),
                   ),
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: rows.length,
+                      shrinkWrap: true,
+                      physics: contentHeight > maxDialogHeight
+                          ? const AlwaysScrollableScrollPhysics()
+                          : const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: index.isEven
+                                ? Colors.white
+                                : const Color(0xFFF8FAFC),
+                            border: const Border(
+                              bottom: BorderSide(
+                                color: Color(0xFFE2E8F0),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: rows[index].cells[0].child,
+                                ),
+                              ),
+                              ...rows[index]
+                                  .cells
+                                  .sublist(1)
+                                  .map((cell) => Expanded(
+                                        flex: 1,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: cell.child,
+                                        ),
+                                      )),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 12,
+              child: InkResponse(
+                onTap: () => Navigator.of(context).pop(),
+                child: const CircleAvatar(
+                  radius: 14,
+                  backgroundColor: Colors.transparent,
+                  child: Icon(Icons.close, color: Colors.white, size: 22),
                 ),
-              ],
+              ),
             ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              height: 45,
-              width: 45,
-              child: Center(child: dialogCloseButton1(context, red)),
-            ),
-          ),
-        ],
-      );
-    },
+          ],
+        );
+      },
+    ),
   );
 }

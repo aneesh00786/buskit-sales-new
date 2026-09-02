@@ -107,13 +107,8 @@ class _PendingTabBarState extends State<PendingTabBar> {
           ),
           SliverToBoxAdapter(
             child: Container(
-              height: 44,
+              height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
-                ),
-              ),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: _tabs.length,
@@ -123,14 +118,11 @@ class _PendingTabBarState extends State<PendingTabBar> {
                     return const SizedBox.shrink();
                   }
                   return Padding(
-                    padding: const EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                        ),
+                        borderRadius: BorderRadius.circular(10),
                         onTap: () {
                           setState(() {
                             _selectedTabIndex = index;
@@ -141,23 +133,41 @@ class _PendingTabBarState extends State<PendingTabBar> {
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
+                              horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? primaryColor
-                                : Colors.transparent,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
+                                ? const Color(0xFF1E3A8A)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xFF1E3A8A)
+                                  : const Color(0xFFE2E8F0),
+                              width: 1.2,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isSelected
+                                    ? const Color(0xFF1E3A8A).withOpacity(0.25)
+                                    : Colors.black.withOpacity(0.03),
+                                blurRadius: isSelected ? 6 : 3,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            _tabs[index],
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : primaryColor,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12.5,
-                              fontFamily: 'Poppins_Regular',
+                          child: Center(
+                            child: Text(
+                              _tabs[index],
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF475569),
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                                fontSize: 12.5,
+                                fontFamily: 'Poppins_Regular',
+                              ),
                             ),
                           ),
                         ),

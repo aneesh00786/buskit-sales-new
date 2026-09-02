@@ -268,7 +268,7 @@ class HomeController extends GetxController {
       sideBarComponent(sidebarName[3], index: 3, EneftyIcons.receipt_bold),
       sideBarComponent(
           sidebarName[4], index: 4, EneftyIcons.arrow_swap_horizontal_bold),
-      sideBarComponent(sidebarName[5], index: 5, EneftyIcons.wallet_bold),
+      sideBarComponent(sidebarName[5], index: 5, Icons.payments_outlined),
       sideBarComponent(sidebarName[6], index: 6, SIdeBarIcon.ic_leads,
           sectionLabel: 'Growth'),
       sideBarComponent(sidebarName[7], index: 7, EneftyIcons.calendar_bold),
@@ -695,7 +695,7 @@ IconData getSidebarIconData(int index, {required bool selected}) {
     case 4:
       return Icons.restart_alt_rounded;
     case 5:
-      return Icons.business_center_outlined;
+      return Icons.payments_outlined;
     case 6:
       return Icons.person_add_alt_1_outlined;
     case 7:

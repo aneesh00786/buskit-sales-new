@@ -381,8 +381,7 @@ class _SalesReturnState extends State<SalesReturn> {
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
 
       _buildFilterColumn(
-        title: CustomText(
-            content: 'Search Customer'.tr, fontWeight: FontWeight.bold),
+        title: CustomText(content: 'Customer'.tr, fontWeight: FontWeight.bold),
         child: SizedBox(
           width: fieldWidth,
           height: fieldHeight,

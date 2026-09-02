@@ -23,7 +23,6 @@ import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 import 'package:busskit_salesexecutive/ui/components/custom_tooltip.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
-import 'package:busskit_salesexecutive/ui/theme/close_button.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/utills/nk_date_utils.dart';
@@ -141,8 +140,8 @@ class _TableeeState extends State<Tableee> {
         automaticallyImplyLeading: false,
         backgroundColor: white,
         surfaceTintColor: white,
-        toolbarHeight: (isTabletOrPhoneLandscape(context)) 
-            ? null 
+        toolbarHeight: (isTabletOrPhoneLandscape(context))
+            ? null
             : (showChatbotMobile ? 110 : 80),
         actions: [
           Expanded(
@@ -152,20 +151,23 @@ class _TableeeState extends State<Tableee> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Customers & Orders'.tr, style: const TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF0F172A),
-              )),
+                  Text('Customers & Orders'.tr,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins_Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0F172A),
+                      )),
                   Row(
                     children: [
                       if (!isMobile) addCustomer(context),
                       if (!isMobile) const SizedBox(width: 12),
-                      if (!isMobile) const ChatbotTopBarButton(routeName: '/customers'),
+                      if (!isMobile)
+                        const ChatbotTopBarButton(routeName: '/customers'),
                       if (isMobile)
                         IconButton(
-                          icon: const Icon(Icons.info_outline, color: primaryColor),
+                          icon: const Icon(Icons.info_outline,
+                              color: primaryColor),
                           onPressed: () {
                             setState(() {
                               showChatbotMobile = !showChatbotMobile;
@@ -851,7 +853,7 @@ class _TableeeState extends State<Tableee> {
                             backgroundColor: white,
                             shape: const RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0)),
+                                  BorderRadius.all(Radius.circular(20.0)),
                               side: BorderSide.none,
                             ),
                             elevation: 24.0,
@@ -863,26 +865,42 @@ class _TableeeState extends State<Tableee> {
                                   Container(
                                     decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        topRight: Radius.circular(10),
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20),
                                       ),
-                                      color: Color(0xFF7578EA),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          primaryColor,
+                                          Color(0xFF2D3748)
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
+                                        horizontal: 18, vertical: 14),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           'Add Customer'.tr,
-                                          style: TextStyle(
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins_Regular',
                                             color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                        dialogCloseButton1(context, red),
+                                        InkResponse(
+                                          onTap: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            child: Icon(Icons.close,
+                                                color: Colors.white, size: 22),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -1029,11 +1047,11 @@ class _TableeeState extends State<Tableee> {
                                                           stateController.text;
                                                       deliveryZipcodeController
                                                               .text =
-                                                           zipcodeController
+                                                          zipcodeController
                                                               .text;
                                                       deliveryCountryController
                                                               .text =
-                                                           countryController
+                                                          countryController
                                                               .text;
                                                     } else {
                                                       deliveryAddressController
@@ -1186,47 +1204,129 @@ class _TableeeState extends State<Tableee> {
                                               child: GestureDetector(
                                                 onTap: () {
                                                   showDialog(
-                                                    barrierDismissible: false,
                                                     context: context,
                                                     builder:
                                                         (BuildContext context) {
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Select Method'),
-                                                        actions: [
-                                                          IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              await provider
-                                                                  .pickImage(
-                                                                      ImageSource
-                                                                          .camera);
-                                                              setState(() {});
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            icon: const Icon(
-                                                                EneftyIcons
-                                                                    .camera_outline),
+                                                      return Dialog(
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        child: ConstrainedBox(
+                                                          constraints:
+                                                              const BoxConstraints(
+                                                                  maxWidth:
+                                                                      340),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .fromLTRB(
+                                                                    20,
+                                                                    20,
+                                                                    20,
+                                                                    12),
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Text(
+                                                                      'Select Method'
+                                                                          .tr,
+                                                                      style: const TextStyle(
+                                                                          fontFamily:
+                                                                              'Poppins_Regular',
+                                                                          fontSize:
+                                                                              16,
+                                                                          fontWeight: FontWeight
+                                                                              .w700,
+                                                                          color:
+                                                                              Color(0xFF0F172A)),
+                                                                    ),
+                                                                    InkWell(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              20),
+                                                                      onTap: () =>
+                                                                          Navigator.of(context)
+                                                                              .pop(),
+                                                                      child:
+                                                                          const Padding(
+                                                                        padding:
+                                                                            EdgeInsets.all(4),
+                                                                        child:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .close,
+                                                                          size:
+                                                                              20,
+                                                                          color:
+                                                                              Color(0xFF64748B),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 16),
+                                                                _selectMethodOption(
+                                                                  context:
+                                                                      context,
+                                                                  icon: EneftyIcons
+                                                                      .camera_outline,
+                                                                  label:
+                                                                      'Camera'
+                                                                          .tr,
+                                                                  onTap:
+                                                                      () async {
+                                                                    await provider
+                                                                        .pickImage(
+                                                                            ImageSource.camera);
+                                                                    setState(
+                                                                        () {});
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 10),
+                                                                _selectMethodOption(
+                                                                  context:
+                                                                      context,
+                                                                  icon: EneftyIcons
+                                                                      .gallery_bold,
+                                                                  label:
+                                                                      'Gallery'
+                                                                          .tr,
+                                                                  onTap:
+                                                                      () async {
+                                                                    await provider
+                                                                        .pickImage(
+                                                                            ImageSource.gallery);
+                                                                    setState(
+                                                                        () {});
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
-                                                          IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              await provider
-                                                                  .pickImage(
-                                                                      ImageSource
-                                                                          .gallery);
-                                                              setState(() {});
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            icon: const Icon(
-                                                                EneftyIcons
-                                                                    .gallery_bold),
-                                                          ),
-                                                        ],
+                                                        ),
                                                       );
                                                     },
                                                   );
@@ -1272,7 +1372,8 @@ class _TableeeState extends State<Tableee> {
                                                                 : 'Image selected'
                                                                     .tr,
                                                             style: TextStyle(
-                                                              color: const Color(0xFF0F172A),
+                                                              color: const Color(
+                                                                  0xFF0F172A),
                                                               fontSize: 16.0,
                                                               fontWeight:
                                                                   FontWeight
@@ -1503,7 +1604,9 @@ class _TableeeState extends State<Tableee> {
                                                                 .text
                                                                 .trim()) ??
                                                         0,
-                                                    "country": countryController.text.trim(),
+                                                    "country": countryController
+                                                        .text
+                                                        .trim(),
                                                     "mobileno": int.tryParse(
                                                             phoneController.text
                                                                 .trim()) ??
@@ -1553,7 +1656,10 @@ class _TableeeState extends State<Tableee> {
                                                                     .text
                                                                     .trim()) ??
                                                             0,
-                                                    "deliverycountry": deliveryCountryController.text.trim(),
+                                                    "deliverycountry":
+                                                        deliveryCountryController
+                                                            .text
+                                                            .trim(),
                                                     "remark": remarkController
                                                         .text
                                                         .trim(),
@@ -1712,6 +1818,58 @@ class _TableeeState extends State<Tableee> {
     );
   }
 
+  /// Modern rounded list-item row used by the "Select Method" picker in the
+  /// Add Customer dialog's image-picker. Purely presentational — the tap
+  /// callback passed in is whatever the caller already wired up
+  /// (camera/gallery picking), unchanged.
+  Widget _selectMethodOption({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: const Color(0xFFF8FAFC),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: primaryColor),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const Spacer(),
+              const Icon(Icons.chevron_right,
+                  size: 18, color: Color(0xFF94A3B8)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> fetchAllCustomerPages(BuildContext context) async {
     final provider = Provider.of<CustomersProvider>(context, listen: false);
     final apiService = ApiService();
@@ -1795,68 +1953,83 @@ class TopTotalWidget extends StatelessWidget {
         Get.find<SubscriptionController>();
     double totalTableWidth =
         120 + 140 + 140 + 140 + 140 + 140 + 140 + 140 + 160;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 300,
-          child: _buildTableHeader(
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              child: Container(
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: TextField(
-                    onChanged: (query) {
-                      provider.updateSearchQuery(query);
-                    },
-                    controller: searchController,
-                    textAlignVertical: TextAlignVertical.center,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontFamily: fontFamilyName,
-                      color: Colors.black87,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      prefixIcon: const Icon(Icons.search, size: 18, color: Colors.grey),
-                      prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 38),
-                      hintText: 'Search customer...'.tr,
-                      hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 12.5,
-                        fontFamily: fontFamilyName,
+    // Header is painted as a single continuous gradient bar spanning both
+    // the frozen search column and the scrollable header cells (instead of
+    // two separate gradient/color boxes side by side), matching the
+    // lead_bottom_screen / sales_return pattern and avoiding a visible
+    // seam at the frozen/scrollable boundary.
+    return Container(
+      height: 54,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [primaryColor, Color(0xFF2D3748)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 300,
+            child: _buildTableHeader(
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                child: Container(
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
                       ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.only(right: 10),
+                    ],
+                  ),
+                  child: Center(
+                    child: TextField(
+                      onChanged: (query) {
+                        provider.updateSearchQuery(query);
+                      },
+                      controller: searchController,
+                      textAlignVertical: TextAlignVertical.center,
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontFamily: fontFamilyName,
+                        color: Colors.black87,
+                      ),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        prefixIcon: const Icon(Icons.search,
+                            size: 18, color: Colors.grey),
+                        prefixIconConstraints:
+                            const BoxConstraints(minWidth: 36, minHeight: 38),
+                        hintText: 'Customer...'.tr,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 14.5,
+                          fontFamily: fontFamilyName,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.only(right: 10),
+                      ),
                     ),
                   ),
                 ),
               ),
+              300,
             ),
-            300,
           ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            controller: _scrollController,
-            child: SizedBox(
-              width: totalTableWidth,
-              child: Container(
-                color: primaryColor,
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              controller: _scrollController,
+              child: SizedBox(
+                width: totalTableWidth,
                 child: Row(
                   children: [
                     _buildTableHeader(
@@ -1901,7 +2074,8 @@ class TopTotalWidget extends StatelessWidget {
 
                             return Container(
                               height: 28,
-                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(6),
@@ -1926,7 +2100,8 @@ class TopTotalWidget extends StatelessWidget {
                                           .customerYearComparison.value !=
                                       'true',
                                   child: DropdownButton<String>(
-                                    icon: const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.black87),
+                                    icon: const Icon(Icons.keyboard_arrow_down,
+                                        size: 14, color: Colors.black87),
                                     iconSize: 14,
                                     value: customerAndOrderController
                                             .selectedYear.value.isNotEmpty
@@ -2109,8 +2284,8 @@ class TopTotalWidget extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -2232,7 +2407,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                   padding: EdgeInsets.zero,
                   Container(
                     width: 260,
-                    color: Colors.grey[200],
+                    color: const Color(0xFFF8FAFC),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -2242,8 +2417,12 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                             child: Container(
                               // Remove fixed width
                               decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(3.0),
+                                gradient: const LinearGradient(
+                                  colors: [primaryColor, Color(0xFF2D3748)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -2301,6 +2480,8 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 child: Text(
                                                   item,
                                                   style: const TextStyle(
+                                                    fontFamily:
+                                                        'Poppins_Regular',
                                                     fontSize: 13,
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
@@ -2330,6 +2511,8 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 child: Text(
                                                   item,
                                                   style: const TextStyle(
+                                                    fontFamily:
+                                                        'Poppins_Regular',
                                                     fontSize: 13,
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
@@ -2363,6 +2546,8 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                                                 child: Text(
                                                   '$item',
                                                   style: TextStyle(
+                                                    fontFamily:
+                                                        'Poppins_Regular',
                                                     fontSize: 13,
                                                     color: isCurrent
                                                         ? primaryColor
@@ -2405,14 +2590,16 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                         // const Spacer(),
                         const SizedBox(width: 10),
                         Container(
-                          color: Colors.grey[200],
+                          color: const Color(0xFFF8FAFC),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('Total'.tr,
-                                  style: TextStyle(
+                                  style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
                                       fontSize: 17,
-                                      fontWeight: FontWeight.w700)),
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A))),
                             ],
                           ),
                         ),
@@ -2428,7 +2615,7 @@ class _BottomTotalWidgetState extends State<BottomTotalWidget> {
                     controller: widget._scrollController,
                     physics: const ClampingScrollPhysics(),
                     child: Container(
-                      color: Colors.grey[200],
+                      color: const Color(0xFFF8FAFC),
                       child: Column(
                         children: [
                           Row(
@@ -2794,9 +2981,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   provider.currentPageCustomers[index];
                               return Container(
                                 height: fixedRowHeight,
-                                color: index.isEven
-                                    ? Colors.grey[50]
-                                    : Colors.white,
+                                decoration: BoxDecoration(
+                                  color: index.isEven
+                                      ? const Color(0xFFF8FAFC)
+                                      : Colors.white,
+                                  border: const Border(
+                                    bottom: BorderSide(
+                                        color: Color(0xFFE2E8F0), width: 0.6),
+                                  ),
+                                ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -3089,9 +3282,15 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
 
                                 return Container(
                                   height: fixedRowHeight,
-                                  color: index.isEven
-                                      ? Colors.grey[50]
-                                      : Colors.white,
+                                  decoration: BoxDecoration(
+                                    color: index.isEven
+                                        ? const Color(0xFFF8FAFC)
+                                        : Colors.white,
+                                    border: const Border(
+                                      bottom: BorderSide(
+                                          color: Color(0xFFE2E8F0), width: 0.6),
+                                    ),
+                                  ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -3469,14 +3668,30 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
-              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              actionsPadding:
+                  const EdgeInsets.only(bottom: 20, left: 16, right: 16),
               actionsAlignment: MainAxisAlignment.center,
-              title: Text('Customer Check-Out'.tr),
+              title: Text(
+                'Customer Check-Out'.tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
               content: Text(
-                  '$customerName is already checked In. Do you want to Check-out?'),
+                '$customerName is already checked In. Do you want to Check-out?',
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 13.5,
+                  color: Color(0xFF64748B),
+                ),
+              ),
               actions: [
                 if (isCheckingOut)
                   const Padding(
@@ -3489,9 +3704,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     height: 45,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey, width: 2),
+                        side: const BorderSide(
+                            color: Color(0xFFE2E8F0), width: 1.5),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       onPressed: () {
@@ -3521,14 +3737,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
 
                           Get.to(
                                   ChangeNotifierProvider.value(
-                                    value: Provider.of<CustomersProvider>(context,
+                                    value: Provider.of<CustomersProvider>(
+                                        context,
                                         listen: false),
                                     child: OrderTaking(
                                       productsController: prodController,
                                       selectedCustId: customerAndOrderController
                                           .customerId.value,
-                                      selectedCustName: customerAndOrderController
-                                          .selectedCustomerName.value,
+                                      selectedCustName:
+                                          customerAndOrderController
+                                              .selectedCustomerName.value,
                                       selectedCustImageUrl:
                                           customerAndOrderController
                                               .selectedCustomerImage.value,
@@ -3545,7 +3763,7 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                         'Stay'.tr,
                         style: const TextStyle(
                           fontFamily: 'Poppins_Regular',
-                          color: const Color(0xFF0F172A),
+                          color: Color(0xFF0F172A),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -3558,9 +3776,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                     height: 45,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF727CF5), width: 2),
+                        side: const BorderSide(
+                            color: Color(0xFF727CF5), width: 1.5),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       onPressed: () async {
@@ -3586,7 +3805,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                           final lat = position.latitude.toString();
                           final long = position.longitude.toString();
 
-                          final isOnline = await ConnectivityService().isOnline();
+                          final isOnline =
+                              await ConnectivityService().isOnline();
 
                           if (!isOnline) {
                             await _saveCheckInOutRequestOffline(
@@ -3700,7 +3920,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     );
   }
 
-  Widget _buildModernEmptyState(String title, String subtitle, BuildContext context) {
+  Widget _buildModernEmptyState(
+      String title, String subtitle, BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -3789,7 +4010,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                 children: [
                   // --- HEADER ---
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 12),
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [primaryColor, Color(0xFF2D3748)],
@@ -3808,7 +4030,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 17),
+                              child: const Icon(Icons.shopping_cart_outlined,
+                                  color: Colors.white, size: 17),
                             ),
                             const SizedBox(width: 10),
                             Text(
@@ -3823,11 +4046,13 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             ),
                             const SizedBox(width: 10),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2.5),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.white.withOpacity(0.35)),
+                                border: Border.all(
+                                    color: Colors.white.withOpacity(0.35)),
                               ),
                               child: Text(
                                 '${filteredOrders.length} ${'Records'.tr}',
@@ -3850,7 +4075,8 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                               color: Colors.white.withOpacity(0.2),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.close, color: Colors.white, size: 17),
+                            child: const Icon(Icons.close,
+                                color: Colors.white, size: 17),
                           ),
                         ),
                       ],
@@ -3859,7 +4085,10 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
 
                   // --- BODY ---
                   if (filteredOrders.isEmpty)
-                    _buildModernEmptyState('No Orders Found', 'There are no records found for this customer.', context)
+                    _buildModernEmptyState(
+                        'No Orders Found',
+                        'There are no records found for this customer.',
+                        context)
                   else
                     Flexible(
                       child: LayoutBuilder(
@@ -3870,14 +4099,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                             trackVisibility: true,
                             radius: const Radius.circular(8),
                             thickness: 6,
-                            notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
+                            notificationPredicate: (notif) =>
+                                notif.metrics.axis == Axis.vertical,
                             child: Scrollbar(
                               controller: horizontalScrollController,
                               thumbVisibility: true,
                               trackVisibility: true,
                               radius: const Radius.circular(8),
                               thickness: 6,
-                              notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+                              notificationPredicate: (notif) =>
+                                  notif.metrics.axis == Axis.horizontal,
                               child: SingleChildScrollView(
                                 controller: verticalScrollController,
                                 scrollDirection: Axis.vertical,
@@ -3885,9 +4116,11 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                   controller: horizontalScrollController,
                                   scrollDirection: Axis.horizontal,
                                   child: ConstrainedBox(
-                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                                    constraints: BoxConstraints(
+                                        minWidth: constraints.maxWidth),
                                     child: DataTable(
-                                      headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
+                                      headingRowColor: WidgetStateProperty.all(
+                                          const Color(0xFFF1F5F9)),
                                       headingTextStyle: const TextStyle(
                                         fontFamily: 'Poppins_Regular',
                                         fontSize: 12,
@@ -3900,15 +4133,132 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                       columnSpacing: 14,
                                       horizontalMargin: 16,
                                       columns: [
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Customer'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Order #'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Date'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Sales Rep'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Amount'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Invoice'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Payment'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Status'.tr, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
-                                        DataColumn(headingRowAlignment: MainAxisAlignment.center, label: Center(child: Text('Action', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Customer'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Order #'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Date'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Sales Rep'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Amount'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Invoice'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Payment'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Status'.tr,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
+                                        DataColumn(
+                                            headingRowAlignment:
+                                                MainAxisAlignment.center,
+                                            label: Center(
+                                                child: Text('Action',
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                            0xFF0F172A))))),
                                       ],
                                       rows: filteredOrders.map((order) {
                                         return DataRow(
@@ -3922,35 +4272,87 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                     children: [
                                                       CircleAvatar(
                                                         radius: 14,
-                                                        backgroundColor: const Color(0xFFEEF2FF),
-                                                        child: const Icon(Icons.person, size: 15, color: primaryColor),
+                                                        backgroundColor:
+                                                            const Color(
+                                                                0xFFEEF2FF),
+                                                        child: const Icon(
+                                                            Icons.person,
+                                                            size: 15,
+                                                            color:
+                                                                primaryColor),
                                                       ),
                                                       const SizedBox(width: 7),
                                                       Expanded(
                                                         child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
                                                           children: [
                                                             Text(
-                                                              customer.businessName.isNotEmpty ? customer.businessName : 'N/A',
-                                                              style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black),
+                                                              customer.businessName
+                                                                      .isNotEmpty
+                                                                  ? customer
+                                                                      .businessName
+                                                                  : 'N/A',
+                                                              style: const TextStyle(
+                                                                  fontFamily:
+                                                                      'Poppins_Regular',
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w800,
+                                                                  color: Colors
+                                                                      .black),
                                                               maxLines: 1,
-                                                              overflow: TextOverflow.ellipsis,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
                                                             ),
-                                                            if (customer.fullname.isNotEmpty)
+                                                            if (customer
+                                                                .fullname
+                                                                .isNotEmpty)
                                                               Text(
-                                                                customer.fullname,
-                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+                                                                customer
+                                                                    .fullname,
+                                                                style: const TextStyle(
+                                                                    fontFamily:
+                                                                        'Poppins_Regular',
+                                                                    fontSize:
+                                                                        11,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    color: Colors
+                                                                        .black87),
                                                                 maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
                                                               ),
-                                                            if (customer.mobileno.isNotEmpty)
+                                                            if (customer
+                                                                .mobileno
+                                                                .isNotEmpty)
                                                               Text(
-                                                                customer.mobileno,
-                                                                style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 10, fontWeight: FontWeight.w500, color: Colors.black87),
+                                                                customer
+                                                                    .mobileno,
+                                                                style: const TextStyle(
+                                                                    fontFamily:
+                                                                        'Poppins_Regular',
+                                                                    fontSize:
+                                                                        10,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    color: Colors
+                                                                        .black87),
                                                                 maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis,
-                                                            ),
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
                                                           ],
                                                         ),
                                                       ),
@@ -3964,27 +4366,47 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               Center(
                                                 child: InkWell(
                                                   onTap: () async {
-                                                    bool isOnline = await ConnectivityService().isOnline();
+                                                    bool isOnline =
+                                                        await ConnectivityService()
+                                                            .isOnline();
                                                     if (isOnline) {
-                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                      showDetailedOrderInvoiceDialog(
+                                                          context,
+                                                          order.orderId,
+                                                          false);
                                                     } else {
-                                                      showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                      showCustomToastDisplay(
+                                                          context,
+                                                          'You are Offline!'.tr,
+                                                          red,
+                                                          Icons.warning);
                                                     }
                                                   },
                                                   child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 7,
+                                                        vertical: 3),
                                                     decoration: BoxDecoration(
-                                                      color: primaryColor.withOpacity(0.1),
-                                                      borderRadius: BorderRadius.circular(6),
-                                                      border: Border.all(color: primaryColor.withOpacity(0.3)),
+                                                      color: primaryColor
+                                                          .withOpacity(0.1),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              6),
+                                                      border: Border.all(
+                                                          color: primaryColor
+                                                              .withOpacity(
+                                                                  0.3)),
                                                     ),
                                                     child: Text(
                                                       order.orderId,
                                                       style: const TextStyle(
-                                                        fontFamily: 'Poppins_Regular',
+                                                        fontFamily:
+                                                            'Poppins_Regular',
                                                         color: primaryColor,
                                                         fontSize: 11.5,
-                                                        fontWeight: FontWeight.w800,
+                                                        fontWeight:
+                                                            FontWeight.w800,
                                                       ),
                                                     ),
                                                   ),
@@ -3995,11 +4417,25 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             DataCell(
                                               Center(
                                                 child: Text(
-                                                  order.orderCreatAt != null && order.orderCreatAt.toString().isNotEmpty
-                                                      ? TimeUtils.formatTimeInZone(DateTime.tryParse(order.orderCreatAt.toString()) ?? DateTime.now(), format: 'dd-MM-yyyy')
+                                                  order.orderCreatAt != null &&
+                                                          order.orderCreatAt
+                                                              .toString()
+                                                              .isNotEmpty
+                                                      ? TimeUtils.formatTimeInZone(
+                                                          DateTime.tryParse(order
+                                                                  .orderCreatAt
+                                                                  .toString()) ??
+                                                              DateTime.now(),
+                                                          format: 'dd-MM-yyyy')
                                                       : 'N/A',
                                                   textAlign: TextAlign.center,
-                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                  style: const TextStyle(
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.black),
                                                 ),
                                               ),
                                             ),
@@ -4011,9 +4447,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                                   child: Text(
                                                     '${order.fullname?.nkStringCapitalizeFirstCaracter ?? ""} ${order.lastname ?? ""}',
                                                     textAlign: TextAlign.center,
-                                                    style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+                                                    style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.black),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ),
@@ -4022,9 +4465,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             DataCell(
                                               Center(
                                                 child: Text(
-                                                  formatAmount(order.orderTotal),
+                                                  formatAmount(
+                                                      order.orderTotal),
                                                   textAlign: TextAlign.center,
-                                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w800, color: Colors.black),
+                                                  style: const TextStyle(
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      fontSize: 12.5,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      color: Colors.black),
                                                 ),
                                               ),
                                             ),
@@ -4033,23 +4483,57 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               Center(
                                                 child: InkWell(
                                                   onTap: () async {
-                                                    bool isOnline = await ConnectivityService().isOnline();
-                                                    if (order.invoiceId != null && order.invoiceId.toString().isNotEmpty && order.invoiceId != 'null') {
+                                                    bool isOnline =
+                                                        await ConnectivityService()
+                                                            .isOnline();
+                                                    if (order.invoiceId !=
+                                                            null &&
+                                                        order.invoiceId
+                                                            .toString()
+                                                            .isNotEmpty &&
+                                                        order.invoiceId !=
+                                                            'null') {
                                                       if (isOnline) {
-                                                        showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                        showDetailedOrderInvoiceDialog(
+                                                            context,
+                                                            order.orderId,
+                                                            false);
                                                       } else {
-                                                        showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                        showCustomToastDisplay(
+                                                            context,
+                                                            'You are Offline!'
+                                                                .tr,
+                                                            red,
+                                                            Icons.warning);
                                                       }
                                                     }
                                                   },
                                                   child: Text(
-                                                    order.invoiceId == null || order.invoiceId.toString().isEmpty || order.invoiceId == 'null' ? '-' : order.invoiceId.toString(),
+                                                    order.invoiceId == null ||
+                                                            order.invoiceId
+                                                                .toString()
+                                                                .isEmpty ||
+                                                            order.invoiceId ==
+                                                                'null'
+                                                        ? '-'
+                                                        : order.invoiceId
+                                                            .toString(),
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
-                                                      fontFamily: 'Poppins_Regular',
-                                                      color: (order.invoiceId == null || order.invoiceId.toString().isEmpty || order.invoiceId == 'null') ? Colors.black54 : primaryColor,
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      color: (order.invoiceId ==
+                                                                  null ||
+                                                              order.invoiceId
+                                                                  .toString()
+                                                                  .isEmpty ||
+                                                              order.invoiceId ==
+                                                                  'null')
+                                                          ? Colors.black54
+                                                          : primaryColor,
                                                       fontSize: 11.5,
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                 ),
@@ -4059,23 +4543,49 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             DataCell(
                                               Center(
                                                 child: Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 7,
+                                                      vertical: 2.5),
                                                   decoration: BoxDecoration(
-                                                    color: order.paymentStatus == 0 ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
-                                                    borderRadius: BorderRadius.circular(12),
+                                                    color:
+                                                        order.paymentStatus == 0
+                                                            ? const Color(
+                                                                0xFFFEE2E2)
+                                                            : const Color(
+                                                                0xFFDCFCE7),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
                                                     border: Border.all(
-                                                      color: order.paymentStatus == 0 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                                                      color:
+                                                          order.paymentStatus ==
+                                                                  0
+                                                              ? const Color(
+                                                                  0xFFEF4444)
+                                                              : const Color(
+                                                                  0xFF10B981),
                                                       width: 1,
                                                     ),
                                                   ),
                                                   child: Text(
-                                                    order.paymentStatus == 0 ? 'Pending'.tr : 'Paid'.tr,
+                                                    order.paymentStatus == 0
+                                                        ? 'Pending'.tr
+                                                        : 'Paid'.tr,
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
-                                                      fontFamily: 'Poppins_Regular',
+                                                      fontFamily:
+                                                          'Poppins_Regular',
                                                       fontSize: 10.5,
-                                                      fontWeight: FontWeight.w800,
-                                                      color: order.paymentStatus == 0 ? const Color(0xFF991B1B) : const Color(0xFF065F46),
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      color:
+                                                          order.paymentStatus ==
+                                                                  0
+                                                              ? const Color(
+                                                                  0xFF991B1B)
+                                                              : const Color(
+                                                                  0xFF065F46),
                                                     ),
                                                   ),
                                                 ),
@@ -4084,7 +4594,14 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                             // Status Badge
                                             DataCell(
                                               Center(
-                                                child: _buildStatusBadge(order.orderStatus?.toInt() ?? 0, getStatusName(order.orderStatus?.toInt() ?? 0)),
+                                                child: _buildStatusBadge(
+                                                    order.orderStatus
+                                                            ?.toInt() ??
+                                                        0,
+                                                    getStatusName(order
+                                                            .orderStatus
+                                                            ?.toInt() ??
+                                                        0)),
                                               ),
                                             ),
                                             // Action Icon
@@ -4092,22 +4609,43 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                                               Center(
                                                 child: IconButton(
                                                   padding: EdgeInsets.zero,
-                                                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                          minWidth: 32,
+                                                          minHeight: 32),
                                                   icon: Container(
-                                                    padding: const EdgeInsets.all(5),
+                                                    padding:
+                                                        const EdgeInsets.all(5),
                                                     decoration: BoxDecoration(
-                                                      color: const Color(0xFFEEF2FF),
+                                                      color: const Color(
+                                                          0xFFEEF2FF),
                                                       shape: BoxShape.circle,
-                                                      border: Border.all(color: primaryColor.withOpacity(0.2)),
+                                                      border: Border.all(
+                                                          color: primaryColor
+                                                              .withOpacity(
+                                                                  0.2)),
                                                     ),
-                                                    child: const Icon(Icons.visibility_outlined, size: 15, color: primaryColor),
+                                                    child: const Icon(
+                                                        Icons
+                                                            .visibility_outlined,
+                                                        size: 15,
+                                                        color: primaryColor),
                                                   ),
                                                   onPressed: () async {
-                                                    bool isOnline = await ConnectivityService().isOnline();
+                                                    bool isOnline =
+                                                        await ConnectivityService()
+                                                            .isOnline();
                                                     if (isOnline) {
-                                                      showDetailedOrderInvoiceDialog(context, order.orderId, false);
+                                                      showDetailedOrderInvoiceDialog(
+                                                          context,
+                                                          order.orderId,
+                                                          false);
                                                     } else {
-                                                      showCustomToastDisplay(context, 'You are Offline!'.tr, red, Icons.warning);
+                                                      showCustomToastDisplay(
+                                                          context,
+                                                          'You are Offline!'.tr,
+                                                          red,
+                                                          Icons.warning);
                                                     }
                                                   },
                                                 ),
@@ -4129,34 +4667,50 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
                   // --- FOOTER ---
                   if (filteredOrders.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 10),
                       decoration: const BoxDecoration(
                         color: Color(0xFFF1F5F9),
-                        border: Border(top: BorderSide(color: Color(0xFFCBD5E1))),
+                        border:
+                            Border(top: BorderSide(color: Color(0xFFCBD5E1))),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             '${'Showing'.tr} ${filteredOrders.length} ${'Orders'.tr}',
-                            style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                            style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: primaryColor.withOpacity(0.3)),
+                              border: Border.all(
+                                  color: primaryColor.withOpacity(0.3)),
                             ),
                             child: Row(
                               children: [
                                 Text(
                                   '${'Total'.tr}: ',
-                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.black),
+                                  style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black),
                                 ),
                                 Text(
                                   formatAmount(totalSum),
-                                  style: const TextStyle(fontFamily: 'Poppins_Regular', fontSize: 14, fontWeight: FontWeight.w800, color: primaryColor),
+                                  style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: primaryColor),
                                 ),
                               ],
                             ),
@@ -4172,16 +4726,19 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
       },
     );
   }
-
 }
 
 Widget _buildTableHeader(Widget child, double width, {bool showBorder = true}) {
+  // Background is intentionally transparent: the whole header row (frozen
+  // search column + scrollable columns) is painted by a single gradient
+  // Container in TopTotalWidget so the gradient reads as one continuous bar
+  // instead of a seam at each cell's edge.
   return Container(
     height: 54,
     width: width,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: primaryColor,
+      color: Colors.transparent,
       border: showBorder
           ? Border(
               right: BorderSide(

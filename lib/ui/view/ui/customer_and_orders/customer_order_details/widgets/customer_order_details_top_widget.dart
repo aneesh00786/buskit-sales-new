@@ -30,11 +30,23 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         InkResponse(
-            onTap: () => Get.back(), child: const Icon(Icons.arrow_back_ios)),
+          onTap: () => Get.back(),
+          radius: 20,
+          child: const Icon(
+            Icons.arrow_back_ios,
+            color: Color(0xFF0F172A),
+            size: 18,
+          ),
+        ),
         nkMediumSizeBox(),
         const Spacer(),
         InkResponse(
-            child: const Icon(Icons.shopping_cart_outlined)),
+          radius: 20,
+          child: const Icon(
+            Icons.shopping_cart_outlined,
+            color: Color(0xFF0F172A),
+          ),
+        ),
         nkMediumSizeBox(),
         topHeadingCustomerSection(
             customerOrderDetailsController
@@ -59,13 +71,24 @@ class CustomerOrderDetailsTopWidget extends StatelessWidget {
           Hero(
             tag: imageUrl + customerName,
             child: ClipOval(
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
                 child: MyNetworkImage(
-              imageUrl: imageUrl,
-              height: AppDimensions.instance.height * 0.05,
-              width: AppDimensions.instance.height * 0.05,
-            )),
+                  imageUrl: imageUrl,
+                  height: AppDimensions.instance.height * 0.05,
+                  width: AppDimensions.instance.height * 0.05,
+                ),
+              ),
+            ),
           ),
-          MyRegularText(label: customerName),
+          MyRegularText(
+            label: customerName,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF0F172A),
+          ),
         ],
       ),
     );

@@ -134,40 +134,135 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
           context: context,
           barrierDismissible: false, // Force user to choose
           builder: (context) {
-            return AlertDialog(
+            return Dialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(20),
               ),
-              title: Text("Reached Customer Location".tr),
-              content: Text("Would you like to Check-In now?".tr),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    "Cancel".tr,
-                    style: TextStyle(color: Colors.grey),
-                  ),
+              backgroundColor: Colors.white,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 380),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        gradient: LinearGradient(
+                          colors: [primaryColor, Color(0xFF2D3748)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.location_on_outlined,
+                                color: Colors.white, size: 18),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "Reached Customer Location".tr,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Would you like to Check-In now?".tr,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                    side: const BorderSide(
+                                        color: Color(0xFFE2E8F0)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14)),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    "Cancel".tr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      color: Color(0xFF64748B),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryColor,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14)),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    // Call the check-in function
+                                    _performCheckInFromMap();
+                                  },
+                                  child: Text(
+                                    "Check-In".tr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    // Call the check-in function
-                    _performCheckInFromMap();
-                  },
-                  child: Text(
-                    "Check-In".tr,
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+              ),
             );
           },
         );
@@ -434,149 +529,233 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
+            return Dialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
               ),
-              actionsPadding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-              actionsAlignment: MainAxisAlignment.center,
-              title: Text('Customer Check-Out'.tr),
-              content: Text('Do you want to Check-out?'.tr),
-              actions: [
-                if (isCheckingOut)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: CircularProgressIndicator(),
-                  )
-                else ...[
-                  SizedBox(
-                    width: 120,
-                    height: 45,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey, width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+              backgroundColor: Colors.white,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 380),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        gradient: LinearGradient(
+                          colors: [primaryColor, Color(0xFF2D3748)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
-                      onPressed: () {
-                        shouldProceed = false;
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        'Stay'.tr,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins_Regular',
-                          color: const Color(0xFF0F172A),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 210,
-                    height: 45,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF727CF5), width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
-                      onPressed: () async {
-                        setState(() => isCheckingOut = true);
-
-                        if (!await handleLocationPermission(context)) {
-                          if (context.mounted) Navigator.of(context).pop();
-                          return;
-                        }
-
-                        final date =
-                            DateFormat('dd-MM-yyyy').format(DateTime.now());
-                        final time = DateFormat('yyyy-MM-dd HH:mm:ss')
-                            .format(DateTime.now());
-                        final direction = "OUT";
-                        final customerId =
-                            productsController.selectedCustomerId.value;
-
-                        try {
-                          final position = await Geolocator.getCurrentPosition(
-                            desiredAccuracy: LocationAccuracy.high,
-                          );
-                          final lat = position.latitude.toString();
-                          final long = position.longitude.toString();
-
-                          final isOnline = await ConnectivityService().isOnline();
-
-                          if (!isOnline) {
-                            await _saveCheckInOutRequestOffline(
-                              date: date,
-                              time: time,
-                              direction: direction,
-                              lat: lat,
-                              long: long,
-                              customerId: customerId,
-                            );
-                            if (context.mounted) {
-                              showCustomToastDisplay(
-                                context,
-                                'You are offline. Your check-out will sync when online.'
-                                    .tr,
-                                Colors.orange,
-                                Icons.info,
-                              );
-                            }
-                            await ApiWorker().saveSwitchState(false);
-                            customerOrderController.isActive.value = false;
-                            shouldProceed = true;
-                          } else {
-                            final response =
-                                await ApiWorker().updateCustomerCheckInOut(
-                              date: date,
-                              time: time,
-                              direction: direction,
-                              lat: lat,
-                              long: long,
-                              customerId: customerId,
-                            );
-
-                            if (response.statusCode != 200) {
-                              if (context.mounted) {
-                                showCustomToastDisplay(
-                                  context,
-                                  response.statusMessage.toString(),
-                                  Colors.red,
-                                  Icons.close,
-                                  );
-                              }
-                            } else {
-                              await ApiWorker().saveSwitchState(false);
-                              customerOrderController.isActive.value = false;
-                              shouldProceed = true;
-                            }
-                          }
-                        } catch (e) {
-                          //
-                        }
-
-                        if (context.mounted) Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        'Check-out and leave'.tr,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins_Regular',
-                          color: Color(0xFF727CF5),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.logout,
+                                color: Colors.white, size: 18),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Customer Check-Out'.tr,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Do you want to Check-out?'.tr,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF64748B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          if (isCheckingOut)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: CircularProgressIndicator(),
+                            )
+                          else
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      side: const BorderSide(
+                                          color: Color(0xFFE2E8F0), width: 1.5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      shouldProceed = false;
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Stay'.tr,
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        color: Color(0xFF0F172A),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      side: const BorderSide(
+                                          color: Color(0xFF727CF5), width: 1.5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() => isCheckingOut = true);
+
+                                      if (!await handleLocationPermission(
+                                          context)) {
+                                        if (context.mounted)
+                                          Navigator.of(context).pop();
+                                        return;
+                                      }
+
+                                      final date = DateFormat('dd-MM-yyyy')
+                                          .format(DateTime.now());
+                                      final time =
+                                          DateFormat('yyyy-MM-dd HH:mm:ss')
+                                              .format(DateTime.now());
+                                      final direction = "OUT";
+                                      final customerId = productsController
+                                          .selectedCustomerId.value;
+
+                                      try {
+                                        final position =
+                                            await Geolocator.getCurrentPosition(
+                                          desiredAccuracy:
+                                              LocationAccuracy.high,
+                                        );
+                                        final lat =
+                                            position.latitude.toString();
+                                        final long =
+                                            position.longitude.toString();
+
+                                        final isOnline =
+                                            await ConnectivityService()
+                                                .isOnline();
+
+                                        if (!isOnline) {
+                                          await _saveCheckInOutRequestOffline(
+                                            date: date,
+                                            time: time,
+                                            direction: direction,
+                                            lat: lat,
+                                            long: long,
+                                            customerId: customerId,
+                                          );
+                                          if (context.mounted) {
+                                            showCustomToastDisplay(
+                                              context,
+                                              'You are offline. Your check-out will sync when online.'
+                                                  .tr,
+                                              Colors.orange,
+                                              Icons.info,
+                                            );
+                                          }
+                                          await ApiWorker()
+                                              .saveSwitchState(false);
+                                          customerOrderController
+                                              .isActive.value = false;
+                                          shouldProceed = true;
+                                        } else {
+                                          final response = await ApiWorker()
+                                              .updateCustomerCheckInOut(
+                                            date: date,
+                                            time: time,
+                                            direction: direction,
+                                            lat: lat,
+                                            long: long,
+                                            customerId: customerId,
+                                          );
+
+                                          if (response.statusCode != 200) {
+                                            if (context.mounted) {
+                                              showCustomToastDisplay(
+                                                context,
+                                                response.statusMessage
+                                                    .toString(),
+                                                Colors.red,
+                                                Icons.close,
+                                              );
+                                            }
+                                          } else {
+                                            await ApiWorker()
+                                                .saveSwitchState(false);
+                                            customerOrderController
+                                                .isActive.value = false;
+                                            shouldProceed = true;
+                                          }
+                                        }
+                                      } catch (e) {
+                                        //
+                                      }
+
+                                      if (context.mounted)
+                                        Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Check-out and leave'.tr,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        color: Color(0xFF727CF5),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         );
@@ -683,135 +862,244 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                           await showDialog(
                             context: context,
                             builder: (context) {
-                              return AlertDialog(
+                              return Dialog(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                titlePadding:
-                                    const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                                title: Row(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Aligns image and text to the top
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                            color: Colors.blueAccent
-                                                .withOpacity(0.2),
-                                            width: 2),
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: 28,
-                                        backgroundColor: Colors.grey[100],
-                                        backgroundImage: NetworkImage(
-                                            '${ApiConstants.imageBaseUrl}${nextCustomer.imageUrl}'),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            "Next: ${nextCustomer.businessName ?? 'Customer'}",
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                backgroundColor: Colors.white,
+                                child: ConstrainedBox(
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 380),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                            topRight: Radius.circular(20),
                                           ),
-                                          const SizedBox(height: 4),
-                                          // ---> ADDED THE ADDRESS ROW HERE <---
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Icon(Icons.location_on,
-                                                  size: 14, color: Colors.red),
-                                              const SizedBox(width: 4),
-                                              Expanded(
-                                                child: Text(
-                                                  nextCustomer.address ??
-                                                      "Address not available",
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: const Color(0xFF0F172A),
-                                                    fontWeight:
-                                                        FontWeight.normal,
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              primaryColor,
+                                              Color(0xFF2D3748)
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 14),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                    color: Colors.white
+                                                        .withOpacity(0.4),
+                                                    width: 2),
+                                              ),
+                                              child: CircleAvatar(
+                                                radius: 24,
+                                                backgroundColor: Colors.white24,
+                                                backgroundImage: NetworkImage(
+                                                    '${ApiConstants.imageBaseUrl}${nextCustomer.imageUrl}'),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "Next: ${nextCustomer.businessName ?? 'Customer'}",
+                                                    style: const TextStyle(
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      color: Colors.white,
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                  const SizedBox(height: 4),
+                                                  // ---> ADDED THE ADDRESS ROW HERE <---
+                                                  Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const Icon(
+                                                          Icons.location_on,
+                                                          size: 13,
+                                                          color:
+                                                              Colors.white70),
+                                                      const SizedBox(width: 4),
+                                                      Expanded(
+                                                        child: Text(
+                                                          nextCustomer
+                                                                  .address ??
+                                                              "Address not available",
+                                                          style:
+                                                              const TextStyle(
+                                                            fontFamily:
+                                                                'Poppins_Regular',
+                                                            fontSize: 11,
+                                                            color:
+                                                                Colors.white70,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(top: 2),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  showCustomerRevenueChartDialog(
+                                                    context,
+                                                    "Revenue",
+                                                  );
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      color: Colors.white
+                                                          .withOpacity(0.18)),
+                                                  child: const Padding(
+                                                    padding:
+                                                        EdgeInsets.all(6.0),
+                                                    child: Icon(
+                                                      Icons.open_in_new,
+                                                      size: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ],                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: InkWell(
-                                  onTap: () {
-                                    showCustomerRevenueChartDialog(
-                                      context,
-                                      "Revenue",
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: primaryColor.withOpacity(0.1)),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(6.0),
-                                      child: Icon(
-                                        Icons.open_in_new,
-                                        size: 16,
-                                        color: primaryColor,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            20, 20, 20, 20),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "Would you like to continue navigation to this customer?"
+                                                  .tr,
+                                              style: const TextStyle(
+                                                fontFamily: 'Poppins_Regular',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Color(0xFF64748B),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            const SizedBox(height: 20),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: OutlinedButton(
+                                                    style: OutlinedButton
+                                                        .styleFrom(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 14),
+                                                      side: const BorderSide(
+                                                          color: Color(
+                                                              0xFFE2E8F0)),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(14),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: Text(
+                                                      "Cancel".tr,
+                                                      style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        color:
+                                                            Color(0xFF64748B),
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          primaryColor,
+                                                      elevation: 0,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 14),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(14),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      wantsToContinueNav = true;
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: Text(
+                                                      "Continue Navigation".tr,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                        fontFamily:
+                                                            'Poppins_Regular',
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        fontSize: 13,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
-                                content: Padding(
-                                  padding: EdgeInsets.only(top: 15.0),
-                                  child: Text(
-                                      "Would you like to continue navigation to this customer?"
-                                          .tr),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "Cancel".tr,
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                    ),
-                                    onPressed: () {
-                                      wantsToContinueNav = true;
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "Continue Navigation".tr,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ],
                               );
                             },
                           );
@@ -911,8 +1199,10 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 16.0, bottom: 8.0, top: 4.0),
-                      child: const ChatbotTopBarButton(routeName: "/customer_dashboard"),
+                      padding: const EdgeInsets.only(
+                          right: 16.0, bottom: 8.0, top: 4.0),
+                      child: const ChatbotTopBarButton(
+                          routeName: "/customer_dashboard"),
                     ),
                   ),
                 )
@@ -921,150 +1211,165 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
             Builder(
               builder: (context) {
                 List<Widget> actionWidgets = [
-                  if (!isMobile) const ChatbotTopBarButton(routeName: "/customer_dashboard"),
+                  if (!isMobile)
+                    const ChatbotTopBarButton(routeName: "/customer_dashboard"),
                   if (isMobile)
-                      IconButton(
-                        icon: const Icon(Icons.info_outline, color: primaryColor),
-                        onPressed: () {
-                          setState(() {
-                            showChatbotMobile = !showChatbotMobile;
-                          });
-                        },
-                      ),
-                    const SizedBox(width: 8),
-            SizedBox(
-              width: 120,
-              child: Obx(() {
-                final credit = _customercreditctrl.customerCredit.value;
-                final isLoading = _customercreditctrl.isLoading.value;
+                    IconButton(
+                      icon: const Icon(Icons.info_outline, color: primaryColor),
+                      onPressed: () {
+                        setState(() {
+                          showChatbotMobile = !showChatbotMobile;
+                        });
+                      },
+                    ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 120,
+                    child: Obx(() {
+                      final credit = _customercreditctrl.customerCredit.value;
+                      final isLoading = _customercreditctrl.isLoading.value;
 
-                return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: BoxDecoration(
-                    color:
-                        credit > 0 ? Colors.green.shade50 : Colors.grey.shade50,
-                    border: Border.all(
-                      color: credit > 0
-                          ? Colors.green.shade600
-                          : Colors.grey.shade400,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('Credit:'.tr),
-                        SizedBox(
-                          width: 7,
-                        ),
-                        Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 15,
+                      return Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        decoration: BoxDecoration(
                           color: credit > 0
-                              ? Colors.green.shade700
-                              : Colors.grey.shade600,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          credit > 0
-                              ? "${formatAmount(credit)}"
-                              : "${formatAmount(0)}",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                              ? Colors.green.shade50
+                              : Colors.grey.shade50,
+                          border: Border.all(
                             color: credit > 0
-                                ? Colors.green.shade800
-                                : Colors.grey.shade700,
+                                ? Colors.green.shade600
+                                : Colors.grey.shade400,
                           ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        if (isLoading)
-                          Padding(
-                            padding: EdgeInsets.only(left: 4),
-                            child: SizedBox(
-                              width: 10,
-                              height: 10,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(width: 10),
-            InkWell(
-              onTap: () {
-                showUpdateCustomerDialog(
-                    context, customerId, customerName, customerImage);
-              },
-              child: SizedBox(
-                width: 140,
-                child: SizedBox(
-                  height: 48,
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      children: [
-                        (customerImage == null || customerImage.isEmpty)
-                          ? const CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.blueGrey,
-                              child: Icon(Icons.person, color: Colors.white),
-                            )
-                          : CircleAvatar(
-                              backgroundColor: const Color(0xffe6ecff),
-                              radius: 20,
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    '${ApiConstants.baseUrl}uploads/$customerImage',
-                                placeholder: (context, url) =>
-                                    const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-                                errorWidget: (context, url, error) =>
-                                    const CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor: Colors.blueGrey,
-                                      child: Icon(Icons.person, color: Colors.white),
-                                    ),
-                                imageBuilder: (context, imageProvider) => Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: imageProvider,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text('Credit:'.tr),
+                              SizedBox(
+                                width: 7,
+                              ),
+                              Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 15,
+                                color: credit > 0
+                                    ? Colors.green.shade700
+                                    : Colors.grey.shade600,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                credit > 0
+                                    ? "${formatAmount(credit)}"
+                                    : "${formatAmount(0)}",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: credit > 0
+                                      ? Colors.green.shade800
+                                      : Colors.grey.shade700,
                                 ),
                               ),
-                            ),
-                        const SizedBox(width: 4.5),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              MyRegularText(
-                                label: customerName,
-                                fontSize: 8.5,
-                                maxlines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              MyRegularText(label: "Customer".tr, fontSize: 8),
+                              if (isLoading)
+                                Padding(
+                                  padding: EdgeInsets.only(left: 4),
+                                  child: SizedBox(
+                                    width: 10,
+                                    height: 10,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
-                      ],
+                      );
+                    }),
+                  ),
+                  const SizedBox(width: 10),
+                  InkWell(
+                    onTap: () {
+                      showUpdateCustomerDialog(
+                          context, customerId, customerName, customerImage);
+                    },
+                    child: SizedBox(
+                      width: 140,
+                      child: SizedBox(
+                        height: 48,
+                        width: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              (customerImage == null || customerImage.isEmpty)
+                                  ? const CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: Colors.blueGrey,
+                                      child: Icon(Icons.person,
+                                          color: Colors.white),
+                                    )
+                                  : CircleAvatar(
+                                      backgroundColor: const Color(0xffe6ecff),
+                                      radius: 20,
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            '${ApiConstants.baseUrl}uploads/$customerImage',
+                                        placeholder: (context, url) =>
+                                            const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                        strokeWidth: 2)),
+                                        errorWidget: (context, url, error) =>
+                                            const CircleAvatar(
+                                          radius: 20,
+                                          backgroundColor: Colors.blueGrey,
+                                          child: Icon(Icons.person,
+                                              color: Colors.white),
+                                        ),
+                                        imageBuilder:
+                                            (context, imageProvider) =>
+                                                Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                              image: imageProvider,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                              const SizedBox(width: 4.5),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    MyRegularText(
+                                      label: customerName,
+                                      fontSize: 8.5,
+                                      maxlines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    MyRegularText(
+                                        label: "Customer".tr, fontSize: 8),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
                 ];
 
                 if (isMobile) {
@@ -1204,7 +1509,7 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                     padding: const EdgeInsets.all(5.0),
                     child: Column(
                       children: [
-                          Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             // --- ITEM 1 (LEFT): The Dropdown ---
@@ -1244,83 +1549,93 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                                 child: Row(
                                   children: [
                                     ElevatedButton.icon(
-                                  onPressed: () {
-                                    print('customer id: ${widget.cusId}');
-                                    OrderIdSnackBar.show(
-                                        context,
-                                        widget.cusId.toString(),
-                                        salesmanInternalId!);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 38, 165, 42),
-                                    elevation: 0,
-                                    minimumSize: const Size(130, 42),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
+                                      onPressed: () {
+                                        print('customer id: ${widget.cusId}');
+                                        OrderIdSnackBar.show(
+                                            context,
+                                            widget.cusId.toString(),
+                                            salesmanInternalId!);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 38, 165, 42),
+                                        elevation: 0,
+                                        minimumSize: const Size(130, 42),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                      ),
+                                      icon: const Icon(
+                                          Icons.assignment_return_outlined,
+                                          size: 16,
+                                          color: Colors.white),
+                                      label: Text(
+                                        'Sales Return'.tr,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: fontFamilyName,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  icon: const Icon(Icons.assignment_return_outlined, size: 16, color: Colors.white),
-                                  label: Text(
-                                    'Sales Return'.tr,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: fontFamilyName,
+                                    const SizedBox(
+                                      width:
+                                          10, // Adds a small gap between the two buttons
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width:
-                                      10, // Adds a small gap between the two buttons
-                                ),
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    if (subscriptionController
-                                            .orderTakingFromDashboard.value !=
-                                        "true") {
-                                      showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return const UpgradePlanScreen();
-                                        },
-                                      );
-                                    }
-                                    if (subscriptionController
-                                            .orderTakingFromDashboard.value ==
-                                        "true") {
-                                      _navigateToOrderTaking();
-                                    }
-                                    CartDatabaseManager().getCartItems(
-                                        productsController
-                                            .selectedCustomerId.value);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: primaryColor,
-                                    elevation: 0,
-                                    minimumSize: const Size(140, 42),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        if (subscriptionController
+                                                .orderTakingFromDashboard
+                                                .value !=
+                                            "true") {
+                                          showDialog(
+                                            barrierDismissible: false,
+                                            context: context,
+                                            builder: (context) {
+                                              return const UpgradePlanScreen();
+                                            },
+                                          );
+                                        }
+                                        if (subscriptionController
+                                                .orderTakingFromDashboard
+                                                .value ==
+                                            "true") {
+                                          _navigateToOrderTaking();
+                                        }
+                                        CartDatabaseManager().getCartItems(
+                                            productsController
+                                                .selectedCustomerId.value);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColor,
+                                        elevation: 0,
+                                        minimumSize: const Size(140, 42),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                      ),
+                                      icon: const Icon(
+                                          Icons.shopping_bag_outlined,
+                                          size: 16,
+                                          color: Colors.white),
+                                      label: Text(
+                                        'Order Taking'.tr,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.3,
+                                            fontFamily: fontFamilyName,
+                                            overflow: TextOverflow.ellipsis),
+                                      ),
                                     ),
-                                  ),
-                                  icon: const Icon(Icons.shopping_bag_outlined, size: 16, color: Colors.white),
-                                  label: Text(
-                                    'Order Taking'.tr,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.3,
-                                        fontFamily: fontFamilyName,
-                                        overflow: TextOverflow.ellipsis),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                            ),
-                          ),
                           ],
                         ),
                         // Row(
@@ -1567,9 +1882,8 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                  children: [
                     dashboardContainerHeader('Category Sales'.tr),
-                    
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: InkWell(
@@ -1680,57 +1994,70 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             children: [
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _tabIndex = 0;
-                                        });
-                                      },
-                                      child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: _tabIndex == 0 ? primaryColor.withOpacity(0.1) : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            'Revenue'.tr,
-                                            style: TextStyle(
-                                              fontSize: 15.0,
-                                              fontFamily: 'Poppins_Regular',
-                                              fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
-                                            ),
-                                          ),
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tabIndex = 0;
+                                      });
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: _tabIndex == 0
+                                            ? primaryColor.withOpacity(0.1)
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        'Revenue'.tr,
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontFamily: 'Poppins_Regular',
+                                          fontWeight: FontWeight.bold,
+                                          color: _tabIndex == 0
+                                              ? const Color(0xFF0F172A)
+                                              : const Color(0xFF94A3B8),
+                                        ),
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _tabIndex = 1;
-                                        });
-                                      },
-                                      child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: _tabIndex == 1 ? const Color(0xff5bc0de).withOpacity(0.1) : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            'Customer Offer'.tr,
-                                            style: TextStyle(
-                                              fontSize: 15.0,
-                                              fontFamily: 'Poppins_Regular',
-                                              fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 1 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
-                                            ),
-                                          ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tabIndex = 1;
+                                      });
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: _tabIndex == 1
+                                            ? const Color(0xff5bc0de)
+                                                .withOpacity(0.1)
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        'Customer Offer'.tr,
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontFamily: 'Poppins_Regular',
+                                          fontWeight: FontWeight.bold,
+                                          color: _tabIndex == 1
+                                              ? const Color(0xFF0F172A)
+                                              : const Color(0xFF94A3B8),
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: InkWell(
@@ -1781,57 +2108,70 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                             children: [
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _tabIndex = 0;
-                                        });
-                                      },
-                                      child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: _tabIndex == 0 ? primaryColor.withOpacity(0.1) : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            'Revenue'.tr,
-                                            style: TextStyle(
-                                              fontSize: 15.0,
-                                              fontFamily: 'Poppins_Regular',
-                                              fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 0 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
-                                            ),
-                                          ),
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tabIndex = 0;
+                                      });
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: _tabIndex == 0
+                                            ? primaryColor.withOpacity(0.1)
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        'Revenue'.tr,
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontFamily: 'Poppins_Regular',
+                                          fontWeight: FontWeight.bold,
+                                          color: _tabIndex == 0
+                                              ? const Color(0xFF0F172A)
+                                              : const Color(0xFF94A3B8),
+                                        ),
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _tabIndex = 1;
-                                        });
-                                      },
-                                      child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: _tabIndex == 1 ? const Color(0xff5bc0de).withOpacity(0.1) : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            'Customer Offer'.tr,
-                                            style: TextStyle(
-                                              fontSize: 15.0,
-                                              fontFamily: 'Poppins_Regular',
-                                              fontWeight: FontWeight.bold,
-                                              color: _tabIndex == 1 ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
-                                            ),
-                                          ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _tabIndex = 1;
+                                      });
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: _tabIndex == 1
+                                            ? const Color(0xff5bc0de)
+                                                .withOpacity(0.1)
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        'Customer Offer'.tr,
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontFamily: 'Poppins_Regular',
+                                          fontWeight: FontWeight.bold,
+                                          color: _tabIndex == 1
+                                              ? const Color(0xFF0F172A)
+                                              : const Color(0xFF94A3B8),
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: InkWell(

@@ -22,10 +22,10 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: EdgeInsets.all(ResponsiveInfo.isMobile()?5:8),
-
-      child:  SizedBox(
-                 height: ResponsiveInfo.isMobile()?45:55,
+    return Padding(
+      padding: EdgeInsets.all(ResponsiveInfo.isMobile() ? 5 : 8),
+      child: SizedBox(
+          height: ResponsiveInfo.isMobile() ? 45 : 55,
           child: SearchFilter(
             context,
             searchTextController: TextEditingController(),
@@ -36,7 +36,6 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
               }
             },
           ).simpleSearch()),
-
     );
   }
 
@@ -49,6 +48,7 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
       },
     );
   }
+
   List<PopupMenuItem<StaffData>> staffMenuOption() {
     return List.generate(
         staffDataList.length,
@@ -95,7 +95,7 @@ class CustomerAndOrdersTopWidgets extends StatelessWidget {
       isCommonBorder: true,
       child: MyRegularText(
         fontSize: NkFontSize.largeFont(),
-        label:'Selected SalesMan',
+        label: 'Selected SalesMan',
       ),
     );
   }

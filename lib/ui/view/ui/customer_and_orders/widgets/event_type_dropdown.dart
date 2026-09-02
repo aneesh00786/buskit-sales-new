@@ -123,7 +123,7 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                 color: Color(0xffdddefc),
                 borderRadius: BorderRadius.all(Radius.circular(5))),
             height: 38,
-            width: 80,
+            width: 108,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, right: 2),
               child: GestureDetector(
@@ -537,6 +537,8 @@ class _EventTypeDropdownState extends State<EventTypeDropdown> {
                         value: value,
                         child: Text(
                           value.displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.black87,

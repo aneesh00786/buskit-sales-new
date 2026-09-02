@@ -16,6 +16,7 @@ import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.d
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../../components/widgets/my_theme_button.dart';
+
 class CustomerOrderDetailMiddelWidget extends StatefulWidget {
   final ProductsController productsController;
 
@@ -83,7 +84,6 @@ class _CustomerOrderDetailMiddelWidgetState
               return productComponent(data);
             }),
       );
-
     });
   }
 
@@ -124,7 +124,7 @@ class _CustomerOrderDetailMiddelWidgetState
           child: MyThemeButton(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
-                    NkGeneralSize.nkCommonBorderRadius(borderRadius: 8))),
+                    NkGeneralSize.nkCommonBorderRadius(borderRadius: 12))),
             height: AppDimensions.instance.height * 0.02,
             fontSize: NkFontSize.smallFont(),
             buttonText: addToCart,

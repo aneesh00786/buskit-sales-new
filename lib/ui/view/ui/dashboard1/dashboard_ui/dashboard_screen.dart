@@ -284,7 +284,7 @@ class _DashBoardScreenState extends State<DashBoardScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(4.0, 6.0, 6.0, 6.0),
+        padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 6.0),
         child: Column(
           children: [
             DashboardTopWidget(

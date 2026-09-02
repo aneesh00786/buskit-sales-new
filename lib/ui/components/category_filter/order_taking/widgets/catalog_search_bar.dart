@@ -320,11 +320,11 @@ class _CatalogSearchBarState extends State<CatalogSearchBar> {
   String _getHintText() {
     switch (_selectedType) {
       case CatalogSearchType.category:
-        return "Search categories...".tr;
+        return "Categories...".tr;
       case CatalogSearchType.subcategory:
-        return "Search subcategories...".tr;
+        return "Subcategories...".tr;
       case CatalogSearchType.product:
-        return "Search products by name, code, brand...".tr;
+        return "Products by name, code, brand...".tr;
     }
   }
 

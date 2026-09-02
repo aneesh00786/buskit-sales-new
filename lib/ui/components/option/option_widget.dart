@@ -514,6 +514,8 @@ class _OptionWidgetState extends State<OptionWidget> {
                           Text(
                             _getCountForTitle(
                                 optionData.title, orderCountList),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontFamily: 'Poppins_Regular',
                               fontSize: 16.5,

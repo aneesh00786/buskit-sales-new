@@ -151,62 +151,65 @@ class _TableeeState extends State<Tableee> {
             : (showChatbotMobile ? 110 : 80),
         actions: [
           Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Customers & Orders'.tr,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins_Regular',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F172A),
-                      )),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (!isMobile) addCustomer(context),
-                      if (!isMobile) const SizedBox(width: 12),
-                      if (!isMobile)
-                        const ChatbotTopBarButton(routeName: '/customers'),
-                      if (isMobile)
-                        IconButton(
-                          icon: const Icon(Icons.info_outline,
-                              color: primaryColor),
-                          onPressed: () {
-                            setState(() {
-                              showChatbotMobile = !showChatbotMobile;
-                            });
-                          },
-                        ),
-                      if (!isMobile) const SizedBox(width: 12),
-                      if (!isMobile)
-                        NotificationWidget(
-                          startDate: provider.selectedStartDate,
-                          endDate: provider.selectedEndDate,
-                        ),
-                      SizedBox(width: 120, child: profiloe()),
+                      Text('Customers & Orders'.tr,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0F172A),
+                          )),
+                      Row(
+                        children: [
+                          if (!isMobile) addCustomer(context),
+                          if (!isMobile) const SizedBox(width: 10),
+                          if (!isMobile)
+                            const ChatbotTopBarButton(routeName: '/customers'),
+                          if (isMobile)
+                            IconButton(
+                              icon: const Icon(Icons.info_outline,
+                                  color: primaryColor),
+                              onPressed: () {
+                                setState(() {
+                                  showChatbotMobile = !showChatbotMobile;
+                                });
+                              },
+                            ),
+                          if (!isMobile) const SizedBox(width: 10),
+                          if (!isMobile)
+                            NotificationWidget(
+                              startDate: provider.selectedStartDate,
+                              endDate: provider.selectedEndDate,
+                            ),
+                          const SizedBox(width: 10),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 180),
+                            child: profiloe(),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
+                  if (isMobile && showChatbotMobile)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                        child:
+                            const ChatbotTopBarButton(routeName: '/customers'),
+                      ),
+                    ),
                 ],
               ),
-              if (isMobile && showChatbotMobile)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    child: const ChatbotTopBarButton(routeName: '/customers'),
-                  ),
-                ),
-            ],
-          )),
-          // Padding(
-          //   padding: const EdgeInsets.only(top: 8),
-          //   child: CustomText(content: 'Customers',fontWeight: FontWeight.bold,),
-          // ),
-          // SizedBox(width: 5,),
-          // Expanded(child: calender()),
+            ),
+          ),
         ],
       ),
       body: Stack(
@@ -300,36 +303,26 @@ class _TableeeState extends State<Tableee> {
                                 children: [
                                   // Start Date Picker
                                   SizedBox(
-                                    height: 50,
+                                    height: 42,
                                     width: 125,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Colors.white, Colors.white],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                            color: const Color(0xFFE1E5E9),
-                                            width: 1),
+                                            color: const Color(0xFFE2E8F0),
+                                            width: 1.2),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.08),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 4),
-                                            spreadRadius: 0,
-                                          ),
-                                          BoxShadow(
-                                            color:
-                                                Colors.white.withOpacity(0.8),
-                                            blurRadius: 0,
-                                            offset: const Offset(-2, -2),
+                                                Colors.black.withOpacity(0.04),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
                                       child: InkWell(
+                                        borderRadius: BorderRadius.circular(10),
                                         onTap: () async {
                                           bool isOnline =
                                               await ConnectivityService()
@@ -346,7 +339,7 @@ class _TableeeState extends State<Tableee> {
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 8),
+                                              horizontal: 10, vertical: 4),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -361,57 +354,49 @@ class _TableeeState extends State<Tableee> {
                                                                   .selectedStartDate))
                                                       : "DD-MM-YYYY",
                                                   style: const TextStyle(
-                                                      fontSize: 13,
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      fontSize: 12.5,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: Colors.black87),
+                                                      color: Color(0xFF1E293B)),
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               const Icon(Icons.calendar_today,
-                                                  size: 18,
-                                                  color: primaryColor),
+                                                  size: 15,
+                                                  color: Color(0xFF1E3A8A)),
                                             ],
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
+                                  const SizedBox(width: 8),
 
                                   // End Date Picker
                                   SizedBox(
-                                    height: 50,
+                                    height: 42,
                                     width: 125,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Colors.white, Colors.white],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                            color: const Color(0xFFE1E5E9),
-                                            width: 1),
+                                            color: const Color(0xFFE2E8F0),
+                                            width: 1.2),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.08),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 4),
-                                            spreadRadius: 0,
-                                          ),
-                                          BoxShadow(
-                                            color:
-                                                Colors.white.withOpacity(0.8),
-                                            blurRadius: 0,
-                                            offset: const Offset(-2, -2),
+                                                Colors.black.withOpacity(0.04),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
                                       child: InkWell(
+                                        borderRadius: BorderRadius.circular(10),
                                         onTap: () async {
                                           bool isOnline =
                                               await ConnectivityService()
@@ -428,7 +413,7 @@ class _TableeeState extends State<Tableee> {
                                         },
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 8),
+                                              horizontal: 10, vertical: 4),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -443,17 +428,19 @@ class _TableeeState extends State<Tableee> {
                                                                   .selectedEndDate))
                                                       : "DD-MM-YYYY",
                                                   style: const TextStyle(
-                                                      fontSize: 13,
+                                                      fontFamily:
+                                                          'Poppins_Regular',
+                                                      fontSize: 12.5,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: Colors.black87),
+                                                      color: Color(0xFF1E293B)),
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               const Icon(Icons.calendar_today,
-                                                  size: 18,
-                                                  color: primaryColor),
+                                                  size: 15,
+                                                  color: Color(0xFF1E3A8A)),
                                             ],
                                           ),
                                         ),
@@ -559,39 +546,31 @@ class _TableeeState extends State<Tableee> {
 
   Widget buildFilterDropdown(CustomersProvider provider, BuildContext context) {
     return SizedBox(
-      height: 50,
+      height: 42,
       width: 125,
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.white, Colors.white],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: Colors.white.withOpacity(0.8),
-              blurRadius: 0,
-              offset: const Offset(-2, -2),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<FilterDateEnum>(
-              // Fallback to month if somehow stuck on thisYear
               value: provider.selectedFilter == FilterDateEnum.thisYear
                   ? FilterDateEnum.thisMonth
                   : provider.selectedFilter,
+              icon: const Icon(Icons.keyboard_arrow_down,
+                  color: Color(0xFF64748B), size: 18),
+              dropdownColor: Colors.white,
               onChanged: (newValue) async {
                 bool isOnline = await ConnectivityService().isOnline();
                 if (!isOnline) {
@@ -609,11 +588,14 @@ class _TableeeState extends State<Tableee> {
                   child: Row(
                     children: [
                       const Icon(Icons.calendar_month,
-                          size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
+                          size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
                       Text('Month'.tr,
                           style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600)),
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
@@ -622,11 +604,14 @@ class _TableeeState extends State<Tableee> {
                   child: Row(
                     children: [
                       const Icon(Icons.calendar_today,
-                          size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
+                          size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
                       Text('Week'.tr,
                           style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600)),
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
@@ -634,31 +619,37 @@ class _TableeeState extends State<Tableee> {
                   value: FilterDateEnum.today,
                   child: Row(
                     children: [
-                      const Icon(Icons.today, size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.today,
+                          size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
                       Text('Day'.tr,
                           style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600)),
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
-                // REMOVED FilterDateEnum.thisYear
                 DropdownMenuItem(
                   value: FilterDateEnum.range,
                   child: Row(
                     children: [
                       const Icon(Icons.date_range,
-                          size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
+                          size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
                       Text('Range'.tr,
                           style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600)),
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
               ],
               isExpanded: true,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -682,32 +673,33 @@ class _TableeeState extends State<Tableee> {
         : currentYear;
 
     return SizedBox(
-      height: 50,
-      width: 100,
+      height: 42,
+      width: 95,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               value: years.contains(displayYear) ? displayYear : years.last,
               icon: const Icon(Icons.keyboard_arrow_down,
-                  color: Colors.black54, size: 20),
+                  color: Color(0xFF64748B), size: 18),
               dropdownColor: Colors.white,
               style: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
+                fontFamily: 'Poppins_Regular',
+                color: Color(0xFF1E293B),
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
               onChanged: (int? newValue) async {
@@ -719,13 +711,27 @@ class _TableeeState extends State<Tableee> {
                 }
                 if (newValue != null) {
                   dashboardProvider.updateSelectedYear(newValue);
-                  // UI updates automatically, wait for Go button press to fetch data
                 }
               },
               items: years.map<DropdownMenuItem<int>>((int value) {
                 return DropdownMenuItem<int>(
                   value: value,
-                  child: Text(value.toString()),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today,
+                          size: 14, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 6),
+                      Text(
+                        value.toString(),
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }).toList(),
             ),
@@ -738,7 +744,7 @@ class _TableeeState extends State<Tableee> {
   /// New Unified Go Button
   Widget buildGoButton(BuildContext context, CustomersProvider provider) {
     return SizedBox(
-      height: 50,
+      height: 42,
       child: ElevatedButton(
         onPressed: () async {
           bool isOnline = await ConnectivityService().isOnline();
@@ -751,15 +757,16 @@ class _TableeeState extends State<Tableee> {
           provider.fetchCustomerData();
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4A72FF), // Standard blue Go Button
+          backgroundColor: const Color(0xFF1E3A8A),
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
-          elevation: 4,
-          shadowColor: const Color(0xFF4A72FF).withOpacity(0.4),
+          elevation: 2,
+          shadowColor: const Color(0xFF1E3A8A).withOpacity(0.3),
           textStyle: const TextStyle(
+            fontFamily: 'Poppins_Regular',
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
@@ -771,20 +778,21 @@ class _TableeeState extends State<Tableee> {
 
   Widget dateBox(String date) {
     return Container(
-      height: 38,
-      width: 90,
+      height: 42,
+      width: 115,
       decoration: BoxDecoration(
-        color: const Color(0xfff9f9fb),
-        border: Border.all(color: const Color(0xffd1d1d1), width: 1.0),
-        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              blurRadius: 2,
-              offset: const Offset(0, 1)),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -792,9 +800,14 @@ class _TableeeState extends State<Tableee> {
             date.isEmpty
                 ? 'DD-MM-YYYY'
                 : DateFormat('dd-MM-yyyy').format(DateTime.parse(date)),
-            style: TextStyle(fontSize: 10.5, color: Colors.grey[800]),
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
           ),
-          Icon(Icons.calendar_today, size: 14, color: Colors.grey[700]),
+          const Icon(Icons.calendar_today, size: 15, color: Color(0xFF1E3A8A)),
         ],
       ),
     );

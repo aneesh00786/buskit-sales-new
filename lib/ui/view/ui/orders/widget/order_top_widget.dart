@@ -23,15 +23,17 @@ class OrderTopWidget extends StatelessWidget {
   Widget calender(String calender) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: Text('Recent Orders'.tr, style: const TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF0F172A),
-              )),
+        Text(
+          'Recent Orders'.tr,
+          style: const TextStyle(
+            fontFamily: 'Poppins_Regular',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+            letterSpacing: -0.3,
+          ),
         ),
         const Spacer(),
         profiloe(),

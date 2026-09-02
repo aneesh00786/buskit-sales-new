@@ -12,29 +12,28 @@ class PendingPaymentTopWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Padding(
-      padding: const EdgeInsets.only(left: 10, top: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text('Pending Payments'.tr, style: const TextStyle(
-                  fontFamily: 'Poppins_Regular',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F172A),
-                )),
-          Row(
-            children: [
-              const NotificationWidget(
-                startDate: '',
-                endDate: '',
-              ),
-              profiloe(),
-            ],
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text('Pending Payments'.tr,
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+            )),
+        Row(
+          children: [
+            const NotificationWidget(
+              startDate: '',
+              endDate: '',
+            ),
+            const SizedBox(width: 10),
+            profiloe(),
+          ],
+        ),
+      ],
     );
   }
 }

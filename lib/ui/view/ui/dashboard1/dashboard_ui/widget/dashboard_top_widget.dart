@@ -145,8 +145,11 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
                       );
                     },
                   ),
-                  const SizedBox(width: 8),
-                  SizedBox(width: 120, child: profiloe()),
+                  const SizedBox(width: 10),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 180),
+                    child: profiloe(),
+                  ),
                 ],
               ),
             ],

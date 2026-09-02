@@ -114,26 +114,33 @@ class _SalesReturnState extends State<SalesReturn> {
     final double fieldWidth = isMobile ? double.infinity : 200;
 
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text('Sales Return'.tr,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins_Regular',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
-                  )),
-              const Spacer(),
-              const NotificationWidget(
-                startDate: '',
-                endDate: '',
-              ),
-              SizedBox(width: 120, child: profiloe())
-            ],
-          ),
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 6.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Sales Return'.tr,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    )),
+                const Spacer(),
+                const NotificationWidget(
+                  startDate: '',
+                  endDate: '',
+                ),
+                const SizedBox(width: 10),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 180),
+                  child: profiloe(),
+                )
+              ],
+            ),
           SizedBox(
             width: isPhonePortrait(context)
                 ? fullScreenWidth(context) * 2.3
@@ -183,7 +190,8 @@ class _SalesReturnState extends State<SalesReturn> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   List<Widget> _buildFilters(

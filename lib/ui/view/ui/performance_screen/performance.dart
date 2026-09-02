@@ -258,12 +258,14 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 });
               },
             ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           const NotificationWidget(
             startDate: '',
             endDate: '',
           ),
-          profiloe()
+          const SizedBox(width: 10),
+          profiloe(),
+          const SizedBox(width: 10),
         ],
         bottom: (isSmallScreen && showChatbotMobile)
             ? PreferredSize(

@@ -67,12 +67,14 @@ class _CalenderScreenState extends State<CalenderScreen> {
                     });
                   },
                 ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               const NotificationWidget(
                 startDate: '',
                 endDate: '',
               ),
+              const SizedBox(width: 10),
               profiloe(),
+              const SizedBox(width: 10),
             ],
             automaticallyImplyLeading: false,
             bottom: (isMobile && showChatbotMobile)

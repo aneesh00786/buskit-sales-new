@@ -30,16 +30,20 @@ class _PendingPaymentScreenState extends State<PendingPaymentScreen> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, ore) {
       return Scaffold(
-        body: Column(
-          children: [
-            PendingPaymentTopWidget(
-              pendingPaymentController: orderController,
-            ),
-            nkMediumSizeBox(),
-            Flexible(
-              flex: 3,
-              child: PendingTabBar(orderController: orderController,)),
-          ],
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 6.0),
+          child: Column(
+            children: [
+              PendingPaymentTopWidget(
+                pendingPaymentController: orderController,
+              ),
+              nkMediumSizeBox(),
+              Flexible(
+                flex: 3,
+                child: PendingTabBar(orderController: orderController,)),
+            ],
+          ),
         ),
       );
     });

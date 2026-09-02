@@ -49,7 +49,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
         child: Column(
           children: [
             Padding(
-              padding: nkRegularPadding(),
+              padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 6.0),
               child: LeadTopScreen(
                 leadsController: leadsController,
               ),

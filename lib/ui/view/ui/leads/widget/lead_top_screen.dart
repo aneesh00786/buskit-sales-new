@@ -1,10 +1,8 @@
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
-import 'package:busskit_salesexecutive/common/custom_fonts.dart';
 import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/leads_diloag/add_leads_diloag.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_regular_text.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_models.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -72,11 +70,12 @@ class _LeadTopScreenState extends State<LeadTopScreen> {
                                 });
                               },
                             ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           const NotificationWidget(
                             startDate: '',
                             endDate: '',
                           ),
+                          const SizedBox(width: 10),
                           profiloe(),
                         ],
                       ),
@@ -111,77 +110,101 @@ Widget profiloe() {
           return const Center(
             child: SpinKitFadingCube(
               color: primaryColor,
-              size: 20.0,
+              size: 18.0,
             ),
           );
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (snapshot.hasData) {
-          final admin = snapshot.data!.data.first;
-          print(
-              'image URL: ${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}');
+          final String firstName = homeController.userDetails?.fullname ?? '';
+          final String lastName = homeController.userDetails?.lastname ?? '';
+          final String fullName = '$firstName $lastName'.trim();
+          final String designation =
+              homeController.userDetails?.designation ?? 'Sales Executive';
+
           return SizedBox(
-            width: 130,
-            child: SizedBox(
-              height: 44,
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    SizedBox(width: 5),
-                    CircleAvatar(
-                      backgroundColor: const Color(0xffe6ecff),
-                      radius: 15,
-                      child: admin.imagePath != null
-                          ? ClipOval(
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
-                                placeholder: (context, url) => const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.person, size: 16),
-                                width: 30,
-                                height: 30,
-                                fit: BoxFit.cover,
+            height: 40,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEEF2FF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: ClipOval(
+                    child: homeController.userDetails?.imagePath != null &&
+                            homeController.userDetails!.imagePath!.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl:
+                                '${ApiConstants.imageBaseUrl}${homeController.userDetails?.imagePath}',
+                            placeholder: (context, url) => const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: Center(
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
-                            )
-                          : const Icon(Icons.person, size: 16),
-                    ),
-                    const SizedBox(
-                      width: 4.5,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: MyRegularText(
-                              label:
-                                  "${homeController.userDetails?.fullname ?? ''} ${homeController.userDetails?.lastname ?? ''}",
-                              fontSize: 10.5,
-                              overflow: TextOverflow.ellipsis,
+                            ),
+                            errorWidget: (context, url, error) => const Center(
+                              child: Icon(
+                                Icons.person,
+                                size: 18,
+                                color: Color(0xFF1E3A8A),
+                              ),
+                            ),
+                            width: 34,
+                            height: 34,
+                            fit: BoxFit.cover,
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.person,
+                              size: 18,
+                              color: Color(0xFF1E3A8A),
                             ),
                           ),
-                          Expanded(
-                            child: MyRegularText(
-                              label: homeController.userDetails?.designation ?? "",
-                              fontSize: 8.5,
-                              color: const Color(0xFF0F172A),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        fullName.isNotEmpty ? fullName : 'User',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                          height: 1.15,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        designation,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B),
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           );
         } else {

@@ -1296,80 +1296,102 @@ class _CustomerDachScreenState extends State<CustomerDachScreen>
                       showUpdateCustomerDialog(
                           context, customerId, customerName, customerImage);
                     },
-                    child: SizedBox(
-                      width: 140,
+                    borderRadius: BorderRadius.circular(10),
+                    child: ConstrainedBox(
+                      constraints:
+                          const BoxConstraints(minWidth: 120, maxWidth: 175),
                       child: SizedBox(
-                        height: 48,
-                        width: double.infinity,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              (customerImage == null || customerImage.isEmpty)
-                                  ? const CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor: Colors.blueGrey,
-                                      child: Icon(Icons.person,
-                                          color: Colors.white),
-                                    )
-                                  : CircleAvatar(
-                                      backgroundColor: const Color(0xffe6ecff),
-                                      radius: 20,
-                                      child: CachedNetworkImage(
+                        height: 40,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 34,
+                              height: 34,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEEF2FF),
+                                shape: BoxShape.circle,
+                              ),
+                              child: ClipOval(
+                                child: (customerImage == null ||
+                                        customerImage.isEmpty)
+                                    ? const Center(
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 18,
+                                          color: Color(0xFF1E3A8A),
+                                        ),
+                                      )
+                                    : CachedNetworkImage(
                                         imageUrl:
                                             '${ApiConstants.baseUrl}uploads/$customerImage',
                                         placeholder: (context, url) =>
                                             const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        strokeWidth: 2)),
-                                        errorWidget: (context, url, error) =>
-                                            const CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: Colors.blueGrey,
-                                          child: Icon(Icons.person,
-                                              color: Colors.white),
-                                        ),
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                            ),
+                                          width: 14,
+                                          height: 14,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2),
                                           ),
                                         ),
+                                        errorWidget: (context, url, error) =>
+                                            const Center(
+                                          child: Icon(
+                                            Icons.person,
+                                            size: 18,
+                                            color: Color(0xFF1E3A8A),
+                                          ),
+                                        ),
+                                        width: 34,
+                                        height: 34,
+                                        fit: BoxFit.cover,
                                       ),
-                                    ),
-                              const SizedBox(width: 4.5),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    MyRegularText(
-                                      label: customerName,
-                                      fontSize: 8.5,
-                                      maxlines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    MyRegularText(
-                                        label: "Customer".tr, fontSize: 8),
-                                  ],
-                                ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    customerName.isNotEmpty
+                                        ? customerName
+                                        : 'Customer',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A),
+                                      height: 1.15,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    "Customer".tr,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF64748B),
+                                      height: 1.1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(width: 10),
                 ];
 
                 if (isMobile) {

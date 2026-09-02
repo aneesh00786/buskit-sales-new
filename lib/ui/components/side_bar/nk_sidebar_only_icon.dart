@@ -72,7 +72,7 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
       return Container(
-        width: 62,
+        width: 58,
         height: double.infinity,
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -261,96 +261,141 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                     // Recent Orders Count Badge
                     if (isRecentOrders)
                       Positioned(
-                        top: -3,
-                        right: 2,
-                        child: notificationController.isNotificationLoading.value
-                            ? const SizedBox.shrink()
-                            : notificationController
-                                        .recentOrderCountData.mainNotification !=
-                                    null
-                                ? Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4, vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFD97706),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color: Colors.white, width: 1.5),
-                                    ),
-                                    child: Text(
-                                      notificationController
-                                              .recentOrderCountData
-                                              .mainNotification!
-                                              .recentOrders
-                                              ?.toString() ??
-                                          '0',
-                                      style: const TextStyle(
-                                        fontFamily: 'Poppins_Regular',
-                                        fontSize: 8.5,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
+                        top: -4,
+                        right: 0,
+                        child: Obx(() {
+                          if (notificationController.isNotificationLoading.value) {
+                            return const SizedBox.shrink();
+                          }
+                          final recentOrders = notificationController
+                              .recentOrderCountData.mainNotification?.recentOrders;
+                          if (recentOrders == null || recentOrders == 0) {
+                            return const SizedBox.shrink();
+                          }
+                          return Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 1.5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD97706),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                  color: Colors.white, width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              recentOrders.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 10,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
+                              ),
+                            ),
+                          );
+                        }),
                       ),
                     // Leads Count Badge
                     if (isLeads)
                       Positioned(
-                        top: -3,
-                        right: 2,
-                        child: notificationController.isLeadsCountLoading.value
-                            ? const SizedBox.shrink()
-                            : Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE2E8F0),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: Colors.white, width: 1.5),
+                        top: -4,
+                        right: 0,
+                        child: Obx(() {
+                          if (notificationController.isLeadsCountLoading.value) {
+                            return const SizedBox.shrink();
+                          }
+                          final count = notificationController.leadsCount.value;
+                          if (count == 0) return const SizedBox.shrink();
+                          return Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 1.5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                  color: Colors.white, width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
                                 ),
-                                child: Text(
-                                  notificationController.leadsCount.value
-                                      .toString(),
-                                  style: const TextStyle(
-                                    fontFamily: 'Poppins_Regular',
-                                    fontSize: 8.5,
-                                    color: Color(0xFF475569),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+                              ],
+                            ),
+                            child: Text(
+                              count.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 10,
+                                color: Color(0xFF334155),
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
                               ),
+                            ),
+                          );
+                        }),
                       ),
                     // App Update Badge
                     if (index == 9)
-                      Obx(() {
-                        final hasUpdate =
-                            Get.find<AppUpdateService>().isUpdateAvailable.value;
-                        if (!hasUpdate) return const SizedBox.shrink();
-                        return Positioned(
-                          top: -2,
-                          right: 4,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 1.5),
+                      Positioned(
+                        top: -4,
+                        right: 0,
+                        child: Obx(() {
+                          final hasUpdate =
+                              Get.find<AppUpdateService>().isUpdateAvailable.value;
+                          if (!hasUpdate) return const SizedBox.shrink();
+                          return Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
                             ),
-                            child: const CircleAvatar(
-                              radius: 5,
-                              backgroundColor: Colors.red,
-                              child: Text(
-                                '1',
-                                style: TextStyle(
-                                  fontSize: 7,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 1.5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDC2626),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white, width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
                                 ),
+                              ],
+                            ),
+                            child: const Text(
+                              '1',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Poppins_Regular',
+                                fontSize: 9.5,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
                               ),
                             ),
-                          ),
-                        );
-                      }),
+                          );
+                        }),
+                      ),
                   ],
                 ),
               ),

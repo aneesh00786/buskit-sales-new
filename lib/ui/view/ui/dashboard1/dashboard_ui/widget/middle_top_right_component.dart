@@ -505,72 +505,83 @@ Widget middleTopRightComponet({
   );
 }
 
-// Helper widget (Same as before)
 Widget _buildRevenueLegend(
     BuildContext context, 
     var categoryPerformance, 
     num bookingVal, 
     num orderVal) {
-  return Wrap(
-    alignment: WrapAlignment.center,
-    crossAxisAlignment: WrapCrossAlignment.center,
-    spacing: 8,
-    runSpacing: 4,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Booking Item
-          InkWell(
-            onTap: () {
-              if (bookingVal != 0) {
-                showValueDialog(context, categoryPerformance, 'Booking');
-              } else {
-                showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
-              }
-            },
-            child: buildLegendItem(
-              const Color(0xff1d3d63),
-              'Bookings'.tr + ' : \u200E${formatAmount(bookingVal)}',
-              // 'Bookings'.tr + ' : ${formatAmount(bookingVal)}',
+  return SizedBox(
+    width: double.infinity,
+    child: Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            // Booking Item
+            InkWell(
+              onTap: () {
+                if (bookingVal != 0) {
+                  showValueDialog(context, categoryPerformance, 'Booking');
+                } else {
+                  showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
+                }
+              },
+              child: buildLegendItem(
+                const Color(0xff1d3d63),
+                'Bookings'.tr + ' : \u200E${formatAmount(bookingVal)}',
+              ),
             ),
-          ),
-          const SizedBox(width: 10), 
-          // Order Item
-          InkWell(
-            onTap: () {
-              if (orderVal != 0) {
-                showValueDialog(context, categoryPerformance, 'Order');
-              } else {
-                showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
-              }
-            },
-            child: buildLegendItem(
-              Colors.blue,
-              'Orders'.tr + ' : \u200E${formatAmount(orderVal)}',
-              // 'Orders'.tr + ' : ${formatAmount(orderVal)}',
+            // Order Item
+            InkWell(
+              onTap: () {
+                if (orderVal != 0) {
+                  showValueDialog(context, categoryPerformance, 'Order');
+                } else {
+                  showCustomToastDisplay(context, "No Record Found".tr, red, Icons.close);
+                }
+              },
+              child: buildLegendItem(
+                Colors.blue,
+                'Orders'.tr + ' : \u200E${formatAmount(orderVal)}',
+              ),
             ),
-          ),
-        ],
-      )
-    ],
+          ],
+        ),
+      ),
+    ),
   );
 }
-   Widget buildLegendItem(Color color, String label) {
-    return Row(
+
+Widget buildLegendItem(Color color, String label) {
+  return ConstrainedBox(
+    constraints: const BoxConstraints(maxWidth: 220),
+    child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
-          radius: 6,
+          radius: 5.5,
           backgroundColor: color,
         ),
-        const SizedBox(width: 5),
-        MyRegularText(
-          label: label,
-          fontSize: 11.6,
-          fontWeight: FontWeight.w600,
-          color: const Color(0xFF0F172A),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: 'Poppins_Regular',
+              fontSize: 11.2,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF0F172A),
+            ),
+          ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+

@@ -1,5 +1,4 @@
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebarx.dart';
 import 'package:busskit_salesexecutive/ui/components/side_bar/nk_sidebar_only_icon.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
@@ -37,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: const Color(0xFFF8FAFC),
       resizeToAvoidBottomInset: false,
       key: HomeController.homeScaffoldKey,
       extendBody: false,
@@ -52,16 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Row(
           children: [
-            Obx(() {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: NkSideBarOnlyIcon(
+            SizedBox(
+              height: double.infinity,
+              width: 58,
+              child: Obx(() {
+                return NkSideBarOnlyIcon(
                   headerWidget: homeController.upperSideBar(),
                   itemList: homeController.drawSidebarItems(context),
                   sidebarXController: homeController.sidebarXController,
-                ),
-              );
-            }),
+                );
+              }),
+            ),
             Expanded(
               flex: 2,
               child: Navigator(

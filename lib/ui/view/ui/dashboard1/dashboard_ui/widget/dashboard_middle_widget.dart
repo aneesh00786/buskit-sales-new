@@ -980,21 +980,31 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
     );
   }
   Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircleAvatar(
-          radius: 6,
-          backgroundColor: color,
-        ),
-        const SizedBox(width: 5),
-        MyRegularText(
-          label: label,
-          fontSize: 11.6,
-          fontWeight: FontWeight.w600,
-          color: const Color(0xFF0F172A),
-        ),
-      ],
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 220),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 5.5,
+            backgroundColor: color,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: 'Poppins_Regular',
+                fontSize: 11.2,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
   
@@ -1902,117 +1912,130 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             Container(
+              width: double.infinity,
+              height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(24),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: const Color(0xFFE2E8F0),
                   width: 1.2,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1.5),
+                  ),
+                ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: const Color(0xFFEEF2FF),
-                      radius: 18,
-                      child: InkWell(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Select Method'),
-                                actions: [
-                                  IconButton(
-                                    onPressed: () {
-                                      _pickImage(ImageSource.camera);
-                                      Navigator.of(context).pop();
-                                    },
-                                    icon: const Icon(
-                                        EneftyIcons.camera_outline),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      _pickImage(ImageSource.gallery);
-                                      Navigator.of(context).pop();
-                                    },
-                                    icon:
-                                        const Icon(EneftyIcons.gallery_bold),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
+              child: Row(
+                children: [
+                  const SizedBox(width: 4),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Select Method'),
+                              actions: [
+                                IconButton(
+                                  onPressed: () {
+                                    _pickImage(ImageSource.camera);
+                                    Navigator.of(context).pop();
+                                  },
+                                  icon: const Icon(EneftyIcons.camera_outline),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    _pickImage(ImageSource.gallery);
+                                    Navigator.of(context).pop();
+                                  },
+                                  icon: const Icon(EneftyIcons.gallery_bold),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEEF2FF),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         child: const Center(
                           child: Icon(
                             EneftyIcons.camera_outline,
                             color: Color(0xFF1E3A8A),
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextField(
-                          controller: _controller,
-                          style: const TextStyle(
-                            fontFamily: 'Poppins_Regular',
-                            fontSize: 13,
-                            color: Color(0xFF0F172A),
-                          ),
-                          decoration: InputDecoration(
-                            isDense: true,
-                            fillColor: Colors.white,
-                            filled: true,
-                            hintText: 'Type your message here...'.tr,
-                            hintStyle: const TextStyle(
-                              fontFamily: 'Poppins_Regular',
-                              fontSize: 12.5,
-                              color: Color(0xFF94A3B8),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0), width: 1.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFFE2E8F0), width: 1.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                  color: Color(0xFF1E3A8A), width: 1.2),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 14),
-                          ),
-                        ),
-                      ),
-                    ),
-                    CircleAvatar(
-                      backgroundColor: const Color(0xFF1E3A8A),
-                      radius: 18,
-                      child: InkWell(
-                        onTap: () => _sendMessage(),
-                        child: const Center(
-                          child: Icon(
-                            EneftyIcons.send_3_outline,
-                            color: Colors.white,
                             size: 17,
                           ),
                         ),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins_Regular',
+                        fontSize: 13,
+                        color: Color(0xFF0F172A),
+                      ),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: 'Type your message here...'.tr,
+                        hintStyle: const TextStyle(
+                          fontFamily: 'Poppins_Regular',
+                          fontSize: 12.5,
+                          color: Color(0xFF94A3B8),
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => _sendMessage(),
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E3A8A),
+                          borderRadius: BorderRadius.circular(17),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1E3A8A).withOpacity(0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1.5),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            EneftyIcons.send_3_outline,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
               ),
             ),
           ],

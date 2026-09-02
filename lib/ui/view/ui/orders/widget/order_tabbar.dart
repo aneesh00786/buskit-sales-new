@@ -328,6 +328,121 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
     }
   }
 
+  Widget _buildTabItem({
+    required BuildContext context,
+    required int index,
+    required String title,
+    required int count,
+    required bool isSelected,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8.0, top: 4.0, bottom: 4.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            if (!_shouldShowUpgradeButton(index)) {
+              showUpgradePlanDialog(context);
+            } else {
+              setState(() {
+                _selectedTabIndex = index;
+              });
+              widget.orderController.updateTabIndex(
+                _selectedTabIndex,
+                hasOfflineOrders:
+                    widget.orderController.hasOfflineOrders.value,
+              );
+              widget.orderController.currentPage.value = 1;
+            }
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF1E3A8A) : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected
+                    ? const Color(0xFF1E3A8A)
+                    : const Color(0xFFE2E8F0),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isSelected
+                      ? const Color(0xFF1E3A8A).withOpacity(0.25)
+                      : Colors.black.withOpacity(0.03),
+                  blurRadius: isSelected ? 6 : 3,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: isSelected
+                        ? Colors.white
+                        : const Color(0xFF475569),
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    fontSize: 12.5,
+                    fontFamily: 'Poppins_Regular',
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                if (count != 0) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 5, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFFDC2626),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isSelected
+                                  ? Colors.black
+                                  : const Color(0xFFDC2626))
+                              .withOpacity(0.15),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        count.toString(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isSelected
+                              ? const Color(0xFF1E3A8A)
+                              : Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Poppins_Regular',
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -340,179 +455,66 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
       return Column(
         children: [
           SizedBox(
-            height: 60,
+            height: 56,
             child: ScrollbarTheme(
               data: ScrollbarThemeData(
+                thumbColor: WidgetStatePropertyAll(
+                    const Color(0xFF1E3A8A).withOpacity(0.35)),
+                trackColor:
+                    const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
                 trackBorderColor:
                     const WidgetStatePropertyAll(Colors.transparent),
-                thumbColor:
-                    WidgetStatePropertyAll(primaryColor.withOpacity(0.3)),
-                trackColor: WidgetStatePropertyAll(Colors.grey[100]),
+                thumbVisibility: const WidgetStatePropertyAll(true),
+                trackVisibility: const WidgetStatePropertyAll(true),
+                radius: const Radius.circular(8),
+                thickness: const WidgetStatePropertyAll(4.0),
+                minThumbLength: 48.0,
               ),
               child: Scrollbar(
+                controller: _scrollController,
                 thumbVisibility: true,
                 trackVisibility: true,
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const ClampingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: tabs.length,
-                        itemBuilder: (context, index) {
-                          final isSelected = _selectedTabIndex == index;
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    itemCount: tabs.length,
+                    itemBuilder: (context, index) {
+                      final isSelected = _selectedTabIndex == index;
 
-                          if (widget.orderController.hasOfflineOrders.value &&
-                              index == 0) {
-                            return GestureDetector(
-                              onTap: () {
-                                if (!_shouldShowUpgradeButton(index)) {
-                                  showUpgradePlanDialog(context);
-                                } else {
-                                  setState(() {
-                                    _selectedTabIndex = index;
-                                  });
-                                  widget.orderController.updateTabIndex(
-                                      _selectedTabIndex,
-                                      hasOfflineOrders: widget.orderController
-                                          .hasOfflineOrders.value);
-                                  widget.orderController.currentPage.value = 1;
-                                }
-                              },
-                              child: Obx(() {
-                                int count = widget
-                                    .orderController.offlineOrderCount.value;
-                                return Container(
-                                  padding: const EdgeInsets.only(
-                                      left: 16, right: 16, top: 8, bottom: 0),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? primaryColor
-                                        : Colors.transparent,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      topRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        tabs[index],
-                                        style: TextStyle(
-                                          color: isSelected
-                                              ? Colors.white
-                                              : primaryColor,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 12.5,
-                                          fontFamily: 'Poppins_Regular',
-                                        ),
-                                      ),
-                                      if (count != 0) ...[
-                                        const SizedBox(width: 8),
-                                        CircleAvatar(
-                                          radius: 10,
-                                          backgroundColor: red,
-                                          child: Center(
-                                            child: Text(
-                                              count.toString(),
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color: white,
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: 'Poppins_Regular',
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ]
-                                    ],
-                                  ),
-                                );
-                              }),
-                            );
-                          }
+                      if (widget.orderController.hasOfflineOrders.value &&
+                          index == 0) {
+                        return Obx(() {
+                          int count =
+                              widget.orderController.offlineOrderCount.value;
+                          return _buildTabItem(
+                            context: context,
+                            index: index,
+                            title: tabs[index],
+                            count: count,
+                            isSelected: isSelected,
+                          );
+                        });
+                      }
 
-                          return FutureBuilder<int>(
-                            future: _getCountForTab(index),
-                            builder: (context, snapshot) {
-                              int count = snapshot.data ?? 0;
-
-                              return GestureDetector(
-                                onTap: () {
-                                  if (!_shouldShowUpgradeButton(index)) {
-                                    showUpgradePlanDialog(context);
-                                  } else {
-                                    setState(() {
-                                      _selectedTabIndex = index;
-                                    });
-                                    widget.orderController.updateTabIndex(
-                                        _selectedTabIndex,
-                                        hasOfflineOrders: widget.orderController
-                                            .hasOfflineOrders.value);
-                                    widget.orderController.currentPage.value =
-                                        1;
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.only(
-                                      left: 16, right: 16, top: 8, bottom: 0),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? primaryColor
-                                        : Colors.transparent,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      topRight: Radius.circular(10),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        tabs[index],
-                                        style: TextStyle(
-                                          color: isSelected
-                                              ? Colors.white
-                                              : primaryColor,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 12.5,
-                                          fontFamily: 'Poppins_Regular',
-                                        ),
-                                      ),
-                                      if (count != 0) ...[
-                                        const SizedBox(width: 8),
-                                        CircleAvatar(
-                                          radius: 10,
-                                          backgroundColor: red,
-                                          child: Center(
-                                            child: Text(
-                                              count.toString(),
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color: white,
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: 'Poppins_Regular',
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ]
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
+                      return FutureBuilder<int>(
+                        future: _getCountForTab(index),
+                        builder: (context, snapshot) {
+                          int count = snapshot.data ?? 0;
+                          return _buildTabItem(
+                            context: context,
+                            index: index,
+                            title: tabs[index],
+                            count: count,
+                            isSelected: isSelected,
                           );
                         },
-                      ),
-                    ),
-                  ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

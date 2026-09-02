@@ -513,26 +513,32 @@ class HomeController extends GetxController {
                         ),
                       ),
                       if (isRecentOrders)
-                        notificationController.isNotificationLoading.value
-                            ? const SizedBox.shrink()
-                            : notificationController
-                                        .recentOrderCountData.mainNotification !=
-                                    null
-                                ? _sidebarCountPill(
-                                    notificationController.recentOrderCountData
-                                            .mainNotification!.recentOrders
-                                            ?.toString() ??
-                                        '0',
-                                    isOrange: true,
-                                  )
-                                : const SizedBox.shrink(),
+                        Obx(() {
+                          if (notificationController.isNotificationLoading.value) {
+                            return const SizedBox.shrink();
+                          }
+                          final recentOrders = notificationController
+                              .recentOrderCountData.mainNotification?.recentOrders;
+                          if (recentOrders == null || recentOrders == 0) {
+                            return const SizedBox.shrink();
+                          }
+                          return _sidebarCountPill(
+                            recentOrders.toString(),
+                            isOrange: true,
+                          );
+                        }),
                       if (isLeads)
-                        notificationController.isLeadsCountLoading.value
-                            ? const SizedBox.shrink()
-                            : _sidebarCountPill(
-                                notificationController.leadsCount.toString(),
-                                isOrange: false,
-                              ),
+                        Obx(() {
+                          if (notificationController.isLeadsCountLoading.value) {
+                            return const SizedBox.shrink();
+                          }
+                          final count = notificationController.leadsCount.value;
+                          if (count == 0) return const SizedBox.shrink();
+                          return _sidebarCountPill(
+                            count.toString(),
+                            isOrange: false,
+                          );
+                        }),
                     ],
                   ),
                 ),

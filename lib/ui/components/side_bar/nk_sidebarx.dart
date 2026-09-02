@@ -16,6 +16,8 @@ import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/on_sync_widget.dart';
+import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/sync_button/sync_controller.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/provider/dash_provider.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/chatbot/chatbot_top_bar_button.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
@@ -188,280 +190,315 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
   @override
   Widget build(BuildContext context) {
     Provider.of<DashboardProvider>(context, listen: false);
-    return OrientationBuilder(builder: (context, orientation) {
-      return SidebarX(
-        controller: widget._controller,
-        headerDivider: Container(
-          color: primaryColor,
-        ),
-        theme: SidebarXTheme(
-          decoration: const BoxDecoration(
-            color: white,
-            borderRadius: BorderRadius.zero,
-          ),
-          textStyle: const TextStyle(color: primaryTextColor),
-          selectedTextStyle: const TextStyle(color: primaryColor),
-          selectedItemDecoration: BoxDecoration(
-            color: primaryColor.withOpacity(0.05),
-            border: const Border(
-              left: BorderSide(
-                color: primaryColor,
-                width: 5.0,
-              ),
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          _buildDrawerHeader(context),
+          Expanded(
+            child: AnimatedBuilder(
+              animation: widget._controller,
+              builder: (context, _) {
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  itemCount: widget._itemList.length,
+                  itemBuilder: (context, index) {
+                    final item = widget._itemList[index];
+                    final isSelected = widget._controller.selectedIndex == index;
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        widget._controller.selectIndex(index);
+                        item.onTap?.call();
+                      },
+                      child: item.iconBuilder != null
+                          ? item.iconBuilder!(isSelected, true)
+                          : const SizedBox.shrink(),
+                    );
+                  },
+                );
+              },
             ),
           ),
-          iconTheme: IconThemeData(
-            color: Colors.black.withOpacity(0.4),
-            size: 24,
-          ),
-          selectedIconTheme: const IconThemeData(
-            color: primaryColor,
-            size: 24,
-          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF183884), Color(0xFF11265E)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        showToggleButton: false,
-        headerBuilder: (context, extended) {
-          return Container(
-            color: primaryColor,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+      ),
+      child: Stack(
+        children: [
+          // Celestial curved dotted line decoration
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _ConstellationCurvePainter(),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: InkResponse(
-                          onTap: () => {
-                                HomeController.homeScaffoldKey.currentState
-                                    ?.closeDrawer(),
-                              },
-                          child: Icon(
-                            EneftyIcons.menu_outline,
-                            size: ResponsiveInfo.isMobile() ? 24 : 32,
-                            color: white,
-                          )),
+                    InkResponse(
+                      onTap: () => {
+                        HomeController.homeScaffoldKey.currentState
+                            ?.closeDrawer(),
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.menu_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        children: [
-                          SyncButtonWidget(),
+                    _buildHeaderSyncWidget(context),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      height: 74,
+                      width: 74,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: (widget.userDetails.imagePath ?? '').isNotEmpty
+                            ? MyNetworkImage(
+                                fit: BoxFit.cover,
+                                imageUrl: widget.userDetails.imagePath!,
+                                height: 74,
+                                width: 74,
+                                errorWidget: (context, url, error) =>
+                                    _avatarInitials(),
+                              )
+                            : _avatarInitials(),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF22C55E),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF183884),
+                            width: 2.2,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Center(
-                  child: Container(
-                    height: ResponsiveInfo.isMobile() ? 70 : 100,
-                    width: ResponsiveInfo.isMobile() ? 70 : 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 164, 236, 247),
-                        width: 2.0,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: MyNetworkImage(
-                        fit: BoxFit.cover,
-                        imageUrl: widget.userDetails.imagePath ?? '',
-                        height: ResponsiveInfo.isMobile() ? 50 : 75,
-                        width: ResponsiveInfo.isMobile() ? 50 : 75,
-                        errorWidget: (context, url, error) {
-                          return Container(
-                            color: Colors.grey.shade300,
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.grey.shade600,
-                              size: ResponsiveInfo.isMobile() ? 30 : 45,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  widget.userDetails.fullname ?? 'Raj P. Patel',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(
-                  height: 30,
+              ),
+              const SizedBox(height: 2),
+              Center(
+                child: Text(
+                  (widget.userDetails.designation ?? '').isNotEmpty
+                      ? widget.userDetails.designation!
+                      : 'Sales Executive',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFFBFDBFE),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomText(
-                              content:
-                                  widget.userDetails.fullname?.toUpperCase() ??
-                                      'No Data',
-                              fontSize: ResponsiveInfo.isMobile() ? 15 : 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              maxLine: 1,
-                              overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Center(
+                child: Text(
+                  widget.userDetails.email ?? 'sales1@gmail.com',
+                  style: TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF93C5FD).withOpacity(0.75),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.only(right: 14, bottom: 10),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Obx(() {
+                    final isChecking = CheckInService.isCheckingIn.value;
+                    bool isLoading = _isLoading || isChecking;
+                    return isLoading
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _onSwitchSelected
+                                  ? const Color(0xFF16A34A)
+                                  : const Color(0xFFE15241),
+                              borderRadius: BorderRadius.circular(22),
                             ),
-                            CustomText(
-                              content: widget.userDetails.email ?? 'No Data',
-                              fontSize: ResponsiveInfo.isMobile() ? 8 : 12,
-                              color: Colors.white,
-                              maxLine: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        height: 35,
-                        child: Obx(() {
-                          final isChecking = CheckInService.isCheckingIn.value;
-                          bool isLoading = _isLoading || isChecking;
-                          return isLoading
-                              ? const CircularProgressIndicator(color: white)
-                              : GestureDetector(
-                                  onTap: () => _handleSwitchToggle(context),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    width: 100,
-                                    height: 40,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 5, horizontal: 5),
-                                    decoration: BoxDecoration(
-                                      color: _onSwitchSelected
-                                          ? const Color.fromARGB(
-                                              255, 100, 224, 164)
-                                          : const Color.fromARGB(
-                                              255, 244, 152, 152),
-                                      borderRadius: BorderRadius.circular(30),
+                          )
+                        : GestureDetector(
+                            onTap: () => _handleSwitchToggle(context),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.fromLTRB(5, 4, 14, 4),
+                              decoration: BoxDecoration(
+                                color: _onSwitchSelected
+                                    ? const Color(0xFF16A34A)
+                                    : const Color(0xFFE15241),
+                                borderRadius: BorderRadius.circular(22),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (_onSwitchSelected
+                                            ? const Color(0xFF16A34A)
+                                            : const Color(0xFFE15241))
+                                        .withOpacity(0.35),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 22,
+                                    height: 22,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
                                     ),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 15),
-                                            child: Text(
-                                              'Out',
-                                              style: TextStyle(
-                                                color: _onSwitchSelected
-                                                    ? Colors.transparent
-                                                    : Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 15),
-                                            child: Text(
-                                              'In',
-                                              style: TextStyle(
-                                                color: !_onSwitchSelected
-                                                    ? Colors.transparent
-                                                    : Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        AnimatedAlign(
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          alignment: _onSwitchSelected
-                                              ? Alignment.centerRight
-                                              : Alignment.centerLeft,
-                                          child: CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: Colors.white,
-                                            child: isLoading
-                                                ? const SizedBox(
-                                                    width: 14,
-                                                    height: 14,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                            strokeWidth: 2),
-                                                  )
-                                                : Icon(
-                                                    _onSwitchSelected
-                                                        ? Icons.check
-                                                        : Icons.close,
-                                                    size: 20,
-                                                    color: _onSwitchSelected
-                                                        ? const Color.fromARGB(
-                                                            255, 100, 224, 164)
-                                                        : const Color.fromARGB(
-                                                            255, 244, 152, 152),
-                                                  ),
-                                          ),
-                                        ),
-                                      ],
+                                    child: Icon(
+                                      _onSwitchSelected
+                                          ? Icons.check_rounded
+                                          : Icons.close_rounded,
+                                      size: 14,
+                                      color: _onSwitchSelected
+                                          ? const Color(0xFF16A34A)
+                                          : const Color(0xFFE15241),
                                     ),
                                   ),
-                                );
-                        }),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _onSwitchSelected
+                                        ? 'In'.tr
+                                        : 'Out'.tr,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins_Regular',
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                  }),
+                ),
+              ),
+              // Show Always Permission Status when Checked In
+              if (_onSwitchSelected)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _hasAlwaysPermission
+                            ? Icons.check_circle
+                            : Icons.warning_amber_rounded,
+                        color: _hasAlwaysPermission
+                            ? Colors.green
+                            : Colors.orange,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _hasAlwaysPermission
+                              ? 'Your location will be shared continuously.'
+                              : "Location is shared only while using the app. Enable 'Always' access for background tracking.",
+                          style: TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            color: _hasAlwaysPermission
+                                ? Colors.green.shade200
+                                : Colors.orange.shade200,
+                            fontSize: 10.5,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                // Show Always Permission Status when Checked In
-                if (_onSwitchSelected)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _hasAlwaysPermission
-                              ? Icons.check_circle
-                              : Icons.warning_amber_rounded,
-                          color: _hasAlwaysPermission
-                              ? Colors.green
-                              : Colors.orange,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _hasAlwaysPermission
-                                ? 'Your location will be shared continuously.'
-                                : "Location is shared only while using the app. Enable 'Always' access for background tracking.",
-                            style: TextStyle(
-                              color: _hasAlwaysPermission
-                                  ? Colors.green.shade200
-                                  : Colors.orange.shade200,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
-        extendedTheme: SidebarXTheme(
-          width: AppDimensions.instance.width * 0.7,
-          decoration: const BoxDecoration(
-            color: backgroundColor,
+            ],
           ),
-        ),
-        items: widget._itemList,
-      );
-    });
+        ],
+      ),
+    );
   }
 
   void _handleSwitchToggle(BuildContext context) async {
@@ -670,6 +707,186 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
       print("Stopped foreground tracking.");
     }
   }
+
+  Widget _buildHeaderSyncWidget(BuildContext context) {
+    final syncController = Get.find<SyncController>()..loadLastSyncTime();
+    return Obx(() {
+      final isSyncing = syncController.isSyncing.value;
+      final lastSync = syncController.lastSyncTime.value;
+      final timeStr = lastSync == null
+          ? DateFormat('hh:mm a').format(DateTime.now())
+          : DateFormat('hh:mm a').format(lastSync);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: isSyncing
+                  ? null
+                  : () async {
+                      bool isOnline = await ConnectivityService().isOnline();
+                      if (!isOnline) {
+                        showCustomToastDisplay(
+                          context,
+                          "You are offline! Please check your internet connection.".tr,
+                          red,
+                          Icons.cloud_off_rounded,
+                        );
+                      } else {
+                        syncController.startSyncing(context);
+                      }
+                    },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.25),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    isSyncing
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.sync_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                    const SizedBox(width: 5),
+                    Text(
+                      isSyncing ? 'Syncing...'.tr : 'Sync'.tr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Poppins_Regular',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF22C55E),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  timeStr,
+                  style: TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _avatarInitials() {
+    final name = widget.userDetails.fullname ?? '';
+    final parts = name.trim().split(RegExp(r'\s+'));
+    final initials = parts.length >= 2
+        ? '${parts.first[0]}${parts.last[0]}'.toUpperCase()
+        : (parts.isNotEmpty && parts.first.isNotEmpty)
+            ? parts.first[0].toUpperCase()
+            : 'RP';
+    const size = 74.0;
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 26,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins_Regular',
+        ),
+      ),
+    );
+  }
+}
+
+/// Subtle constellation / starry curved dotted trail painter for sidebar header.
+class _ConstellationCurvePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final dotPaintMuted = Paint()
+      ..color = const Color(0xFFD4AF37).withOpacity(0.35)
+      ..style = PaintingStyle.fill;
+
+    final dotPaintBright = Paint()
+      ..color = const Color(0xFFFBBF24).withOpacity(0.7)
+      ..style = PaintingStyle.fill;
+
+    // Dots placed along a gentle celestial arc
+    final List<Offset> starPoints = [
+      Offset(size.width * 0.02, size.height * 0.38),
+      Offset(size.width * 0.08, size.height * 0.35),
+      Offset(size.width * 0.16, size.height * 0.34),
+      Offset(size.width * 0.25, size.height * 0.36),
+      Offset(size.width * 0.35, size.height * 0.38),
+      Offset(size.width * 0.45, size.height * 0.40),
+      Offset(size.width * 0.58, size.height * 0.32),
+      Offset(size.width * 0.68, size.height * 0.26),
+      Offset(size.width * 0.76, size.height * 0.21),
+      Offset(size.width * 0.84, size.height * 0.16),
+      Offset(size.width * 0.92, size.height * 0.13),
+    ];
+
+    for (int i = 0; i < starPoints.length; i++) {
+      final pt = starPoints[i];
+      final isAccent = (i == 3 || i == 6 || i == 8);
+      canvas.drawCircle(
+        pt,
+        isAccent ? 2.8 : 1.6,
+        isAccent ? dotPaintBright : dotPaintMuted,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 Future<bool> _showAlwaysPermissionDialog(BuildContext context) async {

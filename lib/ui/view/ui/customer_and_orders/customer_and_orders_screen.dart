@@ -79,12 +79,14 @@ class _TableeeState extends State<Tableee> {
     Provider.of<CustomersProvider>(context, listen: false).currentPage = 1;
 
     _scrollController1.addListener(() {
-      if (_scrollController2.hasClients &&
+      if (_scrollController1.hasClients &&
+          _scrollController2.hasClients &&
           _scrollController1.position.pixels !=
               _scrollController2.position.pixels) {
         _scrollController2.jumpTo(_scrollController1.position.pixels);
       }
-      if (_scrollController3.hasClients &&
+      if (_scrollController1.hasClients &&
+          _scrollController3.hasClients &&
           _scrollController1.position.pixels !=
               _scrollController3.position.pixels) {
         _scrollController3.jumpTo(_scrollController1.position.pixels);
@@ -92,12 +94,14 @@ class _TableeeState extends State<Tableee> {
     });
 
     _scrollController2.addListener(() {
-      if (_scrollController1.hasClients &&
+      if (_scrollController2.hasClients &&
+          _scrollController1.hasClients &&
           _scrollController2.position.pixels !=
               _scrollController1.position.pixels) {
         _scrollController1.jumpTo(_scrollController2.position.pixels);
       }
-      if (_scrollController3.hasClients &&
+      if (_scrollController2.hasClients &&
+          _scrollController3.hasClients &&
           _scrollController2.position.pixels !=
               _scrollController3.position.pixels) {
         _scrollController3.jumpTo(_scrollController2.position.pixels);
@@ -105,12 +109,14 @@ class _TableeeState extends State<Tableee> {
     });
 
     _scrollController3.addListener(() {
-      if (_scrollController1.hasClients &&
+      if (_scrollController3.hasClients &&
+          _scrollController1.hasClients &&
           _scrollController3.position.pixels !=
               _scrollController1.position.pixels) {
         _scrollController1.jumpTo(_scrollController3.position.pixels);
       }
-      if (_scrollController2.hasClients &&
+      if (_scrollController3.hasClients &&
+          _scrollController2.hasClients &&
           _scrollController3.position.pixels !=
               _scrollController2.position.pixels) {
         _scrollController2.jumpTo(_scrollController3.position.pixels);
@@ -2913,14 +2919,16 @@ class _FrozenHeaderTableState extends State<FrozenHeaderTable> {
     _scrollController3 = _controllers.addAndGet();
 
     vertical.addListener(() {
-      if (vertical1.hasClients &&
+      if (vertical.hasClients &&
+          vertical1.hasClients &&
           vertical.position.pixels != vertical1.position.pixels) {
         vertical1.jumpTo(vertical.position.pixels);
       }
     });
 
     vertical1.addListener(() {
-      if (vertical.hasClients &&
+      if (vertical1.hasClients &&
+          vertical.hasClients &&
           vertical1.position.pixels != vertical.position.pixels) {
         vertical.jumpTo(vertical1.position.pixels);
       }

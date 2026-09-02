@@ -11,7 +11,8 @@ import 'package:busskit_salesexecutive/ui/components/notifications/notification_
 import 'package:busskit_salesexecutive/ui/icons/slide_bar_icons.dart';
 import 'package:busskit_salesexecutive/ui/services/checkin_service.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/cart_dialogue/widgets/connectivity_check.dart';
-import 'package:busskit_salesexecutive/ui/utills/const_string.dart' hide SalesReturn;
+import 'package:busskit_salesexecutive/ui/utills/const_string.dart'
+    hide SalesReturn;
 import 'package:busskit_salesexecutive/ui/view/ui/auth/auth_model/login_responce.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/calander/calender_screen.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/customer_and_orders/customer_and_orders_controller.dart';
@@ -27,7 +28,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/settings/settings.dart';
 import 'package:dio/dio.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
 import '../../../../routes/routes.dart';
@@ -53,8 +53,7 @@ class HomeController extends GetxController {
         .fetchSubscribtionPlan(SessionHelper.loginSavedData?.company_id ?? 0);
     SessionHelper().getLoginData().then((value) {
       userDetails = value;
-    }).catchError((error) {
-    });
+    }).catchError((error) {});
   }
 
   @override
@@ -129,58 +128,51 @@ class HomeController extends GetxController {
           transition: Transition.leftToRightWithFade,
           page: () => const ProductScreen(),
           binding: CommonBinding());
-    } else if (settings.name == AppRoutes.pendingPayment &&
+    } else if (settings.name == AppRoutes.ordersScreen &&
         sidebarXController.selectedIndex == 3) {
-      return GetPageRoute(
-        settings: settings,
-        transition: Transition.leftToRightWithFade,
-        page: () => const PendingPaymentScreen(),
-      );
-    } else if (settings.name == AppRoutes.leads &&
-        sidebarXController.selectedIndex == 4) {
-      return GetPageRoute(
-          settings: settings,
-          transition: Transition.leftToRightWithFade,
-          page: () => const LeadsScreen(),
-          binding: CommonBinding());
-    } else if (settings.name == AppRoutes.calender &&
-        sidebarXController.selectedIndex == 5) {
-      return GetPageRoute(
-          transition: Transition.leftToRightWithFade,
-          settings: settings,
-          page: () => const CalenderScreen(),
-          binding: CommonBinding());
-    } 
-     else if  (settings.name == AppRoutes.salesReturn &&
-        sidebarXController.selectedIndex == 6) {
-      return GetPageRoute(
-        transition: Transition.leftToRightWithFade,
-        settings: settings,
-        page: () => const SalesReturn(),
-        binding: CommonBinding(),
-      );
-    }
-  
-    else if (settings.name == AppRoutes.ordersScreen &&
-        sidebarXController.selectedIndex == 7) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
         settings: settings,
         page: () => const OrderScreen(),
         binding: CommonBinding(),
       );
-    } 
-       else if (settings.name == AppRoutes.performance &&
+    } else if (settings.name == AppRoutes.salesReturn &&
+        sidebarXController.selectedIndex == 4) {
+      return GetPageRoute(
+        transition: Transition.leftToRightWithFade,
+        settings: settings,
+        page: () => const SalesReturn(),
+        binding: CommonBinding(),
+      );
+    } else if (settings.name == AppRoutes.pendingPayment &&
+        sidebarXController.selectedIndex == 5) {
+      return GetPageRoute(
+        settings: settings,
+        transition: Transition.leftToRightWithFade,
+        page: () => const PendingPaymentScreen(),
+      );
+    } else if (settings.name == AppRoutes.leads &&
+        sidebarXController.selectedIndex == 6) {
+      return GetPageRoute(
+          settings: settings,
+          transition: Transition.leftToRightWithFade,
+          page: () => const LeadsScreen(),
+          binding: CommonBinding());
+    } else if (settings.name == AppRoutes.calender &&
+        sidebarXController.selectedIndex == 7) {
+      return GetPageRoute(
+          transition: Transition.leftToRightWithFade,
+          settings: settings,
+          page: () => const CalenderScreen(),
+          binding: CommonBinding());
+    } else if (settings.name == AppRoutes.performance &&
         sidebarXController.selectedIndex == 8) {
       return GetPageRoute(
           settings: settings,
           transition: Transition.leftToRightWithFade,
           page: () => const PerformanceScreen(),
           binding: CommonBinding());
-    }
-   
-   
-    else if (settings.name == AppRoutes.settings &&
+    } else if (settings.name == AppRoutes.settings &&
         sidebarXController.selectedIndex == 9) {
       return GetPageRoute(
         transition: Transition.leftToRightWithFade,
@@ -196,91 +188,96 @@ class HomeController extends GetxController {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // if (_isDisposed) return;
 
-      if (sidebarXController.selectedIndex == 0 && selectedIndex.value != 0 &&  selectedIndex.value != -2) {
+      if (sidebarXController.selectedIndex == 0 &&
+          selectedIndex.value != 0 &&
+          selectedIndex.value != -2) {
         Get.offAllNamed(AppRoutes.dashboard, id: 2, arguments: this);
-         selectedIndex.value = sidebarXController.selectedIndex;
+        selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 1 &&
           selectedIndex.value != 1) {
         Get.offNamed(AppRoutes.customersAndOrders, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
+        selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 2 &&
           selectedIndex.value != 2) {
         Get.offNamed(AppRoutes.product, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
+        selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 3 &&
           selectedIndex.value != 3) {
-        Get.offNamed(AppRoutes.pendingPayment, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
+        Get.offNamed(AppRoutes.ordersScreen, id: 2);
+        selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 4 &&
           selectedIndex.value != 4) {
-        Get.offNamed(AppRoutes.leads, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
+        Get.offNamed(AppRoutes.salesReturn, id: 2);
+        selectedIndex.value = sidebarXController.selectedIndex;
       } else if (sidebarXController.selectedIndex == 5 &&
           selectedIndex.value != 5) {
-        Get.offNamed(AppRoutes.calender, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
-      } 
-     
-      else if 
-      (sidebarXController.selectedIndex == 6 &&
-        selectedIndex.value != 6) {
-      Get.offNamed(AppRoutes.salesReturn, id: 2);
-       selectedIndex.value = sidebarXController.selectedIndex;
-    } 
-     else if (sidebarXController.selectedIndex == 7 &&
+        Get.offNamed(AppRoutes.pendingPayment, id: 2);
+        selectedIndex.value = sidebarXController.selectedIndex;
+      } else if (sidebarXController.selectedIndex == 6 &&
+          selectedIndex.value != 6) {
+        Get.offNamed(AppRoutes.leads, id: 2);
+        selectedIndex.value = sidebarXController.selectedIndex;
+      } else if (sidebarXController.selectedIndex == 7 &&
           selectedIndex.value != 7) {
-        Get.offNamed(AppRoutes.ordersScreen, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
-      } 
-      else if (sidebarXController.selectedIndex == 8 &&
+        Get.offNamed(AppRoutes.calender, id: 2);
+        selectedIndex.value = sidebarXController.selectedIndex;
+      } else if (sidebarXController.selectedIndex == 8 &&
           selectedIndex.value != 8) {
         Get.offNamed(AppRoutes.performance, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
-      } 
-       
-      
-      else if (sidebarXController.selectedIndex == 9 &&
+        selectedIndex.value = sidebarXController.selectedIndex;
+      } else if (sidebarXController.selectedIndex == 9 &&
           selectedIndex.value != 9) {
         Get.offNamed(AppRoutes.settings, id: 2);
-         selectedIndex.value = sidebarXController.selectedIndex;
+        selectedIndex.value = sidebarXController.selectedIndex;
       }
-       if (selectedIndex.value == -2) {
+      if (selectedIndex.value == -2) {
         selectedIndex.value = -1;
       }
       selectedIndex.value = sidebarXController.selectedIndex;
     });
   }
 
+  // Order matches the "Sales" / "Growth" grouped nav design: Dashboard, then
+  // the Sales group (Customers & Orders, Products, Recent Orders, Sales
+  // Return, Pending Payments), then the Growth group (Leads, Calendar,
+  // Performance), then Settings/Logout. Every index-keyed switch in this
+  // file (onGenerateRoute, changePageRouting, getSidebarIconData) and in
+  // nk_sidebar_only_icon.dart's isRecentOrders/isLeads booleans was updated
+  // to match this same order — keep them all in sync if this list changes.
   RxList<String> sidebarName = [
     dashBoard,
     customersAndOrders,
     products,
-    pendingPayments,
-    leads, 
-    calendar,
-    salesReturn,
     todayOrders,
+    salesReturn,
+    pendingPayments,
+    leads,
+    calendar,
     performance,
     settings,
     logOut,
-   
   ].obs;
 
   List<SidebarXItem> drawSidebarItems(BuildContext context) {
     return [
-      sideBarComponent(sidebarName[0], index:0,  Icons.dashboard),
-      sideBarComponent(sidebarName[1], index:1,  EneftyIcons.profile_2user_bold),
-      sideBarComponent(sidebarName[2], index:2,  EneftyIcons.a_3d_cube_bold),
-      sideBarComponent(sidebarName[3], index:3,  EneftyIcons.moneys_bold),
-      sideBarComponent(sidebarName[4], index:4,  SIdeBarIcon.ic_leads),
-      sideBarComponent(sidebarName[5], index:5,  EneftyIcons.chart_square_bold),
-      
-      sideBarComponent(sidebarName[6], index:6,  SIdeBarIcon.ic_salesReturn),
-       sideBarComponent(sidebarName[7], index:7,  EneftyIcons.warning_2_outline),
-         sideBarComponent(sidebarName[8], index:8,  EneftyIcons.calendar_bold), 
-      sideBarComponent(sidebarName[9], index:9,  EneftyIcons.setting_2_bold),
-      sideBarComponent(sidebarName[10], index:10,  SIdeBarIcon.ic_log_out,
-          context: context),
+      sideBarComponent(sidebarName[0], index: 0, Icons.dashboard),
+      sideBarComponent(
+          sidebarName[1], index: 1, EneftyIcons.profile_2user_bold,
+          sectionLabel: 'Sales'),
+      sideBarComponent(sidebarName[2], index: 2, EneftyIcons.a_3d_cube_bold),
+      sideBarComponent(sidebarName[3], index: 3, EneftyIcons.receipt_bold),
+      sideBarComponent(
+          sidebarName[4], index: 4, EneftyIcons.arrow_swap_horizontal_bold),
+      sideBarComponent(sidebarName[5], index: 5, EneftyIcons.wallet_bold),
+      sideBarComponent(sidebarName[6], index: 6, SIdeBarIcon.ic_leads,
+          sectionLabel: 'Growth'),
+      sideBarComponent(sidebarName[7], index: 7, EneftyIcons.calendar_bold),
+      sideBarComponent(
+          sidebarName[8], index: 8, EneftyIcons.chart_square_bold),
+      sideBarComponent(sidebarName[9], index: 9, EneftyIcons.setting_2_bold,
+          showDividerAbove: true),
+      sideBarComponent(
+          sidebarName[10], index: 10, SIdeBarIcon.ic_log_out, context: context),
     ];
   }
 
@@ -289,11 +286,13 @@ class HomeController extends GetxController {
     IconData iconData, {
     BuildContext? context,
     int? index,
+    String? sectionLabel,
+    bool showDividerAbove = false,
   }) {
     final NotificationController notificationController =
         Get.put(NotificationController());
 
-        int previousIndex = 0;
+    int previousIndex = 0;
 
     bool isLogout = (barTitle == logOut);
     bool isRecentOrders = (barTitle == todayOrders);
@@ -304,6 +303,7 @@ class HomeController extends GetxController {
     }
 
     return SidebarXItem(
+      label: barTitle,
       icon: iconData,
       onTap: () async {
         print("====== SIDEBAR TAPPED! Index: $index | Title: $barTitle ======");
@@ -315,73 +315,74 @@ class HomeController extends GetxController {
             builder: (context) {
               return AlertDialog(
                 title: Row(
-                    children: [
+                  children: [
                     Icon(Icons.logout, size: 25.0, color: primaryColor),
-                      const SizedBox(width: 8.0),
-                      Text(
-                        "Logout ?".tr,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                    content: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      "Are you sure you want to log out ?.".tr,
+                    const SizedBox(width: 8.0),
+                    Text(
+                      "Logout ?".tr,
                       style: TextStyle(
-                        fontSize: 19.0,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                     ),
+                  ],
+                ),
+                content: Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    "Are you sure you want to log out ?.".tr,
+                    style: TextStyle(
+                      fontSize: 19.0,
+                      color: Colors.black87,
+                    ),
                   ),
+                ),
                 actions: [
                   OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                        side: BorderSide(color: primaryColor, width: 2.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        backgroundColor: Colors.white,
-                        elevation: 3,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 10.0),
+                      side: BorderSide(color: primaryColor, width: 2.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      backgroundColor: Colors.white,
+                      elevation: 3,
                     ),
                     onPressed: () {
                       Navigator.pop(context);
-                              sidebarXController.selectIndex(previousIndex);
+                      sidebarXController.selectIndex(previousIndex);
                     },
                     child: Text(
                       "Cancel".tr,
-                    style: TextStyle(
-                          fontSize: 14.0,
-                          color: primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   ElevatedButton(
                     onPressed: () async {
                       await handleLogoutOnConfirmation(context);
                     },
-                  style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        elevation: 4,
-                        shadowColor: primaryColor.withOpacity(0.4),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 10.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                    child: CustomText(
-                      content: 'Confirm'.tr,
-                      color: white,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w600
+                      elevation: 4,
+                      shadowColor: primaryColor.withOpacity(0.4),
                     ),
+                    child: CustomText(
+                        content: 'Confirm'.tr,
+                        color: white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w600),
                   ),
                 ],
               );
@@ -415,140 +416,213 @@ class HomeController extends GetxController {
         }
       },
       iconBuilder: (context, extended) {
-        return Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 3.0,
-          ),
+        final bool isSelected = sidebarXController.selectedIndex == index;
+        final bool isLogout = index == 10;
+        
+        final Widget row = Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           child: Row(
             children: [
-            
-
-
-              if (index == 9)
-                Obx(() {
-                  final hasUpdate = Get.find<AppUpdateService>().isUpdateAvailable.value;
-                  Widget icon = SvgPicture.asset(
-                    getSidebarIcon(index ?? 0),
-                    height: 30,
-                    width: 30,
-                    color: sidebarXController.selectedIndex == index
-                        ? null
-                        : null,
-                  );
-                  return Stack(
-                    clipBehavior: Clip.none,
+              // Left selection indicator bar
+              Container(
+                width: 4,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(3),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFFEEF2FF) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
                     children: [
-                      icon,
-                      if (hasUpdate)
-                        const Positioned(
-                          top: -5,
-                          left: -5,
-                          child: CircleAvatar(
-                            radius: 8,
-                            backgroundColor: Colors.red,
-                            child: Text(
-                              '1',
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                            ),
+                      if (index == 9)
+                        Obx(() {
+                          final hasUpdate =
+                              Get.find<AppUpdateService>().isUpdateAvailable.value;
+                          Widget icon = Icon(
+                            getSidebarIconData(index ?? 0, selected: isSelected),
+                            size: 25,
+                            color: isSelected
+                                ? const Color(0xFF1E3A8A)
+                                : const Color(0xFF64748B),
+                          );
+                          return Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              icon,
+                              if (hasUpdate)
+                                Positioned(
+                                  top: -4,
+                                  left: -4,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: white, width: 2),
+                                    ),
+                                    child: const CircleAvatar(
+                                      radius: 6,
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        '1',
+                                        style: TextStyle(
+                                            fontSize: 8,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        })
+                      else
+                        Icon(
+                          getSidebarIconData(index ?? 0, selected: isSelected),
+                          size: 25,
+                          color: isLogout
+                              ? const Color(0xFFE15241)
+                              : isSelected
+                                  ? const Color(0xFF1E3A8A)
+                                  : const Color(0xFF64748B),
+                        ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          barTitle.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            fontSize: 14,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isLogout
+                                ? const Color(0xFFE15241)
+                                : isSelected
+                                    ? const Color(0xFF1E3A8A)
+                                    : const Color(0xFF334155),
                           ),
                         ),
-                    ],
-                  );
-                })
-              else
-                SvgPicture.asset(
-                  getSidebarIcon(index ?? 0),
-                  height: index == 10 ? 30 : 24,
-                  width: index == 10 ? 30 : 24,
-                  color: sidebarXController.selectedIndex == index
-                      ? index == 10
-                          ? null
-                          : primaryColor
-                      : index == 10
-                          ? null
-                          : Colors.grey,
-                ),
-              const SizedBox(width: 20),
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: CustomText(
-                      content: barTitle.tr,
-                      color: Colors.black.withOpacity(0.7),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (isRecentOrders)
-                    Positioned(
-                      top: -15,
-                      left: 200,
-                      child: notificationController.isNotificationLoading.value
-                          ? const SizedBox.shrink()
-                          : notificationController
-                                      .recentOrderCountData.mainNotification !=
-                                  null
-                              ? CircleAvatar(
-                                  radius: 10,
-                                  backgroundColor: Colors.red,
-                                  child: Text(
+                      ),
+                      if (isRecentOrders)
+                        notificationController.isNotificationLoading.value
+                            ? const SizedBox.shrink()
+                            : notificationController
+                                        .recentOrderCountData.mainNotification !=
+                                    null
+                                ? _sidebarCountPill(
                                     notificationController.recentOrderCountData
                                             .mainNotification!.recentOrders
                                             ?.toString() ??
                                         '0',
-                                    style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                    ),
-                  if (isLeads)
-                    Positioned(
-                        top: 0,
-                        left: 200,
-                        child: notificationController.isLeadsCountLoading.value
+                                    isOrange: true,
+                                  )
+                                : const SizedBox.shrink(),
+                      if (isLeads)
+                        notificationController.isLeadsCountLoading.value
                             ? const SizedBox.shrink()
-                            : CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.red,
-                                child: Text(
-                                  notificationController.leadsCount.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              )),
-                ],
+                            : _sidebarCountPill(
+                                notificationController.leadsCount.toString(),
+                                isOrange: false,
+                              ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
+        );
+
+        if (sectionLabel == null && !showDividerAbove) return row;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showDividerAbove)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Divider(height: 1, color: Color(0xFFF1F5F9)),
+              ),
+            if (sectionLabel != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 16, 16, 6),
+                child: Text(
+                  sectionLabel.tr,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins_Regular',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            row,
+          ],
         );
       },
     );
   }
 
+  /// Rounded count badge shown after Recent Orders (orange with white text)
+  /// and Leads (light grey with slate text).
+  Widget _sidebarCountPill(String count, {bool isOrange = false}) {
+    final bool isZero = count == '0';
+    final Color bgColor = isOrange
+        ? const Color(0xFFD97706)
+        : (isZero ? const Color(0xFFE2E8F0) : const Color(0xFFD97706));
+    final Color textColor = isOrange
+        ? Colors.white
+        : (isZero ? const Color(0xFF64748B) : Colors.white);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        count,
+        style: TextStyle(
+          fontFamily: 'Poppins_Regular',
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
   Widget upperSideBar() {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
       child: Center(
-          child: InkResponse(
-        onTap: () => {
-          homeScaffoldKey.currentState?.openDrawer(),
-        },
-        child: const Icon(
-          EneftyIcons.menu_outline,
-          size: 30,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            homeScaffoldKey.currentState?.openDrawer();
+          },
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEEF2FF),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.menu_rounded,
+              size: 22,
+              color: Color(0xFF1E3A8A),
+            ),
+          ),
         ),
-      )),
+      ),
     );
   }
 
@@ -558,24 +632,19 @@ class HomeController extends GetxController {
       CheckInService().stopTracking();
       ConnectivityService().reset();
     } catch (e) {
-      print("Error stopping location tracking or resetting connectivity on logout: $e");
+      print(
+          "Error stopping location tracking or resetting connectivity on logout: $e");
     }
 
     // Create backup of current login data before clearing
     SessionHelper().createLoginDataBackup();
 
-    // Clear subscription cache
-    // final subscriptionController = Get.find<SubscriptionController>();
-    // subscriptionController.clearSubscriptionCache();
-
     // Clear settings data and original login data
-    // await SessionHelper().clearSettingsData();
     await SessionHelper().clearLoginDataKeepBackup();
 
     Get.offAllNamed(AppRoutes.login);
   }
 }
-
 
 String getSidebarIcon(int index) {
   switch (index) {
@@ -591,11 +660,11 @@ String getSidebarIcon(int index) {
       return "assets/sidebar_icons/leadicon.svg";
     case 5:
       return "assets/sidebar_icons/calendaricon.svg";
-      case 6:
-       return "assets/sidebar_icons/salesreturn.svg"; 
-        case 7:
+    case 6:
+      return "assets/sidebar_icons/salesreturn.svg";
+    case 7:
       return "assets/sidebar_icons/ordericon.svg";
-       case 8:
+    case 8:
       return "assets/sidebar_icons/perfomanceImage.svg";
     case 9:
       return "assets/sidebar_icons/settingsicon.svg";
@@ -603,5 +672,35 @@ String getSidebarIcon(int index) {
       return "assets/sidebar_icons/logouticon.svg";
     default:
       return "assets/sidebar_icons/ic_user.svg";
+  }
+}
+
+/// Modern icon set for the sidebar navigation matching the reference design.
+IconData getSidebarIconData(int index, {required bool selected}) {
+  switch (index) {
+    case 0:
+      return Icons.grid_view_rounded;
+    case 1:
+      return Icons.people_outline_rounded;
+    case 2:
+      return Icons.inventory_2_outlined;
+    case 3:
+      return Icons.shopping_cart_outlined;
+    case 4:
+      return Icons.restart_alt_rounded;
+    case 5:
+      return Icons.business_center_outlined;
+    case 6:
+      return Icons.person_add_alt_1_outlined;
+    case 7:
+      return Icons.calendar_today_outlined;
+    case 8:
+      return Icons.bar_chart_rounded;
+    case 9:
+      return Icons.settings_outlined;
+    case 10:
+      return Icons.logout_rounded;
+    default:
+      return Icons.circle_outlined;
   }
 }

@@ -16,7 +16,6 @@ import 'package:busskit_salesexecutive/ui/view/ui/home/home_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/products/products_controller.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/subscription/subscription_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -72,42 +71,58 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          AppDimensions.instance.height;
-          AppDimensions.instance.width;
-        });
-      });
-      return nkMediumSizeBox(
-        width: widget.sideBarSize?.width,
-        height: widget.sideBarSize?.height,
-        child: Container(
-          color: white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              widget.headerWidget ?? const SizedBox(),
-              const SizedBox(width: 20),
-              listGanrated(widget.itemList),
-              widget.footerWidget ?? const SizedBox(),
-            ],
+      return Container(
+        width: 62,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            right: BorderSide(color: Color(0xFFF1F5F9), width: 1.5),
           ),
+        ),
+        child: Column(
+          children: [
+            widget.headerWidget ?? const SizedBox(),
+            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            const SizedBox(height: 6),
+            Expanded(
+              child: listGanrated(widget.itemList),
+            ),
+            widget.footerWidget ?? const SizedBox(),
+            const SizedBox(height: 8),
+          ],
         ),
       );
     });
   }
 
   Widget listGanrated(List<SidebarXItem> sideBarList) {
-    return ListView.separated(
-        shrinkWrap: true,
-        scrollDirection: Axis.vertical,
-        itemBuilder: (context, index) {
-          return listComponent(sideBarList[index], index);
-        },
-        separatorBuilder: (context, index) {
-          return nkMediumSizeBox(height: AppDimensions.instance.height * .020);
-        },
-        itemCount: sideBarList.length);
+    return AnimatedBuilder(
+      animation: widget.sidebarXController,
+      builder: (context, _) {
+        return ListView.builder(
+          padding: EdgeInsets.zero,
+          itemCount: sideBarList.length,
+          itemBuilder: (context, index) {
+            final bool showDividerAbove = index == 9;
+            final Widget itemWidget = listComponent(sideBarList[index], index);
+            if (showDividerAbove) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  ),
+                  itemWidget,
+                ],
+              );
+            }
+            return itemWidget;
+          },
+        );
+      },
+    );
   }
 
   Widget listComponent(SidebarXItem sideBarData, int index) {
@@ -117,188 +132,231 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
         ? customerOrderController.customerId.value
         : productController.selectedCustomerId.value;
     final subscriptionController = Get.find<SubscriptionController>();
-    bool isRecentOrders = index == 7;
-    bool isLeads = index == 4;
+    bool isRecentOrders = index == 3;
+    bool isLeads = index == 6;
     bool isDirectProduct = index == 2;
     bool isCustomersAndOrders = index == 1;
     bool isDashboard = index == 0;
-    return GestureDetector(
-      onTap: () async {
-        bool hasDraftId = CartDatabaseManager()
-            .cartItems
-            .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
-        if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
-          handleTabSwitchNavigation(
-              context, false, productController, customerOrderController, () {
-            subscriptionController.loadSubscriptionFeatures(
-                SessionHelper.loginSavedData?.company_id ?? 0);
-            setState(() {
-              widget.sidebarXController.selectIndex(index);
-              sideBarData.onTap?.call();
-              widget.onTap?.call(widget.sidebarXController.selectedIndex);
-            });
+    bool isLogout = index == 10;
+    final bool isSelected = widget.sidebarXController.selectedIndex == index;
+
+    return Tooltip(
+      message: sideBarData.label ?? '',
+      preferBelow: false,
+      verticalOffset: 20,
+      child: GestureDetector(
+        onTap: () async {
+          bool hasDraftId = CartDatabaseManager()
+              .cartItems
+              .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
+          if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
+            handleTabSwitchNavigation(
+                context, false, productController, customerOrderController, () {
+              subscriptionController.loadSubscriptionFeatures(
+                  SessionHelper.loginSavedData?.company_id ?? 0);
+              setState(() {
+                widget.sidebarXController.selectIndex(index);
+                sideBarData.onTap?.call();
+                widget.onTap?.call(widget.sidebarXController.selectedIndex);
+              });
+              if (customerOrderController.isActive.value == false) {
+                productController.selectedCustomerId.value = "";
+                productController.selectedCustomerName.value = "";
+                productController.selectedCustomerImageUrl.value = "";
+              }
+            }, cartItemCount, customerId, hasDraftId);
+          } else if (isDirectProduct) {
             if (customerOrderController.isActive.value == false) {
               productController.selectedCustomerId.value = "";
               productController.selectedCustomerName.value = "";
               productController.selectedCustomerImageUrl.value = "";
             }
-          }, cartItemCount, customerId, hasDraftId);
-        } else if (isDirectProduct) {
-          if (customerOrderController.isActive.value == false) {
-            productController.selectedCustomerId.value = "";
-            productController.selectedCustomerName.value = "";
-            productController.selectedCustomerImageUrl.value = "";
-          }
-          subscriptionController.loadSubscriptionFeatures(
-              SessionHelper.loginSavedData?.company_id ?? 0);
-          if (isCustomersAndOrders) {
-            Provider.of<CustomersProvider>(context, listen: false)
-                .resetFilters();
-          }
-          if (isDashboard) {
-            Provider.of<DashboardProvider>(context, listen: false)
-                .resetFilter();
-          }
-          setState(() {
-            widget.sidebarXController.selectIndex(index);
-            sideBarData.onTap?.call();
-            widget.onTap?.call(widget.sidebarXController.selectedIndex);
-          });
-        } else {
-          // Check connectivity for recent orders
-          if (isRecentOrders) {
-            final isOnline = await ConnectivityService().isOnline();
-            if (!isOnline) {
-              showCustomToastDisplay(
-                context,
-                'You are offline. Recent orders will not function.',
-                red,
-                Icons.close,
-              );
-              // return;
+            subscriptionController.loadSubscriptionFeatures(
+                SessionHelper.loginSavedData?.company_id ?? 0);
+            if (isCustomersAndOrders) {
+              Provider.of<CustomersProvider>(context, listen: false)
+                  .resetFilters();
             }
+            if (isDashboard) {
+              Provider.of<DashboardProvider>(context, listen: false)
+                  .resetFilter();
+            }
+            setState(() {
+              widget.sidebarXController.selectIndex(index);
+              sideBarData.onTap?.call();
+              widget.onTap?.call(widget.sidebarXController.selectedIndex);
+            });
+          } else {
+            // Check connectivity for recent orders
+            if (isRecentOrders) {
+              final isOnline = await ConnectivityService().isOnline();
+              if (!isOnline) {
+                showCustomToastDisplay(
+                  context,
+                  'You are offline. Recent orders will not function.',
+                  red,
+                  Icons.close,
+                );
+              }
+            }
+            subscriptionController.loadSubscriptionFeatures(
+                SessionHelper.loginSavedData?.company_id ?? 0);
+            if (isCustomersAndOrders) {
+              Provider.of<CustomersProvider>(context, listen: false)
+                  .resetFilters();
+            }
+            if (isDashboard) {
+              Provider.of<DashboardProvider>(context, listen: false)
+                  .resetFilter();
+            }
+            setState(() {
+              widget.sidebarXController.selectIndex(index);
+              sideBarData.onTap?.call();
+              widget.onTap?.call(widget.sidebarXController.selectedIndex);
+            });
           }
-          subscriptionController.loadSubscriptionFeatures(
-              SessionHelper.loginSavedData?.company_id ?? 0);
-          if (isCustomersAndOrders) {
-            Provider.of<CustomersProvider>(context, listen: false)
-                .resetFilters();
-          }
-          if (isDashboard) {
-            Provider.of<DashboardProvider>(context, listen: false)
-                .resetFilter();
-          }
-          setState(() {
-            widget.sidebarXController.selectIndex(index);
-            sideBarData.onTap?.call();
-            widget.onTap?.call(widget.sidebarXController.selectedIndex);
-          });
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeIn,
-        padding: EdgeInsets.only(
-          top: 5,
-          bottom: 5,
-          left: widget.sidebarXController.selectedIndex == index ? 12 : 15,
-        ),
-        decoration: BoxDecoration(
-          border: widget.sidebarXController.selectedIndex == index
-              ? Border(
-                  left: BorderSide(
-                      color: Theme.of(context).primaryColor, width: 3),
-                )
-              : null,
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            AnimatedScale(
-              scale:
-                  widget.sidebarXController.selectedIndex == index ? 1.2 : 1.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: SvgPicture.asset(
-                getSidebarIcon(index),
-                height: index == 9 || index == 10 ? 30 : 24,
-                width: index == 9 || index == 10 ? 30 : 24,
-                color: widget.sidebarXController.selectedIndex == index
-                    ? index == 9 || index == 10
-                        ? null
-                        : Theme.of(context).primaryColor
-                    : index == 9 || index == 10
-                        ? null
-                        : Colors.grey,
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+          child: Row(
+            children: [
+              // Left selection accent indicator
+              Container(
+                width: 3.5,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(3),
+                  ),
+                ),
               ),
-            ),
-            if (isRecentOrders)
-              Positioned(
-                top: -12,
-                left: 12,
-                child: notificationController.isNotificationLoading.value
-                    ? const SizedBox.shrink()
-                    : notificationController
-                                .recentOrderCountData.mainNotification !=
-                            null
-                        ? CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Colors.red,
-                            child: Text(
-                              notificationController.recentOrderCountData
-                                      .mainNotification!.recentOrders
-                                      ?.toString() ??
-                                  '0',
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-              ),
-            if (isLeads)
-              // if (notificationController.leadsCount.value.toString() != "0")
-              Positioned(
-                top: -12,
-                left: 12,
-                child: notificationController.isLeadsCountLoading.value
-                    ? const SizedBox.shrink()
-                    : CircleAvatar(
-                        radius: 10,
-                        backgroundColor: Colors.red,
-                        child: Text(
-                          notificationController.leadsCount.value.toString(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                      padding: const EdgeInsets.symmetric(vertical: 9),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFFEEF2FF)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          getSidebarIconData(index, selected: isSelected),
+                          size: 25,
+                          color: isLogout
+                              ? const Color(0xFFE15241)
+                              : isSelected
+                                  ? const Color(0xFF1E3A8A)
+                                  : const Color(0xFF64748B),
                         ),
                       ),
-              ),
-            if (index == 9)
-              Obx(() {
-                final hasUpdate =
-                    Get.find<AppUpdateService>().isUpdateAvailable.value;
-                if (!hasUpdate) return const SizedBox.shrink();
-                return const Positioned(
-                  top: -12,
-                  left: 12,
-                  child: CircleAvatar(
-                    radius: 10,
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      '1',
-                      style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600),
                     ),
-                  ),
-                );
-              }),
-          ],
+                    // Recent Orders Count Badge
+                    if (isRecentOrders)
+                      Positioned(
+                        top: -3,
+                        right: 2,
+                        child: notificationController.isNotificationLoading.value
+                            ? const SizedBox.shrink()
+                            : notificationController
+                                        .recentOrderCountData.mainNotification !=
+                                    null
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFD97706),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Colors.white, width: 1.5),
+                                    ),
+                                    child: Text(
+                                      notificationController
+                                              .recentOrderCountData
+                                              .mainNotification!
+                                              .recentOrders
+                                              ?.toString() ??
+                                          '0',
+                                      style: const TextStyle(
+                                        fontFamily: 'Poppins_Regular',
+                                        fontSize: 8.5,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                      ),
+                    // Leads Count Badge
+                    if (isLeads)
+                      Positioned(
+                        top: -3,
+                        right: 2,
+                        child: notificationController.isLeadsCountLoading.value
+                            ? const SizedBox.shrink()
+                            : Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE2E8F0),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                      color: Colors.white, width: 1.5),
+                                ),
+                                child: Text(
+                                  notificationController.leadsCount.value
+                                      .toString(),
+                                  style: const TextStyle(
+                                    fontFamily: 'Poppins_Regular',
+                                    fontSize: 8.5,
+                                    color: Color(0xFF475569),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    // App Update Badge
+                    if (index == 9)
+                      Obx(() {
+                        final hasUpdate =
+                            Get.find<AppUpdateService>().isUpdateAvailable.value;
+                        if (!hasUpdate) return const SizedBox.shrink();
+                        return Positioned(
+                          top: -2,
+                          right: 4,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 1.5),
+                            ),
+                            child: const CircleAvatar(
+                              radius: 5,
+                              backgroundColor: Colors.red,
+                              child: Text(
+                                '1',
+                                style: TextStyle(
+                                  fontSize: 7,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ),
         ),
       ),
     );

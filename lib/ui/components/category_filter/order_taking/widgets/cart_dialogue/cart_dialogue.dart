@@ -167,7 +167,8 @@ class CartDialogueState extends State<CartDialogue> {
     _scrollController4 = ScrollController();
 
     _scrollController1.addListener(() {
-      if (_scrollController2.hasClients &&
+      if (_scrollController1.hasClients &&
+          _scrollController2.hasClients &&
           _scrollController1.position.pixels !=
               _scrollController2.position.pixels) {
         _scrollController2.jumpTo(_scrollController1.position.pixels);
@@ -175,7 +176,8 @@ class CartDialogueState extends State<CartDialogue> {
     });
 
     _scrollController2.addListener(() {
-      if (_scrollController1.hasClients &&
+      if (_scrollController2.hasClients &&
+          _scrollController1.hasClients &&
           _scrollController2.position.pixels !=
               _scrollController1.position.pixels) {
         _scrollController1.jumpTo(_scrollController2.position.pixels);
@@ -183,7 +185,8 @@ class CartDialogueState extends State<CartDialogue> {
     });
 
     _scrollController3.addListener(() {
-      if (_scrollController4.hasClients &&
+      if (_scrollController3.hasClients &&
+          _scrollController4.hasClients &&
           _scrollController3.position.pixels !=
               _scrollController4.position.pixels) {
         _scrollController4.jumpTo(_scrollController3.position.pixels);
@@ -191,7 +194,8 @@ class CartDialogueState extends State<CartDialogue> {
     });
 
     _scrollController4.addListener(() {
-      if (_scrollController3.hasClients &&
+      if (_scrollController4.hasClients &&
+          _scrollController3.hasClients &&
           _scrollController4.position.pixels !=
               _scrollController3.position.pixels) {
         _scrollController3.jumpTo(_scrollController4.position.pixels);

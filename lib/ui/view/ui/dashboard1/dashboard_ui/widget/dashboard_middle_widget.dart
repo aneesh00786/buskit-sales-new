@@ -107,112 +107,118 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   TextEditingController communicationController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    double screenWidth = fullScreenWidth(context);
-    bool isMobile = screenWidth < 600;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isMobile = constraints.maxWidth < 600;
 
-    return SizedBox(
-      height: null,
-      child: isMobile
-          ? SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 4.7),
-                  SizedBox(
-                      height: screenWidth * 0.7,
-                      child: middleTopLeftComponet(
-                          context: context,
-                          staffProjection: staffProjection,
-                          targetType: targetType)),
-                  const SizedBox(height: 4.7),
-                  SizedBox(
-                      height: screenWidth * 0.7,
-                      child: middleTopRightComponet(
+        return isMobile
+            ? SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 2.0),
+                    middleTopLeftComponet(
                         context: context,
-                      )),
-                  const SizedBox(height: 4.7),
-                  SizedBox(
-                      height: screenWidth * 0.7,
-                      child: const CommunicationsDisplayWidget()),
-                  const SizedBox(height: 4.7),
-                  SizedBox(
-                      height: screenWidth * 0.7,
-                      child: topSellingProductWidget(
-                          context: context,
-                          subscriptionController: subscriptionController)),
-                  const SizedBox(height: 4.7),
-                  SizedBox(
-                      height: screenWidth * 0.7,
-                      child: collectionChart(context)),
-                  const SizedBox(height: 4.7),
-                  SizedBox(
-                      height: screenWidth * 0.7,
-                      child: orderDeliveryChart(context)),
-                  const SizedBox(height: 10),
+                        staffProjection: staffProjection,
+                        targetType: targetType,
+                        cardHeight: constraints.maxWidth * 0.7),
+                    const SizedBox(height: 2.0),
+                    middleTopRightComponet(
+                        context: context,
+                        cardHeight: constraints.maxWidth * 0.7),
+                    const SizedBox(height: 2.0),
+                    CommunicationsDisplayWidget(cardHeight: constraints.maxWidth * 0.7),
+                    const SizedBox(height: 2.0),
+                    topSellingProductWidget(
+                        context: context,
+                        subscriptionController: subscriptionController,
+                        cardHeight: constraints.maxWidth * 0.7),
+                    const SizedBox(height: 2.0),
+                    collectionChart(context, cardHeight: constraints.maxWidth * 0.7),
+                    const SizedBox(height: 2.0),
+                    orderDeliveryChart(context, cardHeight: constraints.maxWidth * 0.7),
+                    const SizedBox(height: 6.0),
+                  ],
+                ),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: middleTopLeftComponet(
+                              context: context,
+                              staffProjection: staffProjection,
+                              targetType: targetType,
+                              cardHeight: null),
+                        ),
+                        const SizedBox(width: 2.0),
+                        Expanded(
+                          child: middleTopRightComponet(
+                              context: context,
+                              cardHeight: null),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 2.0),
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Expanded(
+                          child: CommunicationsDisplayWidget(cardHeight: null),
+                        ),
+                        const SizedBox(width: 2.0),
+                        Expanded(
+                          child: topSellingProductWidget(
+                              context: context,
+                              subscriptionController: subscriptionController,
+                              cardHeight: null),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 2.0),
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: collectionChart(context, cardHeight: null),
+                        ),
+                        const SizedBox(width: 2.0),
+                        Expanded(
+                          child: orderDeliveryChart(context, cardHeight: null),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
-            )
-          : Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                        child: middleTopLeftComponet(
-                            context: context,
-                            staffProjection: staffProjection,
-                            targetType: targetType)),
-                    const SizedBox(
-                      width: 4.7,
-                    ),
-                    Flexible(child: middleTopRightComponet(context: context))
-                  ],
-                ),
-                const SizedBox(
-                  height: 4.7,
-                ),
-                Row(
-                  children: [
-                    const Flexible(child: CommunicationsDisplayWidget()),
-                    const SizedBox(
-                      width: 4.7,
-                    ),
-                    Flexible(
-                        child: topSellingProductWidget(
-                            context: context,
-                            subscriptionController: subscriptionController))
-                  ],
-                ),
-                const SizedBox(
-                  height: 4.7,
-                ),
-                Row(
-                  children: [
-                    Flexible(child: collectionChart(context)),
-                    const SizedBox(
-                      width: 4.7,
-                    ),
-                    Flexible(child: orderDeliveryChart(context))
-                  ],
-                ),
-              ],
-            ),
+              );
+      },
     );
   }
-  Widget collectionChart(BuildContext context) {
+  Widget collectionChart(BuildContext context, {double? cardHeight}) {
     return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2.0),
+      child: Container(
+        height: cardHeight ?? double.infinity,
         width: double.infinity,
-        isCommonBorder: true,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -223,36 +229,36 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 Flexible(
                   fit: FlexFit.tight,
-                  child: dashboardContainerHeader('Collection'.tr),
+                  child: dashboardContainerHeader('Collection'.tr, icon: Icons.account_balance_wallet_outlined),
                 ),
-                const SizedBox(width: 5),
-                Padding(
-                  padding: const EdgeInsets.only(right: 5, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      showCollectionChartDialog(
-                        context,
-                        'Collection'.tr,
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: primaryColor.withOpacity(0.3)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Icon(
-                          Icons.open_in_new,
-                          size: 17,
-                          color: primaryColor,
-                        ),
+                const SizedBox(width: 6),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    showCollectionChartDialog(
+                      context,
+                      'Collection'.tr,
+                    );
+                  },
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFEEF2FF),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.open_in_new,
+                        size: 15,
+                        color: Color(0xFF1E3A8A),
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            nkSmallSizeBox(),
+            const SizedBox(height: 6),
             
             // --- Content ---
             if (subscriptionController.collectionGraph.value != 'true') ...[
@@ -759,21 +765,25 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
   //   );
   // }
 
-  Widget orderDeliveryChart(BuildContext context) {
+  Widget orderDeliveryChart(BuildContext context, {double? cardHeight}) {
     return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2.0),
+      child: Container(
+        height: cardHeight ?? double.infinity,
         width: double.infinity,
-        isCommonBorder: true,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -783,44 +793,45 @@ class _DashBoardMiddleWidgetState extends State<DashBoardMiddleWidget> {
               children: [
                 Flexible(
                   fit: FlexFit.tight,
-                  child: dashboardContainerHeader('Order Status'.tr),
+                  child: dashboardContainerHeader('Order Status'.tr, icon: Icons.local_shipping_outlined),
                 ),
-                const SizedBox(width: 5),
-                Padding(
-                  padding: const EdgeInsets.only(right: 5, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      if (subscriptionController.orderStatusGraph.value ==
-                          'true') {
-                        showOrderStatusChartDialog(
-                          context,
-                          'Order Status'.tr,
-                        );
-                      } else {
-                        showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (context) =>  UpgradePlanScreen(),
-                        );
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: primaryColor.withOpacity(0.3)),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Icon(
-                          Icons.open_in_new,
-                          size: 17,
-                          color: primaryColor,
-                        ),
+                const SizedBox(width: 6),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    if (subscriptionController.orderStatusGraph.value ==
+                        'true') {
+                      showOrderStatusChartDialog(
+                        context,
+                        'Order Status'.tr,
+                      );
+                    } else {
+                      showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => UpgradePlanScreen(),
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFEEF2FF),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.open_in_new,
+                        size: 15,
+                        color: Color(0xFF1E3A8A),
                       ),
                     ),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 6),
             
             // --- Content ---
             if (subscriptionController.orderStatusGraph.value != 'true') ...[
@@ -1842,27 +1853,33 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.all(
-                              message.message!.isEmpty || message.message == ''
-                                  ? 5
-                                  : 10),
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: message.message?.isEmpty ?? true ? 6 : 12,
+                            vertical: message.message?.isEmpty ?? true ? 6 : 8,
+                          ),
                           constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.5,
+                            maxWidth: MediaQuery.of(context).size.width * 0.65,
                           ),
                           decoration: BoxDecoration(
                             color: isSentBySalesman
-                                ? const Color.fromARGB(255, 206, 241, 219)
-                                : Colors.grey[100],
+                                ? const Color(0xFFDCFCE7)
+                                : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(10),
-                              topRight: const Radius.circular(10),
+                              topLeft: const Radius.circular(14),
+                              topRight: const Radius.circular(14),
                               bottomLeft: isSentBySalesman
-                                  ? const Radius.circular(10)
-                                  : Radius.zero,
+                                  ? const Radius.circular(14)
+                                  : const Radius.circular(2),
                               bottomRight: isSentBySalesman
-                                  ? Radius.zero
-                                  : const Radius.circular(10),
+                                  ? const Radius.circular(2)
+                                  : const Radius.circular(14),
+                            ),
+                            border: Border.all(
+                              color: isSentBySalesman
+                                  ? const Color(0xFFBBF7D0)
+                                  : const Color(0xFFE2E8F0),
+                              width: 1,
                             ),
                           ),
                           child: _buildMessageContent(message),
@@ -1886,96 +1903,113 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             Container(
               decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 246, 246, 246),
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(
-                      color: const Color.fromARGB(255, 225, 225, 225))),
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: const Color(0xFFE2E8F0),
+                  width: 1.2,
+                ),
+              ),
               child: Padding(
-                padding: const EdgeInsets.only(left: 5, right: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CircleAvatar(
-                      backgroundColor: primaryColor.withOpacity(0.1),
-                      radius: 22,
+                      backgroundColor: const Color(0xFFEEF2FF),
+                      radius: 18,
                       child: InkWell(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Select Method'),
-                                  actions: [
-                                    IconButton(
-                                      onPressed: () {
-                                        _pickImage(ImageSource.camera);
-                                        Navigator.of(context).pop();
-                                      },
-                                      icon: const Icon(
-                                          EneftyIcons.camera_outline),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        _pickImage(ImageSource.gallery);
-                                        Navigator.of(context).pop();
-                                      },
-                                      icon:
-                                          const Icon(EneftyIcons.gallery_bold),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.all(4.0),
-                            child: Icon(
-                              EneftyIcons.camera_outline,
-                              color: primaryColor,
-                              size: 22,
-                            ),
-                          )),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Select Method'),
+                                actions: [
+                                  IconButton(
+                                    onPressed: () {
+                                      _pickImage(ImageSource.camera);
+                                      Navigator.of(context).pop();
+                                    },
+                                    icon: const Icon(
+                                        EneftyIcons.camera_outline),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      _pickImage(ImageSource.gallery);
+                                      Navigator.of(context).pop();
+                                    },
+                                    icon:
+                                        const Icon(EneftyIcons.gallery_bold),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: const Center(
+                          child: Icon(
+                            EneftyIcons.camera_outline,
+                            color: Color(0xFF1E3A8A),
+                            size: 18,
+                          ),
+                        ),
+                      ),
                     ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(5.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextField(
                           controller: _controller,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins_Regular',
+                            fontSize: 13,
+                            color: Color(0xFF0F172A),
+                          ),
                           decoration: InputDecoration(
-                            fillColor: white,
+                            isDense: true,
+                            fillColor: Colors.white,
                             filled: true,
                             hintText: 'Type your message here...'.tr,
+                            hintStyle: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 12.5,
+                              color: Color(0xFF94A3B8),
+                            ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
+                              borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                  color: Colors.grey, width: 0.5),
+                                  color: Color(0xFFE2E8F0), width: 1.0),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
+                              borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                  color: Colors.grey, width: 0.5),
+                                  color: Color(0xFFE2E8F0), width: 1.0),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
+                              borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                  color: Colors.blue, width: 1.0),
+                                  color: Color(0xFF1E3A8A), width: 1.2),
                             ),
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 15),
+                                vertical: 8, horizontal: 14),
                           ),
                         ),
                       ),
                     ),
                     CircleAvatar(
-                      backgroundColor: primaryColor,
-                      radius: 22,
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      radius: 18,
                       child: InkWell(
-                          onTap: () => _sendMessage(),
-                          child: const Icon(
+                        onTap: () => _sendMessage(),
+                        child: const Center(
+                          child: Icon(
                             EneftyIcons.send_3_outline,
                             color: Colors.white,
-                            size: 22,
-                          )),
+                            size: 17,
+                          ),
+                        ),
+                      ),
                     )
                   ],
                 ),

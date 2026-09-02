@@ -282,23 +282,21 @@ class _DashBoardScreenState extends State<DashBoardScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Padding(
-        padding: const EdgeInsets.all(5.0),
+        padding: const EdgeInsets.fromLTRB(4.0, 6.0, 6.0, 6.0),
         child: Column(
           children: [
             DashboardTopWidget(
               dashBoardController: controller,
               homeController: widget.homeController,
             ),
-            nkSmallSizeBox(),
+            const SizedBox(height: 4),
             Flexible(
               fit: FlexFit.tight,
-              child: SingleChildScrollView(
-                child: DashBoardMiddleWidget(
-                  dashBoardController: controller,
-                  context: context,
-                ),
+              child: DashBoardMiddleWidget(
+                dashBoardController: controller,
+                context: context,
               ),
             ),
           ],

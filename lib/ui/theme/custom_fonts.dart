@@ -179,25 +179,26 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-Widget dashboardContainerHeader(String text) {
+Widget dashboardContainerHeader(String text, {IconData? icon}) {
+  IconData iconData = icon ?? _getDashboardHeaderIcon(text);
   return Padding(
-    padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
+    padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2.0),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 24,
-          height: 24,
+          width: 26,
+          height: 26,
           decoration: BoxDecoration(
-            color: primaryColor.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(6),
+            color: const Color(0xFFEEF2FF),
+            borderRadius: BorderRadius.circular(7),
           ),
-          child: const Center(
+          child: Center(
             child: Icon(
-              Icons.space_dashboard_rounded,
-              size: 14,
-              color: primaryColor,
+              iconData,
+              size: 15,
+              color: const Color(0xFF1E3A8A),
             ),
           ),
         ),
@@ -207,10 +208,10 @@ Widget dashboardContainerHeader(String text) {
             text,
             style: const TextStyle(
               fontFamily: 'Poppins_Regular',
-              fontSize: 15.0,
+              fontSize: 13.5,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F172A),
-              letterSpacing: -0.2,
+              letterSpacing: -0.3,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -219,6 +220,18 @@ Widget dashboardContainerHeader(String text) {
       ],
     ),
   );
+}
+
+IconData _getDashboardHeaderIcon(String text) {
+  final lower = text.toLowerCase();
+  if (lower.contains('category')) return Icons.bar_chart_rounded;
+  if (lower.contains('revenue')) return Icons.pie_chart_outline_rounded;
+  if (lower.contains('communication')) return Icons.chat_bubble_outline_rounded;
+  if (lower.contains('frequently')) return Icons.inventory_2_outlined;
+  if (lower.contains('collection')) return Icons.account_balance_wallet_outlined;
+  if (lower.contains('order status')) return Icons.local_shipping_outlined;
+  if (lower.contains('payment')) return Icons.payments_outlined;
+  return Icons.space_dashboard_rounded;
 }
 
 Widget filledIcon(String svgIconPath) {

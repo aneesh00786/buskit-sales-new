@@ -107,51 +107,62 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Text('Dashboard'.tr, style: const TextStyle(
-                fontFamily: 'Poppins_Regular',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF0F172A),
-              )),
-    Row(
-      children: [
-        if (!isMobile) const ChatbotTopBarButton(),
-        if (isMobile) 
-          IconButton(
-            icon: const Icon(Icons.info_outline, color: primaryColor),
-            onPressed: () {
-              setState(() {
-                showChatbotMobile = !showChatbotMobile;
-              });
-            },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Dashboard'.tr,
+                style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
+                  letterSpacing: -0.3,
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (!isMobile) const ChatbotTopBarButton(),
+                  if (isMobile)
+                    IconButton(
+                      icon: const Icon(Icons.info_outline, color: primaryColor),
+                      onPressed: () {
+                        setState(() {
+                          showChatbotMobile = !showChatbotMobile;
+                        });
+                      },
+                    ),
+                  const SizedBox(width: 12),
+                  Consumer<DashboardProvider>(
+                    builder: (context, provider, child) {
+                      return NotificationWidget(
+                        startDate: provider.selectedStartDate,
+                        endDate: provider.selectedEndDate,
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(width: 120, child: profiloe()),
+                ],
+              ),
+            ],
           ),
-        const SizedBox(width: 12),
-        Consumer<DashboardProvider>(
-          builder: (context, provider, child) {
-            return NotificationWidget(
-              startDate: provider.selectedStartDate,
-              endDate: provider.selectedEndDate,
-            );
-          },
         ),
-        SizedBox(width: 120, child: profiloe()),
-      ],
-    ),
-  ],
-),
-if (isMobile && showChatbotMobile)
-  Align(
-    alignment: Alignment.centerRight,
-    child: Padding(
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-      child: const ChatbotTopBarButton(),
-    ),
-  ),
-calender(),
-        nkSmallSizeBox(),
+        if (isMobile && showChatbotMobile)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: const ChatbotTopBarButton(),
+            ),
+          ),
+        const SizedBox(height: 4),
+        calender(),
+        const SizedBox(height: 6),
         Obx(() {
           if (widget.dashBoardController.isLoading.value) {
             return const Center(
@@ -186,41 +197,33 @@ calender(),
       ],
     );
   }
+
   Widget _buildFilterDropdown(DashboardProvider provider, BuildContext context) {
     return SizedBox(
-      height: 50,
+      height: 42,
       width: 125,
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.white, Colors.white],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: Colors.white.withOpacity(0.8),
-              blurRadius: 0,
-              offset: const Offset(-2, -2),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<FilterDateEnum>(
-              // Fallback to month if somehow stuck on thisYear
-              value: provider.selectedFilterTemp == FilterDateEnum.thisYear 
-                  ? FilterDateEnum.thisMonth 
+              value: provider.selectedFilterTemp == FilterDateEnum.thisYear
+                  ? FilterDateEnum.thisMonth
                   : provider.selectedFilterTemp,
+              icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF64748B), size: 18),
+              dropdownColor: Colors.white,
               onChanged: (newValue) async {
                 bool isOnline = await ConnectivityService().isOnline();
                 if (!isOnline) {
@@ -237,9 +240,9 @@ calender(),
                   value: FilterDateEnum.thisMonth,
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_month, size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
-                      Text('Month'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.calendar_month, size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
+                      Text('Month'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
@@ -247,9 +250,9 @@ calender(),
                   value: FilterDateEnum.thisWeek,
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
-                      Text('Week'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.calendar_today, size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
+                      Text('Week'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
@@ -257,20 +260,19 @@ calender(),
                   value: FilterDateEnum.today,
                   child: Row(
                     children: [
-                      const Icon(Icons.today, size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
-                      Text('Day'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.today, size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
+                      Text('Day'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
-                // REMOVED FilterDateEnum.thisYear
                 DropdownMenuItem(
                   value: FilterDateEnum.range,
                   child: Row(
                     children: [
-                      const Icon(Icons.date_range, size: 16, color: primaryColor),
-                      const SizedBox(width: 8),
-                      Text('Range'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      const Icon(Icons.date_range, size: 15, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 7),
+                      Text('Range'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
                     ],
                   ),
                 ),
@@ -695,7 +697,7 @@ calender(),
   //     },
   //   );
   // }
-Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider) {
+  Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider) {
     final int startYear = 2024;
     final int currentYear = DateTime.now().year;
     final int endYear = currentYear;
@@ -707,31 +709,32 @@ Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider)
     int displayYear = provider.selectedYear != 0 ? provider.selectedYear : currentYear;
 
     return SizedBox(
-      height: 50,
-      width: 100,
+      height: 42,
+      width: 95,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white, // White background style from your reference
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int>(
               value: years.contains(displayYear) ? displayYear : years.last,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black54, size: 20),
+              icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF64748B), size: 18),
               dropdownColor: Colors.white,
               style: const TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
+                fontFamily: 'Poppins_Regular',
+                color: Color(0xFF1E293B),
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
               onChanged: (int? newValue) async {
@@ -742,7 +745,6 @@ Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider)
                 }
                 if (newValue != null) {
                   provider.updateSelectedYear(newValue);
-                  // Only updates UI. Wait for user to press Go to trigger data fetch.
                 }
               },
               items: years.map<DropdownMenuItem<int>>((int value) {
@@ -757,9 +759,10 @@ Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider)
       ),
     );
   }
+
   Widget buildGoButton(BuildContext context, DashboardProvider provider) {
     return SizedBox(
-      height: 50,
+      height: 42,
       child: ElevatedButton(
         onPressed: () async {
           bool isOnline = await ConnectivityService().isOnline();
@@ -768,21 +771,21 @@ Widget buildYearDropdownWidget(BuildContext context, DashboardProvider provider)
             return;
           }
 
-          // Triggers the specific Dashboard Data update
           await provider.setTempToFilter();
           await provider.fetchAllOrdersAtOnce();
           provider.fetchData();
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4A72FF), // Standard blue Dashboard Go Button
+          backgroundColor: const Color(0xFF1E3A8A),
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 0),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
-          elevation: 4,
-          shadowColor: const Color(0xFF4A72FF).withOpacity(0.4),
+          elevation: 2,
+          shadowColor: const Color(0xFF1E3A8A).withOpacity(0.3),
           textStyle: const TextStyle(
+            fontFamily: 'Poppins_Regular',
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),

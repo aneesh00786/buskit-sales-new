@@ -1,9 +1,5 @@
-import 'package:busskit_salesexecutive/common/height_width.dart';
-import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/common/show_product_list_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
-import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/extentions/string_extention.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/dash_frequently_table.dart';
@@ -23,133 +19,138 @@ import 'package:provider/provider.dart';
 
 Widget topSellingProductWidget(
     {required BuildContext context,
-    required SubscriptionController subscriptionController}){
+    required SubscriptionController subscriptionController,
+    double? cardHeight}){
     List<TopSellingProductA> topSellingProducts = [];
     return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: MyCommnonContainer(
-        boxShadow: [
-          BoxShadow(
-            color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-            blurRadius: 5,
-            offset: const Offset(4, 4),
-          ),
-        ],
-        borderRadius: 25,
-        height: 300,
+      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2.0),
+      child: Container(
+        height: cardHeight ?? double.infinity,
         width: double.infinity,
-        isCommonBorder: true,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(
                   fit: FlexFit.tight,
-                  child: dashboardContainerHeader("Frequently Ordered Products".tr),
+                  child: dashboardContainerHeader("Frequently Ordered Products".tr, icon: Icons.inventory_2_outlined),
                 ),
-                const SizedBox(width: 5),
-                Padding(
-                  padding: const EdgeInsets.only(right: 5, top: 2),
-                  child: InkWell(
-                    onTap: () {
-                      if (subscriptionController
-                              .frequentlyBroughtProduct1.value ==
-                          'true') {
-                        if (topSellingProducts.isNotEmpty) {
-                          return showProductListDialog<TopSellingProductA>(
-                            context: context,
-                            productList: topSellingProducts,
-                            getQuantity: (product) =>
-                                product.quantity?.toDouble() ?? 0.0,
-                            getProductName: (product) =>
-                                product.productName ?? '',
-                            getVariationName: (product) =>
-                                product.variationName ?? '',
-                            getFormattedDate: (product) =>
-                                DateFormat('dd-MM-yyyy')
-                                    .format(product.createdAt!.toLocal()),
-                            getPrice: (product) => formatAmount(
+                const SizedBox(width: 6),
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    if (subscriptionController
+                            .frequentlyBroughtProduct1.value ==
+                        'true') {
+                      if (topSellingProducts.isNotEmpty) {
+                        return showProductListDialog<TopSellingProductA>(
+                          context: context,
+                          productList: topSellingProducts,
+                          getQuantity: (product) =>
+                              product.quantity?.toDouble() ?? 0.0,
+                          getProductName: (product) =>
+                              product.productName ?? '',
+                          getVariationName: (product) =>
+                              product.variationName ?? '',
+                          getFormattedDate: (product) =>
+                              DateFormat('dd-MM-yyyy')
+                                  .format(product.createdAt!.toLocal()),
+                          getPrice: (product) => formatAmount(
+                            product.inclTax == "incl_tax"
+                                ? (double.tryParse(product
+                                        .topSellingProductATotalPrice
+                                        .toString()) ??
+                                    0.0)
+                                : ((double.tryParse(product
+                                            .topSellingProductATotalPrice
+                                            .toString()) ??
+                                        0.0) +
+                                    (product.getTimesData?.fold<double>(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + (item.tax ?? 0.0),
+                                        ) ??
+                                        0.0)),
+                          ),
+                          getBuyQuantity: (product) =>
+                              product.getTimesData?.fold(
+                                  0, (sum, item) => sum! + item.quantity!) ??
+                              0,
+                          getInNo: (product) => product.inNo ?? '',
+                          onQuantityTap: (context, product) =>
+                              showDashTimesDialogue(
+                            context,
+                            product,
+                            (p) => p.getTimesData ?? [],
+                            (data) => data.businessName,
+                            (data) => formatAmount(data.price),
+                            (data) => formatAmount(data.tax),
+                            (data) => data.quantity.toString(),
+                            (data) => formatAmount(
                               product.inclTax == "incl_tax"
-                                  ? (double.tryParse(product
-                                          .topSellingProductATotalPrice
-                                          .toString()) ??
-                                      0.0)
-                                  : ((double.tryParse(product
-                                              .topSellingProductATotalPrice
-                                              .toString()) ??
-                                          0.0) +
-                                      (product.getTimesData?.fold<double>(
-                                            0.0,
-                                            (sum, item) =>
-                                                sum + (item.tax ?? 0.0),
-                                          ) ??
+                                  ? ((double.tryParse(
+                                          data.totalPrice.toString()) ??
+                                      0))
+                                  : (((double.tryParse(data.totalPrice
+                                                  .toString()) ??
+                                              0) *
+                                          (double.tryParse(
+                                                  data.quantity.toString()) ??
+                                              0)) +
+                                      (double.tryParse(data.tax.toString()) ??
                                           0.0)),
                             ),
-                            getBuyQuantity: (product) =>
-                                // int.tryParse(product.buyquantity ?? '0') ?? 0,
-                                product.getTimesData?.fold(
-                                    0, (sum, item) => sum! + item.quantity!) ??
-                                0,
-                            getInNo: (product) => product.inNo ?? '',
-                            onQuantityTap: (context, product) =>
-                                showDashTimesDialogue(
-                              context,
-                              product,
-                              (p) => p.getTimesData ?? [],
-                              (data) => data.businessName,
-                              (data) => formatAmount(data.price),
-                              (data) => formatAmount(data.tax),
-                              (data) => data.quantity.toString(),
-                              (data) => formatAmount(
-                                product.inclTax == "incl_tax"
-                                    ? ((double.tryParse(
-                                            data.totalPrice.toString()) ??
-                                        0))
-                                    : (((double.tryParse(data.totalPrice
-                                                    .toString()) ??
-                                                0) *
-                                            (double.tryParse(
-                                                    data.quantity.toString()) ??
-                                                0)) +
-                                        (double.tryParse(data.tax.toString()) ??
-                                            0.0)),
-                              ),
-                              (data) => DateFormat('dd-MM-yyyy')
-                                  .format(data.createdAt!),
-                              (data) => data.orderId.toString(),
-                              true,
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("No data available"),
-                            ),
-                          );
-                        }
+                            (data) => DateFormat('dd-MM-yyyy')
+                                .format(data.createdAt!),
+                            (data) => data.orderId.toString(),
+                            true,
+                          ),
+                        );
                       } else {
-                        showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (context) => const UpgradePlanScreen(),
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("No data available"),
+                          ),
                         );
                       }
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: primaryColor.withOpacity(0.3)),
-                        child: const Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Icon(
-                            Icons.open_in_new,
-                            size: 17,
-                            color: primaryColor,
-                          ),
-                        )),
+                    } else {
+                      showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => const UpgradePlanScreen(),
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFFEEF2FF),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.open_in_new,
+                        size: 15,
+                        color: Color(0xFF1E3A8A),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -164,7 +165,7 @@ Widget topSellingProductWidget(
             ],
             if (subscriptionController.frequentlyBroughtProduct1.value ==
                 'true') ...[
-              nkSmallSizeBox(),
+              const SizedBox(height: 6),
               Consumer<DashboardProvider>(
                 builder: (context, provider, child) {
                   return FutureBuilder<ResponseModell>(

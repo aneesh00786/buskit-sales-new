@@ -61,30 +61,17 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
         provider.selectDate(context, isStartDate);
       },
       child: Container(
-        height: 50,
+        height: 42,
         width: 125,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Colors.white,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE1E5E9), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: Colors.white.withOpacity(0.8),
-              blurRadius: 0,
-              offset: const Offset(-2, -2),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -104,9 +91,10 @@ class _RangePickerWidgetState extends State<RangePickerWidget> {
                         : DateFormat('dd-MM-yyyy')
                             .format(DateTime.parse(provider.selectedEndDate))),
                 style: const TextStyle(
+                  fontFamily: 'Poppins_Regular',
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

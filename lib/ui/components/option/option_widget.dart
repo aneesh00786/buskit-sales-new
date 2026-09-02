@@ -446,109 +446,135 @@ class _OptionWidgetState extends State<OptionWidget> {
       BuildContext context) {
     Image svgComponent = Image.asset(
       optionData.svg,
-      height: AppDimensions.instance.height * 0.02,
+      height: 18,
+      width: 18,
       fit: BoxFit.contain,
     );
 
+    String unfilteredCount = _getUnFilteredCountForTitle(optionData.title, orderCountList);
+    bool hasUnfiltered = unfilteredCount != "0";
+
     return Flexible(
       child: Padding(
-        padding: const EdgeInsets.only(right: 3, left: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 2.0),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Main container (parent tap works everywhere else)
-            MyCommnonContainer(
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      const Color.fromARGB(255, 211, 211, 211).withOpacity(0.1),
-                  blurRadius: 2,
-                  offset: const Offset(4, 4),
-                ),
-              ],
-              borderRadius: 20,
+            // Main card container
+            InkWell(
               onTap: optionData.onTap,
-              margin: nkSymmetricPadding(
-                vertical: 0,
-                horizontal: AppDimensions.instance.width * 0.001,
-              ),
-              padding: nkLargePadding(),
-              isCommonBorder: true,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 10,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: optionData.svgBgColor,
-                      borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(7, 7, 16, 7),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: svgComponent,
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: optionData.svgBgColor,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Center(
+                        child: svgComponent,
+                      ),
                     ),
-                  ),
-                  Flexible(
-                    child: Wrap(
-                      direction: Axis.vertical,
-                      children: [
-                        CustomText(
-                          content: optionData.title.tr,
-                          maxLine: 1,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: secondaryTextColor,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomText(
-                              content: _getCountForTitle(
-                                  optionData.title, orderCountList),
-                              fontSize: 14,
+                    const SizedBox(width: 7),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            optionData.title.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            _getCountForTitle(
+                                optionData.title, orderCountList),
+                            style: TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 16.5,
                               fontWeight: FontWeight.w800,
                               color: optionData.color,
+                              letterSpacing: -0.2,
                             ),
-                            // leave space for badge
-                            SizedBox(width: 30),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
-            // Red count badge brought to front with hit area
-            if (_getUnFilteredCountForTitle(optionData.title, orderCountList) !=
-                "0")
+            // Large, easy-to-tap top-right unfiltered badge
+            if (hasUnfiltered)
               Positioned(
-                right: 12,
-                top: isPhonePortrait(context) ? 20 : 24,
-                child: InkWell(
-                  onTap: optionData.onUnFilterTap,
-                  customBorder: const CircleBorder(),
-                  child: Container(
-                    padding: const EdgeInsets.all(8), // 8px hit area
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: 0.5,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: CircleAvatar(
-                      radius: 10,
-                      backgroundColor: red,
-                      child: CustomText(
-                        content: _getUnFilteredCountForTitle(
-                            optionData.title, orderCountList),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: white,
+                right: -6,
+                top: -6,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: optionData.onUnFilterTap,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(5.0), // Generous tap target (36x36 total)
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 5.5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDC2626), // Vivid red
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2.0,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFDC2626).withOpacity(0.5),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            unfilteredCount,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins_Regular',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -4,7 +4,6 @@ import 'package:busskit_salesexecutive/common/no_data_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/bar_and_chart/custom_barchart/custom_bar_chart.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_spacing.dart';
-import 'package:busskit_salesexecutive/ui/components/widgets/my_common_container.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_fonts.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/filter_date_enum.dart';
 import 'package:busskit_salesexecutive/ui/view/ui/dashboard1/dashboard_ui/widget/message/show_category_chart_dialog.dart';
@@ -21,6 +20,7 @@ Widget middleTopLeftComponet({
   required String staffProjection,
   required String targetType,
   required BuildContext context,
+  double? cardHeight,
 }) {
   String displayText = '';
   if (staffProjection == "1" && targetType == "1") {
@@ -34,19 +34,23 @@ Widget middleTopLeftComponet({
   }
 
   return Padding(
-    padding: const EdgeInsets.all(2.0),
-    child: MyCommnonContainer(
-      boxShadow: [
-        BoxShadow(
-          color: const Color.fromARGB(255, 211, 211, 211).withOpacity(0.2),
-          blurRadius: 5,
-          offset: const Offset(4, 4),
-        ),
-      ],
-      borderRadius: 25,
-      height: 300,
+    padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2.0),
+    child: Container(
+      height: cardHeight ?? double.infinity,
       width: double.infinity,
-      isCommonBorder: true,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,39 +59,38 @@ Widget middleTopLeftComponet({
             children: [
               Flexible(
                 fit: FlexFit.tight,
-                child: dashboardContainerHeader(displayText),
+                child: dashboardContainerHeader(displayText, icon: Icons.bar_chart_rounded),
               ),
-              const SizedBox(width: 5),
-              Padding(
-                padding: const EdgeInsets.only(right: 5, top: 2),
-                child: InkWell(
-                  onTap: () {
-                    showCategoryChartDialog(
-                      context,
-                      // "Category ${targetType == '1' ? "Target / " : ''}${staffProjection == '1' ? "Projection / " : ''}Actuals",
-                      displayText,
-                      staffProjection,
-                      targetType,
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: primaryColor.withOpacity(0.3)),
-                    child: const Padding(
-                      padding: EdgeInsets.all(5.0),
-                      child: Icon(
-                        Icons.open_in_new,
-                        size: 17,
-                        color: primaryColor,
-                      ),
+              const SizedBox(width: 6),
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () {
+                  showCategoryChartDialog(
+                    context,
+                    displayText,
+                    staffProjection,
+                    targetType,
+                  );
+                },
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFFEEF2FF),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.open_in_new,
+                      size: 15,
+                      color: Color(0xFF1E3A8A),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-          nkMediumSizeBox(),
+          const SizedBox(height: 6),
           Expanded(
             child: Padding(
               padding: nkRegularPadding(),

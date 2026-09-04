@@ -13,52 +13,49 @@ class PromotionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: const Color(0xFFF8FAFC),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            _buildHeader(),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF8FAFC),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildHeader(),
 
-            /// Reactive UI with GetX
-            Expanded(
-              child: Obx(() {
-                if (controller.isPromotionLoading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: primaryColor),
-                  );
-                }
-
-                if (controller.promotions.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.all(10),
-                  itemCount: controller.promotions.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final promo = controller.promotions[index];
-                    return _buildPromotionCard(promo, context);
-                  },
+          /// Reactive UI with GetX
+          Expanded(
+            child: Obx(() {
+              if (controller.isPromotionLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: primaryColor),
                 );
-              }),
-            ),
-          ],
-        ),
+              }
+
+              if (controller.promotions.isEmpty) {
+                return _buildEmptyState();
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.all(10),
+                itemCount: controller.promotions.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final promo = controller.promotions[index];
+                  return _buildPromotionCard(promo, context);
+                },
+              );
+            }),
+          ),
+        ],
       ),
     );
   }
@@ -77,28 +74,34 @@ class PromotionList extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
+          Expanded(
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.local_offer_rounded,
+                      color: Colors.white, size: 16),
                 ),
-                child: const Icon(Icons.local_offer_rounded,
-                    color: Colors.white, size: 16),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                "Active Promotions".tr,
-                style: const TextStyle(
-                  fontFamily: 'Poppins_Regular',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "Active Promotions".tr,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins_Regular',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           if (isDrawer)
             Builder(
@@ -168,7 +171,8 @@ class PromotionList extends StatelessWidget {
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: isSelected ? primaryColor.withOpacity(0.06) : Colors.white,
+                color:
+                    isSelected ? primaryColor.withOpacity(0.06) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected ? primaryColor : const Color(0xFFE2E8F0),
@@ -185,7 +189,8 @@ class PromotionList extends StatelessWidget {
                     : null,
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -195,7 +200,10 @@ class PromotionList extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: isSelected
                               ? [primaryColor, const Color(0xFF2D3748)]
-                              : [const Color(0xFFE2E8F0), const Color(0xFFE2E8F0)],
+                              : [
+                                  const Color(0xFFE2E8F0),
+                                  const Color(0xFFE2E8F0)
+                                ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -204,7 +212,8 @@ class PromotionList extends StatelessWidget {
                       child: Icon(
                         Icons.local_offer_rounded,
                         size: 15,
-                        color: isSelected ? Colors.white : const Color(0xFF64748B),
+                        color:
+                            isSelected ? Colors.white : const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -244,7 +253,9 @@ class PromotionList extends StatelessWidget {
                     const SizedBox(width: 4),
                     Icon(Icons.chevron_right_rounded,
                         size: 20,
-                        color: isSelected ? primaryColor : const Color(0xFF94A3B8)),
+                        color: isSelected
+                            ? primaryColor
+                            : const Color(0xFF94A3B8)),
                   ],
                 ),
               ),

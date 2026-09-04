@@ -51,6 +51,43 @@ class ConnectivityService {
     }
   }
 
+  Future<bool> _verifyInternet() async {
+    // 1. Try resolving google.com
+    try {
+      final lookup = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 4));
+      if (lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } catch (_) {}
+
+    // 2. Try resolving one.one.one.one (Cloudflare)
+    try {
+      final lookup = await InternetAddress.lookup('one.one.one.one')
+          .timeout(const Duration(seconds: 4));
+      if (lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } catch (_) {}
+
+    // 3. Fallback: Direct socket connection to IP (bypasses emulator DNS resolution issues)
+    try {
+      final socket = await Socket.connect('8.8.8.8', 53,
+          timeout: const Duration(seconds: 3));
+      socket.destroy();
+      return true;
+    } catch (_) {}
+
+    try {
+      final socket = await Socket.connect('1.1.1.1', 53,
+          timeout: const Duration(seconds: 3));
+      socket.destroy();
+      return true;
+    } catch (_) {}
+
+    return false;
+  }
+
   Future<void> _checkAndUpdateOnlineStatus() async {
     if (_currentCheckFuture != null) return;
     _currentCheckFuture = () async {
@@ -62,9 +99,7 @@ class ConnectivityService {
           _notifyStatusChange(false);
           return false;
         }
-        final lookup = await InternetAddress.lookup('google.com')
-            .timeout(const Duration(milliseconds: 3000));
-        final isOnline = lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
+        final isOnline = await _verifyInternet();
         _cachedIsOnline = isOnline;
         _notifyStatusChange(isOnline);
       } catch (_) {
@@ -85,13 +120,7 @@ class ConnectivityService {
   }
 
   Future<bool> hasInternet() async {
-    try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(milliseconds: 3000));
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } catch (e) {
-      return false;
-    }
+    return _verifyInternet();
   }
 
   Future<bool> isOnline() async {

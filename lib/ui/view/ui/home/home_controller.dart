@@ -262,19 +262,26 @@ class HomeController extends GetxController {
     return [
       sideBarComponent(sidebarName[0], index: 0, Icons.dashboard),
       sideBarComponent(
-          sidebarName[1], index: 1, EneftyIcons.profile_2user_bold,
+          sidebarName[1],
+          index: 1,
+          EneftyIcons.profile_2user_bold,
           sectionLabel: 'Sales'),
       sideBarComponent(sidebarName[2], index: 2, EneftyIcons.a_3d_cube_bold),
       sideBarComponent(sidebarName[3], index: 3, EneftyIcons.receipt_bold),
       sideBarComponent(
           sidebarName[4], index: 4, EneftyIcons.arrow_swap_horizontal_bold),
       sideBarComponent(sidebarName[5], index: 5, Icons.payments_outlined),
-      sideBarComponent(sidebarName[6], index: 6, SIdeBarIcon.ic_leads,
+      sideBarComponent(
+          sidebarName[6],
+          index: 6,
+          SIdeBarIcon.ic_leads,
           sectionLabel: 'Growth'),
       sideBarComponent(sidebarName[7], index: 7, EneftyIcons.calendar_bold),
+      sideBarComponent(sidebarName[8], index: 8, EneftyIcons.chart_square_bold),
       sideBarComponent(
-          sidebarName[8], index: 8, EneftyIcons.chart_square_bold),
-      sideBarComponent(sidebarName[9], index: 9, EneftyIcons.setting_2_bold,
+          sidebarName[9],
+          index: 9,
+          EneftyIcons.setting_2_bold,
           showDividerAbove: true),
       sideBarComponent(
           sidebarName[10], index: 10, SIdeBarIcon.ic_log_out, context: context),
@@ -418,7 +425,7 @@ class HomeController extends GetxController {
       iconBuilder: (context, extended) {
         final bool isSelected = sidebarXController.selectedIndex == index;
         final bool isLogout = index == 10;
-        
+
         final Widget row = Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           child: Row(
@@ -428,7 +435,8 @@ class HomeController extends GetxController {
                 width: 4,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
+                  color:
+                      isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(3),
                   ),
@@ -437,19 +445,24 @@ class HomeController extends GetxController {
               const SizedBox(width: 4),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFEEF2FF) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFFEEF2FF)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
                       if (index == 9)
                         Obx(() {
-                          final hasUpdate =
-                              Get.find<AppUpdateService>().isUpdateAvailable.value;
+                          final hasUpdate = Get.find<AppUpdateService>()
+                              .isUpdateAvailable
+                              .value;
                           Widget icon = Icon(
-                            getSidebarIconData(index ?? 0, selected: isSelected),
+                            getSidebarIconData(index ?? 0,
+                                selected: isSelected),
                             size: 25,
                             color: isSelected
                                 ? const Color(0xFF1E3A8A)
@@ -466,7 +479,8 @@ class HomeController extends GetxController {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: white, width: 2),
+                                      border:
+                                          Border.all(color: white, width: 2),
                                     ),
                                     child: const CircleAvatar(
                                       radius: 6,
@@ -503,7 +517,8 @@ class HomeController extends GetxController {
                           style: TextStyle(
                             fontFamily: 'Poppins_Regular',
                             fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
                             color: isLogout
                                 ? const Color(0xFFE15241)
                                 : isSelected
@@ -514,11 +529,14 @@ class HomeController extends GetxController {
                       ),
                       if (isRecentOrders)
                         Obx(() {
-                          if (notificationController.isNotificationLoading.value) {
+                          if (notificationController
+                              .isNotificationLoading.value) {
                             return const SizedBox.shrink();
                           }
                           final recentOrders = notificationController
-                              .recentOrderCountData.mainNotification?.recentOrders;
+                              .recentOrderCountData
+                              .mainNotification
+                              ?.recentOrders;
                           if (recentOrders == null || recentOrders == 0) {
                             return const SizedBox.shrink();
                           }
@@ -529,7 +547,8 @@ class HomeController extends GetxController {
                         }),
                       if (isLeads)
                         Obx(() {
-                          if (notificationController.isLeadsCountLoading.value) {
+                          if (notificationController
+                              .isLeadsCountLoading.value) {
                             return const SizedBox.shrink();
                           }
                           final count = notificationController.leadsCount.value;

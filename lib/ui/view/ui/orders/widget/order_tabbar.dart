@@ -149,7 +149,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
               0.toInt();
 
         case 7:
-          return 0;
+          return notificationController
+                  .recentOrderCountData.mainNotification?.rejected ??
+              0.toInt();
         default:
           return 0;
       }
@@ -181,7 +183,9 @@ class _OrdersTabBarState extends State<OrdersTabBar> {
                   .recentOrderCountData.mainNotification?.delivered ??
               0.toInt();
         case 6:
-          return 0;
+          return notificationController
+                  .recentOrderCountData.mainNotification?.rejected ??
+              0.toInt();
         default:
           return 0;
       }

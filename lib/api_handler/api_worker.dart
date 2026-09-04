@@ -739,6 +739,7 @@ class ApiWorker with ApiConstants {
       try {
         final response = await responsePostMethod(
             requestData: requestData, endPoint: ApiConstants.recentOrderCount);
+        log("recent order response count : $response");
         var orderCountBox = await Hive.openBox('orderCountBox');
         await orderCountBox.put(cacheKey, response.data);
         return RecentOrderCountResponse.fromJson(response.data);

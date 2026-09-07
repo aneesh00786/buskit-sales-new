@@ -977,6 +977,7 @@ void pendingPaymentCollectionDialog(
                           Wrap(
                             spacing: 14,
                             runSpacing: 14,
+                            crossAxisAlignment: WrapCrossAlignment.end,
                             children: [
                               SizedBox(
                                 width: 220,
@@ -1052,27 +1053,26 @@ void pendingPaymentCollectionDialog(
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Remarks'.tr, style: fieldLabelStyle()),
-                              const SizedBox(height: 6),
-                              TextField(
-                                controller: remarksController,
-                                style: inputTextStyle,
-                                decoration:
-                                    fieldDecoration(hintText: 'Remarks'.tr),
+                              SizedBox(
+                                width: 180,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Remarks'.tr, style: fieldLabelStyle()),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                      controller: remarksController,
+                                      style: inputTextStyle,
+                                      decoration:
+                                          fieldDecoration(hintText: 'Remarks'.tr),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
+                              SizedBox(
+                                width: 150,
+                                height: 48,
+                                child: ElevatedButton(
                             onPressed: () async {
                               // Validation
                               double enteredAmount = double.tryParse(
@@ -1211,6 +1211,8 @@ void pendingPaymentCollectionDialog(
                                       color: Colors.white),
                                 )),
                             ),
+                          ),
+                            ],
                           ),
                         ],
                       ),

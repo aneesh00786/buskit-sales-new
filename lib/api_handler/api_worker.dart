@@ -739,6 +739,7 @@ class ApiWorker with ApiConstants {
       try {
         final response = await responsePostMethod(
             requestData: requestData, endPoint: ApiConstants.recentOrderCount);
+        log("recent order response count : $response");
         var orderCountBox = await Hive.openBox('orderCountBox');
         await orderCountBox.put(cacheKey, response.data);
         return RecentOrderCountResponse.fromJson(response.data);
@@ -893,7 +894,8 @@ class ApiWorker with ApiConstants {
     if (!forceRefresh) {
       final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
       if (cachedProducts.isNotEmpty) {
-        print('Returning cached B2B products instantly for subCatId: $subCatId');
+        print(
+            'Returning cached B2B products instantly for subCatId: $subCatId');
         return cachedProducts;
       }
     }
@@ -940,7 +942,8 @@ class ApiWorker with ApiConstants {
 
           return productsForSubCategory;
         } else {
-          final cachedProducts = await _loadCachedProductsBySubCategory(subCatId);
+          final cachedProducts =
+              await _loadCachedProductsBySubCategory(subCatId);
           return cachedProducts;
         }
       } catch (e, stacktrace) {
@@ -1313,7 +1316,9 @@ class ApiWorker with ApiConstants {
       final keysToDelete = <dynamic>[];
       for (var key in productBox.keys) {
         final prod = productBox.get(key);
-        if (prod != null && (scidSet.contains(prod.scid) || (prod.productId != null && prod.productId!.isNotEmpty))) {
+        if (prod != null &&
+            (scidSet.contains(prod.scid) ||
+                (prod.productId != null && prod.productId!.isNotEmpty))) {
           keysToDelete.add(key);
         }
       }
@@ -2078,7 +2083,8 @@ class ApiWorker with ApiConstants {
       };
 
       print('------------------ API REQUEST ------------------');
-      print('Endpoint: ${ApiConstants.baseUrl}${ApiConstants.getRecentOrdersData}');
+      print(
+          'Endpoint: ${ApiConstants.baseUrl}${ApiConstants.getRecentOrdersData}');
       print('Payload: ${jsonEncode(requestData)}');
       print('-------------------------------------------------');
 
@@ -2111,54 +2117,6 @@ class ApiWorker with ApiConstants {
       throw Exception('Unexpected error occurred: $e');
     }
   }
-
-  // Future<OrderResponce> getRecentOrdersData({
-  //   SearchModel? searchModel,
-  //   int? orderStatus,
-  //   String? startDate,
-  //   String? endDate,
-  //   int? page,
-  //   required bool isLogin,
-  // }) async {
-  //   try {
-  //     final requestData = {
-  //       "order_status": orderStatus,
-  //       "start_date": '',
-  //       "end_date": '',
-  //       "limit": 10,
-  //       "page": page,
-  //       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
-  //       "salesman_id": SessionHelper.loginSavedData?.salesmanId ?? '',
-  //     };
-
-  //     final response = await responsePostMethod(
-  //       endPoint: ApiConstants.getRecentOrder,
-  //       requestData: requestData,
-  //     );
-
-  //     if (response.data['status'] == true &&
-  //         response.data['status_code'] == 200) {}
-
-  //     try {
-  //       return OrderResponce.fromJson(response.data);
-  //     } catch (parseError) {
-  //       throw Exception('Invalid response format.');
-  //     }
-  //   } on DioException catch (error) {
-  //     final statusCode = error.response?.statusCode ?? 0;
-
-  //     if (statusCode != 200 || error.response?.data['status'] != true) {
-  //       handleExceptionMessage(
-  //         apiName: 'Recent Orders (DioException)',
-  //         response: error.response,
-  //       );
-  //     }
-
-  //     throw Exception('Failed to fetch data and no cached data available.');
-  //   } catch (e) {
-  //     throw Exception('Unexpected error occurred: $e');
-  //   }
-  // }
 
   Future<OrderProcessInvoice> getOrderProcessInvoiceData({
     String? orderId,

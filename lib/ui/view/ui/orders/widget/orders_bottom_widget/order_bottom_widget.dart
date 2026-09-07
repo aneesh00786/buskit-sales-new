@@ -218,9 +218,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
     int tabIndex = widget.hasOfflineOrders
         ? widget.selectedTabIndex - 1
         : widget.selectedTabIndex;
+    List<OrderData> currentOrderList = widget.overrideOrders ?? widget.orderController.orderDataList;
+
     return Obx(
       () {
-        if (widget.orderController.orderDataList.isEmpty &&
+        if (currentOrderList.isEmpty &&
             _countForTab == null) {
           return const Center(
               child: Text(
@@ -228,11 +230,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
           ));
         }
 
-        if (widget.orderController.orderDataList.isEmpty && _countForTab == 0) {
+        if (currentOrderList.isEmpty && _countForTab == 0) {
           return Center(child: Text('Record Not Found'.tr));
         }
 
-        if (widget.orderController.orderDataList.isEmpty && _countForTab != 0) {
+        if (currentOrderList.isEmpty && _countForTab != 0) {
           if (widget.orderController.offlineOrderCount.value != 0 ||
               !_isOnline) {
             return const Center(
@@ -248,7 +250,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
 
         return NkWidgetExceptionHandel(
           onRetryPressed: () => {},
-          data: widget.orderController.orderDataList,
+          data: currentOrderList,
           child: Stack(
             children: [
               _buildBody(context, tabIndex),
@@ -334,6 +336,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
   }
 
   Widget _buildBody(BuildContext context, int tabIndex) {
+    List<OrderData> currentOrderList = widget.overrideOrders ?? widget.orderController.orderDataList;
     const double headerHeight = 50;
 
     return Align(
@@ -351,11 +354,11 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                       scrollDirection: Axis.vertical,
                       physics: const ClampingScrollPhysics(),
                       controller: _scrollController1,
-                      itemCount: widget.orderController.orderDataList.length,
+                      itemCount: currentOrderList.length,
                       shrinkWrap: true,
                       itemBuilder: (BuildContext context, int index) {
                         OrderData orderData =
-                            widget.orderController.orderDataList[index];
+                            currentOrderList[index];
                         if (orderData.cart == null || orderData.cart!.isEmpty) {
                           return Container(
                             decoration: BoxDecoration(
@@ -467,8 +470,7 @@ class _OrderBottomWidgetState extends State<OrderBottomWidget> {
                     widget: widget,
                     scrollController2: _scrollController2,
                     tabIndex: tabIndex,
-                    orderList: widget
-                        .orderController.orderDataList, // Pass correct list
+                    orderList: currentOrderList, // Pass correct list
                   ),
                 ),
               ),

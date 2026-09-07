@@ -243,12 +243,15 @@ class _SalesReturnState extends State<SalesReturn> {
                 const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Obx(
               () => DropdownButton<FilterDateEnum>(
-                value: salesReturnController.selectedFilter.value,
+                value: salesReturnController.selectedFilter.value ==
+                        FilterDateEnum.thisYear
+                    ? FilterDateEnum.thisMonth
+                    : salesReturnController.selectedFilter.value,
                 onChanged: (newValue) async {
                   bool isOnline = await ConnectivityService().isOnline();
                   if (!isOnline) {
                     showCustomToastDisplay(
-                        context, "You are Offline!", Colors.red, Icons.close);
+                        context, "You are Offline!".tr, Colors.red, Icons.close);
                     return;
                   }
 
@@ -267,13 +270,30 @@ class _SalesReturnState extends State<SalesReturn> {
                     value: FilterDateEnum.thisMonth,
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_month,
+                        const Icon(Icons.calendar_month,
                             size: 16, color: primaryColor),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text('Month'.tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                                fontFamily: 'Poppins_Regular')),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: FilterDateEnum.thisWeek,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today,
+                            size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
+                        Text('Week'.tr,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
                                 fontFamily: 'Poppins_Regular')),
                       ],
                     ),
@@ -282,27 +302,13 @@ class _SalesReturnState extends State<SalesReturn> {
                     value: FilterDateEnum.today,
                     child: Row(
                       children: [
-                        Icon(Icons.today, size: 16, color: primaryColor),
-                        SizedBox(width: 8),
+                        const Icon(Icons.today, size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
                         Text('Day'.tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins_Regular')),
-                      ],
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: FilterDateEnum.thisYear,
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_view_month,
-                            size: 16, color: primaryColor),
-                        SizedBox(width: 8),
-                        Text('Year'.tr,
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
                                 fontFamily: 'Poppins_Regular')),
                       ],
                     ),
@@ -311,12 +317,13 @@ class _SalesReturnState extends State<SalesReturn> {
                     value: FilterDateEnum.range,
                     child: Row(
                       children: [
-                        Icon(Icons.date_range, size: 16, color: primaryColor),
-                        SizedBox(width: 8),
+                        const Icon(Icons.date_range, size: 16, color: primaryColor),
+                        const SizedBox(width: 8),
                         Text('Range'.tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
+                                color: Colors.black,
                                 fontFamily: 'Poppins_Regular')),
                       ],
                     ),

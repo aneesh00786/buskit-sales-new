@@ -147,6 +147,21 @@ class SalesReturnController extends GetxController {
         }
         break;
 
+      case FilterDateEnum.thisWeek:
+        valueFromDw = "Range";
+        if (selectedWeeks.isEmpty) {
+          selectedWeeks.add("week1");
+        }
+        int weekNum = int.tryParse(selectedWeeks.first.replaceAll(RegExp(r'[^0-9]'), '')) ?? 1;
+        DateTime firstDayOfYear = DateTime(year, 1, 1);
+        DateTime weekStart = firstDayOfYear.add(Duration(days: (weekNum - 1) * 7));
+        DateTime weekEnd = weekStart.add(const Duration(days: 6));
+        selectedRange = [
+          DateFormat('yyyy-MM-dd').format(weekStart),
+          DateFormat('yyyy-MM-dd').format(weekEnd)
+        ];
+        break;
+
       case FilterDateEnum.today: // "Day" in UI
         valueFromDw = "Range";
         if (selectedDayDate.value.isEmpty) {

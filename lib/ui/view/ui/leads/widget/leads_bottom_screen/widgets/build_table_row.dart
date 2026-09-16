@@ -51,7 +51,7 @@ Widget buildTableRow(
         ),
         LeadTableText(
           leadCustomerData: leadCustomerData,
-          content: leadCustomerData.businessNo ?? '',
+          content: leadCustomerData.mobileno ?? '',
         ),
         LeadTableText(
           leadCustomerData: leadCustomerData,
@@ -63,7 +63,7 @@ Widget buildTableRow(
         ),
         LeadTableText(
           leadCustomerData: leadCustomerData,
-          content: leadCustomerData.mobileno ?? '',
+          content: leadCustomerData.businessNo ?? '',
         ),
         Expanded(
           child: Padding(

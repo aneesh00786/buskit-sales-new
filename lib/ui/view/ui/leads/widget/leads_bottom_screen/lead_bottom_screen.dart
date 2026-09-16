@@ -183,8 +183,7 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                             .map((entry) {
                           int index = entry.key;
                           LeadCustomerData leadCustomerData = entry.value;
-                          bool isArabic =
-                              Get.locale?.languageCode == 'ar';
+                          bool isArabic = Get.locale?.languageCode == 'ar';
                           double slNoWidth = isArabic ? 70 : 50;
 
                           return Container(
@@ -230,8 +229,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                             child: Image.network(
                                               '${ApiConstants.baseUrl}uploads/${leadCustomerData.imageUrl ?? ''}',
                                               fit: BoxFit.cover,
-                                              errorBuilder: (context, error,
-                                                  stackTrace) {
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
                                                 return const Icon(
                                                   Icons.person,
                                                   color: Color(0xFF94A3B8),
@@ -244,9 +243,9 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                         const SizedBox(width: 10),
                                         Expanded(
                                           child: CustomText(
-                                            content: leadCustomerData
-                                                    .businessName ??
-                                                '',
+                                            content:
+                                                leadCustomerData.businessName ??
+                                                    '',
                                             fontSize: 12,
                                             fontWeight: FontWeight.w700,
                                             color: const Color(0xFF0F172A),
@@ -305,8 +304,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                     primary: false,
                     child: SizedBox(
                       width: totalTableWidth,
-                      child: widget.leadsController.leadsCustomerDataList
-                              .isEmpty
+                      child: widget
+                              .leadsController.leadsCustomerDataList.isEmpty
                           ? SizedBox(
                               height: MediaQuery.of(context).size.height * 0.4,
                               child: const Center(child: NodataWidget()),
@@ -319,8 +318,8 @@ class _LeadBottomScreenState extends State<LeadBottomScreen> {
                                     physics: const ClampingScrollPhysics(),
                                     controller: vertical1,
                                     child: Column(
-                                      children: widget.leadsController
-                                          .leadsCustomerDataList
+                                      children: widget
+                                          .leadsController.leadsCustomerDataList
                                           .asMap()
                                           .entries
                                           .map((entry) {

@@ -14,10 +14,10 @@ Widget buildTableHeader() {
         children: [
           const SizedBox(width: 10),
           Expanded(child: _buildHeaderText('Address'.tr, 13)),
-          Expanded(child: _buildHeaderText('Mobile No.'.tr, 13)),
           Expanded(child: _buildHeaderText('Town'.tr, 12)),
           Expanded(child: _buildHeaderText('State'.tr, 12)),
           Expanded(child: _buildHeaderText('Zip Code'.tr, 12)),
+          Expanded(child: _buildHeaderText('Mobile No.'.tr, 13)),
           Expanded(child: _buildHeaderText('Email'.tr, 12)),
           Expanded(child: _buildHeaderText('Contact Person'.tr, 12)),
           Expanded(child: _buildHeaderText('Contact Number'.tr, 12)),
@@ -74,7 +74,7 @@ Widget buildTableHeader() {
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
-            content: leadCustomerData.businessNo ?? '',
+            content: leadCustomerData.mobileno ?? '',
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
@@ -86,7 +86,7 @@ Widget buildTableHeader() {
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
-            content: leadCustomerData.mobileno ?? '',
+            content: leadCustomerData.businessNo ?? '',
           ),
           Expanded(
             child: Padding(

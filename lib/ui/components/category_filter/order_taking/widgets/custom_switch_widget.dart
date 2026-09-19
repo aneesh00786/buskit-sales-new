@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+import 'dart:async';
+
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/custom_fonts.dart';
@@ -89,6 +91,9 @@ class _CustomSwitchState extends State<CustomSwitch> {
     await box.add({
       'url': ApiConstants.baseUrl + ApiConstants.updateCheckinCustomer,
       'payload': payload,
+      // The live customer check-in/out call sends a JSON body (see
+      // ApiWorker.updateCustomerCheckInOut), not multipart form-data.
+      'isJson': true,
     });
   }
 
@@ -338,9 +343,23 @@ class _CustomSwitchState extends State<CustomSwitch> {
       });
 
       try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
+        Position position;
+        try {
+          position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 15),
+          );
+        } on TimeoutException {
+          final lastKnown = await Geolocator.getLastKnownPosition();
+          if (lastKnown != null) {
+            position = lastKnown;
+          } else {
+            position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.medium,
+              timeLimit: const Duration(seconds: 10),
+            );
+          }
+        }
 
         final connectivityService = ConnectivityService();
         final isOnline = await connectivityService.isOnline();
@@ -395,7 +414,12 @@ class _CustomSwitchState extends State<CustomSwitch> {
           }
         }
       } catch (e) {
-        // Handle error
+        if (mounted) {
+          final message = e is TimeoutException
+              ? 'Unable to get your current location. Please make sure GPS is turned on and try again.'
+              : 'Something went wrong. Please try again.';
+          showCustomToastDisplay(context, message, Colors.red, Icons.close);
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -491,7 +515,7 @@ class _CustomSwitchState extends State<CustomSwitch> {
                       label: isOn ? "Checked-in".tr : "Check-out".tr,
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                      fontSize: 12,
                     ),
                   ),
                   AnimatedAlign(

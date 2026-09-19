@@ -25,11 +25,65 @@ class _InvoicePreviewState extends State<InvoicePreview> {
   String htmlContent = "";
   bool isLoading = true;
   bool isSendingMail = false;
+  InAppWebViewController? webViewController;
 
   @override
   void initState() {
     super.initState();
     loadInvoice();
+  }
+
+  Future<void> _printInvoice() async {
+    final controller = webViewController;
+    if (controller == null) return;
+
+    // The signature block (label, pad and Clear/Save Signature buttons) is
+    // useful on-screen but shouldn't appear in the printed/PDF output.
+    // We tag it at print time via injected JS/CSS instead of stripping it
+    // from the source HTML, so it stays interactive for the user beforehand.
+    await controller.injectCSSCode(source: '''
+      @media print {
+        .print-hide-invoice { display: none !important; }
+      }
+    ''');
+
+    await controller.evaluateJavascript(source: r'''
+      (function() {
+        function markHidden(el) {
+          if (el) { el.classList.add('print-hide-invoice'); }
+        }
+
+        var handledParents = [];
+        document.querySelectorAll('button, input[type="button"], input[type="submit"], a')
+          .forEach(function(el) {
+            var text = (el.innerText || el.value || '').trim();
+            if (text === 'Clear' || text === 'Save Signature') {
+              markHidden(el);
+              if (el.parentElement && handledParents.indexOf(el.parentElement) === -1) {
+                handledParents.push(el.parentElement);
+                markHidden(el.parentElement);
+              }
+            }
+          });
+
+        document.querySelectorAll('body *').forEach(function(el) {
+          if (el.children.length === 0) {
+            var t = (el.textContent || '').trim();
+            if (t === 'Signature:' || t === 'Signature') {
+              markHidden(el);
+              if (el.nextElementSibling) { markHidden(el.nextElementSibling); }
+            }
+          }
+        });
+
+        document.querySelectorAll('canvas').forEach(function(c) {
+          markHidden(c);
+          if (c.parentElement) { markHidden(c.parentElement); }
+        });
+      })();
+    ''');
+
+    await controller.printCurrentPage();
   }
 
   Future<void> loadInvoice() async {
@@ -120,6 +174,21 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                             : CircularProgressIndicator(color: Colors.green),
                       ),
                       nkSmallSizeBox(),
+                      GestureDetector(
+                        onTap: _printInvoice,
+                        child: Container(
+                          color: primaryColor,
+                          width: 40,
+                          child: const Center(
+                            child: Icon(
+                              Icons.print,
+                              color: white,
+                              size: 26,
+                            ),
+                          ),
+                        ),
+                      ),
+                      nkSmallSizeBox(),
                       const Spacer(),
                       dialogCloseButton1(context, red),
                     ],
@@ -139,6 +208,9 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                           horizontalScrollbarTrackColor: Colors.grey.shade300,
                           scrollBarStyle:
                               ScrollBarStyle.SCROLLBARS_INSIDE_OVERLAY),
+                      onWebViewCreated: (controller) {
+                        webViewController = controller;
+                      },
                     ),
                   ),
                 ),

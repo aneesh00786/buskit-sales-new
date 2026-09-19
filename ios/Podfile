@@ -52,6 +52,10 @@ post_install do |installer|
         'PERMISSION_LOCATION=1',
         ## dart: PermissionGroup.mediaLibrary
         'PERMISSION_MEDIA_LIBRARY=1',
+        ## dart: PermissionGroup.microphone (voice billing)
+        'PERMISSION_MICROPHONE=1',
+        ## dart: PermissionGroup.speech (voice billing)
+        'PERMISSION_SPEECH_RECOGNIZER=1',
       ]
     end
   end

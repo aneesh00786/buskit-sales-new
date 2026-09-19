@@ -69,7 +69,7 @@ Widget buildTableHeader() {
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
-            content: leadCustomerData.businessNo ?? '',
+            content: leadCustomerData.mobileno ?? '',
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
@@ -81,7 +81,7 @@ Widget buildTableHeader() {
           ),
           LeadTableText(
             leadCustomerData: leadCustomerData,
-            content: leadCustomerData.mobileno ?? '',
+            content: leadCustomerData.businessNo ?? '',
           ),
         ],
       ),

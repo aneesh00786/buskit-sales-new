@@ -445,9 +445,8 @@ Widget _buildRegularText(
       color: const Color(0xFF0F172A),
       fontFamily: 'Poppins_Regular',
       fontSize: 12,
-      fontWeight: fontWeight == FontWeight.normal
-          ? FontWeight.w600
-          : fontWeight,
+      fontWeight:
+          fontWeight == FontWeight.normal ? FontWeight.w600 : fontWeight,
     ),
     maxLines: maxLines,
     overflow: overflow,
@@ -464,7 +463,8 @@ Widget _buildOrderStatus(CustomerData customerData, BuildContext context) {
         decoration: BoxDecoration(
           color: orderStatus.statusBgColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: orderStatus.statusDotColor.withOpacity(0.35)),
+          border:
+              Border.all(color: orderStatus.statusDotColor.withOpacity(0.35)),
         ),
         child: Center(
           child: Column(
@@ -568,7 +568,8 @@ Widget _buildPaymentCollectionButton(
             decoration: BoxDecoration(
               color: const Color(0xFF16A34A).withOpacity(0.12),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF16A34A).withOpacity(0.35)),
+              border:
+                  Border.all(color: const Color(0xFF16A34A).withOpacity(0.35)),
             ),
             child: const Text(
               'Payment Link Sent',

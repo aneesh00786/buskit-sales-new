@@ -402,7 +402,7 @@ void pendingPaymentCollectionDialog(
 
       if (isNowOnline) {
         // ONLINE: Call API Directly
-        ApiWorker().customerPayment(
+        await ApiWorker().customerPayment(
           context: context,
           checkDueDate: "",
           checkNumber: "",
@@ -452,7 +452,7 @@ void pendingPaymentCollectionDialog(
     bool isChecking = false;
     int pollCount = 0;
 
-    void handleSuccess(String intentId) {
+    Future<void> handleSuccess(String intentId) async {
       if (hasSuccess) return;
       hasSuccess = true;
       pollTimer?.cancel();
@@ -467,7 +467,7 @@ void pendingPaymentCollectionDialog(
             remainingAmount >= itemAmount ? itemAmount : remainingAmount;
         remainingAmount -= appliedAmount;
 
-        ApiWorker().customerPayment(
+        await ApiWorker().customerPayment(
           context: context,
           checkDueDate: "",
           checkNumber: "",
@@ -480,6 +480,8 @@ void pendingPaymentCollectionDialog(
         );
       }
 
+      await orderController.loadOrderData(chartIndex: 0);
+
       Future.delayed(Duration.zero, () {
         if (context.mounted) {
           Get.back(); // Close QR
@@ -489,7 +491,6 @@ void pendingPaymentCollectionDialog(
               context, "Payment Successful!".tr, Colors.green, Icons.check);
         }
       });
-      orderController.loadOrderData(chartIndex: 0);
     }
 
     Future<void> checkPayment() async {
@@ -505,7 +506,7 @@ void pendingPaymentCollectionDialog(
 
         if (result.paid == true ||
             result.paymentStatus?.toLowerCase() == "paid") {
-          handleSuccess(result.paymentIntentId ?? session.sessionId);
+          await handleSuccess(result.paymentIntentId ?? session.sessionId);
         }
       } catch (e) {
         // print("Poll error: $e");

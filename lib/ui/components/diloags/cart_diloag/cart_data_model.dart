@@ -131,6 +131,9 @@ class SendCartData extends HiveObject {
   @HiveField(28)
   double? customerDiscountPercentage;
 
+  @HiveField(29)
+  String? packPrice;
+
   SendCartData({
     required this.productId,
     required this.variantId,
@@ -161,6 +164,7 @@ class SendCartData extends HiveObject {
     this.originalPackPrice,
     this.editedAmount,
     this.customerDiscountPercentage,
+    this.packPrice,
   });
 
   Map<String, dynamic> toJson() {
@@ -192,6 +196,7 @@ class SendCartData extends HiveObject {
       'original_pack_price': originalPackPrice,
       'edited_amount': editedAmount,
       'customer_discount_percentage': customerDiscountPercentage,
+      'pack_price': packPrice,
     };
 
     if (isBundle == true) {

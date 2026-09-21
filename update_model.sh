@@ -1,0 +1,3 @@
+sed -i '' -e 's/double? customerDiscountPercentage;/double? customerDiscountPercentage;\n\n  @HiveField(29)\n  String? packPrice;/g' lib/ui/components/diloags/cart_diloag/cart_data_model.dart
+sed -i '' -e 's/this.customerDiscountPercentage,/this.customerDiscountPercentage,\n    this.packPrice,/g' lib/ui/components/diloags/cart_diloag/cart_data_model.dart
+sed -i '' -e 's/      '\''customer_discount_percentage'\'': customerDiscountPercentage,/      '\''customer_discount_percentage'\'': customerDiscountPercentage,\n      '\''pack_price'\'': packPrice,/g' lib/ui/components/diloags/cart_diloag/cart_data_model.dart

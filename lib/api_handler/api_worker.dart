@@ -790,7 +790,8 @@ class ApiWorker with ApiConstants {
   Future<CartOrderModel?> addToDraft(Map<String, dynamic> sendData) async {
     sendData['companyId'] = SessionHelper.loginSavedData?.company_id ?? 0;
     try {
-      print('add to draft called');
+      log('''add to draft called with payload: \n${const JsonEncoder.withIndent('  ').convert(sendData)}''');
+      print('add to draft payload: ${jsonEncode(sendData)}');
       final response = await dio1
           .post(
         "${ApiConstants.baseUrl}${ApiConstants.addToDraft}",

@@ -1379,6 +1379,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
 
     final double subtotalAmount = cartList.fold<double>(0, (sum, item) {
       double itemAmount = 0.0;
+      int qty = int.tryParse(item.quantity?.toString() ?? '0') ?? 0;
       if (isSpecific) {
         try {
           itemAmount = (item.price ?? 0).toDouble();
@@ -1387,21 +1388,25 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
             itemAmount = (item.unitPrice ?? 0).toDouble();
           } catch (_) {}
         }
+        itemAmount = itemAmount * qty;
       } else {
         try {
           itemAmount = (item.price ?? 0).toDouble();
         } catch (_) {}
+        itemAmount = itemAmount * qty;
       }
       return sum + itemAmount;
     });
 
-    final double totalDiscount = cartList.fold<double>(0, (sum, item) {
-      double disc = 0.0;
-      try {
-        disc = double.tryParse(item.discountAmount?.toString() ?? '0') ?? 0.0;
-      } catch (_) {}
-      return sum + disc;
-    });
+    final double totalDiscount = isSpecific
+        ? (num.tryParse(widget.specificData?.discount?.toString() ?? '0') ?? 0.0).toDouble()
+        : cartList.fold<double>(0, (sum, item) {
+            double disc = 0.0;
+            try {
+              disc = double.tryParse(item.discountAmount?.toString() ?? '0') ?? 0.0;
+            } catch (_) {}
+            return sum + disc;
+          });
 
     final double totalTax = cartList.fold<double>(0, (sum, item) {
       double itemTax = 0.0;
@@ -1410,23 +1415,29 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
       } catch (_) {}
       return sum + itemTax;
     });
-    final double calculatedOrderTotal = cartList.fold<double>(0, (sum, item) {
-      double itemTotal = 0.0;
-      if (isSpecific) {
-        itemTotal = double.tryParse(item.totalPrice?.toString() ?? '0') ?? 0.0;
-      } else {
-        itemTotal = double.tryParse(item.total?.toString() ?? '0') ?? 0.0;
-      }
-      return sum + itemTotal;
-    });
+    
+    final double calculatedOrderTotal = isSpecific
+        ? (widget.specificData?.orderTotal ?? 0).toDouble()
+        : cartList.fold<double>(0, (sum, item) {
+            double itemTotal = 0.0;
+            try {
+              itemTotal = double.tryParse(item.total?.toString() ?? '0') ?? 0.0;
+            } catch (_) {}
+            return sum + itemTotal;
+          });
 
     final List<String> taxBreakdownParts = [];
     if (taxList.isNotEmpty) {
       for (final t in taxList) {
         final String name = (t.taxName ?? '').toString().trim();
         if (name.isEmpty) continue;
-        final double percent = (t.tax ?? 0).toDouble();
-        taxBreakdownParts.add('$name ${percent.toStringAsFixed(0)}%');
+        if (isSpecific) {
+          final double taxAmount = (t.taxAmount ?? 0).toDouble();
+          taxBreakdownParts.add('$name ${taxAmount.toStringAsFixed(2)}');
+        } else {
+          final double percent = (t.tax ?? 0).toDouble();
+          taxBreakdownParts.add('$name ${percent.toStringAsFixed(0)}%');
+        }
       }
     }
     final String taxBreakdownText = taxBreakdownParts.join(', ');
@@ -1550,23 +1561,18 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                             String discountStr = '0';
                                             String taxStr = '0';
 
+                                            int qty = int.tryParse(cartItem.quantity?.toString() ?? '0') ?? 0;
+
                                             if (isSpecific) {
                                               try {
                                                 unitPriceStr = cartItem
                                                         .unitPrice
                                                         ?.toString() ??
-                                                    '0';
-                                              } catch (_) {
-                                                try {
-                                                  unitPriceStr = cartItem.price
-                                                          ?.toString() ??
-                                                      '0';
-                                                } catch (_) {}
-                                              }
+                                                    cartItem.price?.toString() ?? '0';
+                                              } catch (_) {}
                                               try {
-                                                amountStr = cartItem.price
-                                                        ?.toString() ??
-                                                    '0';
+                                                double price = double.tryParse(unitPriceStr) ?? 0.0;
+                                                amountStr = (price * qty).toString();
                                               } catch (_) {}
                                               try {
                                                 totalStr = cartItem.totalPrice
@@ -1578,18 +1584,11 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                                 unitPriceStr = cartItem
                                                         .unitPrice
                                                         ?.toString() ??
-                                                    '0';
-                                              } catch (_) {
-                                                try {
-                                                  unitPriceStr = cartItem.price
-                                                          ?.toString() ??
-                                                      '0';
-                                                } catch (_) {}
-                                              }
+                                                    cartItem.price?.toString() ?? '0';
+                                              } catch (_) {}
                                               try {
-                                                amountStr = cartItem.price
-                                                        ?.toString() ??
-                                                    '0';
+                                                double price = double.tryParse(unitPriceStr) ?? 0.0;
+                                                amountStr = (price * qty).toString();
                                               } catch (_) {}
                                               try {
                                                 totalStr = cartItem.total

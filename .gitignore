@@ -50,4 +50,4 @@ web/index.html
 # Directories to ignore
 target/
 .build/
-.env/
+.env/.DS_Store

@@ -638,6 +638,8 @@ class ApiWorker with ApiConstants {
         },
       );
 
+      log('fetchSpecificOrder API Response: ${jsonEncode(response.data)}',
+          name: 'FetchSpecificOrder');
       return FetchSpecificOrderInvoice.fromJson(response.data);
     } catch (error) {
       handleExceptionMessage(

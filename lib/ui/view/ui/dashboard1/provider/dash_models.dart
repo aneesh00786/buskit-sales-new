@@ -2680,6 +2680,7 @@ class SpecificOrderData {
   List<SpecificTax>? tax;
   String? orderSource;
   DateTime? generateAt;
+  num? amount;
 
   SpecificOrderData({
     this.id,
@@ -2738,6 +2739,7 @@ class SpecificOrderData {
     this.tax,
     this.orderSource,
     this.generateAt,
+    this.amount,
   });
 
   factory SpecificOrderData.fromJson(Map<String, dynamic> json) =>
@@ -2818,6 +2820,7 @@ class SpecificOrderData {
         generateAt: json["generated_date"] != null
             ? DateTime.tryParse(json["generated_date"])
             : null,
+        amount: json["amount"] != null ? num.tryParse(json["amount"].toString()) : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -2876,7 +2879,8 @@ class SpecificOrderData {
         "invoice": List<dynamic>.from(invoice!.map((x) => x.toJson())),
         "tax": List<dynamic>.from(tax!.map((x) => x.toJson())),
         "order_source": orderSource,
-        "generated_date": generateAt!.toIso8601String(),
+        "generated_date": generateAt?.toIso8601String(),
+        "amount": amount,
       };
 }
 

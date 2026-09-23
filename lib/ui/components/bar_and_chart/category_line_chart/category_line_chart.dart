@@ -261,13 +261,21 @@ class _CustomBarChartCustomerDashState
                   ),
                   child: Stack(
                     children: [
-                      Scrollbar(
+                      RawScrollbar(
                         controller: provider.scrollController,
                         trackVisibility: true,
                         thumbVisibility: true,
-                        radius: const Radius.circular(10),
+                        trackColor: const Color(0xFFF1F5F9),
+                        trackBorderColor: Colors.transparent,
+                        trackRadius: const Radius.circular(8),
+                        radius: const Radius.circular(8),
                         thickness: 5,
+                        thumbColor: primaryColor.withOpacity(0.55),
+                        crossAxisMargin: 2,
+                        mainAxisMargin: 12,
                         interactive: true,
+                        scrollbarOrientation: ScrollbarOrientation.bottom,
+                        notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: SingleChildScrollView(
@@ -422,13 +430,21 @@ class _CustomBarChartCustomerDashState
               Expanded(
                 child: Stack(
                   children: [
-                    Scrollbar(
+                    RawScrollbar(
                       controller: provider.scrollController,
                       trackVisibility: true,
                       thumbVisibility: true,
-                      radius: const Radius.circular(10),
+                      trackColor: const Color(0xFFF1F5F9),
+                      trackBorderColor: Colors.transparent,
+                      trackRadius: const Radius.circular(8),
+                      radius: const Radius.circular(8),
                       thickness: 5,
+                      thumbColor: primaryColor.withOpacity(0.55),
+                      crossAxisMargin: 2,
+                      mainAxisMargin: 12,
                       interactive: true,
+                      scrollbarOrientation: ScrollbarOrientation.bottom,
+                      notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
                         child: LayoutBuilder(builder: (context, constraints) {

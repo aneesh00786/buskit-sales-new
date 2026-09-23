@@ -51,6 +51,55 @@ class ConnectivityService {
     }
   }
 
+  Future<bool> _lookupCheck(String host) async {
+    try {
+      final lookup =
+          await InternetAddress.lookup(host).timeout(const Duration(seconds: 4));
+      return lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> _socketCheck(String ip, int port) async {
+    try {
+      final socket =
+          await Socket.connect(ip, port, timeout: const Duration(seconds: 3));
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Races all checks concurrently and resolves as soon as one succeeds,
+  // instead of trying them one after another (which could take up to ~14s
+  // in the worst case and made check-in/refresh feel like it was hanging).
+  Future<bool> _verifyInternet() async {
+    final completer = Completer<bool>();
+    int remaining = 4;
+
+    void handle(bool success) {
+      if (completer.isCompleted) return;
+      if (success) {
+        completer.complete(true);
+      } else {
+        remaining--;
+        if (remaining == 0) completer.complete(false);
+      }
+    }
+
+    _lookupCheck('google.com').then(handle);
+    _lookupCheck('one.one.one.one').then(handle);
+    _socketCheck('8.8.8.8', 53).then(handle);
+    _socketCheck('1.1.1.1', 53).then(handle);
+
+    return completer.future.timeout(
+      const Duration(seconds: 4),
+      onTimeout: () => false,
+    );
+  }
+
   Future<void> _checkAndUpdateOnlineStatus() async {
     if (_currentCheckFuture != null) return;
     _currentCheckFuture = () async {
@@ -62,9 +111,7 @@ class ConnectivityService {
           _notifyStatusChange(false);
           return false;
         }
-        final lookup = await InternetAddress.lookup('google.com')
-            .timeout(const Duration(milliseconds: 3000));
-        final isOnline = lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
+        final isOnline = await _verifyInternet();
         _cachedIsOnline = isOnline;
         _notifyStatusChange(isOnline);
       } catch (_) {
@@ -85,13 +132,7 @@ class ConnectivityService {
   }
 
   Future<bool> hasInternet() async {
-    try {
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(milliseconds: 3000));
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } catch (e) {
-      return false;
-    }
+    return _verifyInternet();
   }
 
   Future<bool> isOnline() async {
@@ -719,17 +760,23 @@ class ConnectivityService {
     if (box.isEmpty) {
       return;
     }
-    for (int i = 0; i < box.length; i++) {
-      final request = box.getAt(i);
+    // Snapshot the keys first and delete by key rather than by position:
+    // deleting via `deleteAt` while looping by index shifts every later
+    // entry down one slot, so the loop's next index silently skips it.
+    final keys = box.keys.toList();
+    for (final key in keys) {
+      final request = box.get(key);
       if (request == null) continue;
       try {
         final payload = castToStringDynamic(request['payload']);
         final response = await dio1.post(
           request['url'],
-          data: dio.FormData.fromMap(payload),
+          data: request['isJson'] == true
+              ? payload
+              : dio.FormData.fromMap(payload),
         );
         if (response.statusCode == 200) {
-          await box.deleteAt(i);
+          await box.delete(key);
         } else {}
       } catch (e) {
         //

@@ -77,6 +77,14 @@ class _DashBoardScreenState extends State<DashBoardScreen>
   void showOfflineMsg() async {
     bool isOnline = await ConnectivityService().isOnline();
     if (!isOnline) {
+      // The network stack can still be warming up right after an app
+      // refresh/cold start, causing a one-off false negative here. Clear
+      // the cached result and re-check once before alerting the user.
+      await Future.delayed(const Duration(seconds: 2));
+      ConnectivityService().reset();
+      isOnline = await ConnectivityService().isOnline();
+    }
+    if (!isOnline) {
       NkCommonFunction.showErrorSnakBar(
           'No Internet Connection. Please check your network');
     }

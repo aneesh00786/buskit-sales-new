@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
+import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
@@ -37,9 +38,7 @@ class CheckInService {
     try {
       if (!await _handleLocationPermission()) return;
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await _getCurrentPositionWithFallback();
 
       var alwaysStatus = await Permission.locationAlways.status;
       bool isBackground = false;
@@ -92,10 +91,36 @@ class CheckInService {
     } catch (e) {
       isReturningFromSettings = false; // ✅ Clear on error too
       if (context.mounted) {
-        NkCommonFunction.showErrorSnakBar("Error: $e");
+        final message = e is Exception ? e.toString().replaceFirst('Exception: ', '') : "Error: $e";
+        NkCommonFunction.showErrorSnakBar(message);
       }
     } finally {
       isCheckingIn.value = false;
+    }
+  }
+
+  // Bounds the GPS fix so check-in can't hang indefinitely on a weak signal.
+  // Falls back to the last known position, then to a coarser (faster) fix,
+  // and only ever surfaces a friendly message if every attempt fails.
+  Future<Position> _getCurrentPositionWithFallback() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 15),
+      );
+    } on TimeoutException {
+      final lastKnown = await Geolocator.getLastKnownPosition();
+      if (lastKnown != null) return lastKnown;
+
+      try {
+        return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium,
+          timeLimit: const Duration(seconds: 10),
+        );
+      } on TimeoutException {
+        throw Exception(
+            'Unable to get your current location. Please make sure GPS is turned on and try again.');
+      }
     }
   }
 
@@ -134,16 +159,17 @@ class CheckInService {
     // 1. OFFLINE LOGIC: Save Admin Check-in to Hive
     final box = await Hive.openBox('offlineRequests');
     final payload = {
-      // Add necessary fields for admin check-in based on your API requirements
+      "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "date": date,
+      "sales_id": SessionHelper.loginSavedData?.id,
       "time": time,
       "direction": "in",
       "latitude": lat,
       "longitude": long,
     };
-    
+
     await box.add({
-      'url': ApiConstants.baseUrl + 'update-admin-check-in-endpoint', // Replace with exact endpoint
+      'url': ApiConstants.baseUrl + ApiConstants.updateCheckinOut,
       'payload': payload,
     });
     
@@ -505,9 +531,7 @@ class CheckInService {
       bool timeout = await checkCheckInTimeout();
       if (timeout) return;
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await _getCurrentPositionWithFallback();
       await updateServer(position);
       // print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
     } catch (e) {

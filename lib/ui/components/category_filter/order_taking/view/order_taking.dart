@@ -14,6 +14,8 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search_warning_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/catalog_search_bar.dart';
+import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/voice_billing/voice_billing_widgets.dart';
+import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
@@ -1085,16 +1087,39 @@ class _OrderTakingState extends State<OrderTaking>
                               ],
                             ),
                           const SizedBox(height: 8),
-                          CatalogSearchBar(
-                            productsController: widget.productsController,
-                            onCategorySelected: (category) {
-                              _selectCategory(category.categoryName ?? '');
-                            },
-                            onSubCategorySelected:
-                                (subCategory, parentCategory) {
-                              _selectSubCategory(subCategory, parentCategory);
-                            },
-                            onProductSelected: (product) {},
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CatalogSearchBar(
+                                  productsController: widget.productsController,
+                                  onCategorySelected: (category) {
+                                    _selectCategory(category.categoryName ?? '');
+                                  },
+                                  onSubCategorySelected:
+                                      (subCategory, parentCategory) {
+                                    _selectSubCategory(subCategory, parentCategory);
+                                  },
+                                  onProductSelected: (product) {},
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              VoiceBillingButton(
+                                productsController: widget.productsController,
+                                customerId: () => customerAndOrderController
+                                        .customerId.value.isNotEmpty
+                                    ? customerAndOrderController.customerId.value
+                                    : widget.productsController
+                                        .selectedCustomerId.value,
+                                onApplied: (customerId, message) {
+                                  cartProvider.updateCartCount(customerId);
+                                  cartProvider.getCartItemCounts(customerId);
+                                  if (mounted) {
+                                    showCustomToastDisplay(context, message,
+                                        Colors.green, Icons.check_circle);
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),

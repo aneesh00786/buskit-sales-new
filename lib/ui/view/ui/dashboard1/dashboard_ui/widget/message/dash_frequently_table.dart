@@ -31,12 +31,20 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
       if (topSellingProducts.isEmpty) {
         return const NodataWidget();
       } else {
-        return Scrollbar(
+        return RawScrollbar(
           controller: horizontalScrollController,
           thumbVisibility: true,
           trackVisibility: true,
+          trackColor: const Color(0xFFF1F5F9),
+          trackBorderColor: Colors.transparent,
+          trackRadius: const Radius.circular(8),
           radius: const Radius.circular(8),
-          thickness: 6,
+          thickness: 5,
+          thumbColor: primaryColor.withOpacity(0.55),
+          crossAxisMargin: 2,
+          mainAxisMargin: 12,
+          interactive: true,
+          scrollbarOrientation: ScrollbarOrientation.bottom,
           notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
           child: SingleChildScrollView(
           controller: horizontalScrollController,
@@ -149,12 +157,15 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                   ),
                 ),
                 Expanded(
-                  child: Scrollbar(
+                  child: RawScrollbar(
                     controller: verticalScrollController,
                     thumbVisibility: true,
-                    trackVisibility: true,
+                    trackVisibility: false,
                     radius: const Radius.circular(8),
-                    thickness: 6,
+                    thickness: 3,
+                    thumbColor: primaryColor.withOpacity(0.3),
+                    crossAxisMargin: 2,
+                    mainAxisMargin: 4,
                     notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
                     child: SingleChildScrollView(
                     controller: verticalScrollController,

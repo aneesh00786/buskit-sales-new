@@ -208,7 +208,7 @@ class ChatbotWidget extends StatelessWidget {
                     height: 24,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Icon(FontAwesomeIcons.robot,
+                      return const FaIcon(FontAwesomeIcons.robot,
                           size: 16, color: Colors.white);
                     },
                   ),
@@ -396,7 +396,7 @@ class ChatbotWidget extends StatelessWidget {
               height: 24,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
-                return const Icon(FontAwesomeIcons.robot,
+                return const FaIcon(FontAwesomeIcons.robot,
                     size: 16, color: Colors.white);
               },
             ),

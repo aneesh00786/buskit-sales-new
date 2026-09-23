@@ -632,8 +632,9 @@ class _CustomBarChartState extends State<CustomBarChart> {
                   }
                   return Colors.blueAccent.shade400;
                 }),
-                trackColor: MaterialStateProperty.all(Colors.transparent),
-                trackBorderColor: MaterialStateProperty.all(Colors.transparent),
+                trackColor: MaterialStateProperty.all(Colors.blue.shade50),
+                trackBorderColor:
+                    MaterialStateProperty.all(Colors.blue.shade100),
                 thickness: MaterialStateProperty.all(6),
                 radius: const Radius.circular(10),
                 minThumbLength: 50,
@@ -641,14 +642,23 @@ class _CustomBarChartState extends State<CustomBarChart> {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Scrollbar(
+                  RawScrollbar(
                     controller:
                         Provider.of<DashboardProvider>(context, listen: false)
                             .scrollController,
                     interactive: true,
                     thumbVisibility: true,
-                    trackVisibility: false,
-                    thickness: 6,
+                    trackVisibility: true,
+                    trackColor: const Color(0xFFF1F5F9),
+                    trackBorderColor: Colors.transparent,
+                    trackRadius: const Radius.circular(8),
+                    radius: const Radius.circular(8),
+                    thickness: 5,
+                    thumbColor: primaryColor.withOpacity(0.55),
+                    crossAxisMargin: 2,
+                    mainAxisMargin: 12,
+                    scrollbarOrientation: ScrollbarOrientation.bottom,
+                    notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                     child: Row(
                       children: [
                         Expanded(
@@ -1512,13 +1522,21 @@ class _CustomBarChartCustomerDashState
                   ),
                   child: Stack(
                     children: [
-                      Scrollbar(
+                      RawScrollbar(
                         controller: _scrollController,
                         trackVisibility: true,
                         thumbVisibility: true,
-                        radius: const Radius.circular(10),
+                        trackColor: const Color(0xFFF1F5F9),
+                        trackBorderColor: Colors.transparent,
+                        trackRadius: const Radius.circular(8),
+                        radius: const Radius.circular(8),
                         thickness: 5,
+                        thumbColor: primaryColor.withOpacity(0.55),
+                        crossAxisMargin: 2,
+                        mainAxisMargin: 12,
                         interactive: true,
+                        scrollbarOrientation: ScrollbarOrientation.bottom,
+                        notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: LayoutBuilder(builder: (context, constraints) {

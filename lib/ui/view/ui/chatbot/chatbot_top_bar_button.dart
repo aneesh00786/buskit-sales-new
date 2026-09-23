@@ -83,7 +83,7 @@ class _ChatbotTopBarButtonState extends State<ChatbotTopBarButton>
                         height: 36,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
+                          return const FaIcon(
                             FontAwesomeIcons.robot,
                             color: Colors.white,
                             size: 18,

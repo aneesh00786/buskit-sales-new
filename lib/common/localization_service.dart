@@ -29,8 +29,8 @@ class LocalizationService extends GetxService {
       activeLocale = const Locale('en'); 
     }
     
-    // 2. Pre-fetch the config when the service initializes
-    await _fetchConfig(); 
+    // Pre-fetch the config in background without blocking app startup
+    _fetchConfig(); 
     return this;
   }
 
@@ -56,7 +56,7 @@ class LocalizationService extends GetxService {
 
     try {
       final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.config}');
-      final response = await http.get(url);
+      final response = await http.get(url).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

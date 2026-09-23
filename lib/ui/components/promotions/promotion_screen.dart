@@ -57,9 +57,9 @@ class _PromotionScreenState extends State<PromotionScreen> {
       // 👉 Drawer only in portrait mode
       drawer: portrait
           ? Drawer(
-
               child: SafeArea(
-                child: PromotionList(controller: widget.controller, isDrawer: true),
+                child: PromotionList(
+                    controller: widget.controller, isDrawer: true),
               ),
             )
           : null,
@@ -74,11 +74,11 @@ class _PromotionScreenState extends State<PromotionScreen> {
               padding: const EdgeInsets.all(12.0),
               child: Row(
                 children: [
-                  Flexible(
+                  Expanded(
                       flex: 2,
                       child: PromotionList(controller: widget.controller)),
                   const SizedBox(width: 10),
-                  Flexible(
+                  Expanded(
                       flex: 3,
                       child: PromotionDetails(controller: widget.controller)),
                 ],

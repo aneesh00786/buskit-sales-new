@@ -105,9 +105,13 @@ final RegExp _nonWord = RegExp(r'[^\p{L}\p{N}\s]', unicode: true);
 List<String> tokenizeVoice(String text) {
   final cleaned = text
       .toLowerCase()
+      .replaceAll(RegExp(r'\bi\s+phone\b'), 'iphone')
+      .replaceAll(RegExp(r'\bi\s+pad\b'), 'ipad')
+      .replaceAll(RegExp(r'\bi\s+mac\b'), 'imac')
+      .replaceAll(RegExp(r'\bi\s+pod\b'), 'ipod')
       .replaceAll('%', ' percent ')
       .replaceAll(RegExp(r'[-_/]'), ' ')
-      .replaceAll(_nonWord, ' ');
+      .replaceAll(RegExp(r'[^\p{L}\p{N}\s]', unicode: true), ' ');
   return cleaned.split(RegExp(r'\s+')).where((t) => t.isNotEmpty).toList();
 }
 
@@ -355,46 +359,65 @@ class VoiceParser {
     }
     final assumed = action == null;
 
+    final clauses = <({int start, int end})>[];
+    var lastStart = 0;
+    for (var i = 0; i < tokens.length; i++) {
+      if (!_prot.contains(i) && _and.contains(tokens[i])) {
+        if (i > lastStart) {
+          clauses.add((start: lastStart, end: i));
+        }
+        lastStart = i + 1;
+      }
+    }
+    if (lastStart < tokens.length) {
+      clauses.add((start: lastStart, end: tokens.length));
+    }
+
     final items = <({int? qty, String text, VoiceUnit? unit})>[];
-    if (spans.length >= 2) {
-      final preText = _clean(tokens, {...skip, ...numberIdx}, 0, spans.first.start);
-      if (preText.isEmpty) {
-        // "<qty> <product> and <qty> <product>"
-        for (var i = 0; i < spans.length; i++) {
-          final to = i + 1 < spans.length ? spans[i + 1].start : tokens.length;
-          items.add((
-            qty: spans[i].value,
-            text: _clean(tokens, {...skip, ...numberIdx}, spans[i].end, to),
-            unit: _findUnit(tokens, spans[i].end, to),
-          ));
+    for (final clause in clauses) {
+      final clauseSpans = spans.where((s) => s.start >= clause.start && s.end <= clause.end).toList();
+      
+      if (clauseSpans.length >= 2) {
+        final preText = _clean(tokens, {...skip, ...numberIdx}, clause.start, clauseSpans.first.start);
+        if (preText.isEmpty) {
+          for (var i = 0; i < clauseSpans.length; i++) {
+            final to = i + 1 < clauseSpans.length ? clauseSpans[i + 1].start : clause.end;
+            final text = _clean(tokens, {...skip, ...numberIdx}, clauseSpans[i].end, to);
+            items.add((
+              qty: clauseSpans[i].value,
+              text: text,
+              unit: _findUnit(tokens, clauseSpans[i].end, to),
+            ));
+          }
+        } else {
+          var from = clause.start;
+          for (var i = 0; i < clauseSpans.length; i++) {
+            final after = _unitOf(clauseSpans[i].end, tokens);
+            final text = _clean(tokens, {...skip, ...numberIdx}, from, clauseSpans[i].start);
+            items.add((
+              qty: clauseSpans[i].value,
+              text: text,
+              unit: after ?? _findUnit(tokens, from, clauseSpans[i].start),
+            ));
+            from = clauseSpans[i].end + (after != null ? 1 : 0);
+          }
+          final trailing = _clean(
+              tokens, {...skip, ...numberIdx}, clauseSpans.last.end, clause.end);
+          if (trailing.isNotEmpty) {
+            return ParseResult.fail(
+                ParseFailure(ParseFailureKind.noCommand, heard));
+          }
         }
       } else {
-        // "<product> <qty> and <product> <qty>"
-        var from = 0;
-        for (var i = 0; i < spans.length; i++) {
-          // A unit right after the number belongs to this item.
-          final after = _unitOf(spans[i].end, tokens);
-          items.add((
-            qty: spans[i].value,
-            text: _clean(tokens, {...skip, ...numberIdx}, from, spans[i].start),
-            unit: after ?? _findUnit(tokens, from, spans[i].start),
-          ));
-          from = spans[i].end + (after != null ? 1 : 0);
-        }
-        final trailing = _clean(
-            tokens, {...skip, ...numberIdx}, spans.last.end, tokens.length);
-        if (trailing.isNotEmpty) {
-          return ParseResult.fail(
-              ParseFailure(ParseFailureKind.noCommand, heard));
-        }
+        final text = _clean(tokens, {...skip, ...numberIdx}, clause.start, clause.end);
+        if (clauseSpans.isEmpty && text.isEmpty) continue;
+        items.add((
+          qty: clauseSpans.isEmpty ? null : clauseSpans.first.value,
+          text: text,
+          unit: (clauseSpans.isEmpty ? null : _unitOf(clauseSpans.first.end, tokens)) ??
+              _findUnit(tokens, clause.start, clause.end),
+        ));
       }
-    } else {
-      items.add((
-        qty: spans.isEmpty ? null : spans.first.value,
-        text: _clean(tokens, {...skip, ...numberIdx}, 0, tokens.length),
-        unit: (spans.isEmpty ? null : _unitOf(spans.first.end, tokens)) ??
-            _findUnit(tokens, 0, tokens.length),
-      ));
     }
 
     final commands = <ParsedCommand>[];

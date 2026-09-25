@@ -151,7 +151,9 @@ class VoiceBillingController extends ChangeNotifier {
       },
       onStatus: (s) {
         // Real recognition start marks the beginning of the minimum window.
-        if (s == 'listening' && (_starting || _sessionActive) && _listenStartedAt == null) {
+        if (s == 'listening' &&
+            (_starting || _sessionActive) &&
+            _listenStartedAt == null) {
           _listenStartedAt = DateTime.now();
         }
       },
@@ -259,7 +261,8 @@ class VoiceBillingController extends ChangeNotifier {
     _lastAlternates = [
       r.recognizedWords,
       for (final a in r.alternates)
-        if (a.recognizedWords.isNotEmpty && a.recognizedWords != r.recognizedWords)
+        if (a.recognizedWords.isNotEmpty &&
+            a.recognizedWords != r.recognizedWords)
           a.recognizedWords,
     ];
     partialTranscript = r.recognizedWords;
@@ -305,7 +308,8 @@ class VoiceBillingController extends ChangeNotifier {
 
   // ── Transcript handling ───────────────────────────────────────────────────
 
-  Future<void> _handleTranscript(String words, [List<String> alternates = const []]) async {
+  Future<void> _handleTranscript(String words,
+      [List<String> alternates = const []]) async {
     if (_parser.isStopPhrase(words)) return;
 
     if (stage == VoiceStage.disambiguate) {
@@ -327,7 +331,8 @@ class VoiceBillingController extends ChangeNotifier {
     final all = await _loadCandidates();
     await _ensureAliases();
     _parser = VoiceParser(_pack, catalogNames: [for (final c in all) c.name]);
-    final result = _pickBest([words, ...alternates.where((a) => a != words).take(4)], all);
+    final result =
+        _pickBest([words, ...alternates.where((a) => a != words).take(4)], all);
     if (!result.isOk) {
       message = result.failure!.message(_pack);
       current = null;
@@ -356,7 +361,8 @@ class VoiceBillingController extends ChangeNotifier {
         rank = -1;
       } else {
         final cmd = r.commands.first;
-        if (cmd.action == VoiceAction.undo || cmd.action == VoiceAction.discount) {
+        if (cmd.action == VoiceAction.undo ||
+            cmd.action == VoiceAction.discount) {
           rank = 3.5;
         } else if (_aliasFor(cmd.productText, all) != null) {
           rank = 4;
@@ -515,13 +521,13 @@ class VoiceBillingController extends ChangeNotifier {
     _notify();
   }
 
-  int _piecesFor(Detail d, VoiceUnit u, int qty) =>
-      u == VoiceUnit.pack ? qty * ((d.pieces ?? 1).floor().clamp(1, 1 << 30)) : qty;
+  int _piecesFor(Detail d, VoiceUnit u, int qty) => u == VoiceUnit.pack
+      ? qty * ((d.pieces ?? 1).floor().clamp(1, 1 << 30))
+      : qty;
 
-  int _unitsFromPieces(Detail d, VoiceUnit u, int pieces) =>
-      u == VoiceUnit.pack
-          ? pieces ~/ ((d.pieces ?? 1).floor().clamp(1, 1 << 30))
-          : pieces;
+  int _unitsFromPieces(Detail d, VoiceUnit u, int pieces) => u == VoiceUnit.pack
+      ? pieces ~/ ((d.pieces ?? 1).floor().clamp(1, 1 << 30))
+      : pieces;
 
   void _fail(String text, {bool keepOptions = false}) {
     message = text;
@@ -572,7 +578,9 @@ class VoiceBillingController extends ChangeNotifier {
     if (cmd == null || c == null || stage != VoiceStage.confirm) return;
     final isUndo = cmd.action == VoiceAction.undo;
     final action = isUndo
-        ? (_undo!.action == VoiceAction.add ? VoiceAction.remove : VoiceAction.add)
+        ? (_undo!.action == VoiceAction.add
+            ? VoiceAction.remove
+            : VoiceAction.add)
         : cmd.action;
 
     if (action == VoiceAction.add) {
@@ -583,9 +591,11 @@ class VoiceBillingController extends ChangeNotifier {
         if (_piecesFor(c.detail, unit, quantity) > stock) {
           stockAvailable = _unitsFromPieces(c.detail, unit, stock.floor());
           if (stockAvailable <= 0) {
-            return _fail(_pack.t('outOfStock', ['${c.name} (${unitName(unit)})']));
+            return _fail(
+                _pack.t('outOfStock', ['${c.name} (${unitName(unit)})']));
           }
-          message = _pack.t('onlyAvailable', [qtyLabel(stockAvailable), c.name]);
+          message =
+              _pack.t('onlyAvailable', [qtyLabel(stockAvailable), c.name]);
           stage = VoiceStage.stockPrompt;
           return _notify();
         }
@@ -612,12 +622,15 @@ class VoiceBillingController extends ChangeNotifier {
     if (cmd == null || c == null || stage != VoiceStage.stockPrompt) return;
     final isUndo = cmd.action == VoiceAction.undo;
     final action = isUndo
-        ? (_undo!.action == VoiceAction.add ? VoiceAction.remove : VoiceAction.add)
+        ? (_undo!.action == VoiceAction.add
+            ? VoiceAction.remove
+            : VoiceAction.add)
         : cmd.action;
     await _apply(action, c, stockAvailable, unit, isUndo: isUndo);
   }
 
-  Future<void> _apply(VoiceAction action, VoiceCandidate c, int qty, VoiceUnit u,
+  Future<void> _apply(
+      VoiceAction action, VoiceCandidate c, int qty, VoiceUnit u,
       {required bool isUndo}) async {
     final cust = customerId();
     if (cust.isEmpty) return _fail(_pack.t('noCustomer'));
@@ -679,9 +692,8 @@ class VoiceBillingController extends ChangeNotifier {
     ];
   }
 
-  int _cartQty(VoiceCandidate c, VoiceUnit u) => _matchingItems(c, u)
-      .fold<num>(0, (s, i) => s + i.detail.count)
-      .floor();
+  int _cartQty(VoiceCandidate c, VoiceUnit u) =>
+      _matchingItems(c, u).fold<num>(0, (s, i) => s + i.detail.count).floor();
 
   Future<void> _removeFromCart(
       VoiceCandidate c, int qty, VoiceUnit u, String cust) async {
@@ -727,14 +739,16 @@ class VoiceBillingController extends ChangeNotifier {
     final seen = <String>{};
     final out = <VoiceCandidate>[];
     for (final p in products) {
-      final pName = (p.pName?.isNotEmpty == true ? p.pName : p.productName) ?? '';
+      final pName =
+          (p.pName?.isNotEmpty == true ? p.pName : p.productName) ?? '';
       if (pName.isEmpty) continue;
       for (final d in p.detail ?? const <Detail>[]) {
         final vName = d.variationName ?? '';
         final name = vName.isEmpty || vName.toLowerCase() == pName.toLowerCase()
             ? pName
             : '$pName $vName';
-        final key = '${p.productId ?? p.id}|${d.variationId ?? vName}|${d.sellPrice}';
+        final key =
+            '${p.productId ?? p.id}|${d.variationId ?? vName}|${d.sellPrice}';
         if (!seen.add(key)) continue;
         out.add(VoiceCandidate(p, d, name, key));
       }

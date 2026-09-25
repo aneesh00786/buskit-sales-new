@@ -14,8 +14,11 @@ import 'package:busskit_salesexecutive/ui/components/category_filter/order_takin
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_search_warning_dialog.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/custom_switch_widget.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/widgets/catalog_search_bar.dart';
+<<<<<<< HEAD
 import 'package:busskit_salesexecutive/ui/components/category_filter/order_taking/voice_billing/voice_billing_widgets.dart';
 import 'package:busskit_salesexecutive/ui/theme/custom_toast_alert.dart';
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/cart_model.dart';
 import 'package:busskit_salesexecutive/ui/components/category_filter/product_list/model/product_model.dart';
 import 'package:busskit_salesexecutive/ui/components/notifications/notification_count.dart';
@@ -1087,6 +1090,7 @@ class _OrderTakingState extends State<OrderTaking>
                               ],
                             ),
                           const SizedBox(height: 8),
+<<<<<<< HEAD
                           Row(
                             children: [
                               Expanded(
@@ -1120,6 +1124,18 @@ class _OrderTakingState extends State<OrderTaking>
                                 },
                               ),
                             ],
+=======
+                          CatalogSearchBar(
+                            productsController: widget.productsController,
+                            onCategorySelected: (category) {
+                              _selectCategory(category.categoryName ?? '');
+                            },
+                            onSubCategorySelected:
+                                (subCategory, parentCategory) {
+                              _selectSubCategory(subCategory, parentCategory);
+                            },
+                            onProductSelected: (product) {},
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                           ),
                         ],
                       ),

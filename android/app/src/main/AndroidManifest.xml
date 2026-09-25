@@ -1,7 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+<<<<<<< HEAD
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -70,8 +73,11 @@
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
         </intent>
+<<<<<<< HEAD
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     </queries>
 </manifest>

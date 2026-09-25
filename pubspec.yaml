@@ -16,7 +16,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
+<<<<<<< HEAD
 version: 2.1.2+0
+=======
+version: 2.1.1+1
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 environment:
   sdk: ">=3.4.4 <4.0.0"
 
@@ -40,10 +44,17 @@ dependencies:
     sdk: flutter
   flutter_background_service: ^5.1.0
   flutter_cache_manager: ^3.3.1
+<<<<<<< HEAD
   flutter_polyline_points: 1.0.0
   flutter_google_places: ^0.3.0
   flutter_inappwebview: ^6.1.5
   flutter_local_notifications: ^18.0.1
+=======
+  flutter_google_places: ^0.3.0
+  flutter_inappwebview: ^6.1.5
+  flutter_local_notifications: ^18.0.1
+  flutter_polyline_points: 1.0.0
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   flutter_spinkit: ^5.2.1
   flutter_stripe: ^11.5.0
   flutter_svg: 2.0.9
@@ -54,7 +65,11 @@ dependencies:
   geolocator: ^14.0.0
   get: ^4.6.5
   google_api_headers: ^1.6.0
+<<<<<<< HEAD
   google_fonts: ^6.2.1
+=======
+  google_fonts: 4.0.4
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   google_maps_flutter: ^2.4.0
   google_maps_webservice: ^0.0.19
   hive: ^2.2.3
@@ -82,7 +97,10 @@ dependencies:
   rounded_loading_button_plus: ^3.0.1
   scrollable_table_view: ^2.0.3
   shared_preferences: ^2.1.1
+<<<<<<< HEAD
   speech_to_text: ^7.0.0
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   shared_preferences_windows: any
   sidebarx: ^0.17.1
   socket_io_client: ^3.0.2
@@ -95,7 +113,10 @@ dependencies:
 dependency_overrides:
   intl: ^0.18.1
   rxdart: ^0.27.7
+<<<<<<< HEAD
   http: ^1.2.2
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   google_api_headers: ^4.4.5
 
 dev_dependencies:

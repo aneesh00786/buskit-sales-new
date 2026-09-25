@@ -147,6 +147,7 @@ class SalesReturnController extends GetxController {
         }
         break;
 
+<<<<<<< HEAD
       case FilterDateEnum.thisWeek:
         valueFromDw = "Range";
         if (selectedWeeks.isEmpty) {
@@ -162,6 +163,8 @@ class SalesReturnController extends GetxController {
         ];
         break;
 
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       case FilterDateEnum.today: // "Day" in UI
         valueFromDw = "Range";
         if (selectedDayDate.value.isEmpty) {

@@ -1,5 +1,9 @@
 # Uncomment this line to define a global platform for your project
+<<<<<<< HEAD
 # platform :ios, '15.0'
+=======
+# platform :ios, '12.0'
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -52,10 +56,13 @@ post_install do |installer|
         'PERMISSION_LOCATION=1',
         ## dart: PermissionGroup.mediaLibrary
         'PERMISSION_MEDIA_LIBRARY=1',
+<<<<<<< HEAD
         ## dart: PermissionGroup.microphone (voice billing)
         'PERMISSION_MICROPHONE=1',
         ## dart: PermissionGroup.speech (voice billing)
         'PERMISSION_SPEECH_RECOGNIZER=1',
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       ]
     end
   end

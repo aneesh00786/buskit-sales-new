@@ -57,10 +57,13 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To select existing photos of your products for inventory and sales listings.</string>
+<<<<<<< HEAD
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone is used for voice billing commands.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Speech recognition is used to add products to the cart by voice.</string>
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs camera access to take pictures of your products for inventory and sales listings.</string>
 	<key>NSAppleMusicUsageDescription</key>

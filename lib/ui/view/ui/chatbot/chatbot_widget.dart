@@ -208,7 +208,11 @@ class ChatbotWidget extends StatelessWidget {
                     height: 24,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
+<<<<<<< HEAD
                       return const FaIcon(FontAwesomeIcons.robot,
+=======
+                      return const Icon(FontAwesomeIcons.robot,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                           size: 16, color: Colors.white);
                     },
                   ),
@@ -396,7 +400,11 @@ class ChatbotWidget extends StatelessWidget {
               height: 24,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
+<<<<<<< HEAD
                 return const FaIcon(FontAwesomeIcons.robot,
+=======
+                return const Icon(FontAwesomeIcons.robot,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                     size: 16, color: Colors.white);
               },
             ),

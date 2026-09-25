@@ -51,6 +51,7 @@ class ConnectivityService {
     }
   }
 
+<<<<<<< HEAD
   Future<bool> _lookupCheck(String host) async {
     try {
       final lookup =
@@ -100,6 +101,8 @@ class ConnectivityService {
     );
   }
 
+=======
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   Future<void> _checkAndUpdateOnlineStatus() async {
     if (_currentCheckFuture != null) return;
     _currentCheckFuture = () async {
@@ -111,7 +114,13 @@ class ConnectivityService {
           _notifyStatusChange(false);
           return false;
         }
+<<<<<<< HEAD
         final isOnline = await _verifyInternet();
+=======
+        final lookup = await InternetAddress.lookup('google.com')
+            .timeout(const Duration(milliseconds: 3000));
+        final isOnline = lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty;
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         _cachedIsOnline = isOnline;
         _notifyStatusChange(isOnline);
       } catch (_) {
@@ -132,7 +141,17 @@ class ConnectivityService {
   }
 
   Future<bool> hasInternet() async {
+<<<<<<< HEAD
     return _verifyInternet();
+=======
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(milliseconds: 3000));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   }
 
   Future<bool> isOnline() async {
@@ -760,23 +779,35 @@ class ConnectivityService {
     if (box.isEmpty) {
       return;
     }
+<<<<<<< HEAD
     // Snapshot the keys first and delete by key rather than by position:
     // deleting via `deleteAt` while looping by index shifts every later
     // entry down one slot, so the loop's next index silently skips it.
     final keys = box.keys.toList();
     for (final key in keys) {
       final request = box.get(key);
+=======
+    for (int i = 0; i < box.length; i++) {
+      final request = box.getAt(i);
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       if (request == null) continue;
       try {
         final payload = castToStringDynamic(request['payload']);
         final response = await dio1.post(
           request['url'],
+<<<<<<< HEAD
           data: request['isJson'] == true
               ? payload
               : dio.FormData.fromMap(payload),
         );
         if (response.statusCode == 200) {
           await box.delete(key);
+=======
+          data: dio.FormData.fromMap(payload),
+        );
+        if (response.statusCode == 200) {
+          await box.deleteAt(i);
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         } else {}
       } catch (e) {
         //

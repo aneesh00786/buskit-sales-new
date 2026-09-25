@@ -261,6 +261,7 @@ class _CustomBarChartCustomerDashState
                   ),
                   child: Stack(
                     children: [
+<<<<<<< HEAD
                       RawScrollbar(
                         controller: provider.scrollController,
                         trackVisibility: true,
@@ -276,6 +277,15 @@ class _CustomBarChartCustomerDashState
                         interactive: true,
                         scrollbarOrientation: ScrollbarOrientation.bottom,
                         notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+=======
+                      Scrollbar(
+                        controller: provider.scrollController,
+                        trackVisibility: true,
+                        thumbVisibility: true,
+                        radius: const Radius.circular(10),
+                        thickness: 5,
+                        interactive: true,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: SingleChildScrollView(
@@ -430,6 +440,7 @@ class _CustomBarChartCustomerDashState
               Expanded(
                 child: Stack(
                   children: [
+<<<<<<< HEAD
                     RawScrollbar(
                       controller: provider.scrollController,
                       trackVisibility: true,
@@ -445,6 +456,15 @@ class _CustomBarChartCustomerDashState
                       interactive: true,
                       scrollbarOrientation: ScrollbarOrientation.bottom,
                       notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
+=======
+                    Scrollbar(
+                      controller: provider.scrollController,
+                      trackVisibility: true,
+                      thumbVisibility: true,
+                      radius: const Radius.circular(10),
+                      thickness: 5,
+                      interactive: true,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
                         child: LayoutBuilder(builder: (context, constraints) {

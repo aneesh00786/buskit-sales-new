@@ -204,8 +204,12 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                   itemCount: widget._itemList.length,
                   itemBuilder: (context, index) {
                     final item = widget._itemList[index];
+<<<<<<< HEAD
                     final isSelected =
                         widget._controller.selectedIndex == index;
+=======
+                    final isSelected = widget._controller.selectedIndex == index;
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                     return GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
@@ -404,7 +408,12 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                         : GestureDetector(
                             onTap: () => _handleSwitchToggle(context),
                             child: Container(
+<<<<<<< HEAD
                               padding: const EdgeInsets.fromLTRB(5, 4, 14, 4),
+=======
+                              padding:
+                                  const EdgeInsets.fromLTRB(5, 4, 14, 4),
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                               decoration: BoxDecoration(
                                 color: _onSwitchSelected
                                     ? const Color(0xFF16A34A)
@@ -443,7 +452,13 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
+<<<<<<< HEAD
                                     _onSwitchSelected ? 'In'.tr : 'Out'.tr,
+=======
+                                    _onSwitchSelected
+                                        ? 'In'.tr
+                                        : 'Out'.tr,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                     style: const TextStyle(
                                       fontFamily: 'Poppins_Regular',
                                       color: Colors.white,
@@ -469,8 +484,14 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                         _hasAlwaysPermission
                             ? Icons.check_circle
                             : Icons.warning_amber_rounded,
+<<<<<<< HEAD
                         color:
                             _hasAlwaysPermission ? Colors.green : Colors.orange,
+=======
+                        color: _hasAlwaysPermission
+                            ? Colors.green
+                            : Colors.orange,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                         size: 16,
                       ),
                       const SizedBox(width: 6),
@@ -729,8 +750,12 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                       if (!isOnline) {
                         showCustomToastDisplay(
                           context,
+<<<<<<< HEAD
                           "You are offline! Please check your internet connection."
                               .tr,
+=======
+                          "You are offline! Please check your internet connection.".tr,
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                           red,
                           Icons.cloud_off_rounded,
                         );
@@ -739,8 +764,12 @@ class _NkSidebarXSideBarState extends State<NkSidebarXSideBar>
                       }
                     },
               child: Container(
+<<<<<<< HEAD
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+=======
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.18),
                   borderRadius: BorderRadius.circular(20),

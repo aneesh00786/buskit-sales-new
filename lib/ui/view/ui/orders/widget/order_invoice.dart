@@ -1380,6 +1380,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
     final double subtotalAmount = cartList.fold<double>(0, (sum, item) {
       double itemAmount = 0.0;
       int qty = int.tryParse(item.quantity?.toString() ?? '0') ?? 0;
+<<<<<<< HEAD
       try {
         itemAmount = double.tryParse(item.price?.toString() ?? '0') ?? 0.0;
       } catch (_) {}
@@ -1394,6 +1395,35 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
       } catch (_) {}
       return sum + disc;
     });
+=======
+      if (isSpecific) {
+        try {
+          itemAmount = (item.price ?? 0).toDouble();
+        } catch (_) {
+          try {
+            itemAmount = (item.unitPrice ?? 0).toDouble();
+          } catch (_) {}
+        }
+        itemAmount = itemAmount * qty;
+      } else {
+        try {
+          itemAmount = (item.price ?? 0).toDouble();
+        } catch (_) {}
+        itemAmount = itemAmount * qty;
+      }
+      return sum + itemAmount;
+    });
+
+    final double totalDiscount = isSpecific
+        ? (num.tryParse(widget.specificData?.discount?.toString() ?? '0') ?? 0.0).toDouble()
+        : cartList.fold<double>(0, (sum, item) {
+            double disc = 0.0;
+            try {
+              disc = double.tryParse(item.discountAmount?.toString() ?? '0') ?? 0.0;
+            } catch (_) {}
+            return sum + disc;
+          });
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
     final double totalTax = cartList.fold<double>(0, (sum, item) {
       double itemTax = 0.0;
@@ -1552,6 +1582,7 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
 
                                             if (isSpecific) {
                                               try {
+<<<<<<< HEAD
                                                 unitPriceStr = cartItem.unitPrice?.toString() ?? '0';
                                               } catch (_) {
                                                 unitPriceStr = '0';
@@ -1582,14 +1613,57 @@ class _OrderProcessInvoiceDialogState extends State<OrderProcessInvoiceDialog> {
                                               
                                               try {
                                                 totalStr = cartItem.total?.toString() ?? '0';
+=======
+                                                unitPriceStr = cartItem
+                                                        .unitPrice
+                                                        ?.toString() ??
+                                                    cartItem.price?.toString() ?? '0';
+                                              } catch (_) {}
+                                              try {
+                                                double price = double.tryParse(unitPriceStr) ?? 0.0;
+                                                amountStr = (price * qty).toString();
+                                              } catch (_) {}
+                                              try {
+                                                totalStr = cartItem.totalPrice
+                                                        ?.toString() ??
+                                                    '0';
+                                              } catch (_) {}
+                                            } else {
+                                              try {
+                                                unitPriceStr = cartItem
+                                                        .unitPrice
+                                                        ?.toString() ??
+                                                    cartItem.price?.toString() ?? '0';
+                                              } catch (_) {}
+                                              try {
+                                                double price = double.tryParse(unitPriceStr) ?? 0.0;
+                                                amountStr = (price * qty).toString();
+                                              } catch (_) {}
+                                              try {
+                                                totalStr = cartItem.total
+                                                        ?.toString() ??
+                                                    '0';
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                               } catch (_) {}
                                             }
 
                                             try {
+<<<<<<< HEAD
                                               discountStr = cartItem.discountAmount?.toString() ?? '0';
                                             } catch (_) {}
                                             try {
                                               taxStr = cartItem.tax?.toString() ?? '0';
+=======
+                                              discountStr = cartItem
+                                                      .discountAmount
+                                                      ?.toString() ??
+                                                  '0';
+                                            } catch (_) {}
+                                            try {
+                                              taxStr =
+                                                  cartItem.tax?.toString() ??
+                                                      '0';
+>>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                             } catch (_) {}
 
                                             return DataRow(

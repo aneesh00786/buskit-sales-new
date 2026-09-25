@@ -92,21 +92,14 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       originalPackPrice: fields[26] as String?,
       editedAmount: fields[27] as double?,
       customerDiscountPercentage: fields[28] as double?,
-<<<<<<< HEAD
       packPrice: fields[29] as String?,
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     );
   }
 
   @override
   void write(BinaryWriter writer, SendCartData obj) {
     writer
-<<<<<<< HEAD
       ..writeByte(30)
-=======
-      ..writeByte(29)
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       ..writeByte(0)
       ..write(obj.productId)
       ..writeByte(1)
@@ -164,13 +157,9 @@ class SendCartDataAdapter extends TypeAdapter<SendCartData> {
       ..writeByte(27)
       ..write(obj.editedAmount)
       ..writeByte(28)
-<<<<<<< HEAD
       ..write(obj.customerDiscountPercentage)
       ..writeByte(29)
       ..write(obj.packPrice);
-=======
-      ..write(obj.customerDiscountPercentage);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   }
 
   @override

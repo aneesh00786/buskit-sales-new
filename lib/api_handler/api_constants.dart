@@ -1,9 +1,5 @@
 mixin class ApiConstants {
-<<<<<<< HEAD
   static const String baseUrl1 = "https://thrivewoo.com";
-=======
-  static const String baseUrl1 = "https://test.thrivewoo.com";
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   static const String baseUrl = "$baseUrl1/";
   static const String imageBaseUrl = "${baseUrl}uploads/";
   static const String imageBaseUrlss = "${baseUrl}uploads";

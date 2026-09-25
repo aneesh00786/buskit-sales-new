@@ -71,7 +71,6 @@ void main() async {
   Hive.registerAdapter(SendCartDataAdapter());
   Hive.registerAdapter(ProductApiResponseAdapter());
   Hive.registerAdapter(ScidProductGroupAdapter());
-<<<<<<< HEAD
   await Future.wait([
     Hive.openBox<CustomerDiscountModel>('discounts'),
     Hive.openBox<CartItem>('cartBox'),
@@ -112,46 +111,6 @@ void main() async {
     Hive.openBox('customerCreditBox'),
     Hive.openBox('bulkVolumesBox'),
   ]);
-=======
-  await Hive.openBox<CustomerDiscountModel>('discounts');
-  await Hive.openBox<CartItem>('cartBox');
-  await Hive.openBox<CartItem>('cartPreorderBox');
-  await Hive.openBox<CartItem>('draftBox');
-  await Hive.openBox('dashboardBox');
-  await Hive.openBox('customerdashboardBox');
-  await Hive.openBox('customerRevenueBox');
-  await Hive.openBox('customerTotalSaleBox');
-  await Hive.openBox('weeklyTypeBox');
-  await Hive.openBox('customerBox');
-  await Hive.openBox('chatBox');
-  await Hive.openBox('pendingPaymentBox');
-  await Hive.openBox('performanceBox');
-  await Hive.openBox('leadsCountBox');
-  await Hive.openBox('leadsBox');
-  await Hive.openBox('leadsRejectBox');
-  await Hive.openBox('ordersBox');
-  await Hive.openBox('fetchAllOrdersBox');
-  await Hive.openBox('settingsBox');
-  await Hive.openBox('calendarEventsBox');
-  await Hive.openBox('salesmanTargetBox');
-  await Hive.openBox('salesmanValueTargetBox');
-  await Hive.openBox('subscribtionBox');
-  await Hive.openBox('subscribtionPlanDetailsBox');
-  await Hive.openBox('fetchOnlyCustomerDataInWholeBox');
-  await Hive.openBox('topBarDataBox');
-  await Hive.openBox('timesheetBox');
-  await Hive.openBox('scheduleBox');
-  await Hive.openBox('draftAndCartIdsBox');
-  await Hive.openBox('draftItemsBox');
-  await Hive.openBox('productFrequencyBox');
-  await Hive.openBox('promotionsBox');
-  await Hive.openBox('salesReturnBox');
-  await Hive.openBox('productReturnDetailsBox');
-  await Hive.openBox<ProductModel>('products');
-  await Hive.openBox<ScidProductGroup>('scidProductGroups');
-  await Hive.openBox('customerCreditBox');
-  await Hive.openBox('bulkVolumesBox');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
@@ -187,7 +146,6 @@ void main() async {
   Get.put(CustomerCreditController());
   await Get.putAsync(() => LocalizationService().init());
   final localizationService = Get.find<LocalizationService>();
-<<<<<<< HEAD
   final subscriptionController = Get.put(SubscriptionController());
   
   // Load subscription features asynchronously without halting startup
@@ -196,15 +154,6 @@ void main() async {
         .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0)
         .catchError((_) {});
   }
-=======
-  // Get.put(SalesReturnListController());
-  final subscriptionController = Get.put(SubscriptionController());
-// Add this in your main.dart (or wherever you define your routes/constants)
-  final RouteObserver<ModalRoute<void>> routeObserver =
-      RouteObserver<ModalRoute<void>>();
-  await subscriptionController
-      .loadSubscriptionFeatures(SessionHelper.loginSavedData?.company_id ?? 0);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
   await _handleCartPersistenceOnRestart();
   AppTranslations appTranslations = await AppTranslations.init();

@@ -266,11 +266,7 @@ class HomeController extends GetxController {
           index: 1,
           EneftyIcons.profile_2user_bold,
           sectionLabel: 'Sales'),
-<<<<<<< HEAD
       sideBarComponent(sidebarName[2], index: 2, Icons.category_outlined),
-=======
-      sideBarComponent(sidebarName[2], index: 2, EneftyIcons.a_3d_cube_bold),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       sideBarComponent(sidebarName[3], index: 3, EneftyIcons.receipt_bold),
       sideBarComponent(
           sidebarName[4], index: 4, EneftyIcons.arrow_swap_horizontal_bold),
@@ -712,11 +708,7 @@ IconData getSidebarIconData(int index, {required bool selected}) {
     case 1:
       return Icons.people_outline_rounded;
     case 2:
-<<<<<<< HEAD
       return Icons.category_outlined;
-=======
-      return Icons.inventory_2_outlined;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     case 3:
       return Icons.shopping_cart_outlined;
     case 4:

@@ -4,10 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
-<<<<<<< HEAD
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 import 'package:busskit_salesexecutive/database/session/sessionmanager.dart';
 import 'package:busskit_salesexecutive/database/session/sp_string.dart';
 import 'package:busskit_salesexecutive/location_services/location_services.dart';
@@ -41,13 +38,7 @@ class CheckInService {
     try {
       if (!await _handleLocationPermission()) return;
 
-<<<<<<< HEAD
       Position position = await _getCurrentPositionWithFallback();
-=======
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
       var alwaysStatus = await Permission.locationAlways.status;
       bool isBackground = false;
@@ -100,19 +91,14 @@ class CheckInService {
     } catch (e) {
       isReturningFromSettings = false; // ✅ Clear on error too
       if (context.mounted) {
-<<<<<<< HEAD
         final message = e is Exception ? e.toString().replaceFirst('Exception: ', '') : "Error: $e";
         NkCommonFunction.showErrorSnakBar(message);
-=======
-        NkCommonFunction.showErrorSnakBar("Error: $e");
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       }
     } finally {
       isCheckingIn.value = false;
     }
   }
 
-<<<<<<< HEAD
   // Bounds the GPS fix so check-in can't hang indefinitely on a weak signal.
   // Falls back to the last known position, then to a coarser (faster) fix,
   // and only ever surfaces a friendly message if every attempt fails.
@@ -138,8 +124,6 @@ class CheckInService {
     }
   }
 
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   Future<void> _waitForAppResume() async {
     final completer = Completer<void>();
     late final AppLifecycleListener listener;
@@ -175,28 +159,17 @@ class CheckInService {
     // 1. OFFLINE LOGIC: Save Admin Check-in to Hive
     final box = await Hive.openBox('offlineRequests');
     final payload = {
-<<<<<<< HEAD
       "companyId": SessionHelper.loginSavedData?.company_id ?? 0,
       "date": date,
       "sales_id": SessionHelper.loginSavedData?.id,
-=======
-      // Add necessary fields for admin check-in based on your API requirements
-      "date": date,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       "time": time,
       "direction": "in",
       "latitude": lat,
       "longitude": long,
     };
-<<<<<<< HEAD
 
     await box.add({
       'url': ApiConstants.baseUrl + ApiConstants.updateCheckinOut,
-=======
-    
-    await box.add({
-      'url': ApiConstants.baseUrl + 'update-admin-check-in-endpoint', // Replace with exact endpoint
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       'payload': payload,
     });
     
@@ -558,13 +531,7 @@ class CheckInService {
       bool timeout = await checkCheckInTimeout();
       if (timeout) return;
 
-<<<<<<< HEAD
       Position position = await _getCurrentPositionWithFallback();
-=======
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       await updateServer(position);
       // print("Foreground Location Update: ${position.latitude}, ${position.longitude}");
     } catch (e) {

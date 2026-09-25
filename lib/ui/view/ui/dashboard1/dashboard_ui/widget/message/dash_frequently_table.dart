@@ -31,7 +31,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
       if (topSellingProducts.isEmpty) {
         return const NodataWidget();
       } else {
-<<<<<<< HEAD
         return RawScrollbar(
           controller: horizontalScrollController,
           thumbVisibility: true,
@@ -46,14 +45,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
           mainAxisMargin: 12,
           interactive: true,
           scrollbarOrientation: ScrollbarOrientation.bottom,
-=======
-        return Scrollbar(
-          controller: horizontalScrollController,
-          thumbVisibility: true,
-          trackVisibility: true,
-          radius: const Radius.circular(8),
-          thickness: 6,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
           notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
           child: SingleChildScrollView(
           controller: horizontalScrollController,
@@ -166,7 +157,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                   ),
                 ),
                 Expanded(
-<<<<<<< HEAD
                   child: RawScrollbar(
                     controller: verticalScrollController,
                     thumbVisibility: true,
@@ -176,14 +166,6 @@ Widget topSellingProductList(List<TopSellingProductA> topSellingProducts) {
                     thumbColor: primaryColor.withOpacity(0.3),
                     crossAxisMargin: 2,
                     mainAxisMargin: 4,
-=======
-                  child: Scrollbar(
-                    controller: verticalScrollController,
-                    thumbVisibility: true,
-                    trackVisibility: true,
-                    radius: const Radius.circular(8),
-                    thickness: 6,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                     notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
                     child: SingleChildScrollView(
                     controller: verticalScrollController,

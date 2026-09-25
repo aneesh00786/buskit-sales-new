@@ -61,7 +61,6 @@ class _TopSellingProductsCustomerWidgetState extends State<TopSellingProductsCus
 
         const double fontSize = 11.5;
 
-<<<<<<< HEAD
         return RawScrollbar(
           controller: _horizontalScrollController,
           thumbVisibility: true,
@@ -76,14 +75,6 @@ class _TopSellingProductsCustomerWidgetState extends State<TopSellingProductsCus
           mainAxisMargin: 12,
           interactive: true,
           scrollbarOrientation: ScrollbarOrientation.bottom,
-=======
-        return Scrollbar(
-          controller: _horizontalScrollController,
-          thumbVisibility: true,
-          trackVisibility: true,
-          radius: const Radius.circular(8),
-          thickness: 6,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
           notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
           child: SingleChildScrollView(
             controller: _horizontalScrollController,
@@ -235,7 +226,6 @@ class _TopSellingProductsCustomerWidgetState extends State<TopSellingProductsCus
 
                   // 🔹 Table Body
                   Expanded(
-<<<<<<< HEAD
                     child: RawScrollbar(
                       controller: _verticalScrollController,
                       thumbVisibility: true,
@@ -245,14 +235,6 @@ class _TopSellingProductsCustomerWidgetState extends State<TopSellingProductsCus
                       thumbColor: primaryColor.withOpacity(0.3),
                       crossAxisMargin: 2,
                       mainAxisMargin: 4,
-=======
-                    child: Scrollbar(
-                      controller: _verticalScrollController,
-                      thumbVisibility: true,
-                      trackVisibility: true,
-                      radius: const Radius.circular(8),
-                      thickness: 6,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                       notificationPredicate: (notif) => notif.metrics.axis == Axis.vertical,
                       child: SingleChildScrollView(
                         controller: _verticalScrollController,

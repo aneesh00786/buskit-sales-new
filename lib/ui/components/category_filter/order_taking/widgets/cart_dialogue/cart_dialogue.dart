@@ -1,9 +1,6 @@
 //Cart Dialog
-<<<<<<< HEAD
 import 'dart:convert';
 import 'dart:developer';
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
@@ -589,11 +586,7 @@ class CartDialogueState extends State<CartDialogue> {
         quantities = List.generate(
             widget.productsController.cartItems.length, (index) => 1);
 
-<<<<<<< HEAD
         log('orderTaxe calculated in setState:${orderTaxe}');
-=======
-        print('orderTaxe calculated in setState:${orderTaxe}');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         preorderTax =
             Utils().calculateTotalTax(widget.productsController.preorderItems);
 
@@ -736,11 +729,7 @@ class CartDialogueState extends State<CartDialogue> {
 //           .getCartItems(customerId, draftsOnly: isDraftView);
 //       for (final item in widget.productsController.cartItems) {
 //         calculateItemDiscounts(item);
-<<<<<<< HEAD
 //         // log('calculate discount called:${calculateItemDiscounts(item)}');
-=======
-//         // print('calculate discount called:${calculateItemDiscounts(item)}');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 //       }
 
 //       await setCartToOrderAndPreorder();
@@ -769,11 +758,7 @@ class CartDialogueState extends State<CartDialogue> {
 //       for (var item in widget.productsController.preorderItems) {
 //         for (final item in widget.productsController.preorderItems) {
 //           calculateItemDiscounts(item);
-<<<<<<< HEAD
 //           // log('calculate discount called in second');
-=======
-//           // print('calculate discount called in second');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 //         }
 
 //         item.isChecked = true;
@@ -800,11 +785,7 @@ class CartDialogueState extends State<CartDialogue> {
 //           widget.productsController.orderItems.fold(0.0, (sum, item) {
 //         return item.isChecked! ? sum + (item.totalPrice) : sum;
 //       });
-<<<<<<< HEAD
 //       log('subTotalll:$orderSubtotal');
-=======
-//       print('subTotalll:$orderSubtotal');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 //       preorderSubtotal =
 //           widget.productsController.preorderItems.fold(0.0, (sum, item) {
 //         return item.isChecked! ? sum + (item.totalPrice) : sum;
@@ -2684,11 +2665,7 @@ class CartDialogueState extends State<CartDialogue> {
               String packValue = (e.packtype == 'Pack' || item.isPack == true)
                   ? e.pieces.toString()
                   : e.count.toString();
-<<<<<<< HEAD
               log('bundle promo msg: ${item.promoMsg}');
-=======
-              print('bundle promo msg: ${item.promoMsg}');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
               final double combinedDiscount =
                   (item.totalDiscountAmount ?? 0).toDouble() +
                       (item.flatDiscount ?? 0).toDouble() +
@@ -2738,10 +2715,7 @@ class CartDialogueState extends State<CartDialogue> {
                     })(),
                     editedAmount: 0.0,
                     customerDiscountPercentage: item.CustomerDiscount,
-<<<<<<< HEAD
                     packPrice: e.packPrice?.toString(),
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                   );
                 } else {
                   // --- Standard Promo Logic ---
@@ -2779,10 +2753,7 @@ class CartDialogueState extends State<CartDialogue> {
                     })(),
                     editedAmount: 0.0,
                     customerDiscountPercentage: item.CustomerDiscount,
-<<<<<<< HEAD
                     packPrice: e.packPrice?.toString(),
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                   );
                 }
               } else {
@@ -2829,11 +2800,7 @@ class CartDialogueState extends State<CartDialogue> {
                         finalPrice = matchingBulk.volumePrice!;
                       }
                     } catch (err) {
-<<<<<<< HEAD
                       log(
-=======
-                      print(
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                           'Bulk ID $currentBulkId found but not matched in BulkData list: $err');
                     }
                   }
@@ -2900,10 +2867,7 @@ class CartDialogueState extends State<CartDialogue> {
                   })(),
                   editedAmount: editPriceDiscountAmt,
                   customerDiscountPercentage: item.CustomerDiscount,
-<<<<<<< HEAD
                     packPrice: e.packPrice?.toString(),
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                 );
               }
             }).toList()),
@@ -2917,14 +2881,9 @@ class CartDialogueState extends State<CartDialogue> {
 
           CartOrderModel? cartOrder =
               await ApiWorker().addToCart(productBYData.toJson());
-<<<<<<< HEAD
           log(
               '''addtocartttt productBYData to json: 
 ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
-=======
-          print(
-              'addtocartttt productBYData to json: ${productBYData.toJson()}');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
           if (cartOrder != null) {
             final companyId = SessionHelper.loginSavedData?.company_id ?? 0;
@@ -2952,11 +2911,7 @@ ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
             final double amountToPayAfterCredit =
                 (originalTotal - creditUsed).clamp(0.0, double.infinity);
 
-<<<<<<< HEAD
             log(
-=======
-            print(
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                 "Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
 
             // === FINAL ORDER ===
@@ -2993,11 +2948,7 @@ ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
               varientIds: varientIdsPass,
               creditAmount: shouldUseCredit ? creditUsed : 0,
             );
-<<<<<<< HEAD
             log('place order data: ${order.toJson()}');
-=======
-            print('place order data: ${order.toJson()}');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
             await ApiWorker().placeOrder(order,
                 (statusCode, message, response) async {
@@ -3433,11 +3384,7 @@ ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
 //             // final amountToPay =
 //             //     (originalTotal - creditUsed).clamp(0.0, double.infinity);
 
-<<<<<<< HEAD
 //             // log(
-=======
-//             // print(
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 //             //     "Available Credit: $availableCredit | Credit Used: $creditUsed | Pay Now: $amountToPay");
 
 //  final customerCreditCtrl = Get.find<CustomerCreditController>();
@@ -3451,11 +3398,7 @@ ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
 
 //     final double amountToPayAfterCredit = (originalTotal - creditUsed).clamp(0.0, double.infinity);
 
-<<<<<<< HEAD
 //     log("Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
-=======
-//     print("Credit Debug → Available: $availableCredit | Used: $creditUsed | Pay Now: $amountToPayAfterCredit");
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
 //     // === FINAL ORDER ===
 //     int orderStatuses = _selectedValue == 'Sale Order'
@@ -3483,20 +3426,12 @@ ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
 //               useCredit: shouldUseCredit,
 //               creditAmount: shouldUseCredit ? creditUsed : 0,
 //             );
-<<<<<<< HEAD
 //             // log('Cart Order: ${order.toJson()}');
-=======
-//             // print('Cart Order: ${order.toJson()}');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
 //             await ApiWorker().placeOrder(order,
 //                 (statusCode, message, response) async {
 //               Navigator.pop(context);
-<<<<<<< HEAD
 //               // log(
-=======
-//               // print(
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 //               //     'statusCodeww: $statusCode, message: $message, response: $response');
 //               if (statusCode == 200) {
 //                 if (shouldUseCredit) {
@@ -4082,11 +4017,7 @@ ${const JsonEncoder.withIndent('  ').convert(productBYData.toJson())}''');
                     onPressed: () async {
                       final provider = Provider.of<CustomersProvider>(context,
                           listen: false);
-<<<<<<< HEAD
                       log('delete variant called');
-=======
-                      print('delete variant called');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                       await _deleteVariant(groupedItem, provider);
                       widget.productsController.isCartModified.value = true;
                       Navigator.pop(context);

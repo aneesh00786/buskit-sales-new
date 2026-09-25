@@ -8,10 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_inappwebview_windows
   geolocator_windows
   permission_handler_windows
-<<<<<<< HEAD
   speech_to_text_windows
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   url_launcher_windows
 )
 

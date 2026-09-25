@@ -146,14 +146,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
       verticalOffset: 20,
       child: GestureDetector(
         onTap: () async {
-<<<<<<< HEAD
           bool hasDraftId = CartDatabaseManager().cartItems.every(
               (item) => item.draftId != null && item.draftId!.isNotEmpty);
-=======
-          bool hasDraftId = CartDatabaseManager()
-              .cartItems
-              .every((item) => item.draftId != null && item.draftId!.isNotEmpty);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
           if (CartDatabaseManager().cartItems.isNotEmpty && !hasDraftId) {
             handleTabSwitchNavigation(
                 context, false, productController, customerOrderController, () {
@@ -230,12 +224,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                 width: 3.5,
                 height: 22,
                 decoration: BoxDecoration(
-<<<<<<< HEAD
                   color:
                       isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
-=======
-                  color: isSelected ? const Color(0xFF1E3A8A) : Colors.transparent,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(3),
                   ),
@@ -274,7 +264,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         top: -4,
                         right: 0,
                         child: Obx(() {
-<<<<<<< HEAD
                           if (notificationController
                               .isNotificationLoading.value) {
                             return const SizedBox.shrink();
@@ -283,13 +272,6 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                               .recentOrderCountData
                               .mainNotification
                               ?.recentOrders;
-=======
-                          if (notificationController.isNotificationLoading.value) {
-                            return const SizedBox.shrink();
-                          }
-                          final recentOrders = notificationController
-                              .recentOrderCountData.mainNotification?.recentOrders;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                           if (recentOrders == null || recentOrders == 0) {
                             return const SizedBox.shrink();
                           }
@@ -304,13 +286,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                             decoration: BoxDecoration(
                               color: const Color(0xFFD97706),
                               borderRadius: BorderRadius.circular(10),
-<<<<<<< HEAD
                               border:
                                   Border.all(color: Colors.white, width: 1.5),
-=======
-                              border: Border.all(
-                                  color: Colors.white, width: 1.5),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.12),
@@ -339,12 +316,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         top: -4,
                         right: 0,
                         child: Obx(() {
-<<<<<<< HEAD
                           if (notificationController
                               .isLeadsCountLoading.value) {
-=======
-                          if (notificationController.isLeadsCountLoading.value) {
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                             return const SizedBox.shrink();
                           }
                           final count = notificationController.leadsCount.value;
@@ -360,13 +333,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                             decoration: BoxDecoration(
                               color: const Color(0xFFE2E8F0),
                               borderRadius: BorderRadius.circular(10),
-<<<<<<< HEAD
                               border:
                                   Border.all(color: Colors.white, width: 1.5),
-=======
-                              border: Border.all(
-                                  color: Colors.white, width: 1.5),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.12),
@@ -395,14 +363,9 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                         top: -4,
                         right: 0,
                         child: Obx(() {
-<<<<<<< HEAD
                           final hasUpdate = Get.find<AppUpdateService>()
                               .isUpdateAvailable
                               .value;
-=======
-                          final hasUpdate =
-                              Get.find<AppUpdateService>().isUpdateAvailable.value;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                           if (!hasUpdate) return const SizedBox.shrink();
                           return Container(
                             constraints: const BoxConstraints(
@@ -415,12 +378,8 @@ class NkSideBarOnlyIconState extends State<NkSideBarOnlyIcon> {
                             decoration: BoxDecoration(
                               color: const Color(0xFFDC2626),
                               borderRadius: BorderRadius.circular(10),
-<<<<<<< HEAD
                               border:
                                   Border.all(color: Colors.white, width: 1.5),
-=======
-                              border: Border.all(color: Colors.white, width: 1.5),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.12),

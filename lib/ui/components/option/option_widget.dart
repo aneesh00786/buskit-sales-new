@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import 'package:intl/intl.dart';
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/ui/components/diloags/html_invoice.dart';
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
@@ -112,7 +109,6 @@ class _OptionWidgetState extends State<OptionWidget> {
   int _onlineDraftCount = 0;
   int get _totalDraftCount => _offlineDraftCount + _onlineDraftCount;
 
-<<<<<<< HEAD
   int _offlineUnfilteredDraftCount = 0;
   int _onlineUnfilteredDraftCount = 0;
   int get _totalUnfilteredDraftCount =>
@@ -174,46 +170,29 @@ class _OptionWidgetState extends State<OptionWidget> {
   // Add: Function to get offline draft count for a customer
   Future<int> getOfflineDraftCount(
       {bool filterNeeded = false, DashboardProvider? provider}) async {
-=======
-  int _onlineUnfilteredDraftCount = 0;
-  int get _totalUnfilteredDraftCount =>
-      _offlineDraftCount + _onlineUnfilteredDraftCount;
-
-  // Add: Function to get offline draft count for a customer
-  Future<int> getOfflineDraftCount() async {
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     try {
       var offlineDraftsBox = await Hive.openBox('offlineDrafts');
       List<dynamic> drafts =
           offlineDraftsBox.get('drafts', defaultValue: []) as List<dynamic>;
-<<<<<<< HEAD
       if (filterNeeded && provider != null) {
         return _getFilteredOfflineDrafts(drafts, provider).length;
       }
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       return drafts.length;
     } catch (e) {
       return 0;
     }
   }
 
-<<<<<<< HEAD
   Future<void> _fetchDraftCounts(OrderCountListt? orderCountList,
       {DashboardProvider? provider}) async {
     int offlineCount =
         await getOfflineDraftCount(filterNeeded: true, provider: provider);
     int offlineUnfiltered =
         await getOfflineDraftCount(filterNeeded: false);
-=======
-  Future<void> _fetchDraftCounts(OrderCountListt? orderCountList) async {
-    int offlineCount = await getOfflineDraftCount();
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     int onlineCount =
         orderCountList != null ? (orderCountList.draftFilteredCount ?? 0) : 0;
     int onlineUnfilteredCount =
         orderCountList != null ? (orderCountList.draftOrder ?? 0) : 0;
-<<<<<<< HEAD
     if (mounted) {
       setState(() {
         _offlineDraftCount = offlineCount;
@@ -222,13 +201,6 @@ class _OptionWidgetState extends State<OptionWidget> {
         _onlineUnfilteredDraftCount = onlineUnfilteredCount;
       });
     }
-=======
-    setState(() {
-      _offlineDraftCount = offlineCount;
-      _onlineDraftCount = onlineCount;
-      _onlineUnfilteredDraftCount = onlineUnfilteredCount;
-    });
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   }
 
   @override
@@ -285,11 +257,7 @@ class _OptionWidgetState extends State<OptionWidget> {
             } else if (snapshot.hasData) {
               final countData = snapshot.data!.orderCountList;
 
-<<<<<<< HEAD
               _fetchDraftCounts(countData, provider: provider);
-=======
-              _fetchDraftCounts(countData);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
               return options(countData, context, provider);
             } else {
@@ -458,26 +426,15 @@ class _OptionWidgetState extends State<OptionWidget> {
             var offlineDraftsBox = await Hive.openBox('offlineDrafts');
             List<dynamic> drafts = offlineDraftsBox
                 .get('drafts', defaultValue: []) as List<dynamic>;
-<<<<<<< HEAD
             List<dynamic> filteredOffline =
                 _getFilteredOfflineDrafts(drafts, provider);
-=======
-            List<dynamic> offlineDraftDetails = drafts.toList();
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
             if (_totalDraftCount == 0) {
               showCustomToastDisplay(
                   context, "No Record Found".tr, red, Icons.close);
             } else {
-<<<<<<< HEAD
               provider.fetchOrdersData(
                 OrderStatus.draft,
                 checkDate: true,
-=======
-              // Draft filtering handled within the app, not using checkDate
-              provider.fetchOrdersData(
-                OrderStatus.draft,
-                checkDate: false,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
               );
               _showDraftDialog(
                 context,
@@ -488,11 +445,7 @@ class _OptionWidgetState extends State<OptionWidget> {
                 productsController,
                 customerOrderController,
                 widget.homeController,
-<<<<<<< HEAD
                 offlineDraftDetails: filteredOffline,
-=======
-                offlineDraftDetails: offlineDraftDetails,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                 filterNeeded: true,
               );
               CartDatabaseManager().getDraftItems();
@@ -1291,10 +1244,7 @@ class _OptionWidgetState extends State<OptionWidget> {
     CustomerAndOrderController customerOrderController,
     HomeController? homeController, {
     List<dynamic>? offlineDraftDetails,
-<<<<<<< HEAD
     bool filterNeeded = false,
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   }) {
     final ScrollController verticalScrollController = ScrollController();
     final ScrollController horizontalScrollController = ScrollController();
@@ -1320,12 +1270,8 @@ class _OptionWidgetState extends State<OptionWidget> {
         }
 
         if (mounted) {
-<<<<<<< HEAD
           await provider.fetchOrdersData(OrderStatus.draft,
               checkDate: filterNeeded);
-=======
-          await provider.fetchOrdersData(OrderStatus.draft, checkDate: false);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
           Navigator.of(context, rootNavigator: true).pop();
           _showOrderTypeDialog(
             context,
@@ -1336,14 +1282,10 @@ class _OptionWidgetState extends State<OptionWidget> {
             productsController,
             customerOrderController,
             homeController,
-<<<<<<< HEAD
             offlineDraftDetails: filterNeeded
                 ? _getFilteredOfflineDrafts(freshOfflineDraftDetails, provider)
                 : freshOfflineDraftDetails,
             filterNeeded: filterNeeded,
-=======
-            offlineDraftDetails: freshOfflineDraftDetails,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
           );
         }
       };
@@ -1381,17 +1323,11 @@ class _OptionWidgetState extends State<OptionWidget> {
                 future: provider.orderResponse,
                 builder: (context, snapshot) {
                   final orders = snapshot.data?.data ?? [];
-<<<<<<< HEAD
                   final filteredOrders = isDraft
                       ? orders
                       : orders.where((order) {
                           return order.orderStatus == selectedOrderStatus.type;
                         }).toList();
-=======
-                  final filteredOrders = orders.where((order) {
-                    return order.orderStatus == selectedOrderStatus.type;
-                  }).toList();
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                   final double serverTotal = filteredOrders.fold<double>(
                     0.0,
@@ -1974,10 +1910,7 @@ class _OptionWidgetState extends State<OptionWidget> {
       customerOrderController,
       homeController,
       offlineDraftDetails: offlineDraftDetails,
-<<<<<<< HEAD
       filterNeeded: filterNeeded,
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     );
   }
 }

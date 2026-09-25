@@ -25,10 +25,7 @@ class _InvoicePreviewState extends State<InvoicePreview> {
   String htmlContent = "";
   bool isLoading = true;
   bool isSendingMail = false;
-<<<<<<< HEAD
   InAppWebViewController? webViewController;
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
   @override
   void initState() {
@@ -36,7 +33,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
     loadInvoice();
   }
 
-<<<<<<< HEAD
   Future<void> _printInvoice() async {
     final controller = webViewController;
     if (controller == null) return;
@@ -90,8 +86,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
     await controller.printCurrentPage();
   }
 
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   Future<void> loadInvoice() async {
     final request = {
       'order_id': widget.orderId,
@@ -180,7 +174,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                             : CircularProgressIndicator(color: Colors.green),
                       ),
                       nkSmallSizeBox(),
-<<<<<<< HEAD
                       GestureDetector(
                         onTap: _printInvoice,
                         child: Container(
@@ -196,8 +189,6 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                         ),
                       ),
                       nkSmallSizeBox(),
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                       const Spacer(),
                       dialogCloseButton1(context, red),
                     ],
@@ -217,12 +208,9 @@ class _InvoicePreviewState extends State<InvoicePreview> {
                           horizontalScrollbarTrackColor: Colors.grey.shade300,
                           scrollBarStyle:
                               ScrollBarStyle.SCROLLBARS_INSIDE_OVERLAY),
-<<<<<<< HEAD
                       onWebViewCreated: (controller) {
                         webViewController = controller;
                       },
-=======
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                     ),
                   ),
                 ),

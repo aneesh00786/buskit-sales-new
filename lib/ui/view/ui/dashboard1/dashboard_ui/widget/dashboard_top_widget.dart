@@ -184,13 +184,8 @@ class _DashboardTopWidgetState extends State<DashboardTopWidget> {
             customOrderStatusType: OrderStatus.preOrder,
             draftCount: data.orderCountList?.draftOrder ?? 0,
             orderCount: data.orderCountList?.totalOrder ?? 0,
-<<<<<<< HEAD
             preOrderCount: data.orderCountList?.preorderOrder ?? 0,
             eastimatesCount: data.orderCountList?.estimateOrder ?? 0,
-=======
-            preOrderCount: data.orderCountList?.preorderFilterOrder ?? 0,
-            eastimatesCount: data.orderCountList?.estimateFilterOrder ?? 0,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
             cancelledCount: data.orderCountList?.cancelOrder ?? 0,
             eastimatesFilterCount:
                 data.orderCountList?.estimateFilterOrder ?? 0,

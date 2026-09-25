@@ -29,10 +29,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
-<<<<<<< HEAD
-=======
-
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 class PromotionDetails extends StatefulWidget {
   final ProductsController controller;
 
@@ -56,7 +52,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         Get.find<CustomerAndOrderController>();
     ProductsController productController = Get.find<ProductsController>();
 
-<<<<<<< HEAD
     return Obx(() {
       final promo = widget.controller.selectedPromotion.value;
 
@@ -935,190 +930,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-=======
-    return Expanded(
-      child: Obx(() {
-        final promo = widget.controller.selectedPromotion.value;
-
-        if (promo == null) {
-          return const Center(
-            child: Text("Select a promotion to see details"),
-          );
-        }
-
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [primaryColor, Color(0xFF2D3748)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.local_offer_rounded,
-                          color: Colors.white, size: 18),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        promo.title ?? "Untitled".tr,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins_Regular',
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16),
-
-                      /// Description + status chips
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                (promo.description == null ||
-                                        promo.description!.isEmpty)
-                                    ? "No description".tr
-                                    : promo.description!,
-                                style: const TextStyle(
-                                  fontFamily: 'Poppins_Regular',
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF64748B),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            if (_isPromoOutOfStock(promo)) ...[
-                              const PromoStockStatusChip(),
-                              const SizedBox(width: 8), // Spacing between chips
-                            ],
-                            _buildStatus(promo),
-                          ],
-                        ),
-                      ),
-
-                      buildPromotionDetails(promo),
-                      // if (_isPromoOutOfStock(promo))
-                      //    Padding(
-                      //     padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                      //     child: Text(
-                      //       "OUT OF STOCK".tr,
-                      //       style: const TextStyle(
-                      //         color: Colors.red,
-                      //         fontSize: 16,
-                      //         fontWeight: FontWeight.bold,
-                      //       ),
-                      //     ),
-                      //   ),
-
-                      /// Type + Status pills
-                      _buildTypeAndStatus(promo),
-                      // _buildPromoCode(promo),
-
-                      /// Discount / Scope / Target
-                      _buildDiscountScopeTarget(promo),
-
-                      /// Expiry
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      if (promo.startDate != null) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 22.0),
-                          child: Text(
-                            "Started: ${NKDateUtils.commonDayFormat(NKDateUtils.formatStringUTCDateTime(promo.startDate.toString()))}",
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ],
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 22.0),
-                        child: Text(
-                          promo.endDate == null
-                              ? "Expiry: N/A".tr
-                              : 'Expiry:'.tr + ' ${NKDateUtils.commonDayFormat(NKDateUtils.formatStringUTCDateTime(promo.endDate.toString()))}',
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ),
-
-                      /// Add to cart button
-                      const SizedBox(height: 20),
-
-                      /// Bundle quantity selector for product_bundle promotions
-                      if (promo.promoType == "product_bundle") ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Builder(builder: (context) {
-                            // Create quantity notifier for bundle
-                            final ValueNotifier<int> bundleQty =
-                                ValueNotifier<int>(1);
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Bundle Price: ${formatAmount(promo.bundlePrice)}",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: primaryColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Quantity:",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                     Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
@@ -1132,23 +943,13 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             tooltip: 'Decrease',
                                             icon: const Icon(Icons.remove),
                                             onPressed: () {
-<<<<<<< HEAD
                                               if (qty.value > 1) {
                                                 qty.value = qty.value - 1;
-=======
-                                              if (bundleQty.value > 1) {
-                                                bundleQty.value =
-                                                    bundleQty.value - 1;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                               }
                                             },
                                           ),
                                           ValueListenableBuilder<int>(
-<<<<<<< HEAD
                                             valueListenable: qty,
-=======
-                                            valueListenable: bundleQty,
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                             builder: (context, value, _) =>
                                                 Padding(
                                               padding:
@@ -1157,15 +958,9 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                               child: Text(
                                                 '$value',
                                                 style: const TextStyle(
-<<<<<<< HEAD
                                                     fontSize: 18,
                                                     fontWeight:
                                                         FontWeight.w600),
-=======
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                               ),
                                             ),
                                           ),
@@ -1173,13 +968,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             tooltip: 'Increase',
                                             icon: const Icon(Icons.add),
                                             onPressed: () {
-<<<<<<< HEAD
                                               print('tapped increase button');
                                               qty.value = qty.value + 1;
-=======
-                                              bundleQty.value =
-                                                  bundleQty.value + 1;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                             },
                                           ),
                                         ],
@@ -1187,7 +977,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                     ),
                                   ],
                                 ),
-<<<<<<< HEAD
                               ],
                               const SizedBox(height: 10),
                               Align(
@@ -1353,188 +1142,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             true;
                                       }
 
-=======
-                                const SizedBox(height: 12),
-                                InkWell(
-                                  onTap: () async {
-                                    List<Map<String, dynamic>> itemsToCheck = [];
-                                    if (promo.bundleItems != null) {
-                                      for (final bundleItem in promo.bundleItems!) {
-                                        Product? promoProduct;
-                                        try { promoProduct = promo.products?.firstWhere((p) => p.id == bundleItem.variantId); } catch (e) {}
-                                        if (promoProduct?.variants?.isNotEmpty == true) {
-                                          final variant = promoProduct!.variants!.first;
-                                          itemsToCheck.add({
-                                            'name': variant.productName ?? 'Bundle Item',
-                                            'quantity': bundleQty.value * (bundleItem.quantity ?? 1),
-                                            'stock': (variant.stock as num?)?.toInt() ?? 0,
-                                          });
-                                        }
-                                      }
-                                    }
-                                    if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-                                    if ((customerAndOrderController
-                                            .customerId.value.isNotEmpty) ||
-                                        (productController.selectedCustomerName
-                                            .value.isNotEmpty)) {
-                                      final customerId =
-                                          customerAndOrderController
-                                                  .customerId.value.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : productController
-                                                  .selectedCustomerId.value;
-
-                                      // 1. Initialize total tax variable for the bundle
-                                      double totalBundleCatTax = 0.0;
-
-                                      // Initialize detailed bundle message
-                                      String bundleDetailsMsg =
-                                          "Bundle: ${promo.title}\n\n";
-
-                                      if (promo.bundleItems != null &&
-                                          promo.bundleItems!.isNotEmpty) {
-                                        bundleDetailsMsg += "Items included:\n";
-
-                                        for (final bundleItem
-                                            in promo.bundleItems!) {
-                                          // --- A. Find variant info for names/prices (from Promo Object) ---
-                                          Product? promoProduct;
-                                          try {
-                                            promoProduct =
-                                                promo.products?.firstWhere(
-                                              (p) =>
-                                                  p.id == bundleItem.variantId,
-                                            );
-                                          } catch (e) {
-                                            promoProduct = null;
-                                          }
-
-                                          // --- B. LOOKUP CAT_TAX FROM CONTROLLER (products list) ---
-                                          double itemCatTax = 0.0;
-
-                                          try {
-                                            // Use 'products' list from your controller
-                                            final productModelInstance = widget
-                                                .controller.products
-                                                .firstWhere(
-                                              (p) =>
-                                                  p.productId ==
-                                                  bundleItem.productId,
-                                              // Fallback to a dummy model with 0 tax if not found
-                                              orElse: () =>
-                                                  ProductModel(catTax: 0),
-                                            );
-
-                                            // Extract the tax safely
-                                            itemCatTax =
-                                                (productModelInstance.catTax ??
-                                                        0)
-                                                    .toDouble();
-                                          } catch (e) {
-                                            print(
-                                                "Error finding product model in controller list: $e");
-                                          }
-
-                                          // --- C. Calculate Totals & Build Message ---
-                                          if (promoProduct
-                                                  ?.variants?.isNotEmpty ==
-                                              true) {
-                                            final variant =
-                                                promoProduct!.variants!.first;
-                                            final unitPrice = double.tryParse(
-                                                    variant.sellPrice
-                                                            ?.toString() ??
-                                                        '0') ??
-                                                0;
-                                            final qty =
-                                                bundleItem.quantity ?? 1;
-                                            final totalPrice = unitPrice * qty;
-
-                                            // Add to total bundle tax: (Item Tax * Quantity)
-                                            totalBundleCatTax +=
-                                                (itemCatTax * qty);
-
-                                            // Append details to message string
-                                            bundleDetailsMsg +=
-                                                "• ${variant.productName ?? 'Unknown'} (${variant.variationName ?? ''})\n";
-                                            bundleDetailsMsg +=
-                                                "  Qty: $qty ${bundleItem.unitType}\n";
-                                            bundleDetailsMsg +=
-                                                "  Price: ${formatAmount(unitPrice.toString())} each\n";
-                                            bundleDetailsMsg +=
-                                                "  Total: ${formatAmount(totalPrice.toString())}\n";
-                                            // Optional: You can remove this line from the user-facing message if you prefer
-                                            // bundleDetailsMsg += "  Cat Tax (est): $itemCatTax\n\n";
-                                          }
-                                        }
-                                        bundleDetailsMsg +=
-                                            "Bundle Price: ${formatAmount(promo.bundlePrice)}";
-                                      }
-
-                                      // --- 2. CREATE BUNDLE DETAIL ---
-                                      final bundleDetail = Detail(
-                                        variationId: "BUNDLE_${promo.id}",
-                                        productId: "BUNDLE_${promo.id}",
-                                        variationName: promo.title ?? "Bundle",
-                                        unitType: "bundle",
-                                        price: promo.bundlePrice?.toString() ??
-                                            "0",
-                                        sellPrice:
-                                            promo.bundlePrice?.toString() ??
-                                                "0",
-                                        tax:
-                                            totalBundleCatTax, // Assign the calculated total tax here
-                                        packtype: "bundle",
-                                        pieces: 1,
-                                        stock: 999,
-                                        lowstock: 0,
-                                        fullstock: 999,
-                                        imageUrl:
-                                            promo.products?.isNotEmpty == true
-                                                ? promo.products![0].variants
-                                                            ?.isNotEmpty ==
-                                                        true
-                                                    ? promo.products![0]
-                                                        .variants![0].imageUrl
-                                                    : null
-                                                : null,
-                                        productName: promo.title ?? "Bundle",
-                                      );
-
-                                      const catId = 0; // Special ID for bundles
-
-                                      print(
-                                          'Total Calculated Bundle Tax: $totalBundleCatTax');
-
-                                      // --- 3. ADD TO CART ---
-                                      await CartDatabaseManager()
-                                          .addToCartPromo(
-                                        customerId: customerId,
-                                        localCount: bundleQty.value,
-                                        detail: bundleDetail,
-                                        isPack: true,
-                                        productName: promo.title ?? "Bundle",
-                                        inclTax: "0",
-                                        isChcked: true,
-                                        catId: catId,
-                                        promoCode: promo.promoCode,
-                                        promoMsg: bundleDetailsMsg,
-                                        catTax:
-                                            totalBundleCatTax, // Pass the calculated value to your DB manager
-                                      );
-                                   
-
-                                      // --- 4. SUCCESS FEEDBACK ---
-                                      showCustomToastDisplay(
-                                        context,
-                                        "Bundle added to cart",
-                                        Colors.green.shade800,
-                                        Icons.check,
-                                      );
-
-                                      // Update cart counts and close
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       WidgetsBinding.instance
                                           .addPostFrameCallback((_) {
                                         final cartProvider =
@@ -1546,7 +1153,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         cartProvider
                                             .getCartItemCounts(customerId);
                                       });
-<<<<<<< HEAD
                                     }
 
                                     // --- FLAT DISCOUNT promos (cart-level fixed amount) ---
@@ -1562,579 +1168,12 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         showCustomToastDisplay(
                                           context,
                                           "No variants found for this promotion",
-=======
-
-                                      Navigator.pop(context);
-                                    }
-                                  },
-                                  // onTap: () async {
-                                  //   if ((customerAndOrderController
-                                  //           .customerId.value.isNotEmpty) ||
-                                  //       (productController.selectedCustomerName
-                                  //           .value.isNotEmpty)) {
-                                  //     final customerId =
-                                  //         customerAndOrderController
-                                  //                 .customerId.value.isNotEmpty
-                                  //             ? customerAndOrderController
-                                  //                 .customerId.value
-                                  //             : productController
-                                  //                 .selectedCustomerId.value;
-
-                                  //     // Create a special bundle detail with bundle price
-                                  //     final bundleDetail = Detail(
-                                  //       variationId:
-                                  //           "BUNDLE_${promo.id}", // Special bundle ID
-                                  //       productId: "BUNDLE_${promo.id}",
-                                  //       variationName: promo.title ?? "Bundle",
-                                  //       unitType: "bundle",
-                                  //       price: promo.bundlePrice?.toString() ??
-                                  //           "0",
-                                  //       sellPrice:
-                                  //           promo.bundlePrice?.toString() ??
-                                  //               "0",
-                                  //       tax: 0, // Bundle tax handled separately
-                                  //       packtype: "bundle",
-                                  //       pieces: 1,
-                                  //       stock: 999, // High stock for bundles
-                                  //       lowstock: 0,
-                                  //       fullstock: 999,
-                                  //       imageUrl:
-                                  //           promo.products?.isNotEmpty == true
-                                  //               ? promo.products![0].variants
-                                  //                           ?.isNotEmpty ==
-                                  //                       true
-                                  //                   ? promo.products![0]
-                                  //                       .variants![0].imageUrl
-                                  //                   : null
-                                  //               : null,
-                                  //       productName: promo.title ?? "Bundle",
-                                  //     );
-
-                                  //     const catId =
-                                  //         0; // Special category for bundles
-
-                                  //     // Create detailed bundle message with all items
-                                  //     String bundleDetailsMsg =
-                                  //         "Bundle: ${promo.title}\n\n";
-                                  //     if (promo.bundleItems != null &&
-                                  //         promo.bundleItems!.isNotEmpty) {
-                                  //       bundleDetailsMsg += "Items included:\n";
-                                  //       for (final bundleItem
-                                  //           in promo.bundleItems!) {
-                                  //         // Find the corresponding product variant
-                                  //         Product? product;
-                                  //         try {
-                                  //           product =
-                                  //               promo.products?.firstWhere(
-                                  //             (p) =>
-                                  //                 p.id == bundleItem.variantId,
-                                  //           );
-                                  //         } catch (e) {
-                                  //           product = null;
-                                  //         }
-
-                                  //         if (product?.variants?.isNotEmpty ==
-                                  //             true) {
-                                  //           final variant =
-                                  //               product!.variants!.first;
-                                  //           final unitPrice = double.tryParse(
-                                  //                   variant.sellPrice
-                                  //                           ?.toString() ??
-                                  //                       '0') ??
-                                  //               0;
-                                  //           final totalPrice = unitPrice *
-                                  //               (bundleItem.quantity ?? 1);
-
-                                  //           bundleDetailsMsg +=
-                                  //               "• ${variant.productName ?? 'Unknown'} (${variant.variationName ?? ''})\n";
-                                  //           bundleDetailsMsg +=
-                                  //               "  Qty: ${bundleItem.quantity} ${bundleItem.unitType}\n";
-                                  //           bundleDetailsMsg +=
-                                  //               "  Price: ${formatAmount(unitPrice.toString())} each\n";
-                                  //           bundleDetailsMsg +=
-                                  //               "  Total: ${formatAmount(totalPrice.toString())}\n";
-                                  //           bundleDetailsMsg +=
-                                  //               "  Variant Id: ${variant.id}\n\n";
-                                  //         }
-                                  //       }
-                                  //       bundleDetailsMsg +=
-                                  //           "Bundle Price: ${formatAmount(promo.bundlePrice)}";
-                                  //     }
-
-                                  //     await CartDatabaseManager()
-                                  //         .addToCartPromo(
-                                  //       customerId: customerId,
-                                  //       localCount: bundleQty.value,
-                                  //       detail: bundleDetail,
-                                  //       isPack: true,
-                                  //       productName: promo.title ?? "Bundle",
-                                  //       inclTax: "0",
-                                  //       isChcked: true,
-                                  //       catId: catId,
-                                  //       promoCode: promo.promoCode,
-                                  //       promoMsg: bundleDetailsMsg,
-                                  //     );
-
-                                  //     productController.isCartModified.value =
-                                  //         true;
-
-                                  //     WidgetsBinding.instance
-                                  //         .addPostFrameCallback((_) {
-                                  //       final cartProvider =
-                                  //           Provider.of<CustomersProvider>(
-                                  //               context,
-                                  //               listen: false);
-                                  //       cartProvider
-                                  //           .updateCartCount(customerId);
-                                  //       cartProvider
-                                  //           .getCartItemCounts(customerId);
-                                  //     });
-
-                                  //     showCustomToastDisplay(
-                                  //       context,
-                                  //       "Bundle added to cart",
-                                  //       Colors.green.shade800,
-                                  //       Icons.check,
-                                  //     );
-                                  //   } else {
-                                  //     showDialog(
-                                  //       barrierDismissible: false,
-                                  //       context: context,
-                                  //       builder: (context) {
-                                  //         return AlertDialog(
-                                  //           actions: [
-                                  //             const SizedBox(height: 20),
-                                  //             const Center(
-                                  //                 child: Icon(
-                                  //                     Icons
-                                  //                         .warning_amber_outlined,
-                                  //                     size: 50,
-                                  //                     color: Colors.orange)),
-                                  //             const SizedBox(height: 20),
-                                  //             Center(
-                                  //                 child: CustomText(
-                                  //                     content:
-                                  //                         "Please Select a Customer",
-                                  //                     fontSize: 18)),
-                                  //             TextButton(
-                                  //               onPressed: () =>
-                                  //                   Navigator.pop(context),
-                                  //               child: CustomText(
-                                  //                   content: "Ok",
-                                  //                   color: primaryColor),
-                                  //             ),
-                                  //           ],
-                                  //         );
-                                  //       },
-                                  //     );
-                                  //   }
-                                  // },
-                                  child: Container(
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: primaryColor,
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        "Add Bundle to Cart",
-                                        style: TextStyle(
-                                          color: white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                        ),
-                      ],
-
-                      if (promo.productScope == "products") ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Builder(builder: (context) {
-                            // Flattened variants for total calculation
-                            final List<dynamic> allVariantsStatic = promo
-                                    .products
-                                    ?.expand((p) => p.variants ?? [])
-                                    .toList() ??
-                                [];
-
-                            // If multiple products, show product selection dialog
-                            if (allVariantsStatic.length > 1) {
-                              return InkWell(
-                                onTap: () async {
-                                  if ((customerAndOrderController
-                                          .customerId.value.isNotEmpty) ||
-                                      (productController.selectedCustomerName
-                                          .value.isNotEmpty)) {
-                                    _showMultiProductSelectionDialog(
-                                      context,
-                                      promo,
-                                      allVariantsStatic,
-                                    );
-                                  } else {
-                                    showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          actions: [
-                                            const SizedBox(height: 20),
-                                            const Center(
-                                                child: Icon(
-                                                    Icons
-                                                        .warning_amber_outlined,
-                                                    size: 50,
-                                                    color: Colors.orange)),
-                                            const SizedBox(height: 20),
-                                            Center(
-                                                child: CustomText(
-                                                    content:
-                                                        "Please Select a Customer",
-                                                    fontSize: 18)),
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                              child: CustomText(
-                                                  content: "Ok",
-                                                  color: primaryColor),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: primaryColor,
-                                  ),
-                                  child:  Center(
-                                    child: Text(
-                                      "Select Products & Quantities".tr,
-                                      style: const TextStyle(
-                                        color: white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-
-                            // Single product - show quantity selector or tier dropdown for tiered_discount
-                            final ValueNotifier<int> qty =
-                                ValueNotifier<int>(1);
-                            final ValueNotifier<Tier?> selectedTier =
-                                ValueNotifier<Tier?>(null);
-
-                            double? parseAmount(String? s) {
-                              if (s == null || s.isEmpty) return null;
-                              final cleaned =
-                                  s.replaceAll(RegExp(r'[^0-9\.]'), '');
-                              return double.tryParse(cleaned);
-                            }
-
-                            Future<bool> validateMinOrderBeforeAdd(
-                                List<dynamic> allVariants) async {
-                              final double? minOrder =
-                                  parseAmount(promo.minOrderValue?.toString());
-                              if (minOrder == null) return true;
-
-                              for (final v in allVariants) {
-                                final double unit = double.tryParse(
-                                        (v.sellPrice ?? '0').toString()) ??
-                                    0;
-                                final int pcs = (v.pieces ?? 1).toInt();
-                                final double itemTotal =
-                                    (unit * pcs) * (qty.value);
-
-                                // Check if this specific item meets the minimum
-                                if (itemTotal < minOrder) {
-                                  await showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        actions: [
-                                          const SizedBox(height: 20),
-                                          const Center(
-                                              child: Icon(
-                                                  Icons.warning_amber_outlined,
-                                                  size: 50,
-                                                  color: Colors.orange)),
-                                          const SizedBox(height: 20),
-                                          Center(
-                                              child: CustomText(
-                                                  content:
-                                                      "Minimum order for ${v.productName} is ${formatAmount(promo.minOrderValue)}",
-                                                  fontSize: 18)),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: CustomText(
-                                                content: "Ok",
-                                                color: primaryColor),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                  return false;
-                                }
-                              }
-                              return true;
-                            }
-
-                            // Future<bool> validateMinOrderBeforeAdd(
-                            //     List<dynamic> allVariants) async {
-                            //   final double? minOrder =
-                            //       parseAmount(promo.minOrderValue?.toString());
-                            //   if (minOrder == null) return true;
-                            //   double total = 0;
-                            //   for (final v in allVariants) {
-                            //     // Since addToCart uses isPack: true, use unit * pieces
-                            //     final double unit = double.tryParse(
-                            //             (v.sellPrice ?? '0').toString()) ??
-                            //         0;
-                            //     final int pcs = (v.pieces ?? 1).toInt();
-                            //     total += (unit * pcs) * (qty.value);
-                            //   }
-                            //   if (total < minOrder) {
-                            //     await showDialog(
-                            //       context: context,
-                            //       barrierDismissible: false,
-                            //       builder: (context) {
-                            //         return AlertDialog(
-                            //           actions: [
-                            //             const SizedBox(height: 20),
-                            //             const Center(
-                            //                 child: Icon(
-                            //                     Icons.warning_amber_outlined,
-                            //                     size: 50,
-                            //                     color: Colors.orange)),
-                            //             const SizedBox(height: 20),
-                            //             Center(
-                            //                 child: CustomText(
-                            //                     content:
-                            //                         "Minimum order is ${formatAmount(promo.minOrderValue)}",
-                            //                     fontSize: 18)),
-                            //             TextButton(
-                            //               onPressed: () =>
-                            //                   Navigator.pop(context),
-                            //               child: CustomText(
-                            //                   content: "Ok",
-                            //                   color: primaryColor),
-                            //             ),
-                            //           ],
-                            //         );
-                            //       },
-                            //     );
-                            //     return false;
-                            //   }
-                            //   return true;
-                            // }
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Total above quantity selector
-                                const SizedBox(height: 8),
-                                // Show tier dropdown for tiered_discount, quantity selector for others
-                                if (promo.promoType == "tiered_discount" &&
-                                    promo.tiers != null &&
-                                    promo.tiers!.isNotEmpty) ...[
-                                  // Tier dropdown for tiered_discount
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        width: 200,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                              color: Colors.grey.shade400),
-                                          color: Colors.white,
-                                        ),
-                                        child: ValueListenableBuilder<Tier?>(
-                                          valueListenable: selectedTier,
-                                          builder: (context, value, _) =>
-                                              DropdownButtonHideUnderline(
-                                            child: DropdownButton<Tier>(
-                                              value: value,
-                                              hint:  Text('Select Tier'.tr),
-                                              isExpanded: true,
-                                              items:
-                                                  promo.tiers!.map((Tier tier) {
-                                                final requiredQty =
-                                                    (tier.buyQuantity as num?)
-                                                            ?.toInt() ??
-                                                        0;
-                                                final qtyType =
-                                                    tier.buyQuantityType ?? '';
-                                                final discountValue =
-                                                    double.tryParse(tier
-                                                                .discountValue
-                                                                ?.toString() ??
-                                                            '0') ??
-                                                        0;
-                                                return DropdownMenuItem<Tier>(
-                                                  value: tier,
-                                                  child: Text(
-                                                    '$requiredQty $qtyType - ${discountValue.toStringAsFixed(0)}% off',
-                                                    style: const TextStyle(
-                                                        fontSize: 14),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                              onChanged: (Tier? newValue) {
-                                                selectedTier.value = newValue;
-                                                if (newValue != null) {
-                                                  // Set quantity to the tier's required quantity
-                                                  qty.value =
-                                                      (newValue.buyQuantity
-                                                                  as num?)
-                                                              ?.toInt() ??
-                                                          1;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ] else ...[
-                                  // Quantity selector for non-tiered_discount promotions
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                              color: Colors.grey.shade400),
-                                          color: Colors.white,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            IconButton(
-                                              tooltip: 'Decrease',
-                                              icon: const Icon(Icons.remove),
-                                              onPressed: () {
-                                                if (qty.value > 1) {
-                                                  qty.value = qty.value - 1;
-                                                }
-                                              },
-                                            ),
-                                            ValueListenableBuilder<int>(
-                                              valueListenable: qty,
-                                              builder: (context, value, _) =>
-                                                  Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8.0),
-                                                child: Text(
-                                                  '$value',
-                                                  style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              tooltip: 'Increase',
-                                              icon: const Icon(Icons.add),
-                                              onPressed: () {
-                                                print('tapped increase button');
-                                                qty.value = qty.value + 1;
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                                const SizedBox(height: 10),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ValueListenableBuilder<int>(
-                                    valueListenable: qty,
-                                    builder: (context, value, _) {
-                                      double unitSum = 0;
-                                      for (final v in allVariantsStatic) {
-                                        final double unit = double.tryParse(
-                                                (v.sellPrice ?? '0')
-                                                    .toString()) ??
-                                            0;
-                                        final int pcs = (v.pieces ?? 1).toInt();
-                                        unitSum += unit * pcs;
-                                      }
-                                      final double total = unitSum * value;
-                                      return Text(
-                                        'Total:'.tr + ' ${formatAmount(total.toString())}',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                InkWell(
-                                  onTap: () async {
-                                    if ((customerAndOrderController
-                                            .customerId.value.isNotEmpty) ||
-                                        (productController.selectedCustomerName
-                                            .value.isNotEmpty)) {
-                                      //COMEBACK
-                                      // showCustomToastDisplay(
-                                      //     context,
-                                      //     "ADD TO CART - ${promo.promoType?.nkStringCleanAndCapitalize} [${promo.promoCode}]",
-                                      //     Colors.green.shade800,
-                                      //     Icons.check);
-                                      // _showPromoDialog(context, promo);
-
-                                      // ---------------------------------------------------------------------------------------------------
-
-                                      final customerId =
-                                          customerAndOrderController
-                                                  .customerId.value.isNotEmpty
-                                              ? customerAndOrderController
-                                                  .customerId.value
-                                              : productController
-                                                  .selectedCustomerId.value;
-
-                                      // Validate tier selection for tiered_discount promotions
-                                      if (promo.promoType ==
-                                              "tiered_discount" &&
-                                          selectedTier.value == null) {
-                                        showCustomToastDisplay(
-                                          context,
-                                          "Please select a tier discount 1",
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                           Colors.orange,
                                           Icons.warning,
                                         );
                                         return;
                                       }
 
-<<<<<<< HEAD
                                       // Validate min order with existing helper (based on selected qty)
                                       final allowed =
                                           await validateMinOrderBeforeAdd(
@@ -2218,87 +1257,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                         // --- C. Add to Cart with Tax ---
                                         await CartDatabaseManager().addToCartPromo(
-=======
-                                      // --- Percentage Discount based promos ---
-                                      if (promo.promoType ==
-                                              "percentage_discount" ||
-                                          promo.promoType == "happy_hours" ||
-                                          promo.promoType == "seasonal" ||
-                                          promo.promoType == "flash_sale" ||
-                                          promo.promoType == "limited_time") {
-                                        // Decide which discount field to use
-                                        final discountValue = promo.promoType ==
-                                                "percentage_discount"
-                                            ? double.tryParse(
-                                                promo.discountValue.toString())
-                                            : double.tryParse(promo
-                                                .discountPercentage
-                                                .toString());
-
-                                        // Flatten all product variants into one list
-                                        final allVariants = promo.products
-                                                ?.expand(
-                                                    (p) => p.variants ?? [])
-                                                .toList() ??
-                                            [];
-
-                                        if (allVariants.isEmpty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "No variants found for this promotion",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Validate min order with selected quantity
-                                        final allowed =
-                                            await validateMinOrderBeforeAdd(
-                                                allVariants);
-                                        if (!allowed) return;
-                                        List<Map<String, dynamic>> itemsToCheck = allVariants.map((v) => {
-                                          'name': v.productName ?? 'Product',
-                                          'quantity': qty.value,
-                                          'stock': (v.stock as num?)?.toInt() ?? 0,
-                                        }).toList();
-                                        if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-
-                                        for (final v in allVariants) {
-                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, "
-                                              "Name: ${v.productName}, SellPrice: ${v.sellPrice}, Tax: ${v.tax}");
-
-                                          // Map each variant into your Detail model
-                                          final detail = Detail(
-                                            variationId: v.id,
-                                            productId: v.productId,
-                                            variationName: v.variationName,
-                                            unitType: v.unitType,
-                                            price: (v.price ?? '0').toString(),
-                                            sellPrice:
-                                                (v.sellPrice ?? '0').toString(),
-                                            tax:
-                                                double.tryParse(v.tax ?? '0') ??
-                                                    0,
-                                            packtype: v.packtype,
-                                            pieces: v.pieces,
-                                            stock: v.stock,
-                                            lowstock: v.lowstock,
-                                            fullstock: v.fullstock,
-                                            imageUrl: v.imageUrl,
-                                            productName: v.productName,
-                                            discount: discountValue,
-                                          );
-
-                                          log("[PROMO] Mapped Detail → variationId: ${detail.variationId}, "
-                                              "productId: ${detail.productId}, name: ${detail.productName}");
-
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
-
-                                          await CartDatabaseManager()
-                                              .addToCartPromo(
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                             customerId: customerId,
                                             localCount: qty.value,
                                             detail: detail,
@@ -2308,7 +1266,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             isChcked: true,
                                             catId: catId,
                                             promoCode: promo.promoCode,
-<<<<<<< HEAD
                                             promoMsg:
                                                 "Flat discount will be applied on total",
                                             catTax: fetchedCatTax,
@@ -2418,77 +1375,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             final remoteProduct =
                                                 remoteProducts.firstWhere(
                                               (p) => p.productId == v.productId,
-=======
-                                            promoMsg: promo.discountText,
-                                          );
-                                         
-
-                                          productController
-                                              .isCartModified.value = true;
-                                        }
-
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          final cartProvider =
-                                              Provider.of<CustomersProvider>(
-                                                  context,
-                                                  listen: false);
-                                          cartProvider
-                                              .updateCartCount(customerId);
-                                          cartProvider
-                                              .getCartItemCounts(customerId);
-                                        });
-                                      }
-
-                                      // --- FLAT DISCOUNT promos (cart-level fixed amount) ---
-
-                                      if (promo.promoType == "flat_discount") {
-                                        // Flatten variants
-                                        final allVariants = promo.products
-                                                ?.expand(
-                                                    (p) => p.variants ?? [])
-                                                .toList() ??
-                                            [];
-
-                                        if (allVariants.isEmpty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "No variants found for this promotion",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Validate min order with existing helper (based on selected qty)
-                                        final allowed =
-                                            await validateMinOrderBeforeAdd(
-                                                allVariants);
-                                        if (!allowed) return;
-                                        List<Map<String, dynamic>> itemsToCheck = allVariants.map((v) => {
-                                          'name': v.productName ?? 'Product',
-                                          'quantity': qty.value,
-                                          'stock': (v.stock as num?)?.toInt() ?? 0,
-                                        }).toList();
-                                        if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-
-                                        // 1) Add products normally
-                                        for (final v in allVariants) {
-                                          // --- A. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-                                          // We search the loaded products list to find the ProductModel instance
-                                          double fetchedCatTax = 0.0;
-                                          try {
-                                            final productModelInstance = widget
-                                                .controller.products
-                                                .firstWhere(
-                                              (p) => p.productId == v.productId,
-                                              // Fallback to dummy model if not found
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                               orElse: () =>
                                                   ProductModel(catTax: 0),
                                             );
 
-<<<<<<< HEAD
                                             // 4. Update the tax
                                             fetchedCatTax =
                                                 (remoteProduct.catTax ?? 0)
@@ -3000,140 +1890,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         // --- A. LOOKUP CAT TAX FOR PAID ITEM ---
                                         double paidItemCatTax = 0.0;
                                         try {
-=======
-                                            fetchedCatTax =
-                                                (productModelInstance.catTax ??
-                                                        0)
-                                                    .toDouble();
-                                          } catch (e) {
-                                            print(
-                                                "[PROMO] Flat Discount - Error finding product model for ID ${v.productId}: $e");
-                                          }
-                                          final double flatAmount =
-                                              double.tryParse(promo
-                                                          .discountValue
-                                                          ?.toString() ??
-                                                      '0') ??
-                                                  0;
-                                          print(
-                                              'flat amount in details class:$flatAmount');
-                                          if (flatAmount > 0) {
-                                            productController
-                                                    .flatDiscountByCustomer[
-                                                customerId] = flatAmount;
-                                          }
-
-                                          // --- B. Create Detail Object ---
-                                          final detail = Detail(
-                                            variationId: v.id,
-                                            productId: v.productId,
-                                            variationName: v.variationName,
-                                            unitType: v.unitType,
-                                            price: (v.price ?? '0').toString(),
-                                            sellPrice:
-                                                (v.sellPrice ?? '0').toString(),
-                                            tax:
-                                                double.tryParse(v.tax ?? '0') ??
-                                                    0,
-                                            packtype: v.packtype,
-                                            pieces: v.pieces,
-                                            stock: v.stock,
-                                            lowstock: v.lowstock,
-                                            fullstock: v.fullstock,
-                                            imageUrl: v.imageUrl,
-                                            productName: v.productName,
-                                            // You may need to assign discount here if 'flat' logic requires per-item discount field
-                                          );
-
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
-
-                                          print(
-                                              'fetched cattax in flat discount: $fetchedCatTax');
-
-                                          // --- C. Add to Cart with Tax ---
-                                          await CartDatabaseManager()
-                                              .addToCartPromo(
-                                                  customerId: customerId,
-                                                  localCount: qty.value,
-                                                  detail: detail,
-                                                  isPack: true,
-                                                  productName:
-                                                      v.productName ?? '',
-                                                  inclTax: v.tax ?? '',
-                                                  isChcked: true,
-                                                  catId: catId,
-                                                  promoCode: promo.promoCode,
-                                                  promoMsg:
-                                                      "Flat discount will be applied on total",
-                                                  catTax: fetchedCatTax,
-                                                  flatDiscount: flatAmount);
-                                                     
-
-                                          productController
-                                              .isCartModified.value = true;
-                                        }
-
-                                        // 2) Store fixed flat discount per customer for cart total display
-
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          final cartProvider =
-                                              Provider.of<CustomersProvider>(
-                                                  context,
-                                                  listen: false);
-                                          cartProvider
-                                              .updateCartCount(customerId);
-                                          cartProvider
-                                              .getCartItemCounts(customerId);
-                                        });
-
-                                        showCustomToastDisplay(
-                                          context,
-                                          "Items added. Flat discount will be applied on total",
-                                          Colors.green.shade800,
-                                          Icons.check,
-                                        );
-                                      }
-
-                                      // --- Tiered Discount promos ---
-
-                                      if (promo.promoType ==
-                                          "tiered_discount") {
-                                        final allVariants = promo.products
-                                                ?.expand(
-                                                    (p) => p.variants ?? [])
-                                                .toList() ??
-                                            [];
-
-                                        if (allVariants.isEmpty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "No variants found for this promotion",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Validate min order with selected quantity
-                                        final allowed =
-                                            await validateMinOrderBeforeAdd(
-                                                allVariants);
-                                        if (!allowed) return;
-                                        List<Map<String, dynamic>> itemsToCheck = allVariants.map((v) => {
-                                          'name': v.productName ?? 'Product',
-                                          'quantity': qty.value,
-                                          'stock': (v.stock as num?)?.toInt() ?? 0,
-                                        }).toList();
-                                        if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-
-                                        // Iterate through all variants in the promotion
-                                        for (final v in allVariants) {
-                                          double fetchedCatTax = 0.0;
-
-                                          // A. Try finding in current loaded products (Fastest)
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                           final productModelInstance = widget
                                               .controller.products
                                               .firstWhere(
@@ -3141,7 +1897,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             orElse: () =>
                                                 ProductModel(catTax: 0),
                                           );
-<<<<<<< HEAD
                                           paidItemCatTax =
                                               (productModelInstance.catTax ?? 0)
                                                   .toDouble();
@@ -3268,691 +2023,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                       );
                                     }
 
-=======
-                                          fetchedCatTax =
-                                              (productModelInstance.catTax ?? 0)
-                                                  .toDouble();
-
-                                          // B. If not found or 0 (likely different category), FETCH FROM API
-                                          if (fetchedCatTax == 0) {
-                                            try {
-                                              // 1. Extract SubCategory ID from Product ID (e.g., C49SC7)
-                                              // Ensure extractSubCategoryId function is available in your file
-                                              final subCatId =
-                                                  extractSubCategoryId(
-                                                      v.productId.toString());
-                                              final companyId = SessionHelper
-                                                      .loginSavedData
-                                                      ?.company_id ??
-                                                  0;
-
-                                              print(
-                                                  "[PROMO] Product not in current list. Fetching from API for SCID: $subCatId");
-
-                                              // 2. Call your API to get the real product details
-                                              final remoteProducts =
-                                                  await ApiWorker()
-                                                      .getTempProduct(subCatId,
-                                                          companyid: companyId);
-
-                                              // 3. Find the specific product in the fetched list
-                                              final remoteProduct =
-                                                  remoteProducts.firstWhere(
-                                                (p) =>
-                                                    p.productId == v.productId,
-                                                orElse: () =>
-                                                    ProductModel(catTax: 0),
-                                              );
-
-                                              // 4. Update the tax
-                                              fetchedCatTax =
-                                                  (remoteProduct.catTax ?? 0)
-                                                      .toDouble();
-                                              print(
-                                                  "[PROMO] Fetched remote tax: $fetchedCatTax");
-                                            } catch (e) {
-                                              print(
-                                                  "[PROMO] Error fetching remote tax: $e");
-                                            }
-                                          }
-                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Tax Found: $fetchedCatTax");
-
-                                          // --- 2. Calculate Tiered Discount ---
-                                          double? tieredDiscount;
-                                          if (promo.promoType ==
-                                                  "tiered_discount" &&
-                                              selectedTier.value != null) {
-                                            // For tiered_discount, use the selected tier's discount
-                                            tieredDiscount = double.tryParse(
-                                                    selectedTier.value!
-                                                            .discountValue
-                                                            ?.toString() ??
-                                                        '0') ??
-                                                0;
-                                            print(
-                                                'tiered discount from details class:$tieredDiscount');
-                                          } else {
-                                            // For other promotions, calculate based on quantity
-                                            tieredDiscount =
-                                                _calculateTieredDiscount(
-                                                    promo, qty.value, true);
-                                          }
-
-                                          // --- 3. Extract Category ID & Customer Discounts ---
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
-                                          final discountBox = await Hive
-                                              .openBox<CustomerDiscountModel>(
-                                                  'discounts');
-
-                                          CustomerDiscountModel? discountData =
-                                              discountBox.values.firstWhere(
-                                            (item) =>
-                                                item.customerId == customerId,
-                                            orElse: () =>
-                                                CustomerDiscountModel(),
-                                          );
-
-                                          double userDiscountPercent = 0.0;
-
-                                          if (discountData.discounts != null &&
-                                              discountData
-                                                  .discounts!.isNotEmpty) {
-                                            final matchedDiscount = discountData
-                                                .discounts!
-                                                .firstWhere(
-                                              (d) {
-                                                final dCat = int.tryParse(
-                                                    d.categoriesId?.trim() ??
-                                                        "");
-                                                return dCat == catId ||
-                                                    dCat == 114;
-                                              },
-                                              orElse: () => DiscountModel(),
-                                            );
-
-                                            userDiscountPercent =
-                                                double.tryParse(matchedDiscount
-                                                            .discount
-                                                            ?.trim() ??
-                                                        "0") ??
-                                                    0.0;
-                                          }
-
-                                          // --- 4. Create Detail Object ---
-                                          final detail = Detail(
-                                            variationId: v.id,
-                                            productId: v.productId,
-                                            variationName: v.variationName,
-                                            unitType: v.unitType,
-                                            price: (v.price ?? '0').toString(),
-                                            sellPrice:
-                                                (v.sellPrice ?? '0').toString(),
-                                            tax:
-                                                double.tryParse(v.tax ?? '0') ??
-                                                    0,
-                                            packtype: v.packtype,
-                                            pieces: v.pieces,
-                                            stock: v.stock,
-                                            lowstock: v.lowstock,
-                                            fullstock: v.fullstock,
-                                            imageUrl: v.imageUrl,
-                                            productName: v.productName,
-                                            discount: userDiscountPercent,
-                                            inclTax: v.inclTax ?? '',
-                                          );
-
-                                          print(
-                                              'fetched cattax in the tiered discount: $fetchedCatTax');
-
-                                          // --- 5. PASS catTax TO FUNCTION ---
-                                          await CartDatabaseManager()
-                                              .addToCartPromo(
-                                            customerId: customerId,
-                                            localCount: qty.value,
-                                            detail: detail,
-                                            isPack: true,
-                                            productName: v.productName ?? '',
-                                            inclTax: detail.inclTax ?? '',
-                                            isChcked: true,
-                                            catId: catId,
-                                            promoCode: promo.promoCode,
-                                            promoMsg: promo.discountText,
-                                            CustomerDiscount:
-                                                detail.discount!.toDouble(),
-                                            tieredDiscount: tieredDiscount,
-                                            catTax: fetchedCatTax,
-                                          );
-                                        
-
-                                          productController
-                                              .isCartModified.value = true;
-                                        }
-
-                                        showCustomToastDisplay(
-                                          context,
-                                          "Tiered discount added to cart",
-                                          Colors.green.shade800,
-                                          Icons.check,
-                                        );
-
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          final cartProvider =
-                                              Provider.of<CustomersProvider>(
-                                                  context,
-                                                  listen: false);
-                                          cartProvider
-                                              .updateCartCount(customerId);
-                                          cartProvider
-                                              .getCartItemCounts(customerId);
-                                        });
-                                      }
-
-                                      // --- Free Item promos ---
-
-                                      if (promo.promoType == "free_gift" ||
-                                          promo.promoType == "free_sample") {
-                                        // Flatten variants
-                                        final allVariants = promo.products
-                                                ?.expand(
-                                                    (p) => p.variants ?? [])
-                                                .toList() ??
-                                            [];
-
-                                        if (allVariants.isEmpty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "No variants found for this promotion",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Validate min order with selected quantity
-                                        final allowed =
-                                            await validateMinOrderBeforeAdd(
-                                                allVariants);
-                                        if (!allowed) return;
-                                         List<Map<String, dynamic>> itemsToCheck = allVariants.map((v) => {
-                                          'name': v.productName ?? 'Product',
-                                          'quantity': qty.value,
-                                          'stock': (v.stock as num?)?.toInt() ?? 0,
-                                        }).toList();
-                                        if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-                                        for (final v in allVariants) {
-                                          log("[PROMO] Processing variant → ID: ${v.id}, ProductId: ${v.productId}, Name: ${v.productName}");
-
-                                          // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST ---
-                                          // Search the loaded products list to find the ProductModel instance
-                                          double fetchedCatTax = 0.0;
-                                          try {
-                                            final productModelInstance = widget
-                                                .controller.products
-                                                .firstWhere(
-                                              (p) => p.productId == v.productId,
-                                              // Fallback to dummy model if not found
-                                              orElse: () =>
-                                                  ProductModel(catTax: 0),
-                                            );
-
-                                            fetchedCatTax =
-                                                (productModelInstance.catTax ??
-                                                        0)
-                                                    .toDouble();
-                                          } catch (e) {
-                                            print(
-                                                "[PROMO] Free Gift - Error finding product model for ID ${v.productId}: $e");
-                                          }
-
-                                          // --- 2. Create Detail Object ---
-                                          final detail = Detail(
-                                            variationId: v.id,
-                                            productId: v.productId,
-                                            variationName: v.variationName,
-                                            unitType: v.unitType,
-                                            price: (v.price ?? '0').toString(),
-                                            sellPrice:
-                                                (v.sellPrice ?? '0').toString(),
-                                            tax:
-                                                double.tryParse(v.tax ?? '0') ??
-                                                    0,
-                                            packtype: v.packtype,
-                                            pieces: v.pieces,
-                                            stock: v.stock,
-                                            lowstock: v.lowstock,
-                                            fullstock: v.fullstock,
-                                            imageUrl: v.imageUrl,
-                                            productName: v.productName,
-                                          );
-
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
-
-                                          print(
-                                              'fetched cattax in free gift/sample: $fetchedCatTax');
-
-                                          // --- 3. Add to Cart with Tax ---
-                                          await CartDatabaseManager()
-                                              .addToCartPromo(
-                                            customerId: customerId,
-                                            localCount: qty.value,
-                                            detail: detail,
-                                            isPack: true,
-                                            productName: v.productName ?? '',
-                                            inclTax: v.tax ?? '',
-                                            isChcked: true,
-                                            catId: catId,
-                                            promoCode: promo.promoCode,
-                                            promoMsg: promo.discountText,
-                                            catTax:
-                                                fetchedCatTax, // <--- Assigning the value here
-                                          );
-                                           
-
-                                          productController
-                                              .isCartModified.value = true;
-                                        }
-
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          final cartProvider =
-                                              Provider.of<CustomersProvider>(
-                                                  context,
-                                                  listen: false);
-                                          cartProvider
-                                              .updateCartCount(customerId);
-                                          cartProvider
-                                              .getCartItemCounts(customerId);
-                                        });
-
-                                        showCustomToastDisplay(
-                                          context,
-                                          "Free items added to cart",
-                                          Colors.green.shade800,
-                                          Icons.check,
-                                        );
-                                      }
-
-                                      // --- BOGO promos ---
-
-                                      if (promo.promoType == "bogo") {
-                                        final allVariants = promo.products
-                                                ?.expand(
-                                                    (p) => p.variants ?? [])
-                                                .toList() ??
-                                            [];
-
-                                        if (allVariants.isEmpty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "No variants found for this promotion",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Validate min order using PAID quantity only
-                                        final allowed =
-                                            await validateMinOrderBeforeAdd(
-                                                allVariants);
-                                        if (!allowed) return;
-                                        List<Map<String, dynamic>> itemsToCheck = allVariants.map((v) => {
-                                          'name': v.productName ?? 'Product',
-                                          'quantity': qty.value * 2,
-                                          'stock': (v.stock as num?)?.toInt() ?? 0,
-                                        }).toList();
-                                        if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-
-                                        for (final v in allVariants) {
-                                          // --- 1. LOOKUP CAT TAX FROM CONTROLLER LIST (No Hive) ---
-                                          double fetchedCatTax = 0.0;
-                                          try {
-                                            final productModelInstance = widget
-                                                .controller.products
-                                                .firstWhere(
-                                              (p) => p.productId == v.productId,
-                                              // Fallback to dummy model if not found
-                                              orElse: () =>
-                                                  ProductModel(catTax: 0),
-                                            );
-
-                                            fetchedCatTax =
-                                                (productModelInstance.catTax ??
-                                                        0)
-                                                    .toDouble();
-
-                                            // OPTIONAL: You might want to add the API fallback here too,
-                                            // just like you did in the tiered_discount case, if the product isn't loaded!
-                                          } catch (e) {
-                                            print(
-                                                "[PROMO] BOGO - Error finding product model for ID ${v.productId}: $e");
-                                          }
-
-                                          // --- 2. Create Detail Object ---
-                                          final paidDetail = Detail(
-                                            variationId: v.id,
-                                            productId: v.productId,
-                                            variationName: v.variationName,
-                                            unitType: v.unitType,
-                                            price: (v.price ?? '0').toString(),
-                                            sellPrice:
-                                                (v.sellPrice ?? '0').toString(),
-                                            tax:
-                                                double.tryParse(v.tax ?? '0') ??
-                                                    0,
-                                            packtype: v.packtype,
-                                            pieces: v.pieces,
-                                            stock: v.stock,
-                                            lowstock: v.lowstock,
-                                            fullstock: v.fullstock,
-                                            imageUrl: v.imageUrl,
-                                            productName: v.productName,
-                                            // Default to 0 for customer discount unless you want BOGO to stack with user discounts
-                                            discount: 0.0,
-                                          );
-
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
-
-                                          print(
-                                              'fetched cattax in BOGO: $fetchedCatTax');
-
-                                          // --- 3. HARDCODE BOGO DISCOUNT ---
-                                          // BOGO equates to a 50% discount
-                                          const double bogoDiscountPercentage =
-                                              50.0;
-
-                                          // --- 4. Add items with Tax and 50% Discount ---
-                                          await CartDatabaseManager()
-                                              .addToCartPromo(
-                                            customerId: customerId,
-                                            localCount: qty.value * 2,
-                                            detail: paidDetail,
-                                            isPack: true,
-                                            productName: v.productName ?? '',
-                                            inclTax: v.tax ?? '',
-                                            isChcked: true,
-                                            catId: catId,
-                                            promoCode: promo.promoCode,
-                                            promoMsg: promo.discountText,
-                                            catTax: fetchedCatTax,
-                                            CustomerDiscount:
-                                                paidDetail.discount!.toDouble(),
-                                            bogoDiscount:
-                                                bogoDiscountPercentage, // Inject the 50% discount here
-                                          );
-                                           
-
-                                          productController
-                                              .isCartModified.value = true;
-                                        }
-
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          final cartProvider =
-                                              Provider.of<CustomersProvider>(
-                                                  context,
-                                                  listen: false);
-                                          cartProvider
-                                              .updateCartCount(customerId);
-                                          cartProvider
-                                              .getCartItemCounts(customerId);
-                                        });
-
-                                        showCustomToastDisplay(
-                                          context,
-                                          "BOGO items added to cart (50% Off)",
-                                          Colors.green.shade800,
-                                          Icons.check,
-                                        );
-                                      }
-
-                                      // --- BUY X GET Y promos ---
-
-                                      if (promo.promoType == "buy_x_get_y") {
-                                        // Extract deal config (assuming one primary deal)
-                                        final deals = promo.deals ?? [];
-                                        if (deals.isEmpty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "No deal configuration found for this promotion",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        final deal = deals.first;
-
-                                        final int buyQty =
-                                            (deal.buyQuantity ?? 0).toInt();
-                                        final int getQty =
-                                            (deal.getQuantity ?? 0).toInt();
-                                        final String buyQtyType =
-                                            (deal.buyQuantityType ?? '')
-                                                .toString()
-                                                .toLowerCase();
-                                        final String getQtyType =
-                                            (deal.getQuantityType ?? '')
-                                                .toString()
-                                                .toLowerCase();
-
-                                        if (buyQty <= 0 || getQty < 0) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            "Invalid deal quantities",
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Determine pack/unit based on type strings (e.g., 'carton' => pack)
-                                        bool isPackFromType(String t) {
-                                          return t == 'carton' ||
-                                              t == 'box' ||
-                                              t == 'pack';
-                                        }
-
-                                        final bool buyIsPack =
-                                            isPackFromType(buyQtyType);
-                                        final bool getIsPack =
-                                            isPackFromType(getQtyType);
-
-                                        // Collect paid variants from promo.products
-                                        final paidVariants = promo.products
-                                                ?.expand(
-                                                    (p) => p.variants ?? [])
-                                                .toList() ??
-                                            [];
-
-                                        // Validate min order against PAID items only
-                                        final allowed =
-                                            await validateMinOrderBeforeAdd(
-                                                paidVariants);
-                                        if (!allowed) return;
-                                        
-
-                                        // Enforce buy_x condition against selected quantity
-                                        if (qty.value < buyQty) {
-                                          showCustomToastDisplay(
-                                            context,
-                                            'Select at least $buyQty to qualify for GET items',
-                                            Colors.orange,
-                                            Icons.warning,
-                                          );
-                                          return;
-                                        }
-
-                                        // Compute quantities
-                                        final int paidToAdd = qty.value;
-                                        final int dealsApplicable =
-                                            qty.value ~/ buyQty;
-                                        final int freeToAdd =
-                                            dealsApplicable * getQty;
-
-                                        // Search in promo.getProducts for matching variant
-                                        String? getVariantId =
-                                            deal.getVariantId?.toString();
-                                        var getVariant;
-                                        final getProducts =
-                                            promo.getProducts ?? [];
-                                        for (final gp in getProducts) {
-                                          final vars = gp.variants ?? [];
-                                          for (final gv in vars) {
-                                            if (getVariantId == null ||
-                                                gv.id.toString() ==
-                                                    getVariantId) {
-                                              getVariant = gv;
-                                              getVariantId = gv.id.toString();
-                                              break;
-                                            }
-                                          }
-                                          if (getVariant != null) break;
-                                        }
-                                        for (final v in paidVariants) {
-                                          // --- A. LOOKUP CAT TAX FOR PAID ITEM ---
-                                          double paidItemCatTax = 0.0;
-                                          try {
-                                            final productModelInstance = widget
-                                                .controller.products
-                                                .firstWhere(
-                                              (p) => p.productId == v.productId,
-                                              orElse: () =>
-                                                  ProductModel(catTax: 0),
-                                            );
-                                            paidItemCatTax =
-                                                (productModelInstance.catTax ??
-                                                        0)
-                                                    .toDouble();
-                                          } catch (e) {
-                                            print(
-                                                "[PROMO] BuyXGetY (Paid) - Error finding product model: $e");
-                                          }
-
-                                          final paidDetail = Detail(
-                                            variationId: v.id,
-                                            productId: v.productId,
-                                            variationName: v.variationName,
-                                            unitType: v.unitType,
-                                            price: (v.price ?? '0').toString(),
-                                            sellPrice:
-                                                (v.sellPrice ?? '0').toString(),
-                                            tax:
-                                                double.tryParse(v.tax ?? '0') ??
-                                                    0,
-                                            packtype: v.packtype,
-                                            pieces: v.pieces,
-                                            stock: v.stock,
-                                            lowstock: v.lowstock,
-                                            fullstock: v.fullstock,
-                                            imageUrl: v.imageUrl,
-                                            productName: v.productName,
-                                          );
-
-                                          final catId = extractCategoryId(
-                                              v.productId.toString());
-
-                                          // --- COMBINE QUANTITIES ---
-                                          // Force the free quantity into the paid item's row, ignoring ID differences
-                                          int combinedQty =
-                                              paidToAdd + freeToAdd;
-                                              List<Map<String, dynamic>> itemsToCheck = [{
-                                            'name': v.productName ?? 'Product',
-                                            'quantity': combinedQty,
-                                            'stock': (v.stock as num?)?.toInt() ?? 0,
-                                          }];
-                                          if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
-// 1. Get the unit price of the free item
-                                          double freeUnitPrice = 0.0;
-                                          if (getVariant != null) {
-                                            freeUnitPrice = double.tryParse(
-                                                    (getVariant.sellPrice ??
-                                                            '0')
-                                                        .toString()) ??
-                                                0.0;
-                                          } else {
-                                            freeUnitPrice = double.tryParse(
-                                                    (v.sellPrice ?? '0')
-                                                        .toString()) ??
-                                                0.0;
-                                          }
-
-                                          // 2. This is the EXACT monetary discount you want to show (Unit Price * Free Items)
-                                          double targetDiscountAmount =
-                                              freeUnitPrice * freeToAdd;
-
-                                          // 3. Calculate how the cart table will calculate the total row value
-                                          double baseSellPrice =
-                                              double.tryParse(
-                                                      (v.sellPrice ?? '0')
-                                                          .toString()) ??
-                                                  0.0;
-                                          int pieces = (v.pieces ?? 1).toInt();
-                                          int qtyFactor =
-                                              buyIsPack ? pieces : 1;
-                                          double totalRowValue = baseSellPrice *
-                                              qtyFactor *
-                                              combinedQty;
-
-                                          // 4. Calculate the exact percentage needed to trick the cart into giving exactly the targetDiscountAmount
-                                          double dynamicDiscountPercentage =
-                                              0.0;
-                                          if (totalRowValue > 0) {
-                                            dynamicDiscountPercentage =
-                                                (targetDiscountAmount /
-                                                        totalRowValue) *
-                                                    100.0;
-                                          }
-
-                                          // Add to cart as a single combined row
-                                          await CartDatabaseManager()
-                                              .addToCartPromo(
-                                            customerId: customerId,
-                                            localCount: combinedQty,
-                                            detail: paidDetail,
-                                            isPack: buyIsPack,
-                                            productName: v.productName ?? '',
-                                            inclTax: v.tax ?? '',
-                                            isChcked: true,
-                                            catId: catId,
-                                            promoCode: promo.promoCode,
-                                            promoMsg:
-                                                "${promo.discountText} (Includes $freeToAdd Free)",
-                                            catTax: paidItemCatTax,
-                                            bogoDiscount:
-                                                dynamicDiscountPercentage,
-                                            // Tricks the cart into reducing the total price
-                                          );
-                                          
-                                          productController
-                                              .isCartModified.value = true;
-                                        }
-
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          final cartProvider =
-                                              Provider.of<CustomersProvider>(
-                                                  context,
-                                                  listen: false);
-                                          cartProvider
-                                              .updateCartCount(customerId);
-                                          cartProvider
-                                              .getCartItemCounts(customerId);
-                                        });
-
-                                        showCustomToastDisplay(
-                                          context,
-                                          "Buy X Get Y items added to cart",
-                                          Colors.green.shade800,
-                                          Icons.check,
-                                        );
-                                      }
-
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 //                                       if (promo.promoType == "buy_x_get_y") {
 //   // Extract deal config (assuming one primary deal)
 //   final deals = promo.deals ?? [];
@@ -4162,7 +2232,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 //   );
 // }
 
-<<<<<<< HEAD
                                     // ---------------------------------------------------------------------------------------------------
                                   } else {
                                     showDialog(
@@ -4211,62 +2280,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         color: white,
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
-=======
-                                      // ---------------------------------------------------------------------------------------------------
-                                    } else {
-                                      showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            actions: [
-                                              const SizedBox(height: 20),
-                                              const Center(
-                                                  child: Icon(
-                                                      Icons
-                                                          .warning_amber_outlined,
-                                                      size: 50,
-                                                      color: Colors.orange)),
-                                              const SizedBox(height: 20),
-                                              Center(
-                                                  child: CustomText(
-                                                      content:
-                                                          "Please Select a Customer",
-                                                      fontSize: 18)),
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: CustomText(
-                                                    content: "Ok",
-                                                    color: primaryColor),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: primaryColor,
-                                    ),
-                                    child:  Center(
-                                      child: Text(
-                                        "Add to Cart".tr,
-                                        style: const TextStyle(
-                                          color: white,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600,
-                                        ),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       ),
                                     ),
                                   ),
                                 ),
-<<<<<<< HEAD
                               ),
                             ],
                           );
@@ -4301,63 +2318,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                   // Call API with subcatIds
                                   CategoryModel categoryData = await ApiWorker()
                                       .getCategoryForPromo(subcatIds);
-=======
-                              ],
-                            );
-                          }),
-                        ),
-                      ],
-                      if (promo.productScope != "products" &&
-                          promo.promoType != "product_bundle") ...[
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: InkWell(
-                            onTap: () async {
-                              if ((customerAndOrderController
-                                      .customerId.value.isNotEmpty) ||
-                                  (productController
-                                      .selectedCustomerName.value.isNotEmpty)) {
-                                showCustomToastDisplay(
-                                    context,
-                                    "Show products - ${promo.promoType?.nkStringCleanAndCapitalize}",
-                                    Colors.green.shade800,
-                                    Icons.check);
-
-                                if (promo.productScope == "categories") {
-                                  if (promo.categories!.isNotEmpty) {
-                                    // Collect all subcategory IDs as List<String>
-                                    final List<String> subcatIds = promo
-                                        .categories!
-                                        .expand((category) =>
-                                            (category.subIds ?? [])
-                                                as Iterable<String>)
-                                        .toList();
-
-                                    // Call API with subcatIds
-                                    CategoryModel categoryData =
-                                        await ApiWorker()
-                                            .getCategoryForPromo(subcatIds);
-
-                                    _showProductSelectionDialog(
-                                      context,
-                                      promo,
-                                      categoryData,
-                                      promo.minOrderValue != null
-                                          ? formatAmount(promo.minOrderValue)
-                                          : null,
-                                    );
-                                  }
-                                }
-
-                                if (promo.productScope == "all") {
-                                  int companyId = SessionHelper
-                                          .loginSavedData?.company_id ??
-                                      0;
-
-                                  // Call API with subcatIds
-                                  CategoryModel categoryData = await ApiWorker()
-                                      .getCategory(companyid: companyId);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                   _showProductSelectionDialog(
                                     context,
@@ -4368,7 +2328,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         : null,
                                   );
                                 }
-<<<<<<< HEAD
                               }
 
                               if (promo.productScope == "all") {
@@ -4451,78 +2410,11 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                   color: white,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
-=======
-
-                                if (promo.productScope == "brands") {
-                                  var response = await ApiWorker()
-                                      .getProductByBrand(promo.brands ?? []);
-
-                                  _showProductSelectionByBrandDialog(
-                                    context,
-                                    promo,
-                                    response,
-                                    promo.brands?.join(', ') ?? '',
-                                    promo.minOrderValue != null
-                                        ? formatAmount(promo.minOrderValue)
-                                        : null,
-                                  );
-                                }
-
-                                // ---------------------------------------------------------------------------------------------------
-                              } else {
-                                showDialog(
-                                  barrierDismissible: false,
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      actions: [
-                                        const SizedBox(height: 20),
-                                        const Center(
-                                            child: Icon(
-                                                Icons.warning_amber_outlined,
-                                                size: 50,
-                                                color: Colors.orange)),
-                                        const SizedBox(height: 20),
-                                        Center(
-                                            child: CustomText(
-                                                content:
-                                                    "Please Select a Customer",
-                                                fontSize: 18)),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: CustomText(
-                                              content: "Ok",
-                                              color: primaryColor),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                            child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: primaryColor,
-                              ),
-                              child:  Center(
-                                child: Text(
-                                  "Select Products".tr,
-                                  style: const TextStyle(
-                                    color: white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                 ),
                               ),
                             ),
                           ),
                         ),
-<<<<<<< HEAD
                       ),
                     ]
                   ],
@@ -4533,18 +2425,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         ),
       );
     });
-=======
-                      ]
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
-    );
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   }
 
   void _showMultiProductSelectionDialog(
@@ -4577,13 +2457,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                   children: [
                     // Header
                     Container(
-<<<<<<< HEAD
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 12),
-=======
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [primaryColor, Color(0xFF2D3748)],
@@ -4731,12 +2606,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 variant.variationName ?? "-",
                                                 style: const TextStyle(
                                                   fontSize: 14,
-<<<<<<< HEAD
                                                   color:
                                                       const Color(0xFF0F172A),
-=======
-                                                  color: const Color(0xFF0F172A),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                                 ),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -4958,12 +2829,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                             children: [
                               Expanded(
                                 child: Text(
-<<<<<<< HEAD
                                   'Total Items'.tr +
                                       ': ${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
-=======
-                                  'Total Items'.tr + ': ${selectedItems.fold<int>(0, (sum, e) => sum + (e['quantity'] as int))}',
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -4977,12 +2844,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                             children: [
                               Expanded(
                                 child: Text(
-<<<<<<< HEAD
                                   'Total Amount'.tr +
                                       ': ${formatAmount(_computeTotalAmount(selectedItems))}',
-=======
-                                  'Total Amount'.tr + ': ${formatAmount(_computeTotalAmount(selectedItems))}',
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -5004,7 +2867,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 .customerId.value
                                             : productController
                                                 .selectedCustomerId.value;
-<<<<<<< HEAD
                                     List<Map<String, dynamic>> itemsToCheck =
                                         selectedItems.map((e) {
                                       final variant = e['variant'] as dynamic;
@@ -5020,18 +2882,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                     if (!await _checkStockAndShowPopup(
                                         context, itemsToCheck)) return;
-=======
-                                                List<Map<String, dynamic>> itemsToCheck = selectedItems.map((e) {
-                                      final variant = e['variant'] as dynamic;
-                                      return {
-                                        'name': variant.productName ?? 'Product',
-                                        'quantity': e['quantity'] as int,
-                                        'stock': (variant.stock as num?)?.toInt() ?? 0,
-                                      };
-                                    }).toList();
-                                    
-                                    if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                     // Special case: Flat discount (cart-level)
                                     if (promo.promoType == "flat_discount") {
@@ -5116,18 +2966,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         return true;
                                       }
 
-<<<<<<< HEAD
-=======
-                                    
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       final allowed =
                                           await validateMinOrderBeforeAdd(
                                               allVariants);
                                       if (!allowed) return;
-<<<<<<< HEAD
-=======
-                                      
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                       // 1) Add all promo variants to cart (no discount on each product directly)
                                       for (final e in selectedItems) {
@@ -5171,10 +3013,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                           promoMsg:
                                               "Flat discount will be applied on total",
                                         );
-<<<<<<< HEAD
-=======
-                                      
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                         productController.isCartModified.value =
                                             true;
@@ -5312,16 +3150,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         fetchedCatTax =
                                             (productModelInstance.catTax ?? 0)
                                                 .toDouble();
-<<<<<<< HEAD
                                         inclTaxValue =
                                             productModelInstance.inclTax;
                                         print(
                                             'inclusive tax value from product model: $inclTaxValue');
-=======
-                                        inclTaxValue = productModelInstance.inclTax;
-                                       print('inclusive tax value from product model: $inclTaxValue');        
-                                          
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       } catch (err) {
                                         print(
                                             "[PROMO] Error finding product model for tax lookup: $err");
@@ -5363,19 +3195,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                     .discountPercentage
                                                     .toString()),
                                       );
-<<<<<<< HEAD
-=======
-                                     
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                       final catId = extractCategoryId(
                                           variant.productId.toString());
 
-<<<<<<< HEAD
-=======
-                                 
-
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       // --- 2. Pass fetchedCatTax to the function ---
                                       await _addToCartWithPromoLogic(
                                         customerId: customerId,
@@ -5392,13 +3215,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         catTax:
                                             fetchedCatTax, // <--- Assigning the value here
                                       );
-<<<<<<< HEAD
                                     }
-=======
-                                     
-                                    }
-                                  
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                     WidgetsBinding.instance
                                         .addPostFrameCallback((_) {
@@ -5465,11 +3282,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
   }
 
   /// Helper function to handle addToCartPromo with proper promo type logic
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   Future<void> _addToCartWithPromoLogic({
     required String customerId,
     required int localCount,
@@ -5486,11 +3299,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     double? calculatedDiscount, // <--- 1. ADD THIS NEW PARAMETER
   }) async {
     // 2. USE THE CALCULATED DISCOUNT FIRST
-<<<<<<< HEAD
     double? discountValue = calculatedDiscount;
-=======
-    double? discountValue = calculatedDiscount; 
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     double? maxDiscountValue;
     bool isPercentageBasedDiscount = false;
 
@@ -5515,44 +3324,27 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         // Handle tiered discount - use selected tier if available, otherwise calculate
         if (selectedTier != null) {
           discountValue =
-<<<<<<< HEAD
               double.tryParse(selectedTier.discountValue?.toString() ?? '0') ??
                   0;
-=======
-              double.tryParse(selectedTier.discountValue?.toString() ?? '0') ?? 0;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         } else {
           discountValue = _calculateTieredDiscount(promo, localCount, isPack);
         }
       }
     } else {
-<<<<<<< HEAD
       if (promo.maxDiscount != null &&
           promo.maxDiscount.toString().isNotEmpty) {
-=======
-      
-      if (promo.maxDiscount != null && promo.maxDiscount.toString().isNotEmpty) {
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         maxDiscountValue = double.tryParse(promo.maxDiscount.toString());
         isPercentageBasedDiscount = true;
       }
     }
 
-<<<<<<< HEAD
-=======
-   
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     final detailWithDiscount = (discountValue != null && discountValue > 0)
         ? detail.copyWith(
             discount: discountValue,
             maxDiscount: isPercentageBasedDiscount ? maxDiscountValue : null,
           )
         : detail;
-<<<<<<< HEAD
     print('discount value being added to cart: $discountValue');
-=======
-  print('discount value being added to cart: $discountValue');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     await CartDatabaseManager().addToCartPromo(
         customerId: customerId,
         localCount: localCount,
@@ -5565,7 +3357,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         promoCode: promo.promoCode,
         promoMsg: promo.discountText,
         catTax: catTax,
-<<<<<<< HEAD
         bogoDiscount: discountValue);
 
     productController.isCartModified.value = true;
@@ -5575,20 +3366,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
   bool _isPromoOutOfStock(PromotionReponse promo) {
     if (promo.productScope == "products" ||
         promo.promoType == "product_bundle") {
-=======
-        bogoDiscount: discountValue
-       
-
-        );
-          
-
-
-    productController.isCartModified.value = true;
-  }
-  /// Checks if the overall promotion is completely out of stock
-  bool _isPromoOutOfStock(PromotionReponse promo) {
-    if (promo.productScope == "products" || promo.promoType == "product_bundle") {
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
       if (promo.products != null && promo.products!.isNotEmpty) {
         int totalStock = 0;
         for (var p in promo.products!) {
@@ -5605,19 +3382,14 @@ class _PromotionDetailsState extends State<PromotionDetails> {
   }
 
   /// Validates stock for cart items and shows a popup if validation fails
-<<<<<<< HEAD
   Future<bool> _checkStockAndShowPopup(
       BuildContext context, List<Map<String, dynamic>> itemsToCheck) async {
-=======
-  Future<bool> _checkStockAndShowPopup(BuildContext context, List<Map<String, dynamic>> itemsToCheck) async {
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     for (var item in itemsToCheck) {
       int qty = item['quantity'] ?? 0;
       int stock = item['stock'] ?? 0;
       String name = item['name'] ?? 'Product';
 
       if (stock <= 0) {
-<<<<<<< HEAD
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -5668,55 +3440,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
             ],
           ),
         );
-=======
-      await showDialog(
-  context: context,
-  builder: (context) => AlertDialog(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    backgroundColor: Colors.white,
-    surfaceTintColor: Colors.transparent, // Removes Android 12+ weird tint
-    title: Row(
-      children: [
-        const Icon(Icons.warning_amber_rounded, color: Colors.red),
-        const SizedBox(width: 10),
-        Text(
-          "Out of Stock".tr,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
-    content: Text(
-      "$name is currently out of stock.",
-      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
-    ),
-    actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
-    actions: [
-      TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.blue.shade50,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        onPressed: () => Navigator.pop(context),
-        child:  Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: Text(
-            "OK".tr,
-            style: TextStyle(
-              color: Color(0xFF4285F4),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         // await showDialog(
         //   context: context,
         //   builder: (context) => AlertDialog(
@@ -5732,7 +3455,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
         // );
         return false;
       } else if (qty > stock) {
-<<<<<<< HEAD
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -5785,56 +3507,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
             ],
           ),
         );
-=======
-        await 
-        showDialog(
-  context: context,
-  builder: (context) => AlertDialog(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    backgroundColor: Colors.white,
-    surfaceTintColor: Colors.transparent, // Removes Android 12+ weird tint
-    title: Row(
-      children: [
-        const Icon(Icons.warning_amber_rounded, color: Colors.orange), // Orange for insufficient
-        const SizedBox(width: 10),
-        Text(
-          "Insufficient Stock".tr,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
-    content: Text(
-      "Only $stock available for $name. You requested $qty.",
-      style: TextStyle(color: const Color(0xFF0F172A), fontSize: 16),
-    ),
-    actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
-    actions: [
-      TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.blue.shade50,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        onPressed: () => Navigator.pop(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          child: Text(
-            "OK".tr,
-            style: const TextStyle(
-              color: Color(0xFF4285F4), // Or you can change back to primaryColor here
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-);
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
         // showDialog(
         //   context: context,
         //   builder: (context) => AlertDialog(
@@ -6174,10 +3846,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     CategoryModel categoryData,
     String? minOrderAmount,
   ) {
-<<<<<<< HEAD
-=======
-   
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
     final double drawerWidth = 300.0;
     final ProductsController productController = Get.find<ProductsController>();
     final CustomerAndOrderController customerAndOrderController =
@@ -6490,12 +4158,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                   return Material(
                                     color: Colors.transparent,
                                     child: InkWell(
-<<<<<<< HEAD
                                       onTap: () => selectCategory(categoryName),
-=======
-                                      onTap: () =>
-                                          selectCategory(categoryName),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       child: Center(
                                         child: Container(
                                           width: 36,
@@ -6826,12 +4489,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             element['detail'] as Detail;
                                         final bool elementIsPack =
                                             element['isPack'] as bool;
-<<<<<<< HEAD
                                         return elementDetail.id == detail.id &&
-=======
-                                        return elementDetail.id ==
-                                                detail.id &&
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                             elementIsPack == isPack;
                                       });
 
@@ -6843,12 +4501,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                           // Prevents quantity from going to 0
                                           setStateDialog(() {
                                             selectedItems[indexToUpdate]
-<<<<<<< HEAD
                                                 ['quantity'] = currentQty - 1;
-=======
-                                                    ['quantity'] =
-                                                currentQty - 1;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                           });
                                           parentSetState(
                                               () {}); // Updates the badge counter in the background
@@ -6904,19 +4557,11 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 });
 
                                 if (indexToUpdate != -1) {
-<<<<<<< HEAD
                                   int currentQty = selectedItems[indexToUpdate]
                                       ['quantity'] as int;
                                   setStateDialog(() {
                                     selectedItems[indexToUpdate]['quantity'] =
                                         currentQty + 1;
-=======
-                                  int currentQty = selectedItems[
-                                      indexToUpdate]['quantity'] as int;
-                                  setStateDialog(() {
-                                    selectedItems[indexToUpdate]
-                                        ['quantity'] = currentQty + 1;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                   });
                                   parentSetState(
                                       () {}); // Updates the badge counter in the background
@@ -6985,12 +4630,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 backgroundColor: Colors.white,
                                 title: const Row(
                                   children: [
-<<<<<<< HEAD
                                     Icon(Icons.info_outline, color: Colors.red),
-=======
-                                    Icon(Icons.info_outline,
-                                        color: Colors.red),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                     SizedBox(width: 8),
                                     Text(
                                       'Remove Item',
@@ -7025,13 +4665,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(24)),
-<<<<<<< HEAD
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 12),
-=======
-                                            padding: const EdgeInsets
-                                                .symmetric(vertical: 12),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                           ),
                                           child: const Text(
                                             'Cancel',
@@ -7074,13 +4709,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(24)),
-<<<<<<< HEAD
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 12),
-=======
-                                            padding: const EdgeInsets
-                                                .symmetric(vertical: 12),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                           ),
                                           child: const Text(
                                             'Remove',
@@ -7112,10 +4742,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
     );
   }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
   void _showSelectedItemsDialog(
     BuildContext context,
     void Function(void Function()) parentSetState,
@@ -7161,15 +4787,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
-<<<<<<< HEAD
           final ScrollController horizontalTableController = ScrollController();
           final ScrollController verticalTableController = ScrollController();
-=======
-          final ScrollController horizontalTableController =
-              ScrollController();
-          final ScrollController verticalTableController =
-              ScrollController();
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
           return Dialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -7186,13 +4805,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                     .min, // Allows the dialog to shrink vertically if there is less data
                 children: [
                   Container(
-<<<<<<< HEAD
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
-=======
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [primaryColor, Color(0xFF2D3748)],
@@ -7269,12 +4883,8 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                 controller: horizontalTableController,
                                 scrollDirection: Axis.horizontal,
                                 child: SizedBox(
-<<<<<<< HEAD
                                   width:
                                       980, // Ensures every column has enough room to stay on a single line
-=======
-                                  width: 980, // Ensures every column has enough room to stay on a single line
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                   child: Scrollbar(
                                     controller: verticalTableController,
                                     thumbVisibility: true,
@@ -7296,10 +4906,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                             ),
                           ),
                         ],
-<<<<<<< HEAD
-=======
-
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                         const SizedBox(height: 8),
                         const Divider(color: Color(0xFFE2E8F0)),
                         const SizedBox(height: 8),
@@ -7381,7 +4987,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                   .customerId.value
                                               : productController
                                                   .selectedCustomerId.value;
-<<<<<<< HEAD
                                       List<Map<String, dynamic>> itemsToCheck =
                                           selectedItems.map((e) {
                                         final Detail detail =
@@ -7398,18 +5003,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                       if (!await _checkStockAndShowPopup(
                                           context, itemsToCheck)) return;
-=======
-                                                  List<Map<String, dynamic>> itemsToCheck = selectedItems.map((e) {
-                                        final Detail detail = e['detail'] as Detail;
-                                        return {
-                                          'name': detail.productName ?? 'Product',
-                                          'quantity': e['quantity'] as int,
-                                          'stock': (detail.stock as num?)?.toInt() ?? 0,
-                                        };
-                                      }).toList();
-                                      
-                                      if (!await _checkStockAndShowPopup(context, itemsToCheck)) return;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                       // ---------------- Flat Discount Promo ----------------
 
@@ -7495,10 +5088,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 fetchedCatTax, // <--- Assigning the value here
                                             // selectedTier: selectedTier.value,
                                           );
-<<<<<<< HEAD
-=======
-                                          
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                         }
 
                                         // Store cart-level flat discount
@@ -7539,7 +5128,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                       // ---------------- Normal Promo Flow ----------------
 
-<<<<<<< HEAD
                                       // Validate min order for each individual product
                                       if (minOrderValue != null) {
                                         for (final e in selectedItems) {
@@ -7549,17 +5137,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                               priceForItem(e) * qty;
                                           final Detail detail =
                                               e['detail'] as Detail;
-=======
-                                      
-                                      
-
-                                      // Validate min order for each individual product
-                                      if (minOrderValue != null) {
-                                        for (final e in selectedItems) {
-                                          final int qty = (e['quantity'] as int);
-                                          final double itemTotal = priceForItem(e) * qty;
-                                          final Detail detail = e['detail'] as Detail;
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                           if (itemTotal < minOrderValue) {
                                             showCustomToastDisplay(
@@ -7574,7 +5151,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                       }
 
                                       for (final e in selectedItems) {
-<<<<<<< HEAD
                                         final Detail detail =
                                             e['detail'] as Detail;
                                         final int qty = e['quantity'] as int;
@@ -7618,30 +5194,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         }
                                         print(
                                             'discount perecntage in the details screen:$discountPercent');
-=======
-                                        final Detail detail = e['detail'] as Detail;
-                                        final int qty = e['quantity'] as int;
-                                        final bool isPack = e['isPack'] as bool;
-                                        final String productName = (e['productName'] as String?) ?? '';
-                                        final String inclTax = (e['inclTax'] as String?) ?? '';
-                                        final int catId = (e['catId'] as int?) ?? 0;
-                                        final tier = (e['discount'] as num?) ?? 0;
-                                        print('discount in the addtocartwith promo logic on tap:$tier');
-                                        // --- 1. CALCULATE EXACT DISCOUNT PERCENTAGE ---
-                                        double discountPercent = 0.0;
-                                        if (promo.promoType == "percentage_discount" || 
-                                            promo.promoType == "happy_hours" || 
-                                            promo.promoType == "seasonal" || 
-                                            promo.promoType == "flash_sale" || 
-                                            promo.promoType == "limited_time") {
-                                          discountPercent = double.tryParse(promo.discountValue?.toString() ?? promo.discountPercentage?.toString() ?? '0') ?? 0.0;
-                                        } else if (promo.promoType == "tiered_discount" && e['tier'] != null) {
-                                          discountPercent = double.tryParse(e['tier']?.discountValue?.toString() ?? '0') ?? 0.0;
-                                        } else if (promo.promoType == "bogo") {
-                                          discountPercent = 50.0; 
-                                        }
-                                        print('discount perecntage in the details screen:$discountPercent');
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
 
                                         // Handle Maximum Discount Cap
                                         // double sellPrice = double.tryParse(detail.sellPrice?.toString() ?? '0') ?? 0.0;
@@ -7651,11 +5203,7 @@ class _PromotionDetailsState extends State<PromotionDetails> {
 
                                         // double maxDiscountValue = double.tryParse(promo.maxDiscount?.toString() ?? '0') ?? 0.0;
                                         // double uncappedDiscountAmount = totalBasePrice * (discountPercent / 100.0);
-<<<<<<< HEAD
 
-=======
-                                        
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                         // if (maxDiscountValue > 0 && uncappedDiscountAmount > maxDiscountValue) {
                                         //   // Recalculate percentage to enforce the exact max discount cap in the cart table
                                         //   if (totalBasePrice > 0) {
@@ -7666,7 +5214,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         // --- 2. LOOKUP CAT TAX FROM CONTROLLER LIST ---
                                         double fetchedCatTax = 0.0;
                                         try {
-<<<<<<< HEAD
                                           final productModelInstance = widget
                                               .controller.products
                                               .firstWhere(
@@ -7681,20 +5228,10 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                         } catch (err) {
                                           print(
                                               "[PROMO] Error finding product model for tax lookup: $err");
-=======
-                                          final productModelInstance = widget.controller.products.firstWhere(
-                                            (p) => p.productId == detail.productId,
-                                            orElse: () => ProductModel(catTax: 0),
-                                          );
-                                          fetchedCatTax = (productModelInstance.catTax ?? 0).toDouble();
-                                        } catch (err) {
-                                          print("[PROMO] Error finding product model for tax lookup: $err");
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                         }
 
                                         // --- 3. Pass values to Cart Logic ---
                                         await _addToCartWithPromoLogic(
-<<<<<<< HEAD
                                             customerId: customerId,
                                             localCount: qty,
                                             detail: detail,
@@ -7711,27 +5248,6 @@ class _PromotionDetailsState extends State<PromotionDetails> {
                                                 discountPercent);
                                       }
 
-=======
-                                          customerId: customerId,
-                                          localCount: qty,
-                                          detail: detail,
-                                          isPack: isPack,
-                                          productName: productName,
-                                          inclTax: inclTax,
-                                          catId: catId,
-                                          promo: promo,
-                                          productController: productController,
-                                          context: context,
-                                          catTax: fetchedCatTax,
-                                          calculatedDiscount: discountPercent
-                                         
-                                        );
-                                       
-                                      }
-
-
-                                  
->>>>>>> dd766a8bd0954c77d8a373f356044cfdb1f9e07a
                                       WidgetsBinding.instance
                                           .addPostFrameCallback((_) {
                                         final cartProvider =

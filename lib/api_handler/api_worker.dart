@@ -4890,4 +4890,58 @@ class ApiWorker with ApiConstants {
     }
     return null;
   }
+
+  Future<List<dynamic>> getPlacesAutocomplete(String query) async {
+    try {
+      final payload = jsonEncode([
+        "1",
+        null,
+        null,
+        ["street_address"],
+        ["AU"],
+        "en-US",
+        null,
+        null,
+        null,
+        null,
+        query
+      ]);
+      final response = await dio1.post(
+        "https://places.googleapis.com/\$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+        data: payload,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json+protobuf',
+            'X-Goog-Api-Key': ApiConstants.kGoogleApiKey,
+          },
+          responseType: ResponseType.plain,
+        ),
+      );
+      String rawResponse = response.data.toString();
+      if (rawResponse.startsWith(")]}'\n")) {
+        rawResponse = rawResponse.substring(5);
+      }
+      final decodedResponse = jsonDecode(rawResponse);
+      return decodedResponse as List<dynamic>;
+    } catch (e) {
+      print('Error in getPlacesAutocomplete: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
+    try {
+      final response = await dio1.get(
+        "${ApiConstants.gmapBaseUrl}place/details/json?place_id=$placeId&key=${ApiConstants.kGoogleApiKey}",
+      );
+      if (response.statusCode == 200) {
+        return response.data['result'];
+      }
+      return null;
+    } catch (e) {
+      print('Error in getPlaceDetails: $e');
+      return null;
+    }
+  }
 }
+

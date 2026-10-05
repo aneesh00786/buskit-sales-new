@@ -147,7 +147,7 @@ void main() async {
   await Get.putAsync(() => LocalizationService().init());
   final localizationService = Get.find<LocalizationService>();
   final subscriptionController = Get.put(SubscriptionController());
-  
+
   // Load subscription features asynchronously without halting startup
   if (SessionHelper.loginSavedData != null) {
     subscriptionController

@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously, empty_catches
 
 import 'package:busskit_salesexecutive/api_handler/api_constants.dart';
+import 'package:busskit_salesexecutive/ui/components/address_autocomplete_helper.dart';
 import 'package:busskit_salesexecutive/api_handler/api_service.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/ui/utills/enum/order_status_enum.dart';
@@ -848,6 +849,9 @@ class _TableeeState extends State<Tableee> {
           // NEW: Delivery Contact Number Controller
           TextEditingController deliveryContactNumController =
               TextEditingController();
+              
+          FocusNode addressFocusNode = FocusNode();
+          FocusNode deliveryAddressFocusNode = FocusNode();
 
           TextEditingController remarkController = TextEditingController();
 
@@ -935,10 +939,17 @@ class _TableeeState extends State<Tableee> {
                                           children: [
                                             Expanded(
                                               flex: 2,
-                                              child: buildInputField(
-                                                  addressController,
-                                                  'Address'.tr,
-                                                  Assets.icLocation),
+                                              child: AddressAutocompleteHelper.buildAddressAutocompleteField(
+                                                  controller: addressController,
+                                                  focusNode: addressFocusNode,
+                                                  hintText: 'Address'.tr,
+                                                  prefixIcon: filledIcon(Assets.icLocation),
+                                                  onSelected: (placeId, fullText) {
+                                                    AddressAutocompleteHelper.fillAddressDetails(
+                                                      placeId, fullText, addressController, townController, stateController, zipcodeController, countryController
+                                                    );
+                                                  }
+                                              ),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(
@@ -1098,10 +1109,17 @@ class _TableeeState extends State<Tableee> {
                                           children: [
                                             Expanded(
                                               flex: 2,
-                                              child: buildInputField(
-                                                  deliveryAddressController,
-                                                  'Address'.tr,
-                                                  Assets.icLocation),
+                                              child: AddressAutocompleteHelper.buildAddressAutocompleteField(
+                                                  controller: deliveryAddressController,
+                                                  focusNode: deliveryAddressFocusNode,
+                                                  hintText: 'Address'.tr,
+                                                  prefixIcon: filledIcon(Assets.icLocation),
+                                                  onSelected: (placeId, fullText) {
+                                                    AddressAutocompleteHelper.fillAddressDetails(
+                                                      placeId, fullText, deliveryAddressController, deliveryTownController, deliveryStateController, deliveryZipcodeController, deliveryCountryController
+                                                    );
+                                                  }
+                                              ),
                                             ),
                                             const SizedBox(width: 8.0),
                                             Expanded(

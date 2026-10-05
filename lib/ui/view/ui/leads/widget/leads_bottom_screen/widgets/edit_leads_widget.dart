@@ -7,6 +7,7 @@ import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/common/height_width.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
 import 'package:busskit_salesexecutive/generated/assets.dart';
+import 'package:busskit_salesexecutive/ui/components/address_autocomplete_helper.dart';
 import 'package:busskit_salesexecutive/ui/components/color/colors.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/common_hight_width.dart';
 import 'package:busskit_salesexecutive/ui/components/common_size/nk_general_size.dart';
@@ -57,6 +58,9 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
   late TextEditingController deliveryContactNumController;
   late String imageFile;
   File? leadsImage;
+  
+  FocusNode addressFocusNode = FocusNode();
+  FocusNode deliveryAddressFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -225,26 +229,16 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: TextField(
-                          controller: addressController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                              vertical: 16.0,
-                            ),
-                            labelText: 'Address'.tr,
-                            prefixIcon: filledIcon(Assets.icLocation),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
+                    AddressAutocompleteHelper.buildAddressAutocompleteField(
+                        controller: addressController,
+                        focusNode: addressFocusNode,
+                        hintText: 'Address'.tr,
+                        prefixIcon: filledIcon(Assets.icLocation),
+                        onSelected: (placeId, fullText) {
+                          AddressAutocompleteHelper.fillAddressDetails(
+                            placeId, fullText, addressController, townController, stateController, zipcodeController, TextEditingController()
+                          );
+                        }
                     ),
                     Row(
                       children: [
@@ -492,26 +486,16 @@ class _EditLeadsDialogState extends State<EditLeadsDialog> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: TextField(
-                          controller: deliveryAddressController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                              vertical: 16.0,
-                            ),
-                            labelText: 'Address'.tr,
-                            prefixIcon: filledIcon(Assets.icLocation),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
+                    AddressAutocompleteHelper.buildAddressAutocompleteField(
+                        controller: deliveryAddressController,
+                        focusNode: deliveryAddressFocusNode,
+                        hintText: 'Address'.tr,
+                        prefixIcon: filledIcon(Assets.icLocation),
+                        onSelected: (placeId, fullText) {
+                          AddressAutocompleteHelper.fillAddressDetails(
+                            placeId, fullText, deliveryAddressController, deliveryTownController, deliveryStateController, deliveryZipcodeController, TextEditingController()
+                          );
+                        }
                     ),
                     Row(
                       children: [

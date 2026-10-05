@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'dart:io';
+import 'package:busskit_salesexecutive/ui/components/address_autocomplete_helper.dart';
 import 'package:busskit_salesexecutive/api_handler/api_worker.dart';
 import 'package:busskit_salesexecutive/common/file_size_checker.dart';
 import 'package:busskit_salesexecutive/database/session/sessionhelper.dart';
@@ -34,6 +35,9 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
   bool sameAsAbove = false;
   bool isAddingLeads = false;
   TextEditingController deliveryContactNumController = TextEditingController();
+  
+  FocusNode addressFocusNode = FocusNode();
+  FocusNode deliveryAddressFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -145,10 +149,17 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                           .businessNameController,
                                       'Business Name'.tr,
                                       Assets.icBusiness),
-                                  buildInputField(
-                                      widget.leadsController.addressController,
-                                      'Address'.tr,
-                                      Assets.icLocation),
+                                  AddressAutocompleteHelper.buildAddressAutocompleteField(
+                                      controller: widget.leadsController.addressController,
+                                      focusNode: addressFocusNode,
+                                      hintText: 'Address'.tr,
+                                      prefixIcon: filledIcon(Assets.icLocation),
+                                      onSelected: (placeId, fullText) {
+                                        AddressAutocompleteHelper.fillAddressDetails(
+                                          placeId, fullText, widget.leadsController.addressController, widget.leadsController.townController, widget.leadsController.stateController, widget.leadsController.zipcodeController, TextEditingController()
+                                        );
+                                      }
+                                  ),
 
                                   // Town, State, Zipcode Row
                                   Row(
@@ -324,11 +335,17 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                     ),
                                   ),
 
-                                  buildInputField(
-                                      widget.leadsController
-                                          .deliveryAddressController,
-                                      'Address'.tr,
-                                      Assets.icLocation),
+                                  AddressAutocompleteHelper.buildAddressAutocompleteField(
+                                      controller: widget.leadsController.deliveryAddressController,
+                                      focusNode: deliveryAddressFocusNode,
+                                      hintText: 'Address'.tr,
+                                      prefixIcon: filledIcon(Assets.icLocation),
+                                      onSelected: (placeId, fullText) {
+                                        AddressAutocompleteHelper.fillAddressDetails(
+                                          placeId, fullText, widget.leadsController.deliveryAddressController, widget.leadsController.deliveryTownController, widget.leadsController.deliveryStateController, widget.leadsController.deliveryZipcodeController, TextEditingController()
+                                        );
+                                      }
+                                  ),
                                   Row(
                                     children: [
                                       Expanded(

@@ -36,20 +36,26 @@ class AddressAutocompleteHelper {
                 final List<Map<String, String>> options = [];
                 
                 if (results.isNotEmpty && results[0] != null && results[0].isNotEmpty) {
-                  final placesArray = results[0][0];
+                  final placesArray = results[0];
+                  print('API Results length: ${results.length}, placesArray length: ${placesArray?.length}');
                   if (placesArray != null) {
-                    for (var placeData in placesArray) {
+                    for (var outerPlaceData in placesArray) {
                       try {
-                        if (placeData != null && placeData.length > 2) {
-                          final placeId = placeData[1]?.toString() ?? "";
-                          final text = placeData[2][0]?.toString() ?? "";
-                          options.add({"placeId": placeId, "text": text});
+                        if (outerPlaceData != null && outerPlaceData.isNotEmpty) {
+                          var placeData = outerPlaceData[0];
+                          if (placeData != null && placeData.length > 2) {
+                            final placeId = placeData[1]?.toString() ?? "";
+                            final text = placeData[2][0]?.toString() ?? "";
+                            options.add({"placeId": placeId, "text": text});
+                            print('Parsed option: $text');
+                          }
                         }
                       } catch (e) {
                         print("Error parsing placeData: $e");
                       }
                     }
                   }
+                  print('Total options added: ${options.length}');
                 }
                 return options;
               },

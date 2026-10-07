@@ -4921,6 +4921,7 @@ class ApiWorker with ApiConstants {
       if (rawResponse.startsWith(")]}'\n")) {
         rawResponse = rawResponse.substring(5);
       }
+      print('Raw Places API Response: $rawResponse');
       final decodedResponse = jsonDecode(rawResponse);
       return decodedResponse as List<dynamic>;
     } catch (e) {
